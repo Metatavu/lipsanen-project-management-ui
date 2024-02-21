@@ -1,0 +1,19 @@
+{
+  "projects": "Projects",
+  "monitoring": "Monitoring",
+  "projectTemplates": "Project templates",
+  "users": "Users",
+  "logout": "Logout",
+  "search": "Search",
+  "status": "Status",
+  "newProject": "New project",
+  "type": "Type",
+  "estimatedStart": "Start estimate",
+  "estimatedEnd": "End estimate",
+  "projectStatuses": {
+    "ongoing": "Ongoing",
+    "tenderPreparation": "Tender preparation",
+    "tender": "Tender",
+    "done": "Done"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "projects": "Projektit",
+  "monitoring": "Seuranta",
+  "projectTemplates": "Projektimallit",
+  "users": "Käyttäjät",
+  "logout": "Kirjaudu ulos",
+  "search": "Haku",
+  "status": "Tila",
+  "newProject": "Uusi projekti",
+  "type": "Tyyppi",
+  "estimatedStart": "Aloitus arviolta",
+  "estimatedEnd": "Lopetus arviolta",
+  "projectStatuses": {
+    "ongoing": "Käynnissä",
+    "tenderPreparation": "Tarjousvalmistelu",
+    "tender": "Tarjous",
+    "done": "Valmis"
+  }
+}

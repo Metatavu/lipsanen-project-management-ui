@@ -1,0 +1,41 @@
+{
+  "name": "lipsanen-management",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20.11.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit --skipLibCheck && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "11.11.3",
+    "@emotion/styled": "11.11.0",
+    "@fontsource/roboto": "5.0.8",
+    "@mui/icons-material": "5.15.10",
+    "@mui/material": "5.15.10",
+    "@tanstack/react-router": "1.16.6",
+    "@tanstack/router-devtools": "1.16.6",
+    "@tanstack/router-vite-plugin": "1.16.5",
+    "i18next": "23.9.0",
+    "i18next-browser-languagedetector": "7.2.0",
+    "jotai": "2.6.4",
+    "keycloak-js": "23.0.6",
+    "material-ui-popup-state": "5.0.10",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "7.50.1",
+    "react-i18next": "14.0.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.5.3",
+    "@types/react": "18.2.55",
+    "@types/react-dom": "18.2.19",
+    "@vitejs/plugin-react-swc": "3.5.0",
+    "typescript": "5.2.2",
+    "vite": "5.1.0"
+  }
+}
