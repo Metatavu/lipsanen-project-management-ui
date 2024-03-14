@@ -15,5 +15,12 @@
     "tenderPreparation": "Tender preparation",
     "tender": "Tender",
     "done": "Done"
-  }
+  },
+  "showFilters": "Show filters",
+  "addNewProject": "Add new project",
+  "createNewProject": "Create new project",
+  "createNewProjectDescription": "Create a new project",
+  "projectName": "Project name",
+  "creation/ImportOfANewProject": "Creation / Import of a new project",
+  "enterProjectName": "Enter project name"
 }
