@@ -22,5 +22,6 @@
   "createNewProjectDescription": "Create a new project",
   "projectName": "Project name",
   "creation/ImportOfANewProject": "Creation / Import of a new project",
-  "enterProjectName": "Enter project name"
+  "enterProjectName": "Enter project name",
+  "ErrorCreatingNewProject": "Error while creating a new project"
 }

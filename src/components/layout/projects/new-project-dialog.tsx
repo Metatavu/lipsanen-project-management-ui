@@ -18,6 +18,9 @@ import { useTranslation } from "react-i18next";
 interface Props {
   open: boolean;
   handleClose: () => void;
+  newProjectName: string;
+  setNewProjectName: (name: string) => void;
+  createProject: () => Promise<void>;
 }
 
 /**
@@ -25,10 +28,9 @@ interface Props {
  *
  * @param props Props
  */
-const NewProjectDialog = ({ open, handleClose }: Props) => {
+const NewProjectDialog = ({ open, handleClose, newProjectName, setNewProjectName, createProject }: Props) => {
   const { t } = useTranslation();
   const [isDisabled, setIsDisabled] = useState(true);
-  const [newProjectName, setNewProjectName] = useState("");
 
   /**
    * Handles project name change event
@@ -72,7 +74,7 @@ const NewProjectDialog = ({ open, handleClose }: Props) => {
           />
           <Button
             fullWidth
-            onClick={() => {}}
+            onClick={createProject}
             sx={{ borderRadius: 25 }}
             variant="contained"
             color="primary"
