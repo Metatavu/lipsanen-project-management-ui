@@ -22,6 +22,7 @@
     "@tanstack/react-router": "1.16.6",
     "@tanstack/router-devtools": "1.16.6",
     "@tanstack/router-vite-plugin": "1.16.5",
+    "envalid": "8.0.0",
     "i18next": "23.9.0",
     "i18next-browser-languagedetector": "7.2.0",
     "jotai": "2.6.4",

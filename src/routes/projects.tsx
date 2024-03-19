@@ -6,9 +6,12 @@ import Box from "@mui/material/Box";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NewProjectDialog from "components/layout/projects/new-project-dialog";
 import ConstructionIcon from "@mui/icons-material/Construction";
+import { useApi } from "../hooks/use-api";
+import { useAtom } from "jotai";
+import { projectsAtom } from "../atoms/projects";
 
 // TODO: Update from generated files
 interface Project {
@@ -105,7 +108,21 @@ const mockData: Project[] = [
 
 const ProjectsIndexRoute = () => {
   const { t } = useTranslation();
+  const { projectsApi } = useApi();
+  const [projects, setProject] = useAtom(projectsAtom);
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
+
+  /**
+   * Get projects list
+   */
+  const getProjectsList = () => {
+    const projects = projectsApi.listProjects();
+    console.log(projects);
+  };
+
+  useEffect(() => {
+    getProjectsList();
+  }, [getProjectsList]);
 
   const columns: GridColDef[] = [
     {
