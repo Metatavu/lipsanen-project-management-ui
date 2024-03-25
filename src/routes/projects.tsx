@@ -31,7 +31,7 @@ const ProjectsIndexRoute = () => {
 
   useEffect(() => {
     getProjectsList();
-  }, [getProjectsList]);
+  }, []);
 
   /**
    * Creates a new project
