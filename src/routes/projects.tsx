@@ -13,6 +13,7 @@ import { useApi } from "../hooks/use-api";
 import { useAtom } from "jotai";
 import { projectsAtom } from "../atoms/projects";
 import { Project } from "generated/client";
+import LoaderWrapper from "components/generic/loader-wrapper";
 
 const ProjectsIndexRoute = () => {
   const { t } = useTranslation();
@@ -20,18 +21,25 @@ const ProjectsIndexRoute = () => {
   const [projects, setProjects] = useAtom(projectsAtom);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   /**
    * Get projects list
    */
   const getProjectsList = async () => {
-    const projects = await projectsApi.listProjects();
-    setProjects(projects);
+    setLoading(true);
+    try {
+      const projects = await projectsApi.listProjects();
+      setProjects(projects);
+    } catch (error) {
+      console.error(t("errorHandling.errorListingProjects"), error);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
     getProjectsList();
-  }, [getProjectsList]);
+  }, []);
 
   /**
    * Creates a new project
@@ -39,6 +47,7 @@ const ProjectsIndexRoute = () => {
   const createProject = async () => {
     if (!newProjectName) return;
 
+    setLoading(true);
     try {
       const newProject: Project = {
         name: newProjectName,
@@ -51,6 +60,7 @@ const ProjectsIndexRoute = () => {
     } catch (error) {
       console.error(t("errorHandling.errorCreatingNewProject"), error);
     }
+    setLoading(false);
   };
 
   const columns: GridColDef[] = [
@@ -152,7 +162,9 @@ const ProjectsIndexRoute = () => {
           </Button>
         </Box>
       </Toolbar>
-      <Card>{renderProjectsTable()}</Card>
+      <LoaderWrapper loading={loading}>
+        <Card>{renderProjectsTable()}</Card>
+      </LoaderWrapper>
     </div>
   );
 };
