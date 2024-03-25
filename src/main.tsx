@@ -9,7 +9,7 @@ import "@fontsource/roboto/700.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { theme } from "./theme";
 import "localization/i18n";
-import AuthenticationProvider from "components/auth/auth-provider";
+import AuthenticationProvider from "components/providers/authentication-provider";
 
 const router = createRouter({ routeTree });
 

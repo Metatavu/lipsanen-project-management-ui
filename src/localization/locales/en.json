@@ -23,5 +23,7 @@
   "projectName": "Project name",
   "creation/ImportOfANewProject": "Creation / Import of a new project",
   "enterProjectName": "Enter project name",
-  "ErrorCreatingNewProject": "Error while creating a new project"
+  "errorHandling": {
+    "ErrorCreatingNewProject": "Error while creating a new project"
+  }
 }

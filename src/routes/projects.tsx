@@ -49,8 +49,7 @@ const ProjectsIndexRoute = () => {
 
       setNewProjectDialogOpen(false);
     } catch (error) {
-      // TODO: Need Error handler
-      console.error(t("ErrorCreatingNewProject"), error);
+      console.error(t("errorHandling.ErrorCreatingNewProject"), error);
     }
   };
 
@@ -101,7 +100,7 @@ const ProjectsIndexRoute = () => {
   ];
 
   /**
-   * Render projects Datagrid table
+   * Renders projects Datagrid table
    */
   const renderProjectsTable = () => {
     return (
