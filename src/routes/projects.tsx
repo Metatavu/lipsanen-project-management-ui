@@ -49,7 +49,7 @@ const ProjectsIndexRoute = () => {
 
       setNewProjectDialogOpen(false);
     } catch (error) {
-      console.error(t("errorHandling.ErrorCreatingNewProject"), error);
+      console.error(t("errorHandling.errorCreatingNewProject"), error);
     }
   };
 

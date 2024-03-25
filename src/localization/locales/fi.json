@@ -24,6 +24,6 @@
   "creation/ImportOfANewProject": "Uuden projektin luonti / tuonti",
   "enterProjectName": "Anna projetin nimi",
   "errorHandling": {
-    "ErrorCreatingNewProject": "Virhe luotaessa uutta projektia"
+    "errorCreatingNewProject": "Virhe luotaessa uutta projektia"
   }
 }
