@@ -15,5 +15,15 @@
     "tenderPreparation": "Tarjousvalmistelu",
     "tender": "Tarjous",
     "done": "Valmis"
+  },
+  "showFilters": "Näytä suotimet",
+  "addNewProject": "Lisää uusi projekti",
+  "createNewProject": "Luo täysin uusi",
+  "createNewProjectDescription": "Luo uusi projekti",
+  "projectName": "Projektin nimi",
+  "creation/ImportOfANewProject": "Uuden projektin luonti / tuonti",
+  "enterProjectName": "Anna projetin nimi",
+  "errorHandling": {
+    "errorCreatingNewProject": "Virhe luotaessa uutta projektia"
   }
 }

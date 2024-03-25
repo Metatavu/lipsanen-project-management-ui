@@ -9,6 +9,7 @@ import "@fontsource/roboto/700.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { theme } from "./theme";
 import "localization/i18n";
+import AuthenticationProvider from "components/providers/authentication-provider";
 
 const router = createRouter({ routeTree });
 
@@ -28,7 +29,9 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <RouterProvider router={router} />
+        <AuthenticationProvider>
+          <RouterProvider router={router} />
+        </AuthenticationProvider>
       </ThemeProvider>
     </StrictMode>,
   );

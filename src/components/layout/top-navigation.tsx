@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import { useMatches, useNavigate } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
+import { authAtom } from "../../atoms/auth";
+import { useAtom } from "jotai";
 import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
@@ -30,6 +32,7 @@ const NotificationBadge = styled(Badge)({
 });
 
 const TopNavigation = () => {
+  const [auth] = useAtom(authAtom);
   const { t } = useTranslation();
   const navigate = useNavigate();
   useMatches();
@@ -76,7 +79,7 @@ const TopNavigation = () => {
             <AccountCircleIcon />
           </IconButton>
           <Menu {...bindMenu(accountMenuState)}>
-            <MenuItem>
+            <MenuItem onClick={auth?.logout}>
               <Typography textAlign="center">{t("logout")}</Typography>
             </MenuItem>
           </Menu>
