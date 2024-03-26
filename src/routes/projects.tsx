@@ -125,7 +125,7 @@ const ProjectsIndexRoute = () => {
               },
             },
           }}
-          pageSizeOptions={[10]}
+          pageSizeOptions={[10, 25, 50]}
           disableRowSelectionOnClick
         />
       </Box>
@@ -141,7 +141,7 @@ const ProjectsIndexRoute = () => {
         setNewProjectName={setNewProjectName}
         createProject={createProject}
       />
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("projects")}
         </Typography>

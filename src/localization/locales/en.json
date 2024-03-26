@@ -23,8 +23,13 @@
   "projectName": "Project name",
   "creation/ImportOfANewProject": "Creation / Import of a new project",
   "enterProjectName": "Enter project name",
+  "company": "Company",
+  "role": "Role",
+  "lastLoggedIn": "Last logged in",
+  "addANewUser": "Add a new user",
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
-    "errorListingProjects": "Error while fetching projects list"
+    "errorListingProjects": "Error while fetching projects list",
+    "errorListingUsers": "Error while fetching users list"
   }
 }

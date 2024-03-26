@@ -23,8 +23,13 @@
   "projectName": "Projektin nimi",
   "creation/ImportOfANewProject": "Uuden projektin luonti / tuonti",
   "enterProjectName": "Anna projetin nimi",
+  "company": "Yritys",
+  "role": "Rooli",
+  "lastLoggedIn": "Viimeksi paikalla",
+  "addANewUser": "Lisää uusi käyttäjä",
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
-    "errorListingProjects": "Virhe haettaessa projektiluetteloa"
+    "errorListingProjects": "Virhe haettaessa projektiluetteloa",
+    "errorListingUsers": "Virhe haettaessa käyttäjäluetteloa"
   }
 }
