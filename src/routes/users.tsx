@@ -11,11 +11,14 @@ import { useAtom } from "jotai";
 import { usersAtom } from "../atoms/users";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
+import { User } from "generated/client";
+import NewUserDialog from "components/layout/users/new-user-dialog";
 
 const UsersIndexRoute = () => {
   const { t } = useTranslation();
   const { usersApi } = useApi();
   const [users, setUsers] = useAtom(usersAtom);
+  const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   /**
@@ -35,6 +38,23 @@ const UsersIndexRoute = () => {
   useEffect(() => {
     getUsersList();
   }, []);
+
+  /**
+   * Creates a new user
+   *
+   * @param user User
+   */
+  const createUser = async (user: User) => {
+    setLoading(true);
+    try {
+      const newUser = await usersApi.createUser({ user });
+      setUsers([...users, newUser]);
+    } catch (error) {
+      console.error(t("errorHandling.errorCreatingUser"), error);
+    }
+    setNewUserDialogOpen(false);
+    setLoading(false);
+  };
 
   const columns: GridColDef[] = [
     {
@@ -65,6 +85,8 @@ const UsersIndexRoute = () => {
       headerName: t("lastLoggedIn"),
       flex: 1,
       renderCell: (params) => {
+        if (!params.row.lastLoggedIn) return;
+
         const formattedDate = DateTime.fromJSDate(params.row.lastLoggedIn).toFormat("dd.MM.yyyy - HH:mm");
 
         return <div>{formattedDate}</div>;
@@ -107,16 +129,17 @@ const UsersIndexRoute = () => {
 
   return (
     <div style={{ padding: "1rem" }}>
+      <NewUserDialog open={newUserDialogOpen} handleClose={() => setNewUserDialogOpen(false)} createUser={createUser} />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("users")}
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
-          <Button sx={{ borderRadius: 25 }} variant="contained" color="primary" size="large">
+          <Button variant="contained" color="primary" size="large">
             <FilterListIcon />
             {t("showFilters")}
           </Button>
-          <Button onClick={() => {}} sx={{ borderRadius: 25 }} variant="contained" color="primary" size="large">
+          <Button onClick={() => setNewUserDialogOpen(true)} variant="contained" color="primary" size="large">
             <AddIcon />
             {t("addANewUser")}
           </Button>

@@ -146,17 +146,11 @@ const ProjectsIndexRoute = () => {
           {t("projects")}
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
-          <Button sx={{ borderRadius: 25 }} variant="contained" color="primary" size="large">
+          <Button variant="contained" color="primary" size="large">
             <FilterListIcon />
             {t("showFilters")}
           </Button>
-          <Button
-            onClick={() => setNewProjectDialogOpen(true)}
-            sx={{ borderRadius: 25 }}
-            variant="contained"
-            color="primary"
-            size="large"
-          >
+          <Button onClick={() => setNewProjectDialogOpen(true)} variant="contained" color="primary" size="large">
             <AddIcon />
             {t("addNewProject")}
           </Button>

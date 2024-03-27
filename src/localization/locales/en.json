@@ -27,9 +27,16 @@
   "role": "Role",
   "lastLoggedIn": "Last logged in",
   "addANewUser": "Add a new user",
+  "name": "Name",
+  "email": "Email",
+  "enterUsersName": "Enter user's name",
+  "enterUsersEmail": "Enter user's email",
+  "enterUsersCompany": "Enter user's company",
+  "sendAnInvitation": "Send an invitation",
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
     "errorListingProjects": "Error while fetching projects list",
-    "errorListingUsers": "Error while fetching users list"
+    "errorListingUsers": "Error while fetching users list",
+    "errorCreatingUser": "Error while creating a new user"
   }
 }
