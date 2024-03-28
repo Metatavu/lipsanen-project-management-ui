@@ -1,9 +1,11 @@
 apis/ProjectsApi.ts
 apis/SystemApi.ts
+apis/UsersApi.ts
 apis/index.ts
 index.ts
 models/Metadata.ts
 models/ModelError.ts
 models/Project.ts
+models/User.ts
 models/index.ts
 runtime.ts

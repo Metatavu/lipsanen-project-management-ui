@@ -23,7 +23,20 @@
   "projectName": "Projektin nimi",
   "creation/ImportOfANewProject": "Uuden projektin luonti / tuonti",
   "enterProjectName": "Anna projetin nimi",
+  "company": "Yritys",
+  "role": "Rooli",
+  "lastLoggedIn": "Viimeksi paikalla",
+  "addANewUser": "Lisää uusi käyttäjä",
+  "name": "Nimi",
+  "email": "Sähköposti",
+  "enterUsersName": "Anna käyttäjän nimi",
+  "enterUsersEmail": "Anna käyttäjän sähköposti",
+  "enterUsersCompany": "Anna käyttäjän yritys",
+  "sendAnInvitation": "Lähetä kutsu",
   "errorHandling": {
-    "errorCreatingNewProject": "Virhe luotaessa uutta projektia"
+    "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
+    "errorListingProjects": "Virhe haettaessa projektiluetteloa",
+    "errorListingUsers": "Virhe haettaessa käyttäjäluetteloa",
+    "errorCreatingUser": "Virhe luotaessa uutta käyttäjää"
   }
 }

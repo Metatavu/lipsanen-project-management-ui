@@ -55,6 +55,22 @@ const theme = createTheme({
         },
       },
     },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          margin: "0.25rem",
+          backgroundColor: "white",
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 25,
+          lineHeight: 0,
+        },
+      },
+    },
   },
 });
 

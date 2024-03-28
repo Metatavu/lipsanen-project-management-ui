@@ -48,7 +48,7 @@ const NewProjectDialog = ({ open, handleClose, newProjectName, setNewProjectName
     <Dialog fullWidth maxWidth="md" open={open} onClose={handleClose}>
       <AppBar sx={{ position: "relative" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <DialogTitle>{t("creation/ImportOfANewProject")}</DialogTitle>
+          <DialogTitle sx={{ paddingLeft: 0 }}>{t("creation/ImportOfANewProject")}</DialogTitle>
           <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
             <CloseIcon />
           </IconButton>
@@ -75,7 +75,6 @@ const NewProjectDialog = ({ open, handleClose, newProjectName, setNewProjectName
           <Button
             fullWidth
             onClick={createProject}
-            sx={{ borderRadius: 25 }}
             variant="contained"
             color="primary"
             size="large"

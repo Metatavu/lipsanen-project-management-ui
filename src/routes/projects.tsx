@@ -13,6 +13,7 @@ import { useApi } from "../hooks/use-api";
 import { useAtom } from "jotai";
 import { projectsAtom } from "../atoms/projects";
 import { Project } from "generated/client";
+import LoaderWrapper from "components/generic/loader-wrapper";
 
 const ProjectsIndexRoute = () => {
   const { t } = useTranslation();
@@ -20,13 +21,20 @@ const ProjectsIndexRoute = () => {
   const [projects, setProjects] = useAtom(projectsAtom);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   /**
    * Get projects list
    */
   const getProjectsList = async () => {
-    const projects = await projectsApi.listProjects();
-    setProjects(projects);
+    setLoading(true);
+    try {
+      const projects = await projectsApi.listProjects();
+      setProjects(projects);
+    } catch (error) {
+      console.error(t("errorHandling.errorListingProjects"), error);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -39,6 +47,7 @@ const ProjectsIndexRoute = () => {
   const createProject = async () => {
     if (!newProjectName) return;
 
+    setLoading(true);
     try {
       const newProject: Project = {
         name: newProjectName,
@@ -51,8 +60,12 @@ const ProjectsIndexRoute = () => {
     } catch (error) {
       console.error(t("errorHandling.errorCreatingNewProject"), error);
     }
+    setLoading(false);
   };
 
+  /**
+   * Grid column definitions for projects table
+   */
   const columns: GridColDef[] = [
     {
       field: "name",
@@ -115,7 +128,7 @@ const ProjectsIndexRoute = () => {
               },
             },
           }}
-          pageSizeOptions={[10]}
+          pageSizeOptions={[10, 25, 50]}
           disableRowSelectionOnClick
         />
       </Box>
@@ -131,28 +144,24 @@ const ProjectsIndexRoute = () => {
         setNewProjectName={setNewProjectName}
         createProject={createProject}
       />
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("projects")}
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
-          <Button sx={{ borderRadius: 25 }} variant="contained" color="primary" size="large">
+          <Button variant="contained" color="primary" size="large">
             <FilterListIcon />
             {t("showFilters")}
           </Button>
-          <Button
-            onClick={() => setNewProjectDialogOpen(true)}
-            sx={{ borderRadius: 25 }}
-            variant="contained"
-            color="primary"
-            size="large"
-          >
+          <Button onClick={() => setNewProjectDialogOpen(true)} variant="contained" color="primary" size="large">
             <AddIcon />
             {t("addNewProject")}
           </Button>
         </Box>
       </Toolbar>
-      <Card>{renderProjectsTable()}</Card>
+      <LoaderWrapper loading={loading}>
+        <Card>{renderProjectsTable()}</Card>
+      </LoaderWrapper>
     </div>
   );
 };
