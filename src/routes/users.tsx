@@ -13,16 +13,13 @@ import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import { User } from "generated/client";
 import NewUserDialog from "components/layout/users/new-user-dialog";
-import UserInfoDialog from "components/layout/users/user-info-dialog";
 
 const UsersIndexRoute = () => {
   const { t } = useTranslation();
   const { usersApi } = useApi();
   const [users, setUsers] = useAtom(usersAtom);
   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
-  const [userInfoDialogOpen, setUserInfoDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User>();
 
   /**
    * Get users list
@@ -69,10 +66,10 @@ const UsersIndexRoute = () => {
       editable: true,
       flex: 1,
       renderCell: (params) => (
-        <a onClick={() => onUserSelect(params.row as User)} style={{ cursor: "pointer" }}>
+        <div>
           {params.row.firstName} {params.row.lastName}
-        </a>
-      )
+        </div>
+      ),
     },
     {
       field: "company",
@@ -110,16 +107,6 @@ const UsersIndexRoute = () => {
   ];
 
   /**
-   * Handles user select event
-   *
-   * @param user User
-   */
-  const onUserSelect = (user: User) => {
-    setSelectedUser(user);
-    setUserInfoDialogOpen(true);
-  };
-
-  /**
    * Renders users table
    */
   const renderUsersTable = () => {
@@ -146,7 +133,6 @@ const UsersIndexRoute = () => {
   return (
     <div style={{ padding: "1rem" }}>
       <NewUserDialog open={newUserDialogOpen} handleClose={() => setNewUserDialogOpen(false)} createUser={createUser} />
-      <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} projects={undefined} handleClose={() => setUserInfoDialogOpen(false)} action={() => console.log("Action invoked")} />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("users")}
