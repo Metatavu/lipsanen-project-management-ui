@@ -146,7 +146,7 @@ const UsersIndexRoute = () => {
   return (
     <div style={{ padding: "1rem" }}>
       <NewUserDialog open={newUserDialogOpen} handleClose={() => setNewUserDialogOpen(false)} createUser={createUser} />
-      <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} projects={undefined} handleClose={() => setUserInfoDialogOpen(false)} action={() => console.log("Action invoked")} />
+      <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} handleClose={() => setUserInfoDialogOpen(false)} />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("users")}

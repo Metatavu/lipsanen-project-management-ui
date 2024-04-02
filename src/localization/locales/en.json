@@ -36,7 +36,19 @@
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
     "errorListingProjects": "Error while fetching projects list",
+    "errorListingUserProjects": "Error while fetching user's projects list",
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user"
+  },
+  "userInfoDialog": {
+    "title": "User information",
+    "name": "Name",
+    "organisation": "Organisation",
+    "lastLogin": "Last login",
+    "role": "Role",
+    "projects": "Projects",
+    "projectName": "Name",
+    "projectEstimatesAccuracy": "Accuracy of estimates %",
+    "projectStatus": "Status"
   }
 }

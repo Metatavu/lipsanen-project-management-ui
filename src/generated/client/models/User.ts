@@ -55,6 +55,12 @@ export interface User {
      * @memberof User
      */
     lastLoggedIn?: Date;
+    /**
+     * List of project ids that the user belongs to
+     * @type {Array<string>}
+     * @memberof User
+     */
+    projectIds?: Array<string>;
 }
 
 /**
@@ -85,6 +91,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'email': json['email'],
         'company': !exists(json, 'company') ? undefined : json['company'],
         'lastLoggedIn': !exists(json, 'lastLoggedIn') ? undefined : (new Date(json['lastLoggedIn'])),
+        'projectIds': !exists(json, 'projectIds') ? undefined : json['projectIds'],
     };
 }
 
@@ -103,6 +110,7 @@ export function UserToJSON(value?: User | null): any {
         'email': value.email,
         'company': value.company,
         'lastLoggedIn': value.lastLoggedIn === undefined ? undefined : (value.lastLoggedIn.toISOString()),
+        'projectIds': value.projectIds,
     };
 }
 
