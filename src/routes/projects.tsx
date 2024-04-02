@@ -63,6 +63,9 @@ const ProjectsIndexRoute = () => {
     setLoading(false);
   };
 
+  /**
+   * Grid column definitions for projects table
+   */
   const columns: GridColDef[] = [
     {
       field: "name",

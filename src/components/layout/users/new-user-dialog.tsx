@@ -58,6 +58,11 @@ const NewUserDialog = ({ open, handleClose, createUser }: Props) => {
     };
 
     createUser(user);
+    setUserData({
+      name: "",
+      email: "",
+      company: "",
+    });
   };
 
   const isDisabled = !(!!userData.name && !!userData.email);

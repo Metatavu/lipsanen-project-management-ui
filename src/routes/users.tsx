@@ -59,6 +59,9 @@ const UsersIndexRoute = () => {
     setLoading(false);
   };
 
+  /**
+   * Grid column definitions for users table
+   */
   const columns: GridColDef[] = [
     {
       field: "firstName",
