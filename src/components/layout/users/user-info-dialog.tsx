@@ -19,6 +19,9 @@ interface Props {
   action?: () => void;
 }
 
+/**
+ * User info dialog component
+ */
 const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
   const { t } = useTranslation();
   const { projectsApi } = useApi();
