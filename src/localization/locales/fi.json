@@ -36,7 +36,19 @@
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
     "errorListingProjects": "Virhe haettaessa projektiluetteloa",
+    "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
     "errorListingUsers": "Virhe haettaessa käyttäjäluetteloa",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää"
+  },
+  "userInfoDialog": {
+    "title": "Käyttäjätiedot",
+    "name": "Nimi",
+    "organisation": "Organisaatio",
+    "lastLogin": "Liittyi mukaan",
+    "role": "Rooli",
+    "projects": "Projektit",
+    "projectName": "Nimi",
+    "projectEstimatesAccuracy": "Arvioiden pitävyys %",
+    "projectStatus": "Status"
   }
 }
