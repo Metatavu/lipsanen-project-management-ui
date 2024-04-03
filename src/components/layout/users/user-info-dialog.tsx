@@ -56,7 +56,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
   useEffect(() => {
     if (!user) return;
 
-    setName(user.firstName + " " + user.lastName);
+    setName(`${user.firstName} ${user.lastName}`);
     setOrganisation(user.company || "");
 
     // Fetch user projects
@@ -132,7 +132,6 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
             placeholder={t("userInfoDialog.lastLogin")}
             variant="outlined"
             value={user?.lastLoggedIn?.toLocaleString() || ""}
-            onChange={() => { }}
           />
         </Grid>
         <Grid item xs={4}>
@@ -219,7 +218,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
       </AppBar>
       {renderUserInfoSection()}
       <DialogContentText sx={{ padding: 2 }} variant={"h5"}>
-        Projects
+        {t("userInfoDialog.projects")}
       </DialogContentText>
       <DialogContent style={{ padding: 0 }}>
         <LoaderWrapper loading={loading}>
