@@ -50,5 +50,17 @@
     "projectName": "Nimi",
     "projectEstimatesAccuracy": "Arvioiden pitävyys %",
     "projectStatus": "Status"
+  },
+  "settingsScreen": {
+    "title": "Asetukset",
+    "projectSpecificTheming": "Projektikohtainen teemoitus",
+    "themeMainColor": "Teeman pääväri",
+    "otherColor": "Muu väri",
+    "logo": "Logo",
+    "disableProjectTheme": "Poista projektiteema käytöstä",
+    "dropzoneText": "Tiputa tai klikkaa lisätäksesi tiedoston",
+    "uploadWarningDuplicateFileName": "Virheellinen tiedosto: Tiedostonimien on oltava yksilöllisiä.",
+    "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
+    "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
   }
 }

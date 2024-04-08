@@ -50,5 +50,17 @@
     "projectName": "Name",
     "projectEstimatesAccuracy": "Accuracy of estimates %",
     "projectStatus": "Status"
+  },
+  "settingsScreen": {
+    "title": "Settings",
+    "projectSpecificTheming": "Project specific theming",
+    "themeMainColor": "Theme main color",
+    "otherColor": "Other color",
+    "logo": "Logo",
+    "disableProjectTheme": "Disable project theme",
+    "dropzoneText": "Drop or click to add file",
+    "uploadWarningDuplicateFileName": "Invalid file: File names must be unique.",
+    "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
+    "fileSuccessfullyUploaded": "File successfully uploaded"
   }
 }

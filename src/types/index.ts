@@ -7,7 +7,7 @@ import { DefaultNamespace, ParseKeys } from "i18next";
  */
 export enum ProjectStatus {
   IN_PROGRESS = "In progress",
-  READY = "Ready"
+  READY = "Ready",
 }
 
 export type NavigationLink = {
@@ -18,4 +18,14 @@ export type NavigationLink = {
 export type ProjectStatusLabel = {
   status: ProjectStatus;
   color: string;
+};
+
+export type Color = {
+  name: string;
+  value: string;
+};
+
+export type UploadMessage = {
+  message: string;
+  severity: "error" | "success" | "info" | "warning";
 };
