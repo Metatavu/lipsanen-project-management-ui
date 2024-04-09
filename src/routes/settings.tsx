@@ -12,6 +12,7 @@ import { useApi } from "../hooks/use-api";
 import { useAtom } from "jotai";
 import { projectsAtom } from "../atoms/projects";
 import LoaderWrapper from "components/generic/loader-wrapper";
+import config from "../app/config";
 
 const SettingsIndexRoute = () => {
   const { t } = useTranslation();
@@ -21,8 +22,6 @@ const SettingsIndexRoute = () => {
   const [selectedLogo, setSelectedLogo] = useState("");
   const [openColorPicker, setOpenColorPicker] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  //TODO: Set up construction of the url for the logo from cloudfront address
 
   /**
    * Get projects list
@@ -58,7 +57,7 @@ const SettingsIndexRoute = () => {
   const handleColorSelection = (color: string) => {
     setSelectedColor({ name: "Custom color", value: color });
 
-    // TODO: This should update the project theme on API
+    // TODO: This should update the project theme on API- check about the use of a seperate projectTheme e.g. so list projects, then create (or update) a project theme.
   };
 
   /**
@@ -66,19 +65,25 @@ const SettingsIndexRoute = () => {
    */
   const renderColorsButtons = () =>
     DEFAULT_THEME_COLORS.map((color) => (
-      // TODO: Needs styling for spacing
       <Box
-        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+        key={color.name}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignSelf: "flex-start",
+          alignItems: "center",
+          textAlign: "center",
+          width: "10%",
+        }}
         onClick={() => setSelectedColor(color)}
       >
         <Button
-          key={color.name}
           variant="contained"
           sx={{
             backgroundColor: color.value,
             minWidth: 0,
-            width: 0,
-            height: "2rem",
+            width: "2.5rem",
+            height: "2.5rem",
             borderRadius: "50%, ",
             "&:hover": {
               backgroundColor: color,
@@ -87,7 +92,7 @@ const SettingsIndexRoute = () => {
         >
           {selectedColor?.name === color.name && <CheckIcon />}
         </Button>
-        <Typography>{color.name}</Typography>
+        <Typography sx={{ mt: 1, maxWidth: "6rem", overflowWrap: "break-word" }}>{color.name}</Typography>
       </Box>
     ));
 
@@ -104,6 +109,7 @@ const SettingsIndexRoute = () => {
           <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => setSelectedLogo(logo)}>
             <Radio checked={selectedLogo === logo} />
             <Typography>{logo}</Typography>
+            {/* <img src={`${config.cdnBaseUrl}/${logo}`} alt={logo} /> */}
           </Box>
         ))}
       </Box>
@@ -123,7 +129,12 @@ const SettingsIndexRoute = () => {
             {t("settingsScreen.projectSpecificTheming")}
           </Typography>
           <Divider />
-          <TextField select>
+          <TextField
+            label={t("settingsScreen.project")}
+            select
+            size="small"
+            sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
+          >
             {projects.map((project) => {
               return (
                 <MenuItem key={project.id} value={project.id}>
@@ -136,17 +147,24 @@ const SettingsIndexRoute = () => {
             <Typography component="h3" variant="h6">
               {t("settingsScreen.themeMainColor")}
             </Typography>
-            <Box sx={{ display: "flex", gap: "1rem" }}>
+            <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
               {renderColorsButtons()}
               <Button
                 variant="contained"
                 color="primary"
                 size="large"
                 onClick={() => setOpenColorPicker(!openColorPicker)}
+                sx={{ padding: "1.2rem", alignSelf: "flex-start" }}
               >
                 {t("settingsScreen.otherColor")}
               </Button>
-              {openColorPicker && <MuiColorInput value={selectedColor?.value ?? ""} onChange={handleColorSelection} />}
+              {openColorPicker && (
+                <MuiColorInput
+                  value={selectedColor?.value ?? ""}
+                  onChange={handleColorSelection}
+                  sx={{ width: "200px" }}
+                />
+              )}
             </Box>
           </Box>
           <Box>

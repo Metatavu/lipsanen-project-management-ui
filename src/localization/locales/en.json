@@ -54,6 +54,7 @@
   "settingsScreen": {
     "title": "Settings",
     "projectSpecificTheming": "Project specific theming",
+    "project": "Project",
     "themeMainColor": "Theme main color",
     "otherColor": "Other color",
     "logo": "Logo",

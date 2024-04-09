@@ -54,6 +54,7 @@
   "settingsScreen": {
     "title": "Asetukset",
     "projectSpecificTheming": "Projektikohtainen teemoitus",
+    "project": "Projekti",
     "themeMainColor": "Teeman pääväri",
     "otherColor": "Muu väri",
     "logo": "Logo",
