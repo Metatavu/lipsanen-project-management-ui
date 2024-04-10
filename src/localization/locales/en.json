@@ -34,7 +34,9 @@
     "selectUsersCompany": "Enter user's company",
     "enterUsersEmail": "Enter user's email",
     "enterUsersName": "Enter user's name",
-    "createNewCompany": "Create new company"
+    "createNewCompany": "Create new company",
+    "invalidEmailWarning": "Enter a valid email",
+    "emailNotUniqueWarning": "Email must be unique"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",

@@ -34,7 +34,9 @@
     "selectUsersCompany": "Anna käyttäjän yritys",
     "enterUsersEmail": "Anna käyttäjän sähköposti",
     "enterUsersName": "Anna käyttäjän nimi",
-    "createNewCompany": "Perustaa uusi yritys"
+    "createNewCompany": "Perustaa uusi yritys",
+    "invalidEmailWarning": "Anna kelvollinen sähköpostiosoite",
+    "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",

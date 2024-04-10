@@ -19,6 +19,7 @@ import { CompanyOptionType } from "types";
 interface Props {
   open: boolean;
   handleClose: () => void;
+  users: User[];
   createUser: (user: User) => Promise<void>;
   companies: Company[];
   createCompany: (selectedCompany: Company) => Promise<Company | undefined>;
@@ -29,13 +30,14 @@ interface Props {
  *
  * @param props Props
  */
-const NewUserDialog = ({ open, handleClose, createUser, companies, createCompany }: Props) => {
+const NewUserDialog = ({ open, handleClose, users, createUser, companies, createCompany }: Props) => {
   const { t } = useTranslation();
   const [userData, setUserData] = useState({
     name: "",
     email: "",
   });
   const [selectedCompany, setSelectedCompany] = useState<CompanyOptionType | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   /**
@@ -49,9 +51,36 @@ const NewUserDialog = ({ open, handleClose, createUser, companies, createCompany
   };
 
   /**
+   * Validates email format and checks is unique
+   *
+   * @param email string
+   */
+  const emailValidation = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailIsValid = emailRegex.test(email);
+    if (!emailIsValid) {
+      setErrorMessage(t("newUserDialog.invalidEmailWarning"));
+      return false;
+    }
+
+    const emailIsUnique = !users.some((user) => user.email === email);
+    if (!emailIsUnique) {
+      setErrorMessage(t("newUserDialog.emailNotUniqueWarning"));
+      return false;
+    }
+
+    setErrorMessage("");
+    return true;
+  };
+
+  /**
    * Handles user creation form submit
    */
   const handleUserFormSubmit = async () => {
+    if (!emailValidation(userData.email)) {
+      return;
+    }
+
     setLoading(true);
     const firstName = userData.name.split(" ")[0];
     const lastName = userData.name.split(" ")[1];
@@ -109,7 +138,6 @@ const NewUserDialog = ({ open, handleClose, createUser, companies, createCompany
           }}
           required
         />
-        {/* TODO: Unique email validation */}
         <TextField
           fullWidth
           name="email"
@@ -121,6 +149,8 @@ const NewUserDialog = ({ open, handleClose, createUser, companies, createCompany
             "& fieldset": { border: "none" },
           }}
           required
+          error={!!errorMessage}
+          helperText={errorMessage}
         />
         <CreatableSelect
           options={companies}

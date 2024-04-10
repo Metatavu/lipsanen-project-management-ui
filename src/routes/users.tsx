@@ -95,8 +95,6 @@ const UsersIndexRoute = () => {
     }
   };
 
-  console.log("users are", users);
-
   /**
    * Grid column definitions for users table
    */
@@ -191,6 +189,7 @@ const UsersIndexRoute = () => {
       <NewUserDialog
         open={newUserDialogOpen}
         handleClose={() => setNewUserDialogOpen(false)}
+        users={users}
         createUser={createUser}
         companies={companies}
         createCompany={createCompany}
