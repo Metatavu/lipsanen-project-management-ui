@@ -4,12 +4,14 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { AppBar, IconButton, Toolbar } from "@mui/material";
+import { AppBar, IconButton, LinearProgress, Toolbar } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { User } from "generated/client";
+import { Company, User } from "generated/client";
+import CreatableSelect from "components/generic/creatable-select";
+import { CompanyOptionType } from "types";
 
 /**
  * Component Props
@@ -18,6 +20,8 @@ interface Props {
   open: boolean;
   handleClose: () => void;
   createUser: (user: User) => Promise<void>;
+  companies: Company[];
+  createCompany: (selectedCompany: Company) => Promise<Company | undefined>;
 }
 
 /**
@@ -25,13 +29,14 @@ interface Props {
  *
  * @param props Props
  */
-const NewUserDialog = ({ open, handleClose, createUser }: Props) => {
+const NewUserDialog = ({ open, handleClose, createUser, companies, createCompany }: Props) => {
   const { t } = useTranslation();
   const [userData, setUserData] = useState({
     name: "",
     email: "",
-    company: "",
   });
+  const [selectedCompany, setSelectedCompany] = useState<CompanyOptionType | null>(null);
+  const [loading, setLoading] = useState(false);
 
   /**
    * Handles user creation form submit
@@ -46,23 +51,37 @@ const NewUserDialog = ({ open, handleClose, createUser }: Props) => {
   /**
    * Handles user creation form submit
    */
-  const handleUserFormSubmit = () => {
+  const handleUserFormSubmit = async () => {
+    setLoading(true);
     const firstName = userData.name.split(" ")[0];
     const lastName = userData.name.split(" ")[1];
+    let companyId = null;
+    const isNewCompany = !!(
+      selectedCompany?.name && !companies.find((company) => company.name === selectedCompany.name)
+    );
+
+    if (isNewCompany) {
+      const newCompany = await createCompany(selectedCompany);
+      companyId = newCompany?.id;
+    } else {
+      companyId = companies.find((company) => company.name === selectedCompany?.name)?.id;
+    }
 
     const user: User = {
       firstName: firstName,
       lastName: lastName,
       email: userData.email,
-      company: userData.company,
+      companyId: companyId,
     };
 
-    createUser(user);
+    await createUser(user);
     setUserData({
       name: "",
       email: "",
-      company: "",
     });
+    setSelectedCompany(null);
+    setLoading(false);
+    handleClose();
   };
 
   const isDisabled = !(!!userData.name && !!userData.email);
@@ -82,7 +101,7 @@ const NewUserDialog = ({ open, handleClose, createUser }: Props) => {
           fullWidth
           name="name"
           label={t("name")}
-          placeholder={t("enterUsersName")}
+          placeholder={t("newUserDialog.enterUsersName")}
           value={userData.name}
           onChange={handleFormChange}
           sx={{
@@ -90,11 +109,12 @@ const NewUserDialog = ({ open, handleClose, createUser }: Props) => {
           }}
           required
         />
+        {/* TODO: Unique email validation */}
         <TextField
           fullWidth
           name="email"
-          label={t("email")}
-          placeholder={t("enterUsersEmail")}
+          label={t("newUserDialog.email")}
+          placeholder={t("newUserDialog.enterUsersEmail")}
           value={userData.email}
           onChange={handleFormChange}
           sx={{
@@ -102,22 +122,17 @@ const NewUserDialog = ({ open, handleClose, createUser }: Props) => {
           }}
           required
         />
-        <TextField
-          fullWidth
-          name="company"
-          label={t("company")}
-          placeholder={t("enterUsersCompany")}
-          value={userData.company}
-          onChange={handleFormChange}
-          sx={{
-            "& fieldset": { border: "none" },
-          }}
+        <CreatableSelect
+          options={companies}
+          selectedCompany={selectedCompany}
+          setSelectedCompany={setSelectedCompany}
         />
       </DialogContent>
+      {loading && <LinearProgress />}
       <DialogActions>
         <Button onClick={handleUserFormSubmit} variant="contained" color="primary" size="large" disabled={isDisabled}>
           <AddIcon />
-          {t("sendAnInvitation")}
+          {t("newUserDialog.sendAnInvitation")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -26,19 +26,24 @@
   "company": "Company",
   "role": "Role",
   "lastLoggedIn": "Last logged in",
-  "addANewUser": "Add a new user",
   "name": "Name",
-  "email": "Email",
-  "enterUsersName": "Enter user's name",
-  "enterUsersEmail": "Enter user's email",
-  "enterUsersCompany": "Enter user's company",
-  "sendAnInvitation": "Send an invitation",
+  "addANewUser": "Add a new user",
+  "newUserDialog": {
+    "email": "Email",
+    "sendAnInvitation": "Send an invitation",
+    "selectUsersCompany": "Enter user's company",
+    "enterUsersEmail": "Enter user's email",
+    "enterUsersName": "Enter user's name",
+    "createNewCompany": "Create new company"
+  },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
     "errorListingProjects": "Error while fetching projects list",
     "errorListingUserProjects": "Error while fetching user's projects list",
     "errorListingUsers": "Error while fetching users list",
-    "errorCreatingUser": "Error while creating a new user"
+    "errorCreatingUser": "Error while creating a new user",
+    "errorListingCompanies": "Error while fetching companies list",
+    "errorCreatingNewCompany": "Error while creating a new company"
   },
   "userInfoDialog": {
     "title": "User information",

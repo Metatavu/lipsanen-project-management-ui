@@ -11,14 +11,15 @@ import { useAtom } from "jotai";
 import { usersAtom } from "../atoms/users";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
-import { User } from "generated/client";
+import { Company, User } from "generated/client";
 import NewUserDialog from "components/layout/users/new-user-dialog";
 import UserInfoDialog from "components/layout/users/user-info-dialog";
 
 const UsersIndexRoute = () => {
   const { t } = useTranslation();
-  const { usersApi } = useApi();
+  const { usersApi, companiesApi } = useApi();
   const [users, setUsers] = useAtom(usersAtom);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
   const [userInfoDialogOpen, setUserInfoDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,8 +39,24 @@ const UsersIndexRoute = () => {
     setLoading(false);
   };
 
+  /**
+   * Get companies list
+   */
+  const getCompaniesList = async () => {
+    setLoading(true);
+    try {
+      const companies = await companiesApi.listCompanies();
+      setCompanies(companies);
+    } catch (error) {
+      console.error(t("errorHandling.errorListingCompanies"), error);
+    }
+    setLoading(false);
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
   useEffect(() => {
     getUsersList();
+    getCompaniesList();
   }, []);
 
   /**
@@ -48,7 +65,6 @@ const UsersIndexRoute = () => {
    * @param user User
    */
   const createUser = async (user: User) => {
-    setLoading(true);
     try {
       const newUser = await usersApi.createUser({ user });
       setUsers([...users, newUser]);
@@ -56,8 +72,30 @@ const UsersIndexRoute = () => {
       console.error(t("errorHandling.errorCreatingUser"), error);
     }
     setNewUserDialogOpen(false);
-    setLoading(false);
   };
+
+  /**
+   * Creates a new company
+   *
+   * @param selectedCompany Company
+   */
+  const createCompany = async (selectedCompany: Company) => {
+    if (!selectedCompany) return;
+
+    try {
+      const newCompany: Company = {
+        name: selectedCompany.name,
+      };
+      const createdCompany = await companiesApi.createCompany({ company: newCompany });
+      setCompanies([...companies, createdCompany]);
+
+      return createdCompany;
+    } catch (error) {
+      console.error(t("errorHandling.errorCreatingNewCompany"), error);
+    }
+  };
+
+  console.log("users are", users);
 
   /**
    * Grid column definitions for users table
@@ -72,13 +110,18 @@ const UsersIndexRoute = () => {
         <a onClick={() => onUserSelect(params.row as User)} style={{ cursor: "pointer" }}>
           {params.row.firstName} {params.row.lastName}
         </a>
-      )
+      ),
     },
     {
       field: "company",
       headerName: t("company"),
       editable: true,
       flex: 1,
+      renderCell: (params) => {
+        const company = companies.find((company) => company.id === params.row.companyId);
+
+        return <div>{company?.name}</div>;
+      },
     },
     {
       field: "role",
@@ -145,7 +188,13 @@ const UsersIndexRoute = () => {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <NewUserDialog open={newUserDialogOpen} handleClose={() => setNewUserDialogOpen(false)} createUser={createUser} />
+      <NewUserDialog
+        open={newUserDialogOpen}
+        handleClose={() => setNewUserDialogOpen(false)}
+        createUser={createUser}
+        companies={companies}
+        createCompany={createCompany}
+      />
       <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} handleClose={() => setUserInfoDialogOpen(false)} />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
