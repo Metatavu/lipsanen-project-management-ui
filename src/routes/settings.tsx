@@ -209,6 +209,7 @@ const SettingsIndexRoute = () => {
         throw new Error();
       }
       getLogosList();
+      handleLogoSelection(file.name);
     } catch (error) {
       console.error(t("errorHandling.errorUploadingImage"), error);
     }
