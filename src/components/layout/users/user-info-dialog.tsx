@@ -1,11 +1,29 @@
-import { Button, AppBar, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Toolbar, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import {
+  Button,
+  AppBar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Toolbar,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ProjectStatus, ProjectStatusLabel } from "types";
+import { ProjectStatusLabel } from "types";
 import ConstructionIcon from "@mui/icons-material/Construction";
-import { Project, User } from "generated/client";
+import { Project, ProjectStatus, User } from "generated/client";
 import { useApi } from "../../../hooks/use-api";
 import LoaderWrapper from "components/generic/loader-wrapper";
 
@@ -60,7 +78,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
     if (!user) return;
 
     setName(`${user.firstName} ${user.lastName}`);
-    setOrganisation(user.company || "");
+    setOrganisation(user.companyId || "");
 
     // Fetch user projects
     getUserProjects();
@@ -68,9 +86,9 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
 
   /**
    * Handles user info change
-   * 
+   *
    * TODO: remove if not needed
-   * 
+   *
    * @param field field id
    */
   const handleUserInfoChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,7 +174,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
 
   /**
    * Renders user projects table
-   * 
+   *
    * TODO: Once Project status is implemented in the API - add the status logic support
    */
   const renderUserProjectsTable = () => (
@@ -164,9 +182,15 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
       <Table style={{ width: "100%" }}>
         <TableHead>
           <TableRow>
-            <TableCell style={{ width: "60%", border: "1px solid rgba(0, 0, 0, 0.1)" }}>{t("userInfoDialog.projectName")}</TableCell>
-            <TableCell style={{ width: "20%", border: "1px solid rgba(0, 0, 0, 0.1)" }}>{t("userInfoDialog.projectEstimatesAccuracy")}</TableCell>
-            <TableCell style={{ width: "20%", border: "1px solid rgba(0, 0, 0, 0.1)" }}>{t("userInfoDialog.projectStatus")}</TableCell>
+            <TableCell style={{ width: "60%", border: "1px solid rgba(0, 0, 0, 0.1)" }}>
+              {t("userInfoDialog.projectName")}
+            </TableCell>
+            <TableCell style={{ width: "20%", border: "1px solid rgba(0, 0, 0, 0.1)" }}>
+              {t("userInfoDialog.projectEstimatesAccuracy")}
+            </TableCell>
+            <TableCell style={{ width: "20%", border: "1px solid rgba(0, 0, 0, 0.1)" }}>
+              {t("userInfoDialog.projectStatus")}
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -180,7 +204,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
               </TableCell>
               <TableCell style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}>80%</TableCell>
               <TableCell style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}>
-                {renderStatusElement({ status: ProjectStatus.IN_PROGRESS, color: "#EF6C00" })}
+                {renderStatusElement({ status: ProjectStatus.Initiation, color: "#EF6C00" })}
               </TableCell>
             </TableRow>
           ))}
@@ -191,16 +215,22 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
 
   /**
    * Renders project status element
-   * 
+   *
    * TODO: Once Project status is implemented in the API - add the status logic support
-   * 
+   *
    * @param status project status
    */
   const renderStatusElement = (status: ProjectStatusLabel) => (
-    <div style={{ backgroundColor: status.color, borderRadius: 10, display: "flex", justifyContent: "center", maxWidth: 100 }}>
-      <p style={{ paddingInline: 5, color: "white", margin: 0 }}>
-        {status.status}
-      </p>
+    <div
+      style={{
+        backgroundColor: status.color,
+        borderRadius: 10,
+        display: "flex",
+        justifyContent: "center",
+        maxWidth: 100,
+      }}
+    >
+      <p style={{ paddingInline: 5, color: "white", margin: 0 }}>{status.status}</p>
     </div>
   );
 
@@ -224,18 +254,9 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
         {t("userInfoDialog.projects")}
       </DialogContentText>
       <DialogContent style={{ padding: 0 }}>
-        <LoaderWrapper loading={loading}>
-          {renderUserProjectsTable()}
-        </LoaderWrapper>
+        <LoaderWrapper loading={loading}>{renderUserProjectsTable()}</LoaderWrapper>
         <DialogActions sx={{ justifyContent: "end" }}>
-          <Button
-            onClick={action}
-            sx={{ borderRadius: 25 }}
-            variant="text"
-            color="primary"
-            size="medium"
-            disabled
-          >
+          <Button onClick={action} sx={{ borderRadius: 25 }} variant="text" color="primary" size="medium" disabled>
             <AddIcon />
             {t("createNewProject")}
           </Button>

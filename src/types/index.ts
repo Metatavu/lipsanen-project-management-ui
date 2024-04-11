@@ -1,14 +1,6 @@
 import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
+import { ProjectStatus } from "generated/client";
 import { DefaultNamespace, ParseKeys } from "i18next";
-
-/**
- * Project status enum
- * TODO: Add statuses or remove if replaced with an API specification
- */
-export enum ProjectStatus {
-  IN_PROGRESS = "In progress",
-  READY = "Ready",
-}
 
 export type NavigationLink = {
   route: RoutePaths<RegisteredRouter["routeTree"]>;
@@ -24,3 +16,10 @@ export type UploadMessage = {
   message: string;
   severity: "error" | "success" | "info" | "warning";
 };
+/**
+ * Interface for options type
+ */
+export interface CompanyOptionType {
+  inputValue?: string;
+  name: string;
+}

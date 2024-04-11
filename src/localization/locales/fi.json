@@ -26,13 +26,18 @@
   "company": "Yritys",
   "role": "Rooli",
   "lastLoggedIn": "Viimeksi paikalla",
-  "addANewUser": "Lisää uusi käyttäjä",
   "name": "Nimi",
-  "email": "Sähköposti",
-  "enterUsersName": "Anna käyttäjän nimi",
-  "enterUsersEmail": "Anna käyttäjän sähköposti",
-  "enterUsersCompany": "Anna käyttäjän yritys",
-  "sendAnInvitation": "Lähetä kutsu",
+  "addANewUser": "Lisää uusi käyttäjä",
+  "newUserDialog": {
+    "email": "Sähköposti",
+    "sendAnInvitation": "Lähetä kutsu",
+    "selectUsersCompany": "Anna käyttäjän yritys",
+    "enterUsersEmail": "Anna käyttäjän sähköposti",
+    "enterUsersName": "Anna käyttäjän nimi",
+    "createNewCompany": "Perustaa uusi yritys",
+    "invalidEmailWarning": "Anna kelvollinen sähköpostiosoite",
+    "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen"
+  },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
     "errorListingProjects": "Virhe haettaessa projektiluetteloa",
@@ -43,7 +48,9 @@
     "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
     "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",
     "errorUploadingImage": "Virhe kuvan latauksessa",
-    "errorListingLogos": "Virhe haettaessa logoluetteloa"
+    "errorListingLogos": "Virhe haettaessa logoluetteloa",
+    "errorListingCompanies": "Virhe haettaessa yritysluetteloa",
+    "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
