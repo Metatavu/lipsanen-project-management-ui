@@ -38,6 +38,7 @@ const ProjectsIndexRoute = () => {
     setLoading(false);
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
   useEffect(() => {
     getProjectsList();
   }, []);
