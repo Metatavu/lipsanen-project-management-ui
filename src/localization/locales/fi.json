@@ -38,7 +38,10 @@
     "errorListingProjects": "Virhe haettaessa projektiluetteloa",
     "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
     "errorListingUsers": "Virhe haettaessa käyttäjäluetteloa",
-    "errorCreatingUser": "Virhe luotaessa uutta käyttäjää"
+    "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
+    "errorListingProjectThemes": "Virhe haettaessa projektiteemaluetteloa",
+    "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
+    "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",

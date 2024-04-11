@@ -3,9 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import FileUploader from "components/generic/file-upload";
-import { Color } from "types";
 import { DEFAULT_THEME_COLORS } from "../constants";
 import { MuiColorInput } from "mui-color-input";
 import { useApi } from "../hooks/use-api";
@@ -13,14 +12,19 @@ import { useAtom } from "jotai";
 import { projectsAtom } from "../atoms/projects";
 import LoaderWrapper from "components/generic/loader-wrapper";
 import config from "../app/config";
+import { ProjectTheme } from "generated/client";
 
 const SettingsIndexRoute = () => {
   const { t } = useTranslation();
-  const { projectsApi } = useApi();
+  const { projectsApi, ProjectThemesApi } = useApi();
   const [projects, setProjects] = useAtom(projectsAtom);
-  const [selectedColor, setSelectedColor] = useState<Color>();
-  const [selectedLogo, setSelectedLogo] = useState("");
+  // TODO: Maybe default value for selectedProject should come from the user settings in future?
+  const [selectedProject, setSelectedProject] = useState("");
+  const [projectThemes, setProjectThemes] = useState<ProjectTheme[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [selectedLogo, setSelectedLogo] = useState<string | undefined>(undefined);
   const [openColorPicker, setOpenColorPicker] = useState(false);
+  const debounceTimeoutRef = useRef<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   /**
@@ -39,10 +43,109 @@ const SettingsIndexRoute = () => {
     setLoading(false);
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies not needed
   useEffect(() => {
     getProjectsList();
     // TODO: This can contain the logos listing request also
   }, []);
+
+  /**
+   * Get project themes list
+   */
+  const getProjectThemesList = async (selectedProject: string) => {
+    const selectedProjectId = projects.find((project) => project.id === selectedProject)?.id;
+
+    if (!selectedProjectId) return;
+
+    setLoading(true);
+    try {
+      const projectThemes = await ProjectThemesApi.listProjectThemes({ projectId: selectedProjectId });
+      setProjectThemes(projectThemes);
+    } catch (error) {
+      console.error(t("errorHandling.errorListingProjectThemes"), error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    getProjectThemesList(selectedProject);
+  }, [selectedProject]);
+
+  useEffect(() => {
+    applyProjectThemeSettings();
+  }, [projectThemes]);
+
+  /**
+   * Create project theme
+   *
+   * @param selectedProject string
+   * @param selectedColor string
+   * @param selectedLogo string url
+   */
+  const createProjectTheme = async (selectedProject: string, selectedColor?: string, selectedLogo?: string) => {
+    const selectedProjectId = projects.find((project) => project.id === selectedProject)?.id;
+
+    if (!selectedProjectId) return;
+
+    setLoading(true);
+    try {
+      const createdTheme = await ProjectThemesApi.createProjectTheme({
+        projectId: selectedProjectId,
+        projectTheme: {
+          themeColor: selectedColor ?? DEFAULT_THEME_COLORS[0].value,
+          logoUrl: selectedLogo ?? "placeholder-url",
+        },
+      });
+      setProjectThemes([createdTheme]);
+    } catch (e) {
+      console.error(t("errorHandling.errorCreatingProjectTheme"), e);
+    }
+    setLoading(false);
+  };
+
+  /**
+   * Update project theme
+   *
+   * @param selectedProject string
+   * @param selectedColor string
+   * @param selectedLogo string url
+   */
+  const updateProjectTheme = async (selectedProject: string, selectedColor?: string, selectedLogo?: string) => {
+    const selectedProjectId = projects.find((project) => project.id === selectedProject)?.id;
+
+    if (!selectedProjectId || !projectThemes[0]?.id) return;
+
+    setLoading(true);
+    try {
+      const updatedTheme = await ProjectThemesApi.updateProjectTheme({
+        themeId: projectThemes[0].id,
+        projectId: selectedProjectId,
+        projectTheme: {
+          themeColor: selectedColor ?? projectThemes[0].themeColor,
+          logoUrl: selectedLogo ?? projectThemes[0].logoUrl,
+        },
+      });
+      setProjectThemes([updatedTheme]);
+    } catch (e) {
+      console.error(t("errorHandling.errorUpdatingProjectTheme"), e);
+    }
+    setLoading(false);
+  };
+
+  /**
+   * Applies the project theme settings to settings configuration
+   */
+  const applyProjectThemeSettings = () => {
+    const colorToUpdate = projectThemes[0]?.themeColor ?? DEFAULT_THEME_COLORS[0].value;
+    setSelectedColor(colorToUpdate);
+    const isCustomColor = !DEFAULT_THEME_COLORS.some((color) => color.value === colorToUpdate);
+
+    if (isCustomColor) {
+      setOpenColorPicker(true);
+    } else {
+      setOpenColorPicker(false);
+    }
+  };
 
   // TODO: Upload logo to s3
   const uploadFile = (file: File) => {
@@ -50,14 +153,54 @@ const SettingsIndexRoute = () => {
   };
 
   /**
-   * Handles custom color selection
+   * Project theme change handler
+   */
+  const handleProjectThemeChange = (color?: string) => {
+    if (!selectedProject) {
+      setSelectedColor(color);
+      // TODO: Set selected logo here also
+      return;
+    }
+
+    if (projectThemes.length) {
+      updateProjectTheme(selectedProject, color, selectedLogo);
+    } else {
+      createProjectTheme(selectedProject, color, selectedLogo);
+    }
+  };
+
+  /**
+   * Handles color selection
    *
    * @param color string
    */
   const handleColorSelection = (color: string) => {
-    setSelectedColor({ name: "Custom color", value: color });
+    handleProjectThemeChange(color);
+  };
 
-    // TODO: This should update the project theme on API- check about the use of a seperate projectTheme e.g. so list projects, then create (or update) a project theme.
+  // TODO: Need to check the UI experience with this debounce for the custom color selection
+  /**
+   * Handles custom color selection
+   *
+   * @param color string
+   */
+  const handleCustomColorSelection = (color: string) => {
+    setSelectedColor(color);
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    debounceTimeoutRef.current = setTimeout(() => {
+      handleProjectThemeChange(color);
+    }, 5000);
+  };
+
+  /**
+   * Handles project selection
+   *
+   * @param event event
+   */
+  const handleProjectSelection = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+    setSelectedProject(value);
   };
 
   /**
@@ -75,7 +218,7 @@ const SettingsIndexRoute = () => {
           textAlign: "center",
           width: "10%",
         }}
-        onClick={() => setSelectedColor(color)}
+        onClick={() => handleColorSelection(color.value)}
       >
         <Button
           variant="contained"
@@ -90,7 +233,7 @@ const SettingsIndexRoute = () => {
             },
           }}
         >
-          {selectedColor?.name === color.name && <CheckIcon />}
+          {selectedColor === color.value && <CheckIcon />}
         </Button>
         <Typography sx={{ mt: 1, maxWidth: "6rem", overflowWrap: "break-word" }}>{color.name}</Typography>
       </Box>
@@ -106,6 +249,7 @@ const SettingsIndexRoute = () => {
     return (
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         {tempLogos.map((logo) => (
+          // TODO: Add a key
           <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => setSelectedLogo(logo)}>
             <Radio checked={selectedLogo === logo} />
             <Typography>{logo}</Typography>
@@ -130,10 +274,12 @@ const SettingsIndexRoute = () => {
           </Typography>
           <Divider />
           <TextField
+            value={selectedProject}
             label={t("settingsScreen.project")}
             select
             size="small"
             sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
+            onChange={handleProjectSelection}
           >
             {projects.map((project) => {
               return (
@@ -160,9 +306,9 @@ const SettingsIndexRoute = () => {
               </Button>
               {openColorPicker && (
                 <MuiColorInput
-                  value={selectedColor?.value ?? ""}
-                  onChange={handleColorSelection}
-                  sx={{ width: "200px" }}
+                  value={selectedColor ?? ""}
+                  onChange={handleCustomColorSelection}
+                  sx={{ width: "200px", alignSelf: "flex-start", margin: 0 }}
                 />
               )}
             </Box>

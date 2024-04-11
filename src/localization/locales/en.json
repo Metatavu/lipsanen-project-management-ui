@@ -38,7 +38,10 @@
     "errorListingProjects": "Error while fetching projects list",
     "errorListingUserProjects": "Error while fetching user's projects list",
     "errorListingUsers": "Error while fetching users list",
-    "errorCreatingUser": "Error while creating a new user"
+    "errorCreatingUser": "Error while creating a new user",
+    "errorListingProjectThemes": "Error while fetching project themes list",
+    "errorCreatingProjectTheme": "Error while creating a new project theme",
+    "errorUpdatingProjectTheme": "Error while updating a project theme"
   },
   "userInfoDialog": {
     "title": "User information",

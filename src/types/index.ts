@@ -20,11 +20,6 @@ export type ProjectStatusLabel = {
   color: string;
 };
 
-export type Color = {
-  name: string;
-  value: string;
-};
-
 export type UploadMessage = {
   message: string;
   severity: "error" | "success" | "info" | "warning";
