@@ -35,6 +35,7 @@ export interface FindUserRequest {
 }
 
 export interface ListUsersRequest {
+    companyId?: string;
     first?: number;
     max?: number;
 }
@@ -177,6 +178,10 @@ export class UsersApi extends runtime.BaseAPI {
      */
     async listUsersRaw(requestParameters: ListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<User>>> {
         const queryParameters: any = {};
+
+        if (requestParameters.companyId !== undefined) {
+            queryParameters['companyId'] = requestParameters.companyId;
+        }
 
         if (requestParameters.first !== undefined) {
             queryParameters['first'] = requestParameters.first;
