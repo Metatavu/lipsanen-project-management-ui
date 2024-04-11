@@ -19,67 +19,48 @@ import {
     MetadataFromJSONTyped,
     MetadataToJSON,
 } from './Metadata';
-import type { ProjectStatus } from './ProjectStatus';
-import {
-    ProjectStatusFromJSON,
-    ProjectStatusFromJSONTyped,
-    ProjectStatusToJSON,
-} from './ProjectStatus';
 
 /**
- * Project object
+ * Company object
  * @export
- * @interface Project
+ * @interface Company
  */
-export interface Project {
+export interface Company {
     /**
      * 
      * @type {string}
-     * @memberof Project
+     * @memberof Company
      */
     id?: string;
     /**
      * 
      * @type {string}
-     * @memberof Project
+     * @memberof Company
      */
     name: string;
     /**
      * 
-     * @type {number}
-     * @memberof Project
-     */
-    tocomanId?: number;
-    /**
-     * 
-     * @type {ProjectStatus}
-     * @memberof Project
-     */
-    status: ProjectStatus;
-    /**
-     * 
      * @type {Metadata}
-     * @memberof Project
+     * @memberof Company
      */
     metadata?: Metadata;
 }
 
 /**
- * Check if a given object implements the Project interface.
+ * Check if a given object implements the Company interface.
  */
-export function instanceOfProject(value: object): boolean {
+export function instanceOfCompany(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "status" in value;
 
     return isInstance;
 }
 
-export function ProjectFromJSON(json: any): Project {
-    return ProjectFromJSONTyped(json, false);
+export function CompanyFromJSON(json: any): Company {
+    return CompanyFromJSONTyped(json, false);
 }
 
-export function ProjectFromJSONTyped(json: any, ignoreDiscriminator: boolean): Project {
+export function CompanyFromJSONTyped(json: any, ignoreDiscriminator: boolean): Company {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -87,13 +68,11 @@ export function ProjectFromJSONTyped(json: any, ignoreDiscriminator: boolean): P
         
         'id': !exists(json, 'id') ? undefined : json['id'],
         'name': json['name'],
-        'tocomanId': !exists(json, 'tocomanId') ? undefined : json['tocomanId'],
-        'status': ProjectStatusFromJSON(json['status']),
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
 }
 
-export function ProjectToJSON(value?: Project | null): any {
+export function CompanyToJSON(value?: Company | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -104,8 +83,6 @@ export function ProjectToJSON(value?: Project | null): any {
         
         'id': value.id,
         'name': value.name,
-        'tocomanId': value.tocomanId,
-        'status': ProjectStatusToJSON(value.status),
         'metadata': MetadataToJSON(value.metadata),
     };
 }

@@ -48,7 +48,7 @@ export interface User {
      * @type {string}
      * @memberof User
      */
-    company?: string;
+    companyId?: string;
     /**
      * 
      * @type {Date}
@@ -89,7 +89,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'firstName': json['firstName'],
         'lastName': json['lastName'],
         'email': json['email'],
-        'company': !exists(json, 'company') ? undefined : json['company'],
+        'companyId': !exists(json, 'companyId') ? undefined : json['companyId'],
         'lastLoggedIn': !exists(json, 'lastLoggedIn') ? undefined : (new Date(json['lastLoggedIn'])),
         'projectIds': !exists(json, 'projectIds') ? undefined : json['projectIds'],
     };
@@ -108,7 +108,7 @@ export function UserToJSON(value?: User | null): any {
         'firstName': value.firstName,
         'lastName': value.lastName,
         'email': value.email,
-        'company': value.company,
+        'companyId': value.companyId,
         'lastLoggedIn': value.lastLoggedIn === undefined ? undefined : (value.lastLoggedIn.toISOString()),
         'projectIds': value.projectIds,
     };
