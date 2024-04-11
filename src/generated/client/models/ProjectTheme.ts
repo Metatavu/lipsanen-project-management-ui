@@ -19,81 +19,68 @@ import {
     MetadataFromJSONTyped,
     MetadataToJSON,
 } from './Metadata';
-import type { ProjectStatus } from './ProjectStatus';
-import {
-    ProjectStatusFromJSON,
-    ProjectStatusFromJSONTyped,
-    ProjectStatusToJSON,
-} from './ProjectStatus';
 
 /**
- * Project object
+ * Theme object
  * @export
- * @interface Project
+ * @interface ProjectTheme
  */
-export interface Project {
+export interface ProjectTheme {
     /**
      * 
      * @type {string}
-     * @memberof Project
+     * @memberof ProjectTheme
      */
-    id?: string;
+    readonly id?: string;
+    /**
+     * Theme color code
+     * @type {string}
+     * @memberof ProjectTheme
+     */
+    themeColor: string;
     /**
      * 
      * @type {string}
-     * @memberof Project
+     * @memberof ProjectTheme
      */
-    name: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof Project
-     */
-    tocomanId?: number;
-    /**
-     * 
-     * @type {ProjectStatus}
-     * @memberof Project
-     */
-    status: ProjectStatus;
+    logoUrl: string;
     /**
      * 
      * @type {Metadata}
-     * @memberof Project
+     * @memberof ProjectTheme
      */
     metadata?: Metadata;
 }
 
 /**
- * Check if a given object implements the Project interface.
+ * Check if a given object implements the ProjectTheme interface.
  */
-export function instanceOfProject(value: object): boolean {
+export function instanceOfProjectTheme(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "themeColor" in value;
+    isInstance = isInstance && "logoUrl" in value;
 
     return isInstance;
 }
 
-export function ProjectFromJSON(json: any): Project {
-    return ProjectFromJSONTyped(json, false);
+export function ProjectThemeFromJSON(json: any): ProjectTheme {
+    return ProjectThemeFromJSONTyped(json, false);
 }
 
-export function ProjectFromJSONTyped(json: any, ignoreDiscriminator: boolean): Project {
+export function ProjectThemeFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProjectTheme {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
-        'name': json['name'],
-        'tocomanId': !exists(json, 'tocomanId') ? undefined : json['tocomanId'],
-        'status': ProjectStatusFromJSON(json['status']),
+        'themeColor': json['themeColor'],
+        'logoUrl': json['logoUrl'],
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
 }
 
-export function ProjectToJSON(value?: Project | null): any {
+export function ProjectThemeToJSON(value?: ProjectTheme | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -102,10 +89,8 @@ export function ProjectToJSON(value?: Project | null): any {
     }
     return {
         
-        'id': value.id,
-        'name': value.name,
-        'tocomanId': value.tocomanId,
-        'status': ProjectStatusToJSON(value.status),
+        'themeColor': value.themeColor,
+        'logoUrl': value.logoUrl,
         'metadata': MetadataToJSON(value.metadata),
     };
 }
