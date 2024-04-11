@@ -10,8 +10,8 @@ import CloseIcon from "@mui/icons-material/Close";
  */
 interface Props {
   allowedFileTypes: string[];
-  uploadLoading: boolean;
   uploadFile: (file: File) => void;
+  logos: string[];
 }
 
 /**
@@ -19,7 +19,7 @@ interface Props {
  *
  * @params props component properties
  */
-const FileUploader = ({ allowedFileTypes, uploadLoading, uploadFile }: Props) => {
+const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
   const { t } = useTranslation();
   const [uploadMessage, setUploadMessage] = useState<UploadMessage>();
 
@@ -76,21 +76,23 @@ const FileUploader = ({ allowedFileTypes, uploadLoading, uploadFile }: Props) =>
    * @param files files
    */
   const handleDropFile = (files: File[]) => {
-    if (checkFileName(files[0])) {
+    const file = files[0];
+    if (!file) {
+      setUploadMessage({ message: t("errorHandling.errorUploadingImage"), severity: "error" });
+      return;
+    }
+
+    if (checkFileName(file)) {
       setUploadMessage({ message: t("settingsScreen.uploadWarningInvalidCharacters"), severity: "error" });
       return;
     }
 
-    // TODO: Prevent duplicate names here, when list available
-    // if (backgroundImages.some((image) => image.name === files[0].name)) {
-    //   setErrorMessage(t("settingsScreen.uploadWarningDuplicateFileName"));
-    //   return;
-    // }
+    if (logos.some((logo) => logo === files[0].name)) {
+      setUploadMessage({ message: t("settingsScreen.uploadWarningDuplicateFileName"), severity: "error" });
+      return;
+    }
 
-    // TODO: Set the loading state here
-    uploadFile(files[0]);
-
-    setUploadMessage({ message: t("settingsScreen.fileSuccessfullyUploaded"), severity: "success" });
+    uploadFile(file);
   };
 
   return <Box sx={{ display: "flex", flexDirection: "row", width: "30%" }}>{renderUploadZone()}</Box>;

@@ -41,7 +41,9 @@
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
     "errorListingProjectThemes": "Virhe haettaessa projektiteemaluetteloa",
     "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
-    "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa"
+    "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",
+    "errorUploadingImage": "Virhe kuvan latauksessa",
+    "errorListingLogos": "Virhe haettaessa logoluetteloa"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",

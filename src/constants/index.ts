@@ -4,3 +4,5 @@ export const DEFAULT_THEME_COLORS = [
   { name: "Moduls", value: "rgba(0, 23, 58, 1)" },
   { name: "HB-Porras", value: "rgba(0, 122, 191, 1)" },
 ];
+
+export const DEFAULT_LOGO = "Lipsanen logo.png";

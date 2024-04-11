@@ -5,7 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import FileUploader from "components/generic/file-upload";
-import { DEFAULT_THEME_COLORS } from "../constants";
+import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "../constants";
 import { MuiColorInput } from "mui-color-input";
 import { useApi } from "../hooks/use-api";
 import { useAtom } from "jotai";
@@ -13,11 +13,14 @@ import { projectsAtom } from "../atoms/projects";
 import LoaderWrapper from "components/generic/loader-wrapper";
 import config from "../app/config";
 import { ProjectTheme } from "generated/client";
+import { authAtom } from "../atoms/auth";
 
 const SettingsIndexRoute = () => {
   const { t } = useTranslation();
   const { projectsApi, ProjectThemesApi } = useApi();
+  const [auth] = useAtom(authAtom);
   const [projects, setProjects] = useAtom(projectsAtom);
+  const [logos, setLogos] = useState<string[]>([]);
   // TODO: Maybe default value for selectedProject should come from the user settings in future?
   const [selectedProject, setSelectedProject] = useState("");
   const [projectThemes, setProjectThemes] = useState<ProjectTheme[]>([]);
@@ -43,10 +46,32 @@ const SettingsIndexRoute = () => {
     setLoading(false);
   };
 
+  /**
+   * Get Logo urls list from s3
+   */
+  const getLogosList = async () => {
+    setLoading(true);
+    try {
+      const logos = await (
+        await fetch(`${config.lambdasBaseUrl}/listMedia`, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${auth?.tokenRaw}`,
+          },
+        })
+      ).json();
+
+      setLogos(logos.data);
+    } catch (error) {
+      console.error(t("errorHandling.errorListingLogos"), error);
+    }
+    setLoading(false);
+  };
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies not needed
   useEffect(() => {
     getProjectsList();
-    // TODO: This can contain the logos listing request also
+    getLogosList();
   }, []);
 
   /**
@@ -93,12 +118,12 @@ const SettingsIndexRoute = () => {
         projectId: selectedProjectId,
         projectTheme: {
           themeColor: selectedColor ?? DEFAULT_THEME_COLORS[0].value,
-          logoUrl: selectedLogo ?? "placeholder-url",
+          logoUrl: selectedLogo ?? DEFAULT_LOGO,
         },
       });
       setProjectThemes([createdTheme]);
-    } catch (e) {
-      console.error(t("errorHandling.errorCreatingProjectTheme"), e);
+    } catch (error) {
+      console.error(t("errorHandling.errorCreatingProjectTheme"), error);
     }
     setLoading(false);
   };
@@ -126,8 +151,8 @@ const SettingsIndexRoute = () => {
         },
       });
       setProjectThemes([updatedTheme]);
-    } catch (e) {
-      console.error(t("errorHandling.errorUpdatingProjectTheme"), e);
+    } catch (error) {
+      console.error(t("errorHandling.errorUpdatingProjectTheme"), error);
     }
     setLoading(false);
   };
@@ -138,6 +163,9 @@ const SettingsIndexRoute = () => {
   const applyProjectThemeSettings = () => {
     const colorToUpdate = projectThemes[0]?.themeColor ?? DEFAULT_THEME_COLORS[0].value;
     setSelectedColor(colorToUpdate);
+    const logoToUpdate = projectThemes[0]?.logoUrl ?? DEFAULT_LOGO;
+    setSelectedLogo(logoToUpdate);
+
     const isCustomColor = !DEFAULT_THEME_COLORS.some((color) => color.value === colorToUpdate);
 
     if (isCustomColor) {
@@ -147,25 +175,64 @@ const SettingsIndexRoute = () => {
     }
   };
 
-  // TODO: Upload logo to s3
-  const uploadFile = (file: File) => {
-    // TODO: This should upload to the lambda and update the list of logos
+  /**
+   * Upload image request to s3
+   *
+   * @param file file
+   */
+  const uploadFile = async (file: File) => {
+    setLoading(true);
+
+    try {
+      const presignedUrl = await (
+        await fetch(`${config.lambdasBaseUrl}/uploadFile`, {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${auth?.tokenRaw}`,
+          },
+          body: JSON.stringify({
+            path: `${file.name}`,
+            contentType: file.type,
+          }),
+        })
+      ).json();
+
+      const uploadResponse = await fetch(presignedUrl.data, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+        },
+        body: file,
+      });
+
+      if (uploadResponse.status !== 200) {
+        throw new Error();
+      }
+      getLogosList();
+    } catch (error) {
+      console.error(t("errorHandling.errorUploadingImage"), error);
+    }
+
+    setLoading(false);
   };
 
   /**
    * Project theme change handler
+   *
+   * @param color string
+   * @param logo string
    */
-  const handleProjectThemeChange = (color?: string) => {
+  const handleProjectThemeChange = (color?: string, logo?: string) => {
     if (!selectedProject) {
-      setSelectedColor(color);
-      // TODO: Set selected logo here also
+      setSelectedColor(color ?? selectedColor);
+      setSelectedLogo(logo ?? selectedLogo);
       return;
     }
 
     if (projectThemes.length) {
-      updateProjectTheme(selectedProject, color, selectedLogo);
+      updateProjectTheme(selectedProject, color, logo);
     } else {
-      createProjectTheme(selectedProject, color, selectedLogo);
+      createProjectTheme(selectedProject, color, logo);
     }
   };
 
@@ -178,7 +245,6 @@ const SettingsIndexRoute = () => {
     handleProjectThemeChange(color);
   };
 
-  // TODO: Need to check the UI experience with this debounce for the custom color selection
   /**
    * Handles custom color selection
    *
@@ -191,7 +257,14 @@ const SettingsIndexRoute = () => {
     }
     debounceTimeoutRef.current = setTimeout(() => {
       handleProjectThemeChange(color);
-    }, 5000);
+    }, 4000);
+  };
+
+  /**
+   * Handles logo selection
+   */
+  const handleLogoSelection = (logo: string) => {
+    handleProjectThemeChange(undefined, logo);
   };
 
   /**
@@ -239,21 +312,16 @@ const SettingsIndexRoute = () => {
       </Box>
     ));
 
-  // TODO: Logos will come from the lambda
   /**
    * Renders logo radio buttons
    */
   const renderLogoRadioButtons = () => {
-    const tempLogos = ["logo 1", "logo 2", "logo 3"];
-
     return (
       <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {tempLogos.map((logo) => (
-          // TODO: Add a key
-          <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => setSelectedLogo(logo)}>
-            <Radio checked={selectedLogo === logo} />
-            <Typography>{logo}</Typography>
-            {/* <img src={`${config.cdnBaseUrl}/${logo}`} alt={logo} /> */}
+        {logos.map((logo) => (
+          <Box key={logo} sx={{ display: "flex", alignItems: "center" }} onClick={() => setSelectedLogo(logo)}>
+            <Radio checked={selectedLogo === logo} value={logo} onChange={() => handleLogoSelection(logo)} />
+            <img src={`${config.cdnBaseUrl}/${logo}`} alt={logo} />
           </Box>
         ))}
       </Box>
@@ -319,7 +387,8 @@ const SettingsIndexRoute = () => {
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "row", gap: "5rem" }}>
               {renderLogoRadioButtons()}
-              <FileUploader allowedFileTypes={[".png", ".svg"]} uploadLoading={false} uploadFile={uploadFile} />
+              {/* TODO: Types from design, should we just allow all image types? */}
+              <FileUploader allowedFileTypes={[".png", ".svg"]} uploadFile={uploadFile} logos={logos} />
             </Box>
           </Box>
           <Box>

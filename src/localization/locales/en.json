@@ -41,7 +41,9 @@
     "errorCreatingUser": "Error while creating a new user",
     "errorListingProjectThemes": "Error while fetching project themes list",
     "errorCreatingProjectTheme": "Error while creating a new project theme",
-    "errorUpdatingProjectTheme": "Error while updating a project theme"
+    "errorUpdatingProjectTheme": "Error while updating a project theme",
+    "errorUploadingImage": "Error while uploading image",
+    "errorListingLogos": "Error while fetching logos list"
   },
   "userInfoDialog": {
     "title": "User information",
