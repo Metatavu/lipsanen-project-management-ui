@@ -12,8 +12,9 @@ import ConstructionIcon from "@mui/icons-material/Construction";
 import { useApi } from "../hooks/use-api";
 import { useAtom } from "jotai";
 import { projectsAtom } from "../atoms/projects";
-import { Project } from "generated/client";
+import { Project, ProjectStatus } from "generated/client";
 import LoaderWrapper from "components/generic/loader-wrapper";
+import ProjectHelpers from "components/helpers/project-helpers";
 
 const ProjectsIndexRoute = () => {
   const { t } = useTranslation();
@@ -51,6 +52,7 @@ const ProjectsIndexRoute = () => {
     try {
       const newProject: Project = {
         name: newProjectName,
+        status: ProjectStatus.Initiation
       };
 
       const createdProject = await projectsApi.createProject({ project: newProject });
@@ -100,6 +102,7 @@ const ProjectsIndexRoute = () => {
       field: "status",
       headerName: t("status"),
       flex: 1,
+      renderCell: (params) => ProjectHelpers.renderStatusElement(params.value),
     },
     {
       field: " ",

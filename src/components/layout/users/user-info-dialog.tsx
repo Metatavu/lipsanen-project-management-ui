@@ -3,11 +3,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ProjectStatus, ProjectStatusLabel } from "types";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import { Project, User } from "generated/client";
 import { useApi } from "../../../hooks/use-api";
 import LoaderWrapper from "components/generic/loader-wrapper";
+import ProjectHelpers from "components/helpers/project-helpers";
 
 /**
  * Component Props
@@ -180,28 +180,13 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
               </TableCell>
               <TableCell style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}>80%</TableCell>
               <TableCell style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}>
-                {renderStatusElement({ status: ProjectStatus.IN_PROGRESS, color: "#EF6C00" })}
+                {ProjectHelpers.renderStatusElement(project.status)}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-  );
-
-  /**
-   * Renders project status element
-   * 
-   * TODO: Once Project status is implemented in the API - add the status logic support
-   * 
-   * @param status project status
-   */
-  const renderStatusElement = (status: ProjectStatusLabel) => (
-    <div style={{ backgroundColor: status.color, borderRadius: 10, display: "flex", justifyContent: "center", maxWidth: 100 }}>
-      <p style={{ paddingInline: 5, color: "white", margin: 0 }}>
-        {status.status}
-      </p>
-    </div>
   );
 
   /**
