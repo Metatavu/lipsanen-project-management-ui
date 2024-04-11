@@ -217,6 +217,13 @@ const SettingsIndexRoute = () => {
   };
 
   /**
+   * Disable project theme handler
+   */
+  const disableProjectThemeHandler = () => {
+    handleProjectThemeChange(DEFAULT_THEME_COLORS[0].value, DEFAULT_LOGO);
+  };
+
+  /**
    * Project theme change handler
    *
    * @param color string
@@ -392,7 +399,7 @@ const SettingsIndexRoute = () => {
             </Box>
           </Box>
           <Box>
-            <Button variant="contained" color="error" size="large">
+            <Button variant="contained" color="error" size="large" onClick={disableProjectThemeHandler}>
               <DeleteIcon />
               {t("settingsScreen.disableProjectTheme")}
             </Button>
