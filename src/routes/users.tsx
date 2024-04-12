@@ -11,14 +11,15 @@ import { useAtom } from "jotai";
 import { usersAtom } from "../atoms/users";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
-import { Company, User } from "generated/client";
+import { Company, Project, User } from "generated/client";
 import NewUserDialog from "components/layout/users/new-user-dialog";
 import UserInfoDialog from "components/layout/users/user-info-dialog";
 
 const UsersIndexRoute = () => {
   const { t } = useTranslation();
-  const { usersApi, companiesApi } = useApi();
+  const { usersApi, projectsApi, companiesApi } = useApi();
   const [users, setUsers] = useAtom(usersAtom);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
   const [userInfoDialogOpen, setUserInfoDialogOpen] = useState(false);
@@ -40,6 +41,20 @@ const UsersIndexRoute = () => {
   };
 
   /**
+   * Get projects list
+   */
+  const getProjectsList = async () => {
+    setLoading(true);
+    try {
+      const projects = await projectsApi.listProjects();
+      setProjects(projects);
+    } catch (error) {
+      console.error(t("errorHandling.errorListingProjects"), error);
+    }
+    setLoading(false);
+  }
+
+  /**
    * Get companies list
    */
   const getCompaniesList = async () => {
@@ -56,6 +71,7 @@ const UsersIndexRoute = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
   useEffect(() => {
     getUsersList();
+    getProjectsList();
     getCompaniesList();
   }, []);
 
@@ -188,10 +204,11 @@ const UsersIndexRoute = () => {
     <div style={{ padding: "1rem" }}>
       <NewUserDialog
         open={newUserDialogOpen}
-        handleClose={() => setNewUserDialogOpen(false)}
         users={users}
-        createUser={createUser}
         companies={companies}
+        projects={projects}
+        handleClose={() => setNewUserDialogOpen(false)}
+        createUser={createUser}
         createCompany={createCompany}
       />
       <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} handleClose={() => setUserInfoDialogOpen(false)} />

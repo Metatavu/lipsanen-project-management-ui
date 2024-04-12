@@ -26,6 +26,7 @@ import ConstructionIcon from "@mui/icons-material/Construction";
 import { Project, ProjectStatus, User } from "generated/client";
 import { useApi } from "../../../hooks/use-api";
 import LoaderWrapper from "components/generic/loader-wrapper";
+import AssignUserToProjectDialog from "./assign-user-to-project-dialog";
 
 /**
  * Component Props
@@ -48,6 +49,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
   const [userProjects, setUserProjects] = useState<Project[]>([]);
+  const [assignProjectDialogOpen, setAssignProjectDialogOpen] = useState(false);
 
   /**
    * Fetches user projects
@@ -256,12 +258,13 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
       <DialogContent style={{ padding: 0 }}>
         <LoaderWrapper loading={loading}>{renderUserProjectsTable()}</LoaderWrapper>
         <DialogActions sx={{ justifyContent: "end" }}>
-          <Button onClick={action} sx={{ borderRadius: 25 }} variant="text" color="primary" size="medium" disabled>
+          <Button onClick={() => setAssignProjectDialogOpen(true)} sx={{ borderRadius: 25 }} variant="text" color="primary" size="medium">
             <AddIcon />
             {t("createNewProject")}
           </Button>
         </DialogActions>
       </DialogContent>
+      <AssignUserToProjectDialog open={assignProjectDialogOpen} user={user!} handleClose={() => setAssignProjectDialogOpen(false)} refetchData={getUserProjects} />
     </Dialog>
   );
 };
