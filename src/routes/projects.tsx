@@ -14,6 +14,7 @@ import { useAtom } from "jotai";
 import { projectsAtom } from "../atoms/projects";
 import { Project, ProjectStatus } from "generated/client";
 import LoaderWrapper from "components/generic/loader-wrapper";
+import ProjectHelpers from "components/helpers/project-helpers";
 
 const ProjectsIndexRoute = () => {
   const { t } = useTranslation();
@@ -52,7 +53,7 @@ const ProjectsIndexRoute = () => {
     try {
       const newProject: Project = {
         name: newProjectName,
-        status: ProjectStatus.Initiation,
+        status: ProjectStatus.Initiation
       };
 
       const createdProject = await projectsApi.createProject({ project: newProject });
@@ -102,6 +103,7 @@ const ProjectsIndexRoute = () => {
       field: "status",
       headerName: t("status"),
       flex: 1,
+      renderCell: (params) => ProjectHelpers.renderStatusElement(params.value),
     },
     {
       field: " ",
