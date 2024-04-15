@@ -58,8 +58,11 @@ const SettingsIndexRoute = () => {
     },
   });
 
+  const projectsData = projects.data ?? [];
+  const logosData = logos.data ?? [];
+
   const projectThemes = useQuery({
-    queryKey: ["projectThemes", selectedProject],
+    queryKey: ["projectThemes", selectedProject, projectsData],
     queryFn: () => {
       const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
       if (!selectedProjectId) return [];
@@ -70,14 +73,14 @@ const SettingsIndexRoute = () => {
     },
   });
 
-  const projectsData = projects.data ?? [];
-  const logosData = logos.data ?? [];
   const projectThemesData = projectThemes.data ?? [];
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
+    if (!selectedProject) return;
+
     applyProjectThemeSettings();
-  }, [projectThemesData]);
+  }, [projectThemesData, selectedProject]);
 
   const createProjectTheme = useMutation({
     mutationFn: async ({
@@ -163,12 +166,12 @@ const SettingsIndexRoute = () => {
    * Applies the project theme settings to settings configuration
    */
   const applyProjectThemeSettings = () => {
-    const colorToUpdate = projectThemesData[0]?.themeColor ?? DEFAULT_THEME_COLORS[0].value;
+    const colorToUpdate = projectThemesData[0]?.themeColor;
     setSelectedColor(colorToUpdate);
-    const logoToUpdate = projectThemesData[0]?.logoUrl ?? DEFAULT_LOGO;
+    const logoToUpdate = projectThemesData[0]?.logoUrl;
     setSelectedLogo(logoToUpdate);
 
-    const isCustomColor = !DEFAULT_THEME_COLORS.some((color) => color.value === colorToUpdate);
+    const isCustomColor = colorToUpdate && !DEFAULT_THEME_COLORS.some((color) => color.value === colorToUpdate);
 
     if (isCustomColor) {
       setOpenColorPicker(true);
