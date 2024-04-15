@@ -35,15 +35,15 @@ interface Props {
   open: boolean;
   user?: User;
   handleClose: () => void;
-  action?: () => void;
+  refetchUserData: () => void;
 }
 
 /**
  * User info dialog component
  */
-const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
+const UserInfoDialog = ({ open, user, handleClose, refetchUserData }: Props) => {
   const { t } = useTranslation();
-  const { projectsApi, usersApi } = useApi();
+  const { projectsApi } = useApi();
   const [name, setName] = useState("");
   const [organisation, setOrganisation] = useState("");
   const [role, setRole] = useState("");
@@ -54,7 +54,9 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
   /**
    * Fetches user projects
    */
-  const getUserProjects = async (user: User) => {
+  const getUserProjects = async () => {
+    if (!user) return;
+    
     setLoading(true);
     try {
       const userProjectIds = user.projectIds;
@@ -75,25 +77,6 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
   };
 
   /**
-   * Initially gets user projects
-   */
-  const initiateUserProjects = async () => {
-    if (!user) return;
-
-    getUserProjects(user);
-  };
-
-  /**
-   * Refetches user projects
-   */
-  const updateUserProjects = async () => {
-    if (!user?.id) return;
-
-    const foundUser = await usersApi.findUser({ userId: user.id });
-    getUserProjects(foundUser);
-  };
-
-  /**
    * Use effect to set user info
    */
   useEffect(() => {
@@ -103,7 +86,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
     setOrganisation(user.companyId || "");
 
     // Fetch user projects
-    initiateUserProjects();
+    getUserProjects();
   }, [user]);
 
   /**
@@ -263,7 +246,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
           </Button>
         </DialogActions>
       </DialogContent>
-      <AssignUserToProjectDialog open={assignProjectDialogOpen} user={user!} userProjects={userProjects} handleClose={() => setAssignProjectDialogOpen(false)} refetchData={updateUserProjects} />
+      <AssignUserToProjectDialog open={assignProjectDialogOpen} user={user!} userProjects={userProjects} handleClose={() => setAssignProjectDialogOpen(false)} refetchData={refetchUserData} />
     </Dialog>
   );
 };

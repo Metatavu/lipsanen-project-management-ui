@@ -68,6 +68,18 @@ const UsersIndexRoute = () => {
     setLoading(false);
   };
 
+  /**
+   * Refetches user data
+   */
+  const refetchUserData = async () => {
+    getUsersList();
+
+    if (selectedUser && selectedUser.id) {
+      const user = await usersApi.findUser({ userId: selectedUser.id });
+      setSelectedUser(user);
+    }
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
   useEffect(() => {
     getUsersList();
@@ -211,7 +223,7 @@ const UsersIndexRoute = () => {
         createUser={createUser}
         createCompany={createCompany}
       />
-      <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} handleClose={() => setUserInfoDialogOpen(false)} />
+      <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} handleClose={() => setUserInfoDialogOpen(false)} refetchUserData={refetchUserData}/>
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("users")}
