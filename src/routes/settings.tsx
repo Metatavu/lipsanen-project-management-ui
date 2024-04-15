@@ -23,7 +23,6 @@ const SettingsIndexRoute = () => {
   const [selectedLogo, setSelectedLogo] = useState<string | undefined>(undefined);
   const [openColorPicker, setOpenColorPicker] = useState(false);
   const debounceTimeoutRef = useRef<number | null>(null);
-  const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -296,6 +295,8 @@ const SettingsIndexRoute = () => {
    * Renders logo radio buttons
    */
   const renderLogoRadioButtons = () => {
+    if (logos.isPending) return null;
+
     return (
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         {logosData.map((logo) => (
@@ -308,8 +309,60 @@ const SettingsIndexRoute = () => {
     );
   };
 
+  /**
+   * Renders project theme settings
+   */
+  const renderSettings = () => {
+    if (!selectedProject) return null;
+
+    return (
+      <>
+        <Box sx={{ display: "flex", gap: "1rem", flexDirection: "column" }}>
+          <Typography component="h3" variant="h6">
+            {t("settingsScreen.themeMainColor")}
+          </Typography>
+          <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+            {renderColorsButtons()}
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => setOpenColorPicker(!openColorPicker)}
+              sx={{ padding: "1.2rem", alignSelf: "flex-start" }}
+            >
+              {t("settingsScreen.otherColor")}
+            </Button>
+            {openColorPicker && (
+              <MuiColorInput
+                value={selectedColor ?? ""}
+                onChange={handleCustomColorSelection}
+                sx={{ width: "200px", alignSelf: "flex-start", margin: 0 }}
+              />
+            )}
+          </Box>
+        </Box>
+        <Box>
+          <Typography component="h3" variant="h6">
+            {t("settingsScreen.logo")}
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "row", gap: "5rem" }}>
+            {renderLogoRadioButtons()}
+            {/* TODO: Types from design, should we just allow all image types? */}
+            <FileUploader allowedFileTypes={[".png", ".svg"]} uploadFile={uploadFile.mutateAsync} logos={logosData} />
+          </Box>
+        </Box>
+        <Box>
+          <Button variant="contained" color="error" size="large" onClick={disableProjectThemeHandler}>
+            <DeleteIcon />
+            {t("settingsScreen.disableProjectTheme")}
+          </Button>
+        </Box>
+      </>
+    );
+  };
+
   return (
-    <LoaderWrapper loading={loading}>
+    <LoaderWrapper loading={projects.isPending}>
       <div style={{ padding: "1rem" }}>
         <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
           <Typography component="h1" variant="h5">
@@ -335,46 +388,7 @@ const SettingsIndexRoute = () => {
               </MenuItem>
             ))}
           </TextField>
-          <Box sx={{ display: "flex", gap: "1rem", flexDirection: "column" }}>
-            <Typography component="h3" variant="h6">
-              {t("settingsScreen.themeMainColor")}
-            </Typography>
-            <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              {renderColorsButtons()}
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={() => setOpenColorPicker(!openColorPicker)}
-                sx={{ padding: "1.2rem", alignSelf: "flex-start" }}
-              >
-                {t("settingsScreen.otherColor")}
-              </Button>
-              {openColorPicker && (
-                <MuiColorInput
-                  value={selectedColor ?? ""}
-                  onChange={handleCustomColorSelection}
-                  sx={{ width: "200px", alignSelf: "flex-start", margin: 0 }}
-                />
-              )}
-            </Box>
-          </Box>
-          <Box>
-            <Typography component="h3" variant="h6">
-              {t("settingsScreen.logo")}
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "row", gap: "5rem" }}>
-              {renderLogoRadioButtons()}
-              {/* TODO: Types from design, should we just allow all image types? */}
-              <FileUploader allowedFileTypes={[".png", ".svg"]} uploadFile={uploadFile.mutateAsync} logos={logosData} />
-            </Box>
-          </Box>
-          <Box>
-            <Button variant="contained" color="error" size="large" onClick={disableProjectThemeHandler}>
-              <DeleteIcon />
-              {t("settingsScreen.disableProjectTheme")}
-            </Button>
-          </Box>
+          {renderSettings()}
         </Card>
       </div>
     </LoaderWrapper>
