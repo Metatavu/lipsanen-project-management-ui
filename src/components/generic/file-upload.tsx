@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UploadMessage } from "types";
 import CloseIcon from "@mui/icons-material/Close";
+const MAX_FILE_SIZE_IN_BYTES = 2000000;
 
 /**
  * Component props
@@ -27,14 +28,12 @@ const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
    * Render upload dialog
    */
   const renderUploadZone = () => {
-    const bytes = 2000000;
-
     return (
       <>
         <DropzoneArea
           onDrop={(files) => handleDropFile(files)}
           acceptedFiles={allowedFileTypes}
-          maxFileSize={bytes}
+          maxFileSize={MAX_FILE_SIZE_IN_BYTES}
           filesLimit={1}
           fileObjects={[]}
           showPreviewsInDropzone={false}
