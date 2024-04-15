@@ -33,75 +33,42 @@ const SettingsIndexRoute = () => {
     }
   }, []);
 
-  /**
-   * Get projects list
-   */
-  const getProjectsList = async () => {
-    setLoading(true);
-    try {
-      const projects = await projectsApi.listProjects();
-      return projects;
-    } catch (error) {
-      console.error(t("errorHandling.errorListingProjects"), error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Get Logo urls list from s3
-   */
-  const getLogosList = async () => {
-    setLoading(true);
-    try {
-      const logos = await (
-        await fetch(`${config.lambdasBaseUrl}/listMedia`, {
-          method: "GET",
-          headers: {
-            authorization: `Bearer ${auth?.tokenRaw}`,
-          },
-        })
-      ).json();
-
-      return logos.data as string[];
-    } catch (error) {
-      console.error(t("errorHandling.errorListingLogos"), error);
-    }
-    setLoading(false);
-  };
-
-  /**
-   * Get project themes list
-   */
-  const getProjectThemesList = async (selectedProject: string) => {
-    const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
-
-    if (!selectedProjectId) return [];
-
-    setLoading(true);
-    try {
-      const projectThemes = await ProjectThemesApi.listProjectThemes({ projectId: selectedProjectId });
-      return projectThemes;
-    } catch (error) {
-      console.error(t("errorHandling.errorListingProjectThemes"), error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const projects = useQuery({
     queryKey: ["projects"],
-    queryFn: getProjectsList,
+    queryFn: () =>
+      projectsApi.listProjects().catch((error) => console.error(t("errorHandling.errorListingProjects"), error)),
   });
 
   const logos = useQuery({
     queryKey: ["logos"],
-    queryFn: getLogosList,
+    queryFn: async () => {
+      try {
+        const logos = await (
+          await fetch(`${config.lambdasBaseUrl}/listMedia`, {
+            method: "GET",
+            headers: {
+              authorization: `Bearer ${auth?.tokenRaw}`,
+            },
+          })
+        ).json();
+
+        return logos.data as string[];
+      } catch (error) {
+        console.error(t("errorHandling.errorListingLogos"), error);
+      }
+    },
   });
 
   const projectThemes = useQuery({
     queryKey: ["projectThemes", selectedProject],
-    queryFn: () => getProjectThemesList(selectedProject),
+    queryFn: () => {
+      const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
+      if (!selectedProjectId) return [];
+
+      return ProjectThemesApi.listProjectThemes({ projectId: selectedProjectId }).catch((error) =>
+        console.error(t("errorHandling.errorListingProjectThemes"), error),
+      );
+    },
   });
 
   const projectsData = projects.data ?? [];
@@ -113,24 +80,15 @@ const SettingsIndexRoute = () => {
     applyProjectThemeSettings();
   }, [projectThemesData]);
 
-  /**
-   * Create project theme
-   *
-   * @param selectedProject string
-   * @param selectedColor string
-   * @param selectedLogo string url
-   */
-  const createProjectThemeRequest = async ({
-    selectedProject,
-    selectedColor,
-    selectedLogo,
-  }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
-    const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
+  const createProjectTheme = useMutation({
+    mutationFn: async ({
+      selectedProject,
+      selectedColor,
+      selectedLogo,
+    }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
+      const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
+      if (!selectedProjectId) return [];
 
-    if (!selectedProjectId) return [];
-
-    setLoading(true);
-    try {
       const createdTheme = await ProjectThemesApi.createProjectTheme({
         projectId: selectedProjectId,
         projectTheme: {
@@ -139,31 +97,20 @@ const SettingsIndexRoute = () => {
         },
       });
       return [createdTheme];
-    } catch (error) {
-      console.error(t("errorHandling.errorCreatingProjectTheme"), error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
+    onError: (error) => console.error(t("errorHandling.errorCreatingProjectTheme"), error),
+  });
 
-  /**
-   * Update project theme
-   *
-   * @param selectedProject string
-   * @param selectedColor string
-   * @param selectedLogo string url
-   */
-  const updateProjectThemeRequest = async ({
-    selectedProject,
-    selectedColor,
-    selectedLogo,
-  }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
-    const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
+  const updateProjectTheme = useMutation({
+    mutationFn: async ({
+      selectedProject,
+      selectedColor,
+      selectedLogo,
+    }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
+      const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
+      if (!selectedProjectId || !projectThemesData[0]?.id) return [];
 
-    if (!selectedProjectId || !projectThemesData[0]?.id) return [];
-
-    setLoading(true);
-    try {
       const updatedTheme = await ProjectThemesApi.updateProjectTheme({
         themeId: projectThemesData[0].id,
         projectId: selectedProjectId,
@@ -173,32 +120,13 @@ const SettingsIndexRoute = () => {
         },
       });
       return [updatedTheme];
-    } catch (error) {
-      console.error(t("errorHandling.errorUpdatingProjectTheme"), error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createProjectTheme = useMutation({
-    mutationFn: createProjectThemeRequest,
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
+    onError: (error) => console.error(t("errorHandling.errorUpdatingProjectTheme"), error),
   });
 
-  const updateProjectTheme = useMutation({
-    mutationFn: updateProjectThemeRequest,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
-  });
-
-  /**
-   * Upload image request to s3
-   *
-   * @param file file
-   */
-  const uploadFileRequest = async (file: File) => {
-    setLoading(true);
-
-    try {
+  const uploadFile = useMutation({
+    mutationFn: async (file: File) => {
       const presignedUrl = await (
         await fetch(`${config.lambdasBaseUrl}/uploadFile`, {
           method: "POST",
@@ -224,19 +152,12 @@ const SettingsIndexRoute = () => {
         throw new Error();
       }
       handleLogoSelection(file.name);
-    } catch (error) {
-      console.error(t("errorHandling.errorUploadingImage"), error);
-    }
-
-    setLoading(false);
-  };
-
-  const uploadFile = useMutation({
-    mutationFn: uploadFileRequest,
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["logos"] });
       await queryClient.invalidateQueries({ queryKey: ["projectThemes"] });
     },
+    onError: (error) => console.error(t("errorHandling.errorUploadingImage"), error),
   });
 
   /**
@@ -318,6 +239,8 @@ const SettingsIndexRoute = () => {
 
   /**
    * Handles logo selection
+   *
+   * @param logo string
    */
   const handleLogoSelection = (logo: string) => {
     handleProjectThemeChange(undefined, logo);
