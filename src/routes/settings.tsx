@@ -357,13 +357,11 @@ const SettingsIndexRoute = () => {
             sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
             onChange={handleProjectSelection}
           >
-            {projects.map((project) => {
-              return (
-                <MenuItem key={project.id} value={project.id}>
-                  {project.name}
-                </MenuItem>
-              );
-            })}
+            {projects.map((project) => (
+              <MenuItem key={project.id} value={project.id}>
+                {project.name}
+              </MenuItem>
+            ))}
           </TextField>
           <Box sx={{ display: "flex", gap: "1rem", flexDirection: "column" }}>
             <Typography component="h3" variant="h6">
