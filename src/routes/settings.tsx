@@ -9,25 +9,22 @@ import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "../constants";
 import { MuiColorInput } from "mui-color-input";
 import { useApi } from "../hooks/use-api";
 import { useAtom } from "jotai";
-import { projectsAtom } from "../atoms/projects";
 import LoaderWrapper from "components/generic/loader-wrapper";
 import config from "../app/config";
-import { ProjectTheme } from "generated/client";
 import { authAtom } from "../atoms/auth";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const SettingsIndexRoute = () => {
   const { t } = useTranslation();
   const { projectsApi, ProjectThemesApi } = useApi();
   const [auth] = useAtom(authAtom);
-  const [projects, setProjects] = useAtom(projectsAtom);
-  const [logos, setLogos] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState("");
-  const [projectThemes, setProjectThemes] = useState<ProjectTheme[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [selectedLogo, setSelectedLogo] = useState<string | undefined>(undefined);
   const [openColorPicker, setOpenColorPicker] = useState(false);
   const debounceTimeoutRef = useRef<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const savedProjectId = localStorage.getItem("selectedProject");
@@ -40,16 +37,15 @@ const SettingsIndexRoute = () => {
    * Get projects list
    */
   const getProjectsList = async () => {
-    if (projects.length) return;
-
     setLoading(true);
     try {
       const projects = await projectsApi.listProjects();
-      setProjects(projects);
+      return projects;
     } catch (error) {
       console.error(t("errorHandling.errorListingProjects"), error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   /**
@@ -67,44 +63,55 @@ const SettingsIndexRoute = () => {
         })
       ).json();
 
-      setLogos(logos.data);
+      return logos.data as string[];
     } catch (error) {
       console.error(t("errorHandling.errorListingLogos"), error);
     }
     setLoading(false);
   };
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies not needed
-  useEffect(() => {
-    getProjectsList();
-    getLogosList();
-  }, []);
-
   /**
    * Get project themes list
    */
   const getProjectThemesList = async (selectedProject: string) => {
-    const selectedProjectId = projects.find((project) => project.id === selectedProject)?.id;
+    const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
 
-    if (!selectedProjectId) return;
+    if (!selectedProjectId) return [];
 
     setLoading(true);
     try {
       const projectThemes = await ProjectThemesApi.listProjectThemes({ projectId: selectedProjectId });
-      setProjectThemes(projectThemes);
+      return projectThemes;
     } catch (error) {
       console.error(t("errorHandling.errorListingProjectThemes"), error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  useEffect(() => {
-    getProjectThemesList(selectedProject);
-  }, [selectedProject]);
+  const projects = useQuery({
+    queryKey: ["projects"],
+    queryFn: getProjectsList,
+  });
 
+  const logos = useQuery({
+    queryKey: ["logos"],
+    queryFn: getLogosList,
+  });
+
+  const projectThemes = useQuery({
+    queryKey: ["projectThemes", selectedProject],
+    queryFn: () => getProjectThemesList(selectedProject),
+  });
+
+  const projectsData = projects.data ?? [];
+  const logosData = logos.data ?? [];
+  const projectThemesData = projectThemes.data ?? [];
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     applyProjectThemeSettings();
-  }, [projectThemes]);
+  }, [projectThemesData]);
 
   /**
    * Create project theme
@@ -113,10 +120,14 @@ const SettingsIndexRoute = () => {
    * @param selectedColor string
    * @param selectedLogo string url
    */
-  const createProjectTheme = async (selectedProject: string, selectedColor?: string, selectedLogo?: string) => {
-    const selectedProjectId = projects.find((project) => project.id === selectedProject)?.id;
+  const createProjectThemeRequest = async ({
+    selectedProject,
+    selectedColor,
+    selectedLogo,
+  }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
+    const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
 
-    if (!selectedProjectId) return;
+    if (!selectedProjectId) return [];
 
     setLoading(true);
     try {
@@ -127,11 +138,12 @@ const SettingsIndexRoute = () => {
           logoUrl: selectedLogo ?? DEFAULT_LOGO,
         },
       });
-      setProjectThemes([createdTheme]);
+      return [createdTheme];
     } catch (error) {
       console.error(t("errorHandling.errorCreatingProjectTheme"), error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   /**
@@ -141,52 +153,49 @@ const SettingsIndexRoute = () => {
    * @param selectedColor string
    * @param selectedLogo string url
    */
-  const updateProjectTheme = async (selectedProject: string, selectedColor?: string, selectedLogo?: string) => {
-    const selectedProjectId = projects.find((project) => project.id === selectedProject)?.id;
+  const updateProjectThemeRequest = async ({
+    selectedProject,
+    selectedColor,
+    selectedLogo,
+  }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
+    const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
 
-    if (!selectedProjectId || !projectThemes[0]?.id) return;
+    if (!selectedProjectId || !projectThemesData[0]?.id) return [];
 
     setLoading(true);
     try {
       const updatedTheme = await ProjectThemesApi.updateProjectTheme({
-        themeId: projectThemes[0].id,
+        themeId: projectThemesData[0].id,
         projectId: selectedProjectId,
         projectTheme: {
-          themeColor: selectedColor ?? projectThemes[0].themeColor,
-          logoUrl: selectedLogo ?? projectThemes[0].logoUrl,
+          themeColor: selectedColor ?? projectThemesData[0].themeColor,
+          logoUrl: selectedLogo ?? projectThemesData[0].logoUrl,
         },
       });
-      setProjectThemes([updatedTheme]);
+      return [updatedTheme];
     } catch (error) {
       console.error(t("errorHandling.errorUpdatingProjectTheme"), error);
-    }
-    setLoading(false);
-  };
-
-  /**
-   * Applies the project theme settings to settings configuration
-   */
-  const applyProjectThemeSettings = () => {
-    const colorToUpdate = projectThemes[0]?.themeColor ?? DEFAULT_THEME_COLORS[0].value;
-    setSelectedColor(colorToUpdate);
-    const logoToUpdate = projectThemes[0]?.logoUrl ?? DEFAULT_LOGO;
-    setSelectedLogo(logoToUpdate);
-
-    const isCustomColor = !DEFAULT_THEME_COLORS.some((color) => color.value === colorToUpdate);
-
-    if (isCustomColor) {
-      setOpenColorPicker(true);
-    } else {
-      setOpenColorPicker(false);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const createProjectTheme = useMutation({
+    mutationFn: createProjectThemeRequest,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
+  });
+
+  const updateProjectTheme = useMutation({
+    mutationFn: updateProjectThemeRequest,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
+  });
 
   /**
    * Upload image request to s3
    *
    * @param file file
    */
-  const uploadFile = async (file: File) => {
+  const uploadFileRequest = async (file: File) => {
     setLoading(true);
 
     try {
@@ -214,13 +223,38 @@ const SettingsIndexRoute = () => {
       if (uploadResponse.status !== 200) {
         throw new Error();
       }
-      getLogosList();
       handleLogoSelection(file.name);
     } catch (error) {
       console.error(t("errorHandling.errorUploadingImage"), error);
     }
 
     setLoading(false);
+  };
+
+  const uploadFile = useMutation({
+    mutationFn: uploadFileRequest,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["logos"] });
+      await queryClient.invalidateQueries({ queryKey: ["projectThemes"] });
+    },
+  });
+
+  /**
+   * Applies the project theme settings to settings configuration
+   */
+  const applyProjectThemeSettings = () => {
+    const colorToUpdate = projectThemesData[0]?.themeColor ?? DEFAULT_THEME_COLORS[0].value;
+    setSelectedColor(colorToUpdate);
+    const logoToUpdate = projectThemesData[0]?.logoUrl ?? DEFAULT_LOGO;
+    setSelectedLogo(logoToUpdate);
+
+    const isCustomColor = !DEFAULT_THEME_COLORS.some((color) => color.value === colorToUpdate);
+
+    if (isCustomColor) {
+      setOpenColorPicker(true);
+    } else {
+      setOpenColorPicker(false);
+    }
   };
 
   /**
@@ -243,10 +277,18 @@ const SettingsIndexRoute = () => {
       return;
     }
 
-    if (projectThemes.length) {
-      updateProjectTheme(selectedProject, color, logo);
+    if (projectThemesData.length) {
+      updateProjectTheme.mutateAsync({
+        selectedProject,
+        selectedColor: color,
+        selectedLogo: logo,
+      });
     } else {
-      createProjectTheme(selectedProject, color, logo);
+      createProjectTheme.mutateAsync({
+        selectedProject,
+        selectedColor: color,
+        selectedLogo: logo,
+      });
     }
   };
 
@@ -333,7 +375,7 @@ const SettingsIndexRoute = () => {
   const renderLogoRadioButtons = () => {
     return (
       <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {logos.map((logo) => (
+        {logosData.map((logo) => (
           <Box key={logo} sx={{ display: "flex", alignItems: "center" }} onClick={() => setSelectedLogo(logo)}>
             <Radio checked={selectedLogo === logo} value={logo} onChange={() => handleLogoSelection(logo)} />
             <img src={`${config.cdnBaseUrl}/${logo}`} alt={logo} />
@@ -364,7 +406,7 @@ const SettingsIndexRoute = () => {
             sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
             onChange={handleProjectSelection}
           >
-            {projects.map((project) => (
+            {projectsData.map((project) => (
               <MenuItem key={project.id} value={project.id}>
                 {project.name}
               </MenuItem>
@@ -401,7 +443,7 @@ const SettingsIndexRoute = () => {
             <Box sx={{ display: "flex", flexDirection: "row", gap: "5rem" }}>
               {renderLogoRadioButtons()}
               {/* TODO: Types from design, should we just allow all image types? */}
-              <FileUploader allowedFileTypes={[".png", ".svg"]} uploadFile={uploadFile} logos={logos} />
+              <FileUploader allowedFileTypes={[".png", ".svg"]} uploadFile={uploadFile.mutateAsync} logos={logosData} />
             </Box>
           </Box>
           <Box>
