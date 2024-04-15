@@ -21,7 +21,6 @@ const SettingsIndexRoute = () => {
   const [auth] = useAtom(authAtom);
   const [projects, setProjects] = useAtom(projectsAtom);
   const [logos, setLogos] = useState<string[]>([]);
-  // TODO: Maybe default value for selectedProject should come from the user settings in future?
   const [selectedProject, setSelectedProject] = useState("");
   const [projectThemes, setProjectThemes] = useState<ProjectTheme[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
@@ -29,6 +28,13 @@ const SettingsIndexRoute = () => {
   const [openColorPicker, setOpenColorPicker] = useState(false);
   const debounceTimeoutRef = useRef<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const savedProjectId = localStorage.getItem("selectedProject");
+    if (savedProjectId) {
+      setSelectedProject(savedProjectId);
+    }
+  }, []);
 
   /**
    * Get projects list
@@ -282,6 +288,7 @@ const SettingsIndexRoute = () => {
    */
   const handleProjectSelection = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     setSelectedProject(value);
+    localStorage.setItem("selectedProject", value);
   };
 
   /**
@@ -308,7 +315,7 @@ const SettingsIndexRoute = () => {
             minWidth: 0,
             width: "2.5rem",
             height: "2.5rem",
-            borderRadius: "50%, ",
+            borderRadius: "9999px",
             "&:hover": {
               backgroundColor: color,
             },
