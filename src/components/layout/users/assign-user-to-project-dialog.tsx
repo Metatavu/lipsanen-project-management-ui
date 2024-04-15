@@ -8,6 +8,7 @@ import LoaderWrapper from "components/generic/loader-wrapper";
 interface Props {
   open: boolean;
   user: User;
+  userProjects: Project[];
   handleClose: () => void;
   refetchData: () => void;
 }
@@ -15,7 +16,7 @@ interface Props {
 /**
  * Assign user to a single project dialog component
  */
-const AssignUserToProjectDialog = ({ open, user, handleClose, refetchData }: Props) => {
+const AssignUserToProjectDialog = ({ open, user, userProjects, handleClose, refetchData }: Props) => {
   const { t } = useTranslation();
   const { projectsApi, usersApi } = useApi();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -29,8 +30,9 @@ const AssignUserToProjectDialog = ({ open, user, handleClose, refetchData }: Pro
     setLoading(true);
     try {
       const projects = await projectsApi.listProjects();
+      const uniqueProjects = projects.filter((project) => !userProjects.find((p) => p.id === project.id));
 
-      setProjects(projects);
+      setProjects(uniqueProjects);
     } catch (error) {
       console.error(t("errorHandling.errorListingProjects"), error);
     }
@@ -42,7 +44,7 @@ const AssignUserToProjectDialog = ({ open, user, handleClose, refetchData }: Pro
    */
   useEffect(() => {
     getAllProjects();
-  }, []);
+  }, [user, userProjects]);
 
   /**
    * Handles project select event
@@ -69,6 +71,7 @@ const AssignUserToProjectDialog = ({ open, user, handleClose, refetchData }: Pro
           projectIds: updatedProjectIds
         }
       });
+      setSelectedProject(null);
       handleClose();
       refetchData();
     } catch (error) {

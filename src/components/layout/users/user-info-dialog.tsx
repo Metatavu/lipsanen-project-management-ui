@@ -22,7 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ConstructionIcon from "@mui/icons-material/Construction";
-import { Project, ProjectStatus, User } from "generated/client";
+import { Project, User } from "generated/client";
 import { useApi } from "../../../hooks/use-api";
 import LoaderWrapper from "components/generic/loader-wrapper";
 import ProjectHelpers from "components/helpers/project-helpers";
@@ -43,7 +43,7 @@ interface Props {
  */
 const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
   const { t } = useTranslation();
-  const { projectsApi } = useApi();
+  const { projectsApi, usersApi } = useApi();
   const [name, setName] = useState("");
   const [organisation, setOrganisation] = useState("");
   const [role, setRole] = useState("");
@@ -54,9 +54,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
   /**
    * Fetches user projects
    */
-  const getUserProjects = async () => {
-    if (!user) return;
-
+  const getUserProjects = async (user: User) => {
     setLoading(true);
     try {
       const userProjectIds = user.projectIds;
@@ -76,6 +74,28 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
     setLoading(false);
   };
 
+  /**
+   * Initially gets user projects
+   */
+  const initiateUserProjects = async () => {
+    if (!user) return;
+
+    getUserProjects(user);
+  };
+
+  /**
+   * Refetches user projects
+   */
+  const updateUserProjects = async () => {
+    if (!user?.id) return;
+
+    const foundUser = await usersApi.findUser({ userId: user.id });
+    getUserProjects(foundUser);
+  };
+
+  /**
+   * Use effect to set user info
+   */
   useEffect(() => {
     if (!user) return;
 
@@ -83,7 +103,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
     setOrganisation(user.companyId || "");
 
     // Fetch user projects
-    getUserProjects();
+    initiateUserProjects();
   }, [user]);
 
   /**
@@ -243,7 +263,7 @@ const UserInfoDialog = ({ open, user, handleClose, action }: Props) => {
           </Button>
         </DialogActions>
       </DialogContent>
-      <AssignUserToProjectDialog open={assignProjectDialogOpen} user={user!} handleClose={() => setAssignProjectDialogOpen(false)} refetchData={getUserProjects} />
+      <AssignUserToProjectDialog open={assignProjectDialogOpen} user={user!} userProjects={userProjects} handleClose={() => setAssignProjectDialogOpen(false)} refetchData={updateUserProjects} />
     </Dialog>
   );
 };
