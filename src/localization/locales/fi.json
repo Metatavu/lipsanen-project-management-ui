@@ -36,7 +36,8 @@
     "enterUsersName": "Anna käyttäjän nimi",
     "createNewCompany": "Perustaa uusi yritys",
     "invalidEmailWarning": "Anna kelvollinen sähköpostiosoite",
-    "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen"
+    "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen",
+    "assignUserToProject": "Lisää käyttäjä projektiin"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
@@ -45,7 +46,8 @@
     "errorListingUsers": "Virhe haettaessa käyttäjäluetteloa",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
     "errorListingCompanies": "Virhe haettaessa yritysluetteloa",
-    "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä"
+    "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
+    "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -57,5 +59,13 @@
     "projectName": "Nimi",
     "projectEstimatesAccuracy": "Arvioiden pitävyys %",
     "projectStatus": "Status"
+  },
+  "assignUserToProjectDialog": {
+    "title": "Lisää käyttäjä projektiin",
+    "selectProject": "Valitse projekti johon lisätään käyttäjä",
+    "selectUser": "Valitse käyttäjä",
+    "selectRole": "Valitse rooli",
+    "assign": "Lisää",
+    "cancel": "Peruuta"
   }
 }
