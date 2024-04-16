@@ -1,4 +1,4 @@
-import { Box, Button, Card, Divider, MenuItem, Radio, TextField, Toolbar, Typography } from "@mui/material";
+import { Box, Button, Card, Divider, MenuItem, Radio, Stack, TextField, Toolbar, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -8,154 +8,80 @@ import FileUploader from "components/generic/file-upload";
 import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "../constants";
 import { MuiColorInput } from "mui-color-input";
 import { useApi } from "../hooks/use-api";
-import { useAtom } from "jotai";
 import LoaderWrapper from "components/generic/loader-wrapper";
-import config from "../app/config";
-import { authAtom } from "../atoms/auth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
+import { logQueryError } from "utils";
+import { filesApi } from "api/files";
+import { FlexColumnLayout } from "components/generic/flex-column-layout";
 
-const SettingsIndexRoute = () => {
+export const Route = createFileRoute("/settings")({ component: SettingsIndexRoute });
+
+function SettingsIndexRoute() {
   const { t } = useTranslation();
-  const { projectsApi, ProjectThemesApi } = useApi();
-  const [auth] = useAtom(authAtom);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
-  const [selectedLogo, setSelectedLogo] = useState<string | undefined>(undefined);
-  const [openColorPicker, setOpenColorPicker] = useState(false);
+  const { projectsApi, ProjectThemesApi: projectThemesApi } = useApi();
+  const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [selectedColorInput, setSelectedColor] = useState("");
+  const [selectedLogoInput, setSelectedLogo] = useState("");
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const debounceTimeoutRef = useRef<number | null>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const savedProjectId = localStorage.getItem("selectedProject");
-    if (savedProjectId) {
-      setSelectedProject(savedProjectId);
-    }
+    const savedProjectId = localStorage.getItem("selectedProjectId");
+    if (savedProjectId) setSelectedProjectId(savedProjectId);
   }, []);
 
-  const projects = useQuery({
+  const listProjectsQuery = useQuery({
     queryKey: ["projects"],
+    queryFn: () => projectsApi.listProjects().catch(logQueryError(t("errorHandling.errorListingProjects"))),
+  });
+
+  const listLogosQuery = useQuery({
+    queryKey: ["files"],
+    queryFn: () => filesApi.listFiles().catch(logQueryError(t("errorHandling.errorListingLogos"))),
+  });
+
+  const getProjectThemeQuery = useQuery({
+    queryKey: ["projectThemes", selectedProjectId],
     queryFn: () =>
-      projectsApi.listProjects().catch((error) => console.error(t("errorHandling.errorListingProjects"), error)),
+      projectThemesApi
+        .listProjectThemes({ projectId: selectedProjectId })
+        .then((themes) => {
+          for (const theme of themes.slice(1)) {
+            theme.id &&
+              projectThemesApi.deleteProjectTheme({
+                projectId: selectedProjectId,
+                themeId: theme.id,
+              });
+          }
+
+          return themes.at(0) ?? { logoUrl: DEFAULT_LOGO, themeColor: DEFAULT_THEME_COLORS[0].value };
+        })
+        .catch(logQueryError(t("errorHandling.errorListingProjectThemes"))),
+    enabled: listProjectsQuery.isSuccess && !!selectedProjectId.length,
   });
 
-  const logos = useQuery({
-    queryKey: ["logos"],
-    queryFn: async () => {
-      try {
-        const logos = await (
-          await fetch(`${config.lambdasBaseUrl}/listMedia`, {
-            method: "GET",
-            headers: {
-              authorization: `Bearer ${auth?.tokenRaw}`,
-            },
-          })
-        ).json();
-
-        return logos.data as string[];
-      } catch (error) {
-        console.error(t("errorHandling.errorListingLogos"), error);
-      }
-    },
-  });
-
-  const projectsData = projects.data ?? [];
-  const logosData = logos.data ?? [];
-
-  const projectThemes = useQuery({
-    queryKey: ["projectThemes", selectedProject, projectsData],
-    queryFn: () => {
-      const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
-      if (!selectedProjectId) return [];
-
-      return ProjectThemesApi.listProjectThemes({ projectId: selectedProjectId }).catch((error) =>
-        console.error(t("errorHandling.errorListingProjectThemes"), error),
-      );
-    },
-  });
-
-  const projectThemesData = projectThemes.data ?? [];
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (!selectedProject) return;
+    if (getProjectThemeQuery.data) applyProjectThemeSettings(getProjectThemeQuery.data);
+  }, [getProjectThemeQuery.data]);
 
-    applyProjectThemeSettings();
-  }, [projectThemesData, selectedProject]);
-
-  const createProjectTheme = useMutation({
-    mutationFn: async ({
-      selectedProject,
-      selectedColor,
-      selectedLogo,
-    }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
-      const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
-      if (!selectedProjectId) return [];
-
-      const createdTheme = await ProjectThemesApi.createProjectTheme({
-        projectId: selectedProjectId,
-        projectTheme: {
-          themeColor: selectedColor ?? DEFAULT_THEME_COLORS[0].value,
-          logoUrl: selectedLogo ?? DEFAULT_LOGO,
-        },
-      });
-      return [createdTheme];
-    },
+  const createProjectThemeMutation = useMutation({
+    mutationFn: (requestParams: CreateProjectThemeRequest) => projectThemesApi.createProjectTheme(requestParams),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
     onError: (error) => console.error(t("errorHandling.errorCreatingProjectTheme"), error),
   });
 
-  const updateProjectTheme = useMutation({
-    mutationFn: async ({
-      selectedProject,
-      selectedColor,
-      selectedLogo,
-    }: { selectedProject: string; selectedColor?: string; selectedLogo?: string }) => {
-      const selectedProjectId = projectsData.find((project) => project.id === selectedProject)?.id;
-      if (!selectedProjectId || !projectThemesData[0]?.id) return [];
-
-      const updatedTheme = await ProjectThemesApi.updateProjectTheme({
-        themeId: projectThemesData[0].id,
-        projectId: selectedProjectId,
-        projectTheme: {
-          themeColor: selectedColor ?? projectThemesData[0].themeColor,
-          logoUrl: selectedLogo ?? projectThemesData[0].logoUrl,
-        },
-      });
-      return [updatedTheme];
-    },
+  const updateProjectThemeMutation = useMutation({
+    mutationFn: (requestParams: UpdateProjectThemeRequest) => projectThemesApi.updateProjectTheme(requestParams),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
     onError: (error) => console.error(t("errorHandling.errorUpdatingProjectTheme"), error),
   });
 
-  const uploadFile = useMutation({
-    mutationFn: async (file: File) => {
-      const presignedUrl = await (
-        await fetch(`${config.lambdasBaseUrl}/uploadFile`, {
-          method: "POST",
-          headers: {
-            authorization: `Bearer ${auth?.tokenRaw}`,
-          },
-          body: JSON.stringify({
-            path: `${file.name}`,
-            contentType: file.type,
-          }),
-        })
-      ).json();
-
-      const uploadResponse = await fetch(presignedUrl.data, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-        },
-        body: file,
-      });
-
-      if (uploadResponse.status !== 200) {
-        throw new Error();
-      }
-      handleLogoSelection(file.name);
-    },
-    onSuccess: async () => {
+  const uploadFileMutation = useMutation({
+    mutationFn: (file: File) => filesApi.uploadFile(file),
+    onSuccess: async (fileName) => {
+      handleLogoSelection(fileName);
       await queryClient.invalidateQueries({ queryKey: ["logos"] });
       await queryClient.invalidateQueries({ queryKey: ["projectThemes"] });
     },
@@ -165,27 +91,22 @@ const SettingsIndexRoute = () => {
   /**
    * Applies the project theme settings to settings configuration
    */
-  const applyProjectThemeSettings = () => {
-    const colorToUpdate = projectThemesData[0]?.themeColor;
-    setSelectedColor(colorToUpdate);
-    const logoToUpdate = projectThemesData[0]?.logoUrl;
-    setSelectedLogo(logoToUpdate);
+  const applyProjectThemeSettings = (theme: ProjectTheme) => {
+    setSelectedColor(theme.themeColor);
+    setSelectedLogo(theme.logoUrl);
 
-    const isCustomColor = colorToUpdate && !DEFAULT_THEME_COLORS.some((color) => color.value === colorToUpdate);
-
-    if (isCustomColor) {
-      setOpenColorPicker(true);
-    } else {
-      setOpenColorPicker(false);
-    }
+    const isCustomColor = DEFAULT_THEME_COLORS.every((color) => color.value !== theme.themeColor);
+    setColorPickerOpen(isCustomColor);
   };
 
   /**
    * Disable project theme handler
    */
-  const disableProjectThemeHandler = () => {
-    handleProjectThemeChange(DEFAULT_THEME_COLORS[0].value, DEFAULT_LOGO);
-  };
+  const disableProjectThemeHandler = () =>
+    handleProjectThemeChange({
+      themeColor: DEFAULT_THEME_COLORS[0].value,
+      logoUrl: DEFAULT_LOGO,
+    });
 
   /**
    * Project theme change handler
@@ -193,24 +114,23 @@ const SettingsIndexRoute = () => {
    * @param color string
    * @param logo string
    */
-  const handleProjectThemeChange = (color?: string, logo?: string) => {
-    if (!selectedProject) {
-      setSelectedColor(color ?? selectedColor);
-      setSelectedLogo(logo ?? selectedLogo);
-      return;
-    }
+  const handleProjectThemeChange = ({ logoUrl, themeColor }: Partial<Pick<ProjectTheme, "logoUrl" | "themeColor">>) => {
+    if (!getProjectThemeQuery.data) return;
 
-    if (projectThemesData.length) {
-      updateProjectTheme.mutateAsync({
-        selectedProject,
-        selectedColor: color,
-        selectedLogo: logo,
+    const updatedTheme: ProjectTheme = { ...getProjectThemeQuery.data };
+    if (logoUrl) updatedTheme.logoUrl = logoUrl;
+    if (themeColor) updatedTheme.themeColor = themeColor;
+
+    if (updatedTheme.id) {
+      updateProjectThemeMutation.mutateAsync({
+        projectId: selectedProjectId,
+        themeId: updatedTheme.id,
+        projectTheme: updatedTheme,
       });
     } else {
-      createProjectTheme.mutateAsync({
-        selectedProject,
-        selectedColor: color,
-        selectedLogo: logo,
+      createProjectThemeMutation.mutateAsync({
+        projectId: selectedProjectId,
+        projectTheme: updatedTheme,
       });
     }
   };
@@ -221,7 +141,8 @@ const SettingsIndexRoute = () => {
    * @param color string
    */
   const handleColorSelection = (color: string) => {
-    handleProjectThemeChange(color);
+    setSelectedColor(color);
+    handleProjectThemeChange({ themeColor: color });
   };
 
   /**
@@ -231,12 +152,8 @@ const SettingsIndexRoute = () => {
    */
   const handleCustomColorSelection = (color: string) => {
     setSelectedColor(color);
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-    debounceTimeoutRef.current = setTimeout(() => {
-      handleProjectThemeChange(color);
-    }, 4000);
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+    debounceTimeoutRef.current = setTimeout(() => handleProjectThemeChange({ themeColor: color }), 2000);
   };
 
   /**
@@ -245,7 +162,8 @@ const SettingsIndexRoute = () => {
    * @param logo string
    */
   const handleLogoSelection = (logo: string) => {
-    handleProjectThemeChange(undefined, logo);
+    setSelectedLogo(logo);
+    handleProjectThemeChange({ logoUrl: logo });
   };
 
   /**
@@ -254,8 +172,8 @@ const SettingsIndexRoute = () => {
    * @param event event
    */
   const handleProjectSelection = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    setSelectedProject(value);
-    localStorage.setItem("selectedProject", value);
+    setSelectedProjectId(value);
+    localStorage.setItem("selectedProjectId", value);
   };
 
   /**
@@ -268,10 +186,9 @@ const SettingsIndexRoute = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignSelf: "flex-start",
           alignItems: "center",
           textAlign: "center",
-          width: "10%",
+          width: 150,
         }}
         onClick={() => handleColorSelection(color.value)}
       >
@@ -283,12 +200,10 @@ const SettingsIndexRoute = () => {
             width: "2.5rem",
             height: "2.5rem",
             borderRadius: "9999px",
-            "&:hover": {
-              backgroundColor: color,
-            },
+            "&:hover": { backgroundColor: color },
           }}
         >
-          {selectedColor === color.value && <CheckIcon />}
+          {selectedColorInput === color.value && <CheckIcon />}
         </Button>
         <Typography sx={{ mt: 1, maxWidth: "6rem", overflowWrap: "break-word" }}>{color.name}</Typography>
       </Box>
@@ -298,14 +213,18 @@ const SettingsIndexRoute = () => {
    * Renders logo radio buttons
    */
   const renderLogoRadioButtons = () => {
-    if (logos.isPending) return null;
+    if (listLogosQuery.isPending) return null;
 
     return (
       <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {logosData.map((logo) => (
-          <Box key={logo} sx={{ display: "flex", alignItems: "center" }} onClick={() => setSelectedLogo(logo)}>
-            <Radio checked={selectedLogo === logo} value={logo} onChange={() => handleLogoSelection(logo)} />
-            <img src={`${config.cdnBaseUrl}/${logo}`} alt={logo} />
+        {listLogosQuery.data?.map((logoUrl) => (
+          <Box key={logoUrl} sx={{ display: "flex", alignItems: "center" }}>
+            <Radio
+              checked={selectedLogoInput === logoUrl}
+              value={logoUrl}
+              onChange={() => handleLogoSelection(logoUrl)}
+            />
+            <img src={logoUrl} alt={logoUrl} />
           </Box>
         ))}
       </Box>
@@ -316,86 +235,94 @@ const SettingsIndexRoute = () => {
    * Renders project theme settings
    */
   const renderSettings = () => {
-    if (!selectedProject) return null;
+    if (!selectedProjectId) return null;
 
     return (
       <>
-        <Box sx={{ display: "flex", gap: "1rem", flexDirection: "column" }}>
-          <Typography component="h3" variant="h6">
-            {t("settingsScreen.themeMainColor")}
-          </Typography>
-          <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-            {renderColorsButtons()}
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={() => setOpenColorPicker(!openColorPicker)}
-              sx={{ padding: "1.2rem", alignSelf: "flex-start" }}
-            >
-              {t("settingsScreen.otherColor")}
-            </Button>
-            {openColorPicker && (
-              <MuiColorInput
-                value={selectedColor ?? ""}
-                onChange={handleCustomColorSelection}
-                sx={{ width: "200px", alignSelf: "flex-start", margin: 0 }}
-              />
-            )}
-          </Box>
-        </Box>
-        <Box>
-          <Typography component="h3" variant="h6">
-            {t("settingsScreen.logo")}
-          </Typography>
-          <Box sx={{ display: "flex", flexDirection: "row", gap: "5rem" }}>
-            {renderLogoRadioButtons()}
-            {/* TODO: Types from design, should we just allow all image types? */}
-            <FileUploader allowedFileTypes={[".png", ".svg"]} uploadFile={uploadFile.mutateAsync} logos={logosData} />
-          </Box>
-        </Box>
-        <Box>
-          <Button variant="contained" color="error" size="large" onClick={disableProjectThemeHandler}>
-            <DeleteIcon />
-            {t("settingsScreen.disableProjectTheme")}
+        <Typography component="h3" variant="h6">
+          {t("settingsScreen.themeMainColor")}
+        </Typography>
+        <Box sx={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+          {renderColorsButtons()}
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={() => setColorPickerOpen(!colorPickerOpen)}
+            sx={{ padding: "1.2rem" }}
+          >
+            {t("settingsScreen.otherColor")}
           </Button>
+          {colorPickerOpen && (
+            <MuiColorInput
+              value={selectedColorInput ?? ""}
+              onChange={handleCustomColorSelection}
+              sx={{ width: "200px", margin: 0 }}
+            />
+          )}
         </Box>
+        <Typography component="h3" variant="h6">
+          {t("settingsScreen.logo")}
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: "5rem" }}>
+          {renderLogoRadioButtons()}
+          {/* TODO: Types from design, should we just allow all image types? */}
+          <FileUploader
+            allowedFileTypes={[".png", ".svg"]}
+            uploadFile={uploadFileMutation.mutateAsync}
+            logos={listLogosQuery.data ?? []}
+          />
+        </Box>
+        <Button variant="contained" color="error" size="large" onClick={disableProjectThemeHandler}>
+          <DeleteIcon />
+          {t("settingsScreen.disableProjectTheme")}
+        </Button>
       </>
     );
   };
 
+  const renderSelectProjectOptions = () => {
+    if (!listProjectsQuery.data?.length) {
+      return <MenuItem value="">{""}</MenuItem>;
+    }
+
+    return listProjectsQuery.data.map((project) => (
+      <MenuItem key={project.id} value={project.id}>
+        {project.name}
+      </MenuItem>
+    ));
+  };
+
   return (
-    <LoaderWrapper loading={projects.isPending}>
-      <div style={{ padding: "1rem" }}>
-        <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
+    <LoaderWrapper loading={listProjectsQuery.isPending}>
+      <FlexColumnLayout>
+        <Toolbar disableGutters variant="dense">
           <Typography component="h1" variant="h5">
             {t("settingsScreen.title")}
           </Typography>
         </Toolbar>
-        <Card sx={{ display: "flex", flexDirection: "column", padding: "1rem", gap: "1rem" }}>
+        <Card sx={{ flex: 1, padding: "1rem", display: "flex", flexDirection: "column" }}>
           <Typography component="h2" variant="h6" gutterBottom>
             {t("settingsScreen.projectSpecificTheming")}
           </Typography>
           <Divider />
-          <TextField
-            value={selectedProject}
-            label={t("settingsScreen.project")}
-            select
-            size="small"
-            sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
-            onChange={handleProjectSelection}
-          >
-            {projectsData.map((project) => (
-              <MenuItem key={project.id} value={project.id}>
-                {project.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          {renderSettings()}
+          <Box sx={{ py: 0.5, flex: 1, overflow: "auto" }}>
+            <Stack alignItems="flex-start" gap={3}>
+              <TextField
+                value={selectedProjectId}
+                label={t("settingsScreen.project")}
+                select
+                size="small"
+                sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
+                onChange={handleProjectSelection}
+              >
+                {renderSelectProjectOptions()}
+              </TextField>
+              {renderSettings()}
+            </Stack>
+          </Box>
         </Card>
-      </div>
+      </FlexColumnLayout>
     </LoaderWrapper>
   );
-};
-
-export const Route = createFileRoute("/settings")({ component: SettingsIndexRoute });
+}

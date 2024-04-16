@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UploadMessage } from "types";
 import CloseIcon from "@mui/icons-material/Close";
+import { containsIllegalCharacters } from "utils";
 const MAX_FILE_SIZE_IN_BYTES = 2000000;
 
 /**
@@ -62,14 +63,6 @@ const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
   };
 
   /**
-   * Check if file name contains invalid characters
-   *
-   * @param file file which name to test
-   * @returns true if file name contains invalid characters
-   */
-  const checkFileName = (file: File) => /[^\x00-\x7F]/gi.test(file.name);
-
-  /**
    *  Handler when files are added to the drop zone
    *
    * @param files files
@@ -81,7 +74,7 @@ const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
       return;
     }
 
-    if (checkFileName(file)) {
+    if (containsIllegalCharacters(file.name)) {
       setUploadMessage({ message: t("settingsScreen.uploadWarningInvalidCharacters"), severity: "error" });
       return;
     }

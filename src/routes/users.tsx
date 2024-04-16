@@ -3,9 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import AddIcon from "@mui/icons-material/Add";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import LoaderWrapper from "components/generic/loader-wrapper";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { useApi } from "../hooks/use-api";
 import { useAtom } from "jotai";
 import { usersAtom } from "../atoms/users";
@@ -14,49 +12,51 @@ import { DateTime } from "luxon";
 import { Company, User } from "generated/client";
 import NewUserDialog from "components/layout/users/new-user-dialog";
 import UserInfoDialog from "components/layout/users/user-info-dialog";
+import { FlexColumnLayout } from "components/generic/flex-column-layout";
 
-const UsersIndexRoute = () => {
+export const Route = createFileRoute("/users")({ component: UsersIndexRoute });
+
+function UsersIndexRoute() {
   const { t } = useTranslation();
   const { usersApi, companiesApi } = useApi();
   const [users, setUsers] = useAtom(usersAtom);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
   const [userInfoDialogOpen, setUserInfoDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User>();
 
   /**
    * Get users list
    */
   const getUsersList = async () => {
-    setLoading(true);
     try {
       const users = await usersApi.listUsers();
       setUsers(users);
     } catch (error) {
-      console.error(t("errorHandling.errorListingProjects"), error);
+      console.error(t("errorHandling.errorListingUsers"), error);
     }
-    setLoading(false);
   };
 
   /**
    * Get companies list
    */
   const getCompaniesList = async () => {
-    setLoading(true);
     try {
       const companies = await companiesApi.listCompanies();
       setCompanies(companies);
     } catch (error) {
       console.error(t("errorHandling.errorListingCompanies"), error);
     }
-    setLoading(false);
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
   useEffect(() => {
-    getUsersList();
-    getCompaniesList();
+    (async () => {
+      setLoading(true);
+      await Promise.allSettled([getUsersList(), getCompaniesList()]);
+      setLoading(false);
+    })();
   }, []);
 
   /**
@@ -105,21 +105,17 @@ const UsersIndexRoute = () => {
       editable: true,
       flex: 1,
       renderCell: (params) => (
-        <a onClick={() => onUserSelect(params.row as User)} style={{ cursor: "pointer" }}>
+        <Button variant="text" onClick={() => onUserSelect(params.row as User)} sx={{ height: 32, px: 2 }}>
           {params.row.firstName} {params.row.lastName}
-        </a>
+        </Button>
       ),
     },
     {
-      field: "company",
+      field: "companyId",
       headerName: t("company"),
       editable: true,
       flex: 1,
-      renderCell: (params) => {
-        const company = companies.find((company) => company.id === params.row.companyId);
-
-        return <div>{company?.name}</div>;
-      },
+      valueFormatter: ({ value }) => companies.find((company) => company.id === value)?.name ?? "",
     },
     {
       field: "role",
@@ -131,22 +127,12 @@ const UsersIndexRoute = () => {
       field: "lastLoggedIn",
       headerName: t("lastLoggedIn"),
       flex: 1,
-      renderCell: (params) => {
-        if (!params.row.lastLoggedIn) return;
-
-        const formattedDate = DateTime.fromJSDate(params.row.lastLoggedIn).toFormat("dd.MM.yyyy - HH:mm");
-
-        return <div>{formattedDate}</div>;
-      },
+      valueFormatter: ({ value }) => (value ? DateTime.fromJSDate(value).toFormat("dd.MM.yyyy - HH:mm") : ""),
     },
     {
-      field: " ",
-      headerName: "",
-      renderCell: () => (
-        <Button style={{ marginLeft: "auto", color: "#000" }}>
-          <MoreVertIcon />
-        </Button>
-      ),
+      field: "actions",
+      type: "actions",
+      getActions: () => [<GridActionsCellItem label="" showInMenu />],
     },
   ];
 
@@ -165,27 +151,19 @@ const UsersIndexRoute = () => {
    */
   const renderUsersTable = () => {
     return (
-      <Box sx={{ height: "auto", width: "100%" }}>
-        <DataGrid
-          rows={users}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 20,
-              },
-            },
-          }}
-          pageSizeOptions={[20, 40, 60]}
-          disableRowSelectionOnClick
-          pagination
-        />
-      </Box>
+      <DataGrid
+        sx={{ width: "100%", height: "100%" }}
+        rows={users}
+        columns={columns}
+        loading={loading}
+        disableRowSelectionOnClick
+        pagination
+      />
     );
   };
 
   return (
-    <div style={{ padding: "1rem" }}>
+    <FlexColumnLayout>
       <NewUserDialog
         open={newUserDialogOpen}
         handleClose={() => setNewUserDialogOpen(false)}
@@ -210,13 +188,7 @@ const UsersIndexRoute = () => {
           </Button>
         </Box>
       </Toolbar>
-      <LoaderWrapper loading={loading}>
-        <Card>{renderUsersTable()}</Card>
-      </LoaderWrapper>
-    </div>
+      <Card sx={{ flex: 1, minWidth: 0 }}>{renderUsersTable()}</Card>
+    </FlexColumnLayout>
   );
-};
-
-export const Route = createFileRoute("/users")({
-  component: UsersIndexRoute,
-});
+}
