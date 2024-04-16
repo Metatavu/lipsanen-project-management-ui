@@ -127,7 +127,7 @@ const AssignUserToProjectDialog = ({ open, user, userProjects, handleClose, refe
           {t("assignUserToProjectDialog.cancel")}
         </Button>
         <Button onClick={assignUserToProject} color="primary">
-        {t("assignUserToProjectDialog.assign")}
+          {t("assignUserToProjectDialog.assign")}
         </Button>
       </DialogActions>
     </Dialog>
