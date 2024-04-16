@@ -1,8 +1,7 @@
-import React, { SyntheticEvent } from "react";
+import { SyntheticEvent, HTMLAttributes, ReactNode } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { AutocompleteRenderOptionState } from "@mui/material/Autocomplete";
 import { useTranslation } from "react-i18next";
-
 /**
  * Component Props
  */
@@ -11,7 +10,7 @@ interface Props<T> {
   selectedOption: T | null;
   setSelectedOption: (option: any) => void;
   getOptionLabel: (option: T) => string;
-  renderOption?: (props: React.HTMLAttributes<HTMLLIElement>, option: T, state: AutocompleteRenderOptionState) => React.ReactNode;
+  renderOption?: (props: HTMLAttributes<HTMLLIElement>, option: T, state: AutocompleteRenderOptionState) => ReactNode;
 }
 
 /**

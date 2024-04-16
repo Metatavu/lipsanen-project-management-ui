@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LoaderWrapper from "components/generic/loader-wrapper";
 
+/**
+ * Component Props
+ */
 interface Props {
   open: boolean;
   user: User;
@@ -15,6 +18,8 @@ interface Props {
 
 /**
  * Assign user to a single project dialog component
+ * 
+ * @param props component properties
  */
 const AssignUserToProjectDialog = ({ open, user, userProjects, handleClose, refetchData }: Props) => {
   const { t } = useTranslation();
@@ -59,13 +64,13 @@ const AssignUserToProjectDialog = ({ open, user, userProjects, handleClose, refe
    * Assigns user to project
    */
   const assignUserToProject = async () => {
-    if (!user || !selectedProject) return;
+    if (!user?.id || !selectedProject?.id) return;
 
     setLoading(true);
     try {
-      const updatedProjectIds = [...user.projectIds || [], selectedProject.id!];
+      const updatedProjectIds = [...user.projectIds || [], selectedProject.id];
       await usersApi.updateUser({
-        userId: user.id!,
+        userId: user.id,
         user: {
           ...user,
           projectIds: updatedProjectIds
