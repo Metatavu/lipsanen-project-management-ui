@@ -9,7 +9,7 @@ import { useAtom } from "jotai";
 import { usersAtom } from "../atoms/users";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
-import { Company, User } from "generated/client";
+import { Company, Project, User } from "generated/client";
 import NewUserDialog from "components/layout/users/new-user-dialog";
 import UserInfoDialog from "components/layout/users/user-info-dialog";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
@@ -18,8 +18,9 @@ export const Route = createFileRoute("/users")({ component: UsersIndexRoute });
 
 function UsersIndexRoute() {
   const { t } = useTranslation();
-  const { usersApi, companiesApi } = useApi();
+  const { usersApi, projectsApi, companiesApi } = useApi();
   const [users, setUsers] = useAtom(usersAtom);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
   const [userInfoDialogOpen, setUserInfoDialogOpen] = useState(false);
@@ -39,6 +40,18 @@ function UsersIndexRoute() {
   };
 
   /**
+   * Get projects list
+   */
+  const getProjectsList = async () => {
+    try {
+      const projects = await projectsApi.listProjects();
+      setProjects(projects);
+    } catch (error) {
+      console.error(t("errorHandling.errorListingProjects"), error);
+    }
+  };
+
+  /**
    * Get companies list
    */
   const getCompaniesList = async () => {
@@ -50,11 +63,23 @@ function UsersIndexRoute() {
     }
   };
 
+  /**
+   * Refetches user data
+   */
+  const refetchUserData = async () => {
+    getUsersList();
+
+    if (selectedUser?.id) {
+      const user = await usersApi.findUser({ userId: selectedUser.id });
+      setSelectedUser(user);
+    }
+  };
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
   useEffect(() => {
     (async () => {
       setLoading(true);
-      await Promise.allSettled([getUsersList(), getCompaniesList()]);
+      await Promise.allSettled([getUsersList(), getProjectsList(), getCompaniesList()]);
       setLoading(false);
     })();
   }, []);
@@ -166,13 +191,19 @@ function UsersIndexRoute() {
     <FlexColumnLayout>
       <NewUserDialog
         open={newUserDialogOpen}
-        handleClose={() => setNewUserDialogOpen(false)}
         users={users}
-        createUser={createUser}
         companies={companies}
+        projects={projects}
+        handleClose={() => setNewUserDialogOpen(false)}
+        createUser={createUser}
         createCompany={createCompany}
       />
-      <UserInfoDialog open={userInfoDialogOpen} user={selectedUser} handleClose={() => setUserInfoDialogOpen(false)} />
+      <UserInfoDialog
+        open={userInfoDialogOpen}
+        user={selectedUser}
+        handleClose={() => setUserInfoDialogOpen(false)}
+        refetchUserData={refetchUserData}
+      />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("users")}

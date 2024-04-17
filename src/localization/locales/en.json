@@ -36,7 +36,8 @@
     "enterUsersName": "Enter user's name",
     "createNewCompany": "Create new company",
     "invalidEmailWarning": "Enter a valid email",
-    "emailNotUniqueWarning": "Email must be unique"
+    "emailNotUniqueWarning": "Email must be unique",
+    "assignUserToProject": "Assign user to project"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
@@ -50,7 +51,8 @@
     "errorUploadingImage": "Error while uploading image",
     "errorListingLogos": "Error while fetching logos list",
     "errorListingCompanies": "Error while fetching companies list",
-    "errorCreatingNewCompany": "Error while creating a new company"
+    "errorCreatingNewCompany": "Error while creating a new company",
+    "errorAssigningUserToProject": "Error while assigning user to project"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -62,6 +64,14 @@
     "projectName": "Name",
     "projectEstimatesAccuracy": "Accuracy of estimates %",
     "projectStatus": "Status"
+  },
+  "assignUserToProjectDialog": {
+    "title": "Assign user to project",
+    "selectProject": "Select project that you want to assign user to",
+    "selectUser": "Select user",
+    "selectRole": "Select role",
+    "assign": "Assign",
+    "cancel": "Cancel"
   },
   "settingsScreen": {
     "title": "Settings",

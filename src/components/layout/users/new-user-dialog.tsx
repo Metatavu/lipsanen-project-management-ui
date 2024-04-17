@@ -9,8 +9,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Company, User } from "generated/client";
+import { Company, Project, User } from "generated/client";
 import CreatableSelect from "components/generic/creatable-select";
+import GenericSelect from "components/generic/generic-select";
 import { CompanyOptionType } from "types";
 
 /**
@@ -18,10 +19,11 @@ import { CompanyOptionType } from "types";
  */
 interface Props {
   open: boolean;
-  handleClose: () => void;
   users: User[];
-  createUser: (user: User) => Promise<void>;
   companies: Company[];
+  projects: Project[];
+  handleClose: () => void;
+  createUser: (user: User) => Promise<void>;
   createCompany: (selectedCompany: Company) => Promise<Company | undefined>;
 }
 
@@ -30,13 +32,14 @@ interface Props {
  *
  * @param props Props
  */
-const NewUserDialog = ({ open, handleClose, users, createUser, companies, createCompany }: Props) => {
+const NewUserDialog = ({ open, users, companies, projects, handleClose, createUser, createCompany }: Props) => {
   const { t } = useTranslation();
   const [userData, setUserData] = useState({
     name: "",
     email: "",
   });
   const [selectedCompany, setSelectedCompany] = useState<CompanyOptionType | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -96,11 +99,14 @@ const NewUserDialog = ({ open, handleClose, users, createUser, companies, create
       companyId = companies.find((company) => company.name === selectedCompany?.name)?.id;
     }
 
+    const projectIds: string[] = selectedProject?.id ? [selectedProject.id] : [];
+
     const user: User = {
       firstName: firstName,
       lastName: lastName,
       email: userData.email,
       companyId: companyId,
+      projectIds: projectIds
     };
 
     await createUser(user);
@@ -109,6 +115,7 @@ const NewUserDialog = ({ open, handleClose, users, createUser, companies, create
       email: "",
     });
     setSelectedCompany(null);
+    setSelectedProject(null);
     setLoading(false);
     handleClose();
   };
@@ -156,6 +163,12 @@ const NewUserDialog = ({ open, handleClose, users, createUser, companies, create
           options={companies}
           selectedCompany={selectedCompany}
           setSelectedCompany={setSelectedCompany}
+        />
+        <GenericSelect
+          options={projects}
+          selectedOption={selectedProject}
+          setSelectedOption={setSelectedProject}
+          getOptionLabel={(option) => option.name || ""}
         />
       </DialogContent>
       {loading && <LinearProgress />}
