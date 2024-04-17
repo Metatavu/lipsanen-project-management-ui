@@ -11,6 +11,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useTranslation } from "react-i18next";
+import { UseMutationResult } from "@tanstack/react-query";
+import { CreateProjectRequest, Project, ProjectStatus } from "generated/client";
 
 /**
  * Component Props
@@ -18,9 +20,7 @@ import { useTranslation } from "react-i18next";
 interface Props {
   open: boolean;
   handleClose: () => void;
-  newProjectName: string;
-  setNewProjectName: (name: string) => void;
-  createProject: () => Promise<void>;
+  createProject: UseMutationResult<Project, Error, CreateProjectRequest, unknown>;
 }
 
 /**
@@ -28,8 +28,9 @@ interface Props {
  *
  * @param props Props
  */
-const NewProjectDialog = ({ open, handleClose, newProjectName, setNewProjectName, createProject }: Props) => {
+const NewProjectDialog = ({ open, handleClose, createProject }: Props) => {
   const { t } = useTranslation();
+  const [newProjectName, setNewProjectName] = useState("");
   const [isDisabled, setIsDisabled] = useState(true);
 
   /**
@@ -42,6 +43,20 @@ const NewProjectDialog = ({ open, handleClose, newProjectName, setNewProjectName
     else setIsDisabled(false);
 
     setNewProjectName(value);
+  };
+
+  /**
+   * Create project handler
+   */
+  const handleCreateProject = async () => {
+    if (!newProjectName) return;
+
+    const newProject: Project = {
+      name: newProjectName,
+      status: ProjectStatus.Initiation,
+    };
+
+    createProject.mutateAsync({ project: newProject });
   };
 
   return (
@@ -74,7 +89,7 @@ const NewProjectDialog = ({ open, handleClose, newProjectName, setNewProjectName
           />
           <Button
             fullWidth
-            onClick={createProject}
+            onClick={handleCreateProject}
             variant="contained"
             color="primary"
             size="large"

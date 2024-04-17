@@ -1,70 +1,39 @@
 import { Button, Card, Toolbar, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import AddIcon from "@mui/icons-material/Add";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import NewProjectDialog from "components/layout/projects/new-project-dialog";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import { useApi } from "../hooks/use-api";
-import { useAtom } from "jotai";
-import { projectsAtom } from "../atoms/projects";
-import { Project, ProjectStatus } from "generated/client";
-import LoaderWrapper from "components/generic/loader-wrapper";
+import { CreateProjectRequest } from "generated/client";
 import ProjectHelpers from "components/helpers/project-helpers";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { logQueryError } from "utils";
+import { FlexColumnLayout } from "components/generic/flex-column-layout";
 
 const ProjectsIndexRoute = () => {
   const { t } = useTranslation();
   const { projectsApi } = useApi();
-  const [projects, setProjects] = useAtom(projectsAtom);
-  const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  /**
-   * Get projects list
-   */
-  const getProjectsList = async () => {
-    setLoading(true);
-    try {
-      const projects = await projectsApi.listProjects();
-      setProjects(projects);
-    } catch (error) {
-      console.error(t("errorHandling.errorListingProjects"), error);
-    }
-    setLoading(false);
-  };
+  const listProjectsQuery = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => projectsApi.listProjects().catch(logQueryError(t("errorHandling.errorListingProjects"))),
+  });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
-  useEffect(() => {
-    getProjectsList();
-  }, []);
-
-  /**
-   * Creates a new project
-   */
-  const createProject = async () => {
-    if (!newProjectName) return;
-
-    setLoading(true);
-    try {
-      const newProject: Project = {
-        name: newProjectName,
-        status: ProjectStatus.Initiation
-      };
-
-      const createdProject = await projectsApi.createProject({ project: newProject });
-      setProjects([...projects, createdProject]);
-
+  const createProjectMutation = useMutation({
+    mutationFn: (requestParams: CreateProjectRequest) => projectsApi.createProject(requestParams),
+    onSuccess: () => {
       setNewProjectDialogOpen(false);
-    } catch (error) {
-      console.error(t("errorHandling.errorCreatingNewProject"), error);
-    }
-    setLoading(false);
-  };
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorCreatingNewProject"), error),
+  });
 
   /**
    * Grid column definitions for projects table
@@ -76,7 +45,7 @@ const ProjectsIndexRoute = () => {
       editable: true,
       flex: 1,
       renderCell: (params) => (
-        <a style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#0079BF" }} href="/">
+        <a style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#0079BF" }}>
           <ConstructionIcon fontSize="small" sx={{ marginRight: 1, color: "#0079BF" }} />
           {params.value}
         </a>
@@ -106,13 +75,9 @@ const ProjectsIndexRoute = () => {
       renderCell: (params) => ProjectHelpers.renderStatusElement(params.value),
     },
     {
-      field: " ",
-      headerName: "",
-      renderCell: () => (
-        <Button style={{ marginLeft: "auto", color: "#000" }}>
-          <MoreVertIcon />
-        </Button>
-      ),
+      field: "actions",
+      type: "actions",
+      getActions: () => [<GridActionsCellItem label="" showInMenu />],
     },
   ];
 
@@ -121,32 +86,30 @@ const ProjectsIndexRoute = () => {
    */
   const renderProjectsTable = () => {
     return (
-      <Box sx={{ height: "auto", width: "100%" }}>
-        <DataGrid
-          rows={projects}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 10,
-              },
+      <DataGrid
+        loading={listProjectsQuery.isLoading}
+        sx={{ height: "100%", width: "100%" }}
+        rows={listProjectsQuery.data ?? []}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 10,
             },
-          }}
-          pageSizeOptions={[10, 25, 50]}
-          disableRowSelectionOnClick
-        />
-      </Box>
+          },
+        }}
+        pageSizeOptions={[10, 25, 50]}
+        disableRowSelectionOnClick
+      />
     );
   };
 
   return (
-    <div style={{ padding: "1rem" }}>
+    <FlexColumnLayout>
       <NewProjectDialog
         open={newProjectDialogOpen}
         handleClose={() => setNewProjectDialogOpen(false)}
-        newProjectName={newProjectName}
-        setNewProjectName={setNewProjectName}
-        createProject={createProject}
+        createProject={createProjectMutation}
       />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
@@ -163,10 +126,8 @@ const ProjectsIndexRoute = () => {
           </Button>
         </Box>
       </Toolbar>
-      <LoaderWrapper loading={loading}>
-        <Card>{renderProjectsTable()}</Card>
-      </LoaderWrapper>
-    </div>
+      <Card sx={{ flex: 1, minWidth: 0 }}>{renderProjectsTable()}</Card>
+    </FlexColumnLayout>
   );
 };
 
