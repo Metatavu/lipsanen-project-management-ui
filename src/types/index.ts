@@ -12,6 +12,10 @@ export type ProjectStatusLabel = {
   color: string;
 };
 
+export type UploadMessage = {
+  message: string;
+  severity: "error" | "success" | "info" | "warning";
+};
 /**
  * Interface for options type
  */

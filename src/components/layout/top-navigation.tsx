@@ -44,6 +44,7 @@ const TopNavigation = () => {
     { route: "/monitoring", labelKey: "monitoring" },
     { route: "/project-templates", labelKey: "projectTemplates" },
     { route: "/users", labelKey: "users" },
+    { route: "/settings", labelKey: "settingsScreen.title" },
   ];
 
   const selectedRouteIndex = routeLinks.findIndex(

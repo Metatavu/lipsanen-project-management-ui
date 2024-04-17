@@ -45,6 +45,11 @@
     "errorListingUserProjects": "Error while fetching user's projects list",
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user",
+    "errorListingProjectThemes": "Error while fetching project themes list",
+    "errorCreatingProjectTheme": "Error while creating a new project theme",
+    "errorUpdatingProjectTheme": "Error while updating a project theme",
+    "errorUploadingImage": "Error while uploading image",
+    "errorListingLogos": "Error while fetching logos list",
     "errorListingCompanies": "Error while fetching companies list",
     "errorCreatingNewCompany": "Error while creating a new company",
     "errorAssigningUserToProject": "Error while assigning user to project"
@@ -67,5 +72,18 @@
     "selectRole": "Select role",
     "assign": "Assign",
     "cancel": "Cancel"
+  },
+  "settingsScreen": {
+    "title": "Settings",
+    "projectSpecificTheming": "Project specific theming",
+    "project": "Project",
+    "themeMainColor": "Theme main color",
+    "otherColor": "Other color",
+    "logo": "Logo",
+    "disableProjectTheme": "Disable project theme",
+    "dropzoneText": "Drop or click to add file",
+    "uploadWarningDuplicateFileName": "Invalid file: File names must be unique.",
+    "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
+    "fileSuccessfullyUploaded": "File successfully uploaded"
   }
 }

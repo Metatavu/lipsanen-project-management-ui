@@ -45,6 +45,11 @@
     "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
     "errorListingUsers": "Virhe haettaessa käyttäjäluetteloa",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
+    "errorListingProjectThemes": "Virhe haettaessa projektiteemaluetteloa",
+    "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
+    "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",
+    "errorUploadingImage": "Virhe kuvan latauksessa",
+    "errorListingLogos": "Virhe haettaessa logoluetteloa",
     "errorListingCompanies": "Virhe haettaessa yritysluetteloa",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin"
@@ -67,5 +72,18 @@
     "selectRole": "Valitse rooli",
     "assign": "Lisää",
     "cancel": "Peruuta"
+  },
+  "settingsScreen": {
+    "title": "Asetukset",
+    "projectSpecificTheming": "Projektikohtainen teemoitus",
+    "project": "Projekti",
+    "themeMainColor": "Teeman pääväri",
+    "otherColor": "Muu väri",
+    "logo": "Logo",
+    "disableProjectTheme": "Poista projektiteema käytöstä",
+    "dropzoneText": "Tiputa tai klikkaa lisätäksesi tiedoston",
+    "uploadWarningDuplicateFileName": "Virheellinen tiedosto: Tiedostonimien on oltava yksilöllisiä.",
+    "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
+    "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
   }
 }

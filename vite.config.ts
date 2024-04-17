@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react(), TanStackRouterVite()],
   resolve: {
     alias: {
+      app: "/src/app",
+      api: "/src/api",
+      atoms: "/src/atoms",
       assets: "/src/assets",
       components: "/src/components",
       generated: "/src/generated",

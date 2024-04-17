@@ -11,18 +11,15 @@ interface Props {
 /**
  * Loader wrapper component
  */
-const LoaderWrapper = ({ loading, children }: Props) => {
-  if (loading)
-    return (
-      <>
-        <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loading}>
-          <CircularProgress color="primary" />
-        </Backdrop>
-        {children}
-      </>
-    );
-
-  return <>{children}</>;
-};
+const LoaderWrapper = ({ loading, children }: Props) => (
+  <>
+    {children}
+    {loading ? (
+      <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loading}>
+        <CircularProgress color="primary" />
+      </Backdrop>
+    ) : null}
+  </>
+);
 
 export default LoaderWrapper;

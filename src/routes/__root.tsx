@@ -11,11 +11,11 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <>
-      <Box sx={{ width: "100vw", height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <Box sx={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
         <TopNavigation />
-        <Box component="main" sx={{ flex: 1 }}>
+        <main style={{ flex: 1, overflow: "hidden" }}>
           <Outlet />
-        </Box>
+        </main>
       </Box>
       <RouterDevTools />
     </>

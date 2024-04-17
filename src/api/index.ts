@@ -1,5 +1,12 @@
 import config from "../app/config";
-import { Configuration, ConfigurationParameters, ProjectsApi, UsersApi, CompaniesApi } from "../generated/client";
+import {
+  Configuration,
+  ConfigurationParameters,
+  ProjectsApi,
+  UsersApi,
+  CompaniesApi,
+  ProjectThemesApi,
+} from "../generated/client";
 
 type ConfigConstructor<T> = new (_params: ConfigurationParameters) => T;
 
@@ -17,6 +24,7 @@ export const getApiClient = (accessToken?: string) => {
 
   return {
     projectsApi: new ProjectsApi(getConfiguration()),
+    ProjectThemesApi: new ProjectThemesApi(getConfiguration()),
     usersApi: new UsersApi(getConfiguration()),
     companiesApi: new CompaniesApi(getConfiguration()),
   };
