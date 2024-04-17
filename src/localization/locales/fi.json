@@ -45,6 +45,8 @@
     "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
     "errorListingUsers": "Virhe haettaessa käyttäjäluetteloa",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
+    "errorUpdatingUser": "Virhe päivitettäessä käyttäjää",
+    "errorFindingUser": "Virhe etsittäessä käyttäjää",
     "errorListingProjectThemes": "Virhe haettaessa projektiteemaluetteloa",
     "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
     "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",

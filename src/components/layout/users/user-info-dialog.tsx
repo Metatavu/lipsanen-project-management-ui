@@ -22,72 +22,91 @@ import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ConstructionIcon from "@mui/icons-material/Construction";
-import { Project, User } from "generated/client";
+import { Company, Project, User } from "generated/client";
 import { useApi } from "../../../hooks/use-api";
 import LoaderWrapper from "components/generic/loader-wrapper";
 import ProjectHelpers from "components/helpers/project-helpers";
 import AssignUserToProjectDialog from "./assign-user-to-project-dialog";
+import { useQuery } from "@tanstack/react-query";
+import { logQueryError } from "utils";
 
 /**
  * Component Props
  */
 interface Props {
   open: boolean;
-  user?: User;
+  user: User;
+  companies: Company[];
   handleClose: () => void;
-  refetchUserData: () => void;
 }
 
 /**
  * User info dialog component
+ *
+ * @param props component properties
  */
-const UserInfoDialog = ({ open, user, handleClose, refetchUserData }: Props) => {
+const UserInfoDialog = ({ open, user, companies, handleClose }: Props) => {
   const { t } = useTranslation();
-  const { projectsApi } = useApi();
+  const { projectsApi, usersApi } = useApi();
   const [name, setName] = useState("");
   const [organisation, setOrganisation] = useState("");
   const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [assignProjectDialogOpen, setAssignProjectDialogOpen] = useState(false);
 
-  /**
-   * Fetches user projects
-   */
-  const getUserProjects = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      const userProjectIds = user.projectIds;
+  const findUserQuery = useQuery({
+    queryKey: ["user"],
+    queryFn: () =>
+      // TODO: Is there a way to not need the assertion here?
+      usersApi
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        .findUser({ userId: user!.id! })
+        .catch(logQueryError(t("errorHandling.errorFindingUser"))),
+    enabled: !!user,
+  });
+
+  const listUserProjectsQuery = useQuery({
+    // TODO: Is this correct or should it be ["user", "projects"]
+    queryKey: ["userProjects"],
+    queryFn: async () => {
+      const userProjectIds = findUserQuery.data?.projectIds;
       const projects: Project[] = [];
 
       if (userProjectIds) {
-        for (let i = 0; i < userProjectIds.length; i++) {
-          const project = await projectsApi.findProject({ projectId: userProjectIds[i] });
-          projects.push(project);
-        }
-
-        setUserProjects(projects);
+        await Promise.all(
+          userProjectIds.map(async (projectId) => {
+            try {
+              const project = await projectsApi.findProject({ projectId });
+              projects.push(project);
+            } catch (error) {
+              logQueryError(t("errorHandling.errorListingUserProjects"));
+            }
+          }),
+        );
       }
-    } catch (error) {
-      console.error(t("errorHandling.errorListingUserProjects"), error);
-    }
-    setLoading(false);
-  };
+
+      return projects;
+    },
+    enabled: !!findUserQuery.data?.projectIds,
+  });
+
+  // TODO: This works but I'm sure it's not correct. How to get the findUserQuery and listUserProjectQuery to update when the selected user changes?
+  useEffect(() => {
+    findUserQuery.refetch();
+  }, [user]);
+
+  useEffect(() => {
+    listUserProjectsQuery.refetch();
+  }, [findUserQuery.data]);
 
   /**
    * Use effect to set user info
    */
   useEffect(() => {
-    if (!user) return;
+    if (!findUserQuery.data) return;
 
-    setName(`${user.firstName} ${user.lastName}`);
-    setOrganisation(user.companyId || "");
-
-    // Fetch user projects
-    getUserProjects();
-  }, [user]);
+    setName(`${findUserQuery.data.firstName} ${findUserQuery.data.lastName}`);
+    setOrganisation(findUserQuery.data.companyId || "");
+  }, [findUserQuery.data]);
 
   /**
    * Handles user info change
@@ -144,7 +163,7 @@ const UserInfoDialog = ({ open, user, handleClose, refetchUserData }: Props) => 
             label={t("userInfoDialog.organisation")}
             placeholder={t("userInfoDialog.organisation")}
             variant="outlined"
-            value={organisation}
+            value={companies.find((company) => company.id === organisation)?.name ?? organisation}
             onChange={handleUserInfoChange("organisation")}
           />
         </Grid>
@@ -157,7 +176,7 @@ const UserInfoDialog = ({ open, user, handleClose, refetchUserData }: Props) => 
             label={t("userInfoDialog.lastLogin")}
             placeholder={t("userInfoDialog.lastLogin")}
             variant="outlined"
-            value={user?.lastLoggedIn?.toLocaleString() || ""}
+            value={findUserQuery.data?.lastLoggedIn?.toLocaleString() || ""}
           />
         </Grid>
         <Grid item xs={4}>
@@ -199,8 +218,8 @@ const UserInfoDialog = ({ open, user, handleClose, refetchUserData }: Props) => 
           </TableRow>
         </TableHead>
         <TableBody>
-          {userProjects.map((project, index) => (
-            <TableRow key={index}>
+          {listUserProjectsQuery.data?.map((project) => (
+            <TableRow key={project.id}>
               <TableCell style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <ConstructionIcon fontSize="small" sx={{ marginRight: 1, color: "#000000", opacity: 0.5 }} />
@@ -238,15 +257,26 @@ const UserInfoDialog = ({ open, user, handleClose, refetchUserData }: Props) => 
         {t("userInfoDialog.projects")}
       </DialogContentText>
       <DialogContent style={{ padding: 0 }}>
-        <LoaderWrapper loading={loading}>{renderUserProjectsTable()}</LoaderWrapper>
+        <LoaderWrapper loading={listUserProjectsQuery.isPending}>{renderUserProjectsTable()}</LoaderWrapper>
         <DialogActions sx={{ justifyContent: "end" }}>
-          <Button onClick={() => setAssignProjectDialogOpen(true)} sx={{ borderRadius: 25 }} variant="text" color="primary" size="medium">
+          <Button
+            onClick={() => setAssignProjectDialogOpen(true)}
+            sx={{ borderRadius: 25 }}
+            variant="text"
+            color="primary"
+            size="medium"
+          >
             <AddIcon />
             {t("createNewProject")}
           </Button>
         </DialogActions>
       </DialogContent>
-      <AssignUserToProjectDialog open={assignProjectDialogOpen} user={user!} userProjects={userProjects} handleClose={() => setAssignProjectDialogOpen(false)} refetchData={refetchUserData} />
+      <AssignUserToProjectDialog
+        open={assignProjectDialogOpen}
+        user={findUserQuery.data ?? user}
+        userProjects={listUserProjectsQuery.data ?? []}
+        handleClose={() => setAssignProjectDialogOpen(false)}
+      />
     </Dialog>
   );
 };

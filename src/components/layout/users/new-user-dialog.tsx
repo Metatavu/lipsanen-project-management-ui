@@ -9,10 +9,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Company, Project, User } from "generated/client";
+import { Company, CreateCompanyRequest, CreateUserRequest, Project, User } from "generated/client";
 import CreatableSelect from "components/generic/creatable-select";
 import GenericSelect from "components/generic/generic-select";
-import { CompanyOptionType } from "types";
+import { UseMutationResult } from "@tanstack/react-query";
 
 /**
  * Component Props
@@ -23,14 +23,14 @@ interface Props {
   companies: Company[];
   projects: Project[];
   handleClose: () => void;
-  createUser: (user: User) => Promise<void>;
-  createCompany: (selectedCompany: Company) => Promise<Company | undefined>;
+  createUser: UseMutationResult<User, Error, CreateUserRequest, unknown>;
+  createCompany: UseMutationResult<Company, Error, CreateCompanyRequest, unknown>;
 }
 
 /**
  * New user dialog component
  *
- * @param props Props
+ * @param props component properties
  */
 const NewUserDialog = ({ open, users, companies, projects, handleClose, createUser, createCompany }: Props) => {
   const { t } = useTranslation();
@@ -38,7 +38,7 @@ const NewUserDialog = ({ open, users, companies, projects, handleClose, createUs
     name: "",
     email: "",
   });
-  const [selectedCompany, setSelectedCompany] = useState<CompanyOptionType | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -93,7 +93,7 @@ const NewUserDialog = ({ open, users, companies, projects, handleClose, createUs
     );
 
     if (isNewCompany) {
-      const newCompany = await createCompany(selectedCompany);
+      const newCompany = await createCompany.mutateAsync({ company: selectedCompany });
       companyId = newCompany?.id;
     } else {
       companyId = companies.find((company) => company.name === selectedCompany?.name)?.id;
@@ -106,10 +106,10 @@ const NewUserDialog = ({ open, users, companies, projects, handleClose, createUs
       lastName: lastName,
       email: userData.email,
       companyId: companyId,
-      projectIds: projectIds
+      projectIds: projectIds,
     };
 
-    await createUser(user);
+    await createUser.mutateAsync({ user });
     setUserData({
       name: "",
       email: "",

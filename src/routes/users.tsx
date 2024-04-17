@@ -5,120 +5,55 @@ import AddIcon from "@mui/icons-material/Add";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { useApi } from "../hooks/use-api";
-import { useAtom } from "jotai";
-import { usersAtom } from "../atoms/users";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DateTime } from "luxon";
-import { Company, Project, User } from "generated/client";
+import { CreateCompanyRequest, CreateUserRequest, User } from "generated/client";
 import NewUserDialog from "components/layout/users/new-user-dialog";
 import UserInfoDialog from "components/layout/users/user-info-dialog";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { logQueryError } from "utils";
 
 export const Route = createFileRoute("/users")({ component: UsersIndexRoute });
 
 function UsersIndexRoute() {
   const { t } = useTranslation();
   const { usersApi, projectsApi, companiesApi } = useApi();
-  const [users, setUsers] = useAtom(usersAtom);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
   const [newUserDialogOpen, setNewUserDialogOpen] = useState(false);
   const [userInfoDialogOpen, setUserInfoDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User>();
+  const queryClient = useQueryClient();
 
-  /**
-   * Get users list
-   */
-  const getUsersList = async () => {
-    try {
-      const users = await usersApi.listUsers();
-      setUsers(users);
-    } catch (error) {
-      console.error(t("errorHandling.errorListingUsers"), error);
-    }
-  };
+  // TODO: Please note the refetchUserData function is now replaced by Query invalidations- please check.
+  const listUsersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: () => usersApi.listUsers().catch(logQueryError(t("errorHandling.errorListingUsers"))),
+  });
 
-  /**
-   * Get projects list
-   */
-  const getProjectsList = async () => {
-    try {
-      const projects = await projectsApi.listProjects();
-      setProjects(projects);
-    } catch (error) {
-      console.error(t("errorHandling.errorListingProjects"), error);
-    }
-  };
+  const listProjectsQuery = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => projectsApi.listProjects().catch(logQueryError(t("errorHandling.errorListingProjects"))),
+  });
 
-  /**
-   * Get companies list
-   */
-  const getCompaniesList = async () => {
-    try {
-      const companies = await companiesApi.listCompanies();
-      setCompanies(companies);
-    } catch (error) {
-      console.error(t("errorHandling.errorListingCompanies"), error);
-    }
-  };
+  const listCompaniesQuery = useQuery({
+    queryKey: ["companies"],
+    queryFn: () => companiesApi.listCompanies().catch(logQueryError(t("errorHandling.errorListingCompanies"))),
+  });
 
-  /**
-   * Refetches user data
-   */
-  const refetchUserData = async () => {
-    getUsersList();
+  const createUserMutation = useMutation({
+    mutationFn: (requestParams: CreateUserRequest) => usersApi.createUser(requestParams),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      setNewUserDialogOpen(false);
+    },
+    onError: (error) => console.error(t("errorHandling.errorCreatingUser"), error),
+  });
 
-    if (selectedUser?.id) {
-      const user = await usersApi.findUser({ userId: selectedUser.id });
-      setSelectedUser(user);
-    }
-  };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Dependency not needed
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      await Promise.allSettled([getUsersList(), getProjectsList(), getCompaniesList()]);
-      setLoading(false);
-    })();
-  }, []);
-
-  /**
-   * Creates a new user
-   *
-   * @param user User
-   */
-  const createUser = async (user: User) => {
-    try {
-      const newUser = await usersApi.createUser({ user });
-      setUsers([...users, newUser]);
-    } catch (error) {
-      console.error(t("errorHandling.errorCreatingUser"), error);
-    }
-    setNewUserDialogOpen(false);
-  };
-
-  /**
-   * Creates a new company
-   *
-   * @param selectedCompany Company
-   */
-  const createCompany = async (selectedCompany: Company) => {
-    if (!selectedCompany) return;
-
-    try {
-      const newCompany: Company = {
-        name: selectedCompany.name,
-      };
-      const createdCompany = await companiesApi.createCompany({ company: newCompany });
-      setCompanies([...companies, createdCompany]);
-
-      return createdCompany;
-    } catch (error) {
-      console.error(t("errorHandling.errorCreatingNewCompany"), error);
-    }
-  };
+  const createCompanyMutation = useMutation({
+    mutationFn: (requestParams: CreateCompanyRequest) => companiesApi.createCompany(requestParams),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
+    onError: (error) => console.error(t("errorHandling.errorCreatingNewCompany"), error),
+  });
 
   /**
    * Grid column definitions for users table
@@ -140,7 +75,7 @@ function UsersIndexRoute() {
       headerName: t("company"),
       editable: true,
       flex: 1,
-      valueFormatter: ({ value }) => companies.find((company) => company.id === value)?.name ?? "",
+      valueFormatter: ({ value }) => listCompaniesQuery.data?.find((company) => company.id === value)?.name ?? "",
     },
     {
       field: "role",
@@ -175,10 +110,12 @@ function UsersIndexRoute() {
    * Renders users table
    */
   const renderUsersTable = () => {
+    const loading = listUsersQuery.isLoading || listProjectsQuery.isLoading || listCompaniesQuery.isLoading;
+
     return (
       <DataGrid
         sx={{ width: "100%", height: "100%" }}
-        rows={users}
+        rows={listUsersQuery.data ?? []}
         columns={columns}
         loading={loading}
         disableRowSelectionOnClick
@@ -191,19 +128,21 @@ function UsersIndexRoute() {
     <FlexColumnLayout>
       <NewUserDialog
         open={newUserDialogOpen}
-        users={users}
-        companies={companies}
-        projects={projects}
+        users={listUsersQuery.data ?? []}
+        companies={listCompaniesQuery.data ?? []}
+        projects={listProjectsQuery.data ?? []}
         handleClose={() => setNewUserDialogOpen(false)}
-        createUser={createUser}
-        createCompany={createCompany}
+        createUser={createUserMutation}
+        createCompany={createCompanyMutation}
       />
-      <UserInfoDialog
-        open={userInfoDialogOpen}
-        user={selectedUser}
-        handleClose={() => setUserInfoDialogOpen(false)}
-        refetchUserData={refetchUserData}
-      />
+      {selectedUser && (
+        <UserInfoDialog
+          open={userInfoDialogOpen}
+          user={selectedUser}
+          companies={listCompaniesQuery.data ?? []}
+          handleClose={() => setUserInfoDialogOpen(false)}
+        />
+      )}
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("users")}
