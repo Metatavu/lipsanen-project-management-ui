@@ -237,6 +237,12 @@ const UserInfoDialog = ({ open, user, companies, handleClose }: Props) => {
     </TableContainer>
   );
 
+  const loading =
+    listUserProjectsQuery.isPending ||
+    findUserQuery.isPending ||
+    listUserProjectsQuery.isFetching ||
+    findUserQuery.isFetching;
+
   /**
    * Main component render
    */
@@ -257,7 +263,7 @@ const UserInfoDialog = ({ open, user, companies, handleClose }: Props) => {
         {t("userInfoDialog.projects")}
       </DialogContentText>
       <DialogContent style={{ padding: 0 }}>
-        <LoaderWrapper loading={listUserProjectsQuery.isPending}>{renderUserProjectsTable()}</LoaderWrapper>
+        <LoaderWrapper loading={loading}>{renderUserProjectsTable()}</LoaderWrapper>
         <DialogActions sx={{ justifyContent: "end" }}>
           <Button
             onClick={() => setAssignProjectDialogOpen(true)}
