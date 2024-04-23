@@ -1,116 +1,32 @@
-import { Button, Card, Toolbar, Typography } from "@mui/material";
-import { createFileRoute } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
-import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
-import Box from "@mui/material/Box";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
-import NewProjectDialog from "components/layout/projects/new-project-dialog";
 import ConstructionIcon from "@mui/icons-material/Construction";
-import { useApi } from "../hooks/use-api";
-import { CreateProjectRequest } from "generated/client";
-import ProjectHelpers from "components/helpers/project-helpers";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { logQueryError } from "utils";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { Button, Card, Toolbar, Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import ProjectUtils from "utils/project";
+import NewProjectDialog from "components/projects/new-project-dialog";
+import { useListProjectsQuery } from "hooks/api-queries";
+import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 
-const ProjectsIndexRoute = () => {
+export const Route = createFileRoute("/projects")({ component: ProjectsIndexRoute });
+
+function ProjectsIndexRoute() {
   const { t } = useTranslation();
-  const { projectsApi } = useApi();
-  const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
-  const queryClient = useQueryClient();
 
-  const listProjectsQuery = useQuery({
-    queryKey: ["projects"],
-    queryFn: () => projectsApi.listProjects().catch(logQueryError(t("errorHandling.errorListingProjects"))),
-  });
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 10 });
+  const [first, max] = usePaginationToFirstAndMax(paginationModel);
 
-  const createProjectMutation = useMutation({
-    mutationFn: (requestParams: CreateProjectRequest) => projectsApi.createProject(requestParams),
-    onSuccess: () => {
-      setNewProjectDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorCreatingNewProject"), error),
-  });
-
-  /**
-   * Grid column definitions for projects table
-   */
-  const columns: GridColDef[] = [
-    {
-      field: "name",
-      headerName: t("projects"),
-      editable: true,
-      flex: 1,
-      renderCell: (params) => (
-        <a style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#0079BF" }}>
-          <ConstructionIcon fontSize="small" sx={{ marginRight: 1, color: "#0079BF" }} />
-          {params.value}
-        </a>
-      ),
-    },
-    {
-      field: "type",
-      headerName: t("type"),
-      editable: true,
-      flex: 1,
-    },
-    {
-      field: "start_estimate",
-      headerName: t("estimatedStart"),
-      editable: true,
-      flex: 1,
-    },
-    {
-      field: "complete_estimate",
-      headerName: t("estimatedStart"),
-      flex: 1,
-    },
-    {
-      field: "status",
-      headerName: t("status"),
-      flex: 1,
-      renderCell: (params) => ProjectHelpers.renderStatusElement(params.value),
-    },
-    {
-      field: "actions",
-      type: "actions",
-      getActions: () => [<GridActionsCellItem label="" showInMenu />],
-    },
-  ];
-
-  /**
-   * Renders projects Datagrid table
-   */
-  const renderProjectsTable = () => {
-    return (
-      <DataGrid
-        loading={listProjectsQuery.isLoading}
-        sx={{ height: "100%", width: "100%" }}
-        rows={listProjectsQuery.data ?? []}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
-            },
-          },
-        }}
-        pageSizeOptions={[10, 25, 50]}
-        disableRowSelectionOnClick
-      />
-    );
-  };
+  const listProjectsQuery = useListProjectsQuery({ first, max });
+  const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
+  const projects = listProjectsQuery.data?.projects;
 
   return (
     <FlexColumnLayout>
-      <NewProjectDialog
-        open={newProjectDialogOpen}
-        handleClose={() => setNewProjectDialogOpen(false)}
-        createProject={createProjectMutation}
-      />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
           {t("projects")}
@@ -120,17 +36,68 @@ const ProjectsIndexRoute = () => {
             <FilterListIcon />
             {t("showFilters")}
           </Button>
-          <Button onClick={() => setNewProjectDialogOpen(true)} variant="contained" color="primary" size="large">
-            <AddIcon />
-            {t("addNewProject")}
-          </Button>
+          <NewProjectDialog />
         </Box>
       </Toolbar>
-      <Card sx={{ flex: 1, minWidth: 0 }}>{renderProjectsTable()}</Card>
+      <Card sx={{ flex: 1, minWidth: 0 }}>
+        <DataGrid
+          loading={listProjectsQuery.isLoading}
+          sx={{ height: "100%", width: "100%" }}
+          rows={projects ?? []}
+          rowCount={maxResults}
+          columns={[
+            {
+              field: "name",
+              headerName: t("projects"),
+              editable: true,
+              flex: 1,
+              renderCell: (params) => (
+                // TODO: Add link to project page
+                <Link
+                  to="/"
+                  style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#0079BF" }}
+                >
+                  <ConstructionIcon fontSize="small" sx={{ marginRight: 1, color: "#0079BF" }} />
+                  {params.value}
+                </Link>
+              ),
+            },
+            {
+              field: "type",
+              headerName: t("type"),
+              editable: true,
+              flex: 1,
+            },
+            {
+              field: "start_estimate",
+              headerName: t("estimatedStart"),
+              editable: true,
+              flex: 1,
+            },
+            {
+              field: "complete_estimate",
+              headerName: t("estimatedStart"),
+              flex: 1,
+            },
+            {
+              field: "status",
+              headerName: t("status"),
+              flex: 1,
+              renderCell: (params) => ProjectUtils.renderStatusElement(params.value),
+            },
+            {
+              field: "actions",
+              type: "actions",
+              getActions: () => [<GridActionsCellItem label="" showInMenu />],
+            },
+          ]}
+          initialState={{ pagination: { paginationModel } }}
+          pageSizeOptions={[10, 25, 50]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          disableRowSelectionOnClick
+        />
+      </Card>
     </FlexColumnLayout>
   );
-};
-
-export const Route = createFileRoute("/projects")({
-  component: ProjectsIndexRoute,
-});
+}

@@ -5,7 +5,10 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "ignore": ["generated/*"]
+    "ignore": [
+      "generated/*",
+      "openapi/*"
+    ]
   },
   "vcs": {
     "enabled": true,

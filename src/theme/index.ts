@@ -55,19 +55,42 @@ const theme = createTheme({
         },
       },
     },
+    MuiFilledInput: {
+      defaultProps: {
+        disableUnderline: true,
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {
-          margin: "0.25rem",
-          backgroundColor: "white",
+          "& .MuiFilledInput-root": {
+            backgroundColor: "#fff",
+            borderRadius: 4,
+            "&.Mui-focused": {
+              backgroundColor: "#fff",
+            },
+            "&:hover": {
+              backgroundColor: "#f7f7f7",
+            },
+          },
         },
+      },
+      defaultProps: {
+        variant: "filled",
       },
     },
     MuiButton: {
       styleOverrides: {
         root: {
           borderRadius: 25,
-          lineHeight: 0,
+          lineHeight: 1,
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          border: "1px solid rgba(0, 0, 0, 0.1)",
         },
       },
     },

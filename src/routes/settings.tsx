@@ -1,80 +1,76 @@
-import { Box, Button, Card, Divider, MenuItem, Radio, Stack, TextField, Toolbar, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  MenuItem,
+  Radio,
+  Skeleton,
+  Stack,
+  TextField,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import FileUploader from "components/generic/file-upload";
-import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "../constants";
+import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "constants";
 import { MuiColorInput } from "mui-color-input";
-import { useApi } from "../hooks/use-api";
-import LoaderWrapper from "components/generic/loader-wrapper";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useApi } from "hooks/use-api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
-import { logQueryError } from "utils";
 import { filesApi } from "api/files";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import { useListFilesQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
 
 export const Route = createFileRoute("/settings")({ component: SettingsIndexRoute });
 
 function SettingsIndexRoute() {
   const { t } = useTranslation();
-  const { projectsApi, ProjectThemesApi: projectThemesApi } = useApi();
+  const queryClient = useQueryClient();
+  const { projectThemesApi } = useApi();
+  const listProjectsQuery = useListProjectsQuery();
+  const listLogosQuery = useListFilesQuery();
+
+  const projects = listProjectsQuery.data?.projects;
+
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [selectedColorInput, setSelectedColor] = useState("");
   const [selectedLogoInput, setSelectedLogo] = useState("");
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const debounceTimeoutRef = useRef<number | null>(null);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     const savedProjectId = localStorage.getItem("selectedProjectId");
     if (savedProjectId) setSelectedProjectId(savedProjectId);
   }, []);
 
-  const listProjectsQuery = useQuery({
-    queryKey: ["projects"],
-    queryFn: () => projectsApi.listProjects().catch(logQueryError(t("errorHandling.errorListingProjects"))),
-  });
+  const listProjectThemesQuery = useListProjectThemesQuery(selectedProjectId);
 
-  const listLogosQuery = useQuery({
-    queryKey: ["files"],
-    queryFn: () => filesApi.listFiles().catch(logQueryError(t("errorHandling.errorListingLogos"))),
-  });
-
-  const getProjectThemeQuery = useQuery({
-    queryKey: ["projectThemes", selectedProjectId],
-    queryFn: () =>
-      projectThemesApi
-        .listProjectThemes({ projectId: selectedProjectId })
-        .then((themes) => {
-          for (const theme of themes.slice(1)) {
-            theme.id &&
-              projectThemesApi.deleteProjectTheme({
-                projectId: selectedProjectId,
-                themeId: theme.id,
-              });
-          }
-
-          return themes.at(0) ?? { logoUrl: DEFAULT_LOGO, themeColor: DEFAULT_THEME_COLORS[0].value };
-        })
-        .catch(logQueryError(t("errorHandling.errorListingProjectThemes"))),
-    enabled: listProjectsQuery.isSuccess && !!selectedProjectId.length,
-  });
+  const projectTheme = useMemo(
+    () =>
+      listProjectThemesQuery.data
+        ? listProjectThemesQuery.data.at(0) ?? { themeColor: DEFAULT_THEME_COLORS[0].value, logoUrl: DEFAULT_LOGO }
+        : null,
+    [listProjectThemesQuery.data],
+  );
 
   useEffect(() => {
-    if (getProjectThemeQuery.data) applyProjectThemeSettings(getProjectThemeQuery.data);
-  }, [getProjectThemeQuery.data]);
+    if (projectTheme) applyProjectThemeSettings(projectTheme);
+  }, [projectTheme]);
 
   const createProjectThemeMutation = useMutation({
-    mutationFn: (requestParams: CreateProjectThemeRequest) => projectThemesApi.createProjectTheme(requestParams),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
+    mutationFn: (params: CreateProjectThemeRequest) => projectThemesApi.createProjectTheme(params),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
     onError: (error) => console.error(t("errorHandling.errorCreatingProjectTheme"), error),
   });
 
   const updateProjectThemeMutation = useMutation({
-    mutationFn: (requestParams: UpdateProjectThemeRequest) => projectThemesApi.updateProjectTheme(requestParams),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projectThemes"] }),
+    mutationFn: (params: UpdateProjectThemeRequest) => projectThemesApi.updateProjectTheme(params),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
     onError: (error) => console.error(t("errorHandling.errorUpdatingProjectTheme"), error),
   });
 
@@ -83,7 +79,7 @@ function SettingsIndexRoute() {
     onSuccess: async (fileName) => {
       handleLogoSelection(fileName);
       await queryClient.invalidateQueries({ queryKey: ["logos"] });
-      await queryClient.invalidateQueries({ queryKey: ["projectThemes"] });
+      await queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "projectThemes"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUploadingImage"), error),
   });
@@ -115,9 +111,9 @@ function SettingsIndexRoute() {
    * @param logo string
    */
   const handleProjectThemeChange = ({ logoUrl, themeColor }: Partial<Pick<ProjectTheme, "logoUrl" | "themeColor">>) => {
-    if (!getProjectThemeQuery.data) return;
+    if (!projectTheme) return;
 
-    const updatedTheme: ProjectTheme = { ...getProjectThemeQuery.data };
+    const updatedTheme: ProjectTheme = { ...projectTheme };
     if (logoUrl) updatedTheme.logoUrl = logoUrl;
     if (themeColor) updatedTheme.themeColor = themeColor;
 
@@ -235,7 +231,7 @@ function SettingsIndexRoute() {
    * Renders project theme settings
    */
   const renderSettings = () => {
-    if (!selectedProjectId) return null;
+    if (!selectedProjectId || listLogosQuery.isFetching) return null;
 
     return (
       <>
@@ -281,48 +277,55 @@ function SettingsIndexRoute() {
     );
   };
 
-  const renderSelectProjectOptions = () => {
-    if (!listProjectsQuery.data?.length) {
-      return <MenuItem value="">{""}</MenuItem>;
-    }
+  const renderProjectSelectFieldOptions = () => {
+    if (!projects?.length) return <MenuItem value="">{""}</MenuItem>;
 
-    return listProjectsQuery.data.map((project) => (
+    return projects.map((project) => (
       <MenuItem key={project.id} value={project.id}>
         {project.name}
       </MenuItem>
     ));
   };
 
+  const renderProjectSelectField = () => {
+    if (listProjectsQuery.isFetching) {
+      <Skeleton sx={{ height: 72, width: "40%" }} />;
+    }
+
+    return (
+      <TextField
+        variant="outlined"
+        value={selectedProjectId}
+        label={t("settingsScreen.project")}
+        select
+        size="small"
+        sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
+        onChange={handleProjectSelection}
+      >
+        {renderProjectSelectFieldOptions()}
+      </TextField>
+    );
+  };
+
   return (
-    <LoaderWrapper loading={listProjectsQuery.isPending}>
-      <FlexColumnLayout>
-        <Toolbar disableGutters variant="dense">
-          <Typography component="h1" variant="h5">
-            {t("settingsScreen.title")}
-          </Typography>
-        </Toolbar>
-        <Card sx={{ flex: 1, padding: "1rem", display: "flex", flexDirection: "column" }}>
-          <Typography component="h2" variant="h6" gutterBottom>
-            {t("settingsScreen.projectSpecificTheming")}
-          </Typography>
-          <Divider />
-          <Box sx={{ py: 0.5, flex: 1, overflow: "auto" }}>
-            <Stack alignItems="flex-start" gap={3}>
-              <TextField
-                value={selectedProjectId}
-                label={t("settingsScreen.project")}
-                select
-                size="small"
-                sx={{ marginTop: "1rem", marginBottom: "1rem", width: "40%" }}
-                onChange={handleProjectSelection}
-              >
-                {renderSelectProjectOptions()}
-              </TextField>
-              {renderSettings()}
-            </Stack>
-          </Box>
-        </Card>
-      </FlexColumnLayout>
-    </LoaderWrapper>
+    <FlexColumnLayout>
+      <Toolbar disableGutters variant="dense">
+        <Typography component="h1" variant="h5">
+          {t("settingsScreen.title")}
+        </Typography>
+      </Toolbar>
+      <Card sx={{ flex: 1, padding: "1rem", display: "flex", flexDirection: "column" }}>
+        <Typography component="h2" variant="h6" gutterBottom>
+          {t("settingsScreen.projectSpecificTheming")}
+        </Typography>
+        <Divider />
+        <Box sx={{ py: 0.5, flex: 1, overflow: "auto" }}>
+          <Stack alignItems="flex-start" gap={3}>
+            {renderProjectSelectField()}
+            {renderSettings()}
+          </Stack>
+        </Box>
+      </Card>
+    </FlexColumnLayout>
   );
 }

@@ -43,10 +43,11 @@
     "errorCreatingNewProject": "Error while creating a new project",
     "errorListingProjects": "Error while fetching projects list",
     "errorListingUserProjects": "Error while fetching user's projects list",
+    "errorFindingProject": "Error while finding a project",
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user",
-    "errorUpdatingUser": "Error while updating a user",
     "errorFindingUser": "Error while finding a user",
+    "errorUpdatingUser": "Error while updating a user",
     "errorListingProjectThemes": "Error while fetching project themes list",
     "errorCreatingProjectTheme": "Error while creating a new project theme",
     "errorUpdatingProjectTheme": "Error while updating a project theme",
@@ -59,13 +60,18 @@
   "userInfoDialog": {
     "title": "User information",
     "name": "Name",
-    "organisation": "Organisation",
+    "organization": "Organization",
+    "unknownOrganization": "Unknown organization",
     "lastLogin": "Last login",
+    "userYetToLogin": "Yet to login",
     "role": "Role",
+    "noAssignedRole": "No assigned role",
     "projects": "Projects",
     "projectName": "Name",
     "projectEstimatesAccuracy": "Accuracy of estimates %",
-    "projectStatus": "Status"
+    "noCompletedTasksYet": "No completed tasks yet",
+    "projectStatus": "Status",
+    "assignToNewProject": "Assign to new project"
   },
   "assignUserToProjectDialog": {
     "title": "Assign user to project",

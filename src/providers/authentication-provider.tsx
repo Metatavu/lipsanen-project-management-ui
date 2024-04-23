@@ -1,8 +1,8 @@
 import { ReactNode, useCallback, useEffect } from "react";
 import Keycloak from "keycloak-js";
 import { useAtom, useSetAtom } from "jotai";
-import { authAtom, userProfileAtom } from "../../atoms/auth";
-import config from "../../app/config";
+import { authAtom, userProfileAtom } from "atoms/auth";
+import config from "app/config";
 
 type Props = {
   children: ReactNode;

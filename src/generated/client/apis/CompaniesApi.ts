@@ -14,13 +14,11 @@
 
 
 import * as runtime from '../runtime';
-import type {
-  Company,
-} from '../models/index';
 import {
+    Company,
     CompanyFromJSON,
     CompanyToJSON,
-} from '../models/index';
+} from '../models';
 
 export interface CreateCompanyRequest {
     company: Company;
@@ -48,7 +46,7 @@ export class CompaniesApi extends runtime.BaseAPI {
      * Create a new company
      * Create a new company
      */
-    async createCompanyRaw(requestParameters: CreateCompanyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Company>> {
+    async createCompanyRaw(requestParameters: CreateCompanyRequest): Promise<runtime.ApiResponse<Company>> {
         if (requestParameters.company === null || requestParameters.company === undefined) {
             throw new runtime.RequiredError('company','Required parameter requestParameters.company was null or undefined when calling createCompany.');
         }
@@ -73,7 +71,7 @@ export class CompaniesApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: CompanyToJSON(requestParameters.company),
-        }, initOverrides);
+        });
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CompanyFromJSON(jsonValue));
     }
@@ -82,16 +80,26 @@ export class CompaniesApi extends runtime.BaseAPI {
      * Create a new company
      * Create a new company
      */
-    async createCompany(requestParameters: CreateCompanyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Company> {
-        const response = await this.createCompanyRaw(requestParameters, initOverrides);
+    async createCompany(requestParameters: CreateCompanyRequest): Promise<Company> {
+        const response = await this.createCompanyRaw(requestParameters);
         return await response.value();
+    }
+
+    /**
+     * Create a new company
+     * Create a new company
+     */
+    async createCompanyWithHeaders(requestParameters: CreateCompanyRequest): Promise<[ Company, Headers ]> {
+        const response = await this.createCompanyRaw(requestParameters);
+        const value = await response.value(); 
+        return [ value, response.raw.headers ];
     }
 
     /**
      * Delete a company
      * Delete a company
      */
-    async deleteCompanyRaw(requestParameters: DeleteCompanyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async deleteCompanyRaw(requestParameters: DeleteCompanyRequest): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.companyId === null || requestParameters.companyId === undefined) {
             throw new runtime.RequiredError('companyId','Required parameter requestParameters.companyId was null or undefined when calling deleteCompany.');
         }
@@ -113,7 +121,7 @@ export class CompaniesApi extends runtime.BaseAPI {
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        });
 
         return new runtime.VoidApiResponse(response);
     }
@@ -122,15 +130,24 @@ export class CompaniesApi extends runtime.BaseAPI {
      * Delete a company
      * Delete a company
      */
-    async deleteCompany(requestParameters: DeleteCompanyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteCompanyRaw(requestParameters, initOverrides);
+    async deleteCompany(requestParameters: DeleteCompanyRequest): Promise<void> {
+        await this.deleteCompanyRaw(requestParameters);
+    }
+
+    /**
+     * Delete a company
+     * Delete a company
+     */
+    async deleteCompanyWithHeaders(requestParameters: DeleteCompanyRequest): Promise<Headers> {
+        const response = await this.deleteCompanyRaw(requestParameters);
+        return response.raw.headers;
     }
 
     /**
      * Get a company
      * Get a company
      */
-    async findCompanyRaw(requestParameters: FindCompanyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Company>> {
+    async findCompanyRaw(requestParameters: FindCompanyRequest): Promise<runtime.ApiResponse<Company>> {
         if (requestParameters.companyId === null || requestParameters.companyId === undefined) {
             throw new runtime.RequiredError('companyId','Required parameter requestParameters.companyId was null or undefined when calling findCompany.');
         }
@@ -152,7 +169,7 @@ export class CompaniesApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        });
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CompanyFromJSON(jsonValue));
     }
@@ -161,16 +178,26 @@ export class CompaniesApi extends runtime.BaseAPI {
      * Get a company
      * Get a company
      */
-    async findCompany(requestParameters: FindCompanyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Company> {
-        const response = await this.findCompanyRaw(requestParameters, initOverrides);
+    async findCompany(requestParameters: FindCompanyRequest): Promise<Company> {
+        const response = await this.findCompanyRaw(requestParameters);
         return await response.value();
+    }
+
+    /**
+     * Get a company
+     * Get a company
+     */
+    async findCompanyWithHeaders(requestParameters: FindCompanyRequest): Promise<[ Company, Headers ]> {
+        const response = await this.findCompanyRaw(requestParameters);
+        const value = await response.value(); 
+        return [ value, response.raw.headers ];
     }
 
     /**
      * Get all companies
      * Get all companies
      */
-    async listCompaniesRaw(requestParameters: ListCompaniesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Company>>> {
+    async listCompaniesRaw(requestParameters: ListCompaniesRequest): Promise<runtime.ApiResponse<Array<Company>>> {
         const queryParameters: any = {};
 
         if (requestParameters.first !== undefined) {
@@ -196,7 +223,7 @@ export class CompaniesApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        });
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CompanyFromJSON));
     }
@@ -205,9 +232,19 @@ export class CompaniesApi extends runtime.BaseAPI {
      * Get all companies
      * Get all companies
      */
-    async listCompanies(requestParameters: ListCompaniesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Company>> {
-        const response = await this.listCompaniesRaw(requestParameters, initOverrides);
+    async listCompanies(requestParameters: ListCompaniesRequest = {}): Promise<Array<Company>> {
+        const response = await this.listCompaniesRaw(requestParameters);
         return await response.value();
+    }
+
+    /**
+     * Get all companies
+     * Get all companies
+     */
+    async listCompaniesWithHeaders(requestParameters: ListCompaniesRequest): Promise<[ Array<Company>, Headers ]> {
+        const response = await this.listCompaniesRaw(requestParameters);
+        const value = await response.value(); 
+        return [ value, response.raw.headers ];
     }
 
 }

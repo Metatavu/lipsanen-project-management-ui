@@ -23,3 +23,5 @@ export interface CompanyOptionType {
   inputValue?: string;
   name: string;
 }
+
+export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
