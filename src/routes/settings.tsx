@@ -78,7 +78,7 @@ function SettingsIndexRoute() {
     mutationFn: (file: File) => filesApi.uploadFile(file),
     onSuccess: async (fileName) => {
       handleLogoSelection(fileName);
-      await queryClient.invalidateQueries({ queryKey: ["logos"] });
+      await queryClient.invalidateQueries({ queryKey: ["files"] });
       await queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "projectThemes"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUploadingImage"), error),
