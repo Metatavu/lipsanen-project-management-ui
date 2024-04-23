@@ -1,4 +1,5 @@
 {
+  "back": "Takaisin",
   "projects": "Projektit",
   "monitoring": "Seuranta",
   "projectTemplates": "Projektimallit",
@@ -93,5 +94,12 @@
     "uploadWarningDuplicateFileName": "Virheellinen tiedosto: Tiedostonimien on oltava yksilöllisiä.",
     "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
     "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
+  },
+  "trackingScreen": {
+    "title": "Seuranta"
+  },
+  "scheduleScreen": {
+    "title": "Aikataulu",
+    "objectives": "Tavoitteet"
   }
 }

@@ -1,3 +1,5 @@
+import { SvgIconTypeMap } from "@mui/material";
+import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
 import { ProjectStatus } from "generated/client";
 import { DefaultNamespace, ParseKeys } from "i18next";
@@ -5,6 +7,10 @@ import { DefaultNamespace, ParseKeys } from "i18next";
 export type NavigationLink = {
   route: RoutePaths<RegisteredRouter["routeTree"]>;
   labelKey: ParseKeys<DefaultNamespace>;
+  // biome-ignore lint/complexity/noBannedTypes: <explanation>
+  icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">> & {
+    muiName: string;
+  };
 };
 
 export type ProjectStatusLabel = {

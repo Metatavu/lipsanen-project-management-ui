@@ -1,4 +1,5 @@
 {
+  "back": "Back",
   "projects": "Projects",
   "monitoring": "Monitoring",
   "projectTemplates": "Project templates",
@@ -93,5 +94,12 @@
     "uploadWarningDuplicateFileName": "Invalid file: File names must be unique.",
     "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
     "fileSuccessfullyUploaded": "File successfully uploaded"
+  },
+  "trackingScreen": {
+    "title": "Tracking"
+  },
+  "scheduleScreen": {
+    "title": "Schedule",
+    "objectives": "Objectives"
   }
 }
