@@ -9,8 +9,8 @@ import { CompanyOptionType } from "types";
  */
 interface Props {
   options: CompanyOptionType[];
-  selectedCompany: CompanyOptionType | null;
-  setSelectedCompany: (company: CompanyOptionType | null) => void;
+  selectedCompany?: CompanyOptionType;
+  setSelectedCompany: (company?: CompanyOptionType) => void | Promise<void>;
 }
 
 /**
@@ -29,53 +29,38 @@ const CreatableSelect = ({ options, selectedCompany, setSelectedCompany }: Props
    * @param newValue user selection
    */
   const handleChange = (_event: SyntheticEvent<Element, Event>, newValue: string | CompanyOptionType | null) => {
-    if (typeof newValue === "string") {
-      setSelectedCompany({
-        name: newValue,
-      });
-    } else if (newValue?.inputValue) {
-      setSelectedCompany({
-        name: newValue.inputValue,
-      });
-    } else {
-      setSelectedCompany(newValue);
-    }
+    if (typeof newValue === "string") setSelectedCompany({ name: newValue });
+    else if (newValue?.inputValue) setSelectedCompany({ name: newValue.inputValue });
+    else setSelectedCompany(newValue ?? undefined);
   };
 
   return (
     <Autocomplete
-      value={selectedCompany}
-      onChange={handleChange}
+      freeSolo
+      fullWidth
+      selectOnFocus
+      clearOnBlur
+      handleHomeEndKeys
+      options={options}
       filterOptions={(options, params) => {
         const filtered = filter(options, params);
         const { inputValue } = params;
         const isExisting = options.some((option) => inputValue === option.name);
         if (inputValue !== "" && !isExisting) {
-          filtered.push({
-            inputValue,
-            name: `${t("newUserDialog.createNewCompany")} "${inputValue}"`,
-          });
+          filtered.push({ inputValue: inputValue, name: `${t("newUserDialog.createNewCompany")} "${inputValue}"` });
         }
 
         return filtered;
       }}
-      selectOnFocus
-      clearOnBlur
-      handleHomeEndKeys
-      options={options}
       getOptionLabel={(option) => {
-        if (typeof option === "string") {
-          return option;
-        }
-        if (option.inputValue) {
-          return option.inputValue;
-        }
+        if (typeof option === "string") return option;
+        if (option.inputValue) return option.inputValue;
         return option.name;
       }}
       renderOption={(props, option) => <li {...props}>{option.name}</li>}
-      freeSolo
-      fullWidth
       renderInput={(params) => <TextField {...params} label={t("newUserDialog.selectUsersCompany")} />}
+      value={selectedCompany}
+      onChange={handleChange}
     />
   );
 };

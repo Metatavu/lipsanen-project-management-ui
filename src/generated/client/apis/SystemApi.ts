@@ -24,7 +24,7 @@ export class SystemApi extends runtime.BaseAPI {
      * Replies ping with pong
      * Replies with pong
      */
-    async pingRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+    async pingRaw(): Promise<runtime.ApiResponse<string>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -42,22 +42,28 @@ export class SystemApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        });
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.TextApiResponse(response) as any;
     }
 
     /**
      * Replies ping with pong
      * Replies with pong
      */
-    async ping(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
-        const response = await this.pingRaw(initOverrides);
+    async ping(): Promise<string> {
+        const response = await this.pingRaw();
         return await response.value();
+    }
+
+    /**
+     * Replies ping with pong
+     * Replies with pong
+     */
+    async pingWithHeaders(): Promise<[ string, Headers ]> {
+        const response = await this.pingRaw();
+        const value = await response.value(); 
+        return [ value, response.raw.headers ];
     }
 
 }

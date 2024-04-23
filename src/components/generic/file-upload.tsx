@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { UploadMessage } from "types";
 import CloseIcon from "@mui/icons-material/Close";
 import { containsIllegalCharacters } from "utils";
+import config from "app/config";
+
 const MAX_FILE_SIZE_IN_BYTES = 2000000;
 
 /**
@@ -79,7 +81,7 @@ const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
       return;
     }
 
-    if (logos.some((logo) => logo === files[0].name)) {
+    if (logos.some((logo) => logo === `${config.cdnBaseUrl}/${files[0].name}`)) {
       setUploadMessage({ message: t("settingsScreen.uploadWarningDuplicateFileName"), severity: "error" });
       return;
     }

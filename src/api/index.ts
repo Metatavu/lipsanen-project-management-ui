@@ -24,7 +24,7 @@ export const getApiClient = (accessToken?: string) => {
 
   return {
     projectsApi: new ProjectsApi(getConfiguration()),
-    ProjectThemesApi: new ProjectThemesApi(getConfiguration()),
+    projectThemesApi: new ProjectThemesApi(getConfiguration()),
     usersApi: new UsersApi(getConfiguration()),
     companiesApi: new CompaniesApi(getConfiguration()),
   };

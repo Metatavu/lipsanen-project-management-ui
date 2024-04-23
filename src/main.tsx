@@ -9,12 +9,19 @@ import "@fontsource/roboto/700.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { theme } from "./theme";
 import "localization/i18n";
-import AuthenticationProvider from "components/providers/authentication-provider";
+import AuthenticationProvider from "providers/authentication-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createRouter({ routeTree });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
