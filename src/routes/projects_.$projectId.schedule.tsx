@@ -55,7 +55,7 @@ function ScheduleIndexRoute() {
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
 
       return (
-        <TableRow>
+        <TableRow key={milestone.id}>
           <TableCell style={{ overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar sx={{ backgroundColor: "#0079BF" }}>
