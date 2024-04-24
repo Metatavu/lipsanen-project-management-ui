@@ -16,9 +16,7 @@ interface Props {
 /**
  * Renders generic date picker
  *
- * @param label label
- * @param value value
- * @param onChange onChange
+ * @param props component properties
  */
 const GenericDatePicker = ({ label, onChange, value, minDate }: Props) => (
   <>
