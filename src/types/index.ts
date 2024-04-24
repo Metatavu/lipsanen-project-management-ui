@@ -3,6 +3,7 @@ import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
 import { ProjectStatus } from "generated/client";
 import { DefaultNamespace, ParseKeys } from "i18next";
+import { DateTime } from "luxon";
 
 export type NavigationLink = {
   route: RoutePaths<RegisteredRouter["routeTree"]>;
@@ -31,3 +32,12 @@ export interface CompanyOptionType {
 }
 
 export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+
+/**
+ * Interface for milestone form data
+ */
+export interface MilestoneFormData {
+  name: string;
+  startDate: DateTime | null;
+  endDate: DateTime | null;
+}

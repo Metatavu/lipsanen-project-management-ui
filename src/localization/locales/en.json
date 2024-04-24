@@ -56,7 +56,9 @@
     "errorListingLogos": "Error while fetching logos list",
     "errorListingCompanies": "Error while fetching companies list",
     "errorCreatingNewCompany": "Error while creating a new company",
-    "errorAssigningUserToProject": "Error while assigning user to project"
+    "errorAssigningUserToProject": "Error while assigning user to project",
+    "errorCreatingProjectMilestone": "Error while creating a new project milestone",
+    "errorListingProjectMilestones": "Error while fetching project milestones list"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -100,6 +102,23 @@
   },
   "scheduleScreen": {
     "title": "Schedule",
-    "objectives": "Objectives"
+    "objectives": "Objectives",
+    "addANewMilestone": "Add a new milestone",
+    "objective": "Objective",
+    "duration": "Duration",
+    "start": "Start",
+    "ready": "Ready",
+    "readiness": "Readiness",
+    "days": "days"
+  },
+  "newProjectMilestoneDialog": {
+    "title": "Create a new milestone",
+    "name": "Milestone name",
+    "enterName": "Enter milestone name",
+    "startDate": "Start date",
+    "enterStartDate": "Enter start date",
+    "endDate": "End date",
+    "enterEndDate": "Enter end date",
+    "create": "Create new milestone"
   }
 }

@@ -56,7 +56,9 @@
     "errorListingLogos": "Virhe haettaessa logoja",
     "errorListingCompanies": "Virhe haettaessa yrityksiä",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
-    "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin"
+    "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
+    "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin virstanpylvästä",
+    "errorListingProjectMilestones": "Virhe haettaessa projektin virstanpylväiden luetteloa"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -100,6 +102,23 @@
   },
   "scheduleScreen": {
     "title": "Aikataulu",
-    "objectives": "Tavoitteet"
+    "objectives": "Tavoitteet",
+    "addANewMilestone": "Lisää uusi virstanpylväs",
+    "objective": "Tavoite",
+    "duration": "kesto",
+    "start": "Alkaa",
+    "ready": "Valmis",
+    "readiness": "Valmius",
+    "days": "pv"
+  },
+  "newProjectMilestoneDialog": {
+    "title": "Luo uusi virstanpylväs",
+    "name": "Virstanpylväs nimi",
+    "enterName": "Anna virstanpylvään nimi",
+    "startDate": "Aloituspäivämäärä",
+    "enterStartDate": "Anna aloituspäivä",
+    "endDate": "Päättymispäivä",
+    "enterEndDate": "Anna lopetuspäivä",
+    "create": "Luo uusi virstanpylväs"
   }
 }

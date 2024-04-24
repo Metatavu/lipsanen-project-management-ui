@@ -2,7 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { handleError, handleErrorWithMessage } from "utils";
 import { useApi } from "./use-api";
-import { Company, ListCompaniesRequest, ListProjectsRequest, ListUsersRequest, Project, User } from "generated/client";
+import {
+  Company,
+  ListCompaniesRequest,
+  ListProjectMilestonesRequest,
+  ListProjectsRequest,
+  ListUsersRequest,
+  Project,
+  User,
+} from "generated/client";
 import { filesApi } from "api/files";
 
 export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
@@ -118,3 +126,22 @@ export const useListFilesQuery = () =>
     queryKey: ["files"],
     queryFn: () => filesApi.listFiles().catch(handleErrorWithMessage("Error listing files")),
   });
+
+export const useListProjectMilestonesQuery = (params: ListProjectMilestonesRequest) => {
+  const { projectMilestonesApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId } = params;
+
+  return useQuery({
+    queryKey: ["projectMilestones", projectId],
+    queryFn: async () => {
+      try {
+        return projectMilestonesApi.listProjectMilestones({ projectId: projectId });
+      } catch (error) {
+        handleError("Error listing project milestones", error);
+        throw Error(t("errorHandling.errorListingProjectMilestones"), { cause: error });
+      }
+    },
+    enabled: !!projectId,
+  });
+};
