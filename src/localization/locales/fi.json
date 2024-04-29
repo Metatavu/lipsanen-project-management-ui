@@ -10,6 +10,15 @@
   "type": "Tyyppi",
   "estimatedStart": "Aloitus arviolta",
   "estimatedEnd": "Lopetus arviolta",
+  "deleteProject": "Poista projekti",
+  "confirmProjectDeleteDescription": "Haluatko varmasti poistaa projektin: {{projectName}}?",
+  "deleteUser": "Poista käyttäjä",
+  "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?",
+  "generic": {
+    "delete": "Poistaa",
+    "cancel": "Peruuttaa",
+    "confirm": "Vahvistaa"
+  },
   "projectStatuses": {
     "ongoing": "Käynnissä",
     "tenderPreparation": "Tarjousvalmistelu",
@@ -44,10 +53,12 @@
     "errorListingProjects": "Virhe haettaessa projekteja",
     "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
     "errorFindingProject": "Virhe haettaessa projektia",
+    "errorDeletingProject": "Virhe poistettaessa projektia",
     "errorListingUsers": "Virhe haettaessa käyttäjiä",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
     "errorFindingUser": "Virhe haettaessa käyttäjää",
     "errorUpdatingUser": "Virhe päivitettäessä käyttäjää",
+    "errorDeletingUser": "Virhe poistettaessa käyttäjää",
     "errorListingProjectThemes": "Virhe haettaessa projektiteemoja",
     "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
     "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",

@@ -11,6 +11,7 @@ import { theme } from "./theme";
 import "localization/i18n";
 import AuthenticationProvider from "providers/authentication-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ConfirmDialogProvider from "providers/confirm-dialog-provider";
 
 const router = createRouter({ routeTree });
 
@@ -41,7 +42,9 @@ if (!rootElement.innerHTML) {
         <CssBaseline />
         <AuthenticationProvider>
           <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
+            <ConfirmDialogProvider>
+              <RouterProvider router={router} />
+            </ConfirmDialogProvider>
           </QueryClientProvider>
         </AuthenticationProvider>
       </ThemeProvider>

@@ -10,6 +10,15 @@
   "type": "Type",
   "estimatedStart": "Start estimate",
   "estimatedEnd": "End estimate",
+  "deleteProject": "Delete project",
+  "confirmProjectDeleteDescription": "Are you sure you want to delete project: {{projectName}}?",
+  "deleteUser": "Delete user",
+  "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?",
+  "generic": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "OK"
+  },
   "projectStatuses": {
     "ongoing": "Ongoing",
     "tenderPreparation": "Tender preparation",
@@ -44,10 +53,12 @@
     "errorListingProjects": "Error while fetching projects list",
     "errorListingUserProjects": "Error while fetching user's projects list",
     "errorFindingProject": "Error while finding a project",
+    "errorDeletingProject": "Error while deleting a project",
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user",
     "errorFindingUser": "Error while finding a user",
     "errorUpdatingUser": "Error while updating a user",
+    "errorDeletingUser": "Error while deleting a user",
     "errorListingProjectThemes": "Error while fetching project themes list",
     "errorCreatingProjectTheme": "Error while creating a new project theme",
     "errorUpdatingProjectTheme": "Error while updating a project theme",

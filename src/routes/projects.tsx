@@ -1,5 +1,6 @@
 import ConstructionIcon from "@mui/icons-material/Construction";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { Button, Card, Toolbar, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
@@ -12,11 +13,18 @@ import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-ma
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
+import { DeleteProjectRequest } from "generated/client";
+import { useApi } from "hooks/use-api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useConfirmDialog } from "providers/confirm-dialog-provider";
 
 export const Route = createFileRoute("/projects")({ component: ProjectsIndexRoute });
 
 function ProjectsIndexRoute() {
   const { t } = useTranslation();
+  const { projectsApi } = useApi();
+  const queryClient = useQueryClient();
+  const showConfirmDialog = useConfirmDialog();
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 10 });
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
@@ -24,6 +32,23 @@ function ProjectsIndexRoute() {
   const listProjectsQuery = useListProjectsQuery({ first, max });
   const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
   const projects = listProjectsQuery.data?.projects;
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: (params: DeleteProjectRequest) => projectsApi.deleteProject(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorDeletingProject"), error),
+  });
+
+  /**
+   * Handle project deletion
+   *
+   * @params projectId string
+   */
+  const handleProjectDelete = (projectId?: string) => {
+    projectId && deleteProjectMutation.mutateAsync({ projectId: projectId });
+  };
 
   return (
     <FlexColumnLayout>
@@ -88,7 +113,22 @@ function ProjectsIndexRoute() {
             {
               field: "actions",
               type: "actions",
-              getActions: () => [<GridActionsCellItem label="" showInMenu />],
+              getActions: (params) => [
+                <GridActionsCellItem
+                  label={t("generic.delete")}
+                  icon={<DeleteIcon color="error" />}
+                  showInMenu
+                  onClick={() =>
+                    showConfirmDialog({
+                      title: t("deleteProject"),
+                      description: t("confirmProjectDeleteDescription", { projectName: params.row.name }),
+                      cancelButtonEnabled: true,
+                      confirmButtonText: t("generic.delete"),
+                      onConfirmClick: () => handleProjectDelete(params.row.id),
+                    })
+                  }
+                />,
+              ],
             },
           ]}
           initialState={{ pagination: { paginationModel } }}
