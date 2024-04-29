@@ -65,7 +65,7 @@ function UsersIndexRoute() {
         <Box sx={{ display: "flex", gap: "1rem" }}>
           <Button variant="contained" color="primary" size="large">
             <FilterListIcon />
-            {t("showFilters")}
+            {t("generic.showFilters")}
           </Button>
           <NewUserDialog />
         </Box>
@@ -93,20 +93,20 @@ function UsersIndexRoute() {
             },
             {
               field: "companyId",
-              headerName: t("company"),
+              headerName: t("usersScreen.company"),
               editable: true,
               flex: 1,
               valueFormatter: ({ value }) => companies?.find((company) => company.id === value)?.name ?? "",
             },
             {
               field: "role",
-              headerName: t("role"),
+              headerName: t("usersScreen.role"),
               editable: true,
               flex: 1,
             },
             {
               field: "lastLoggedIn",
-              headerName: t("lastLoggedIn"),
+              headerName: t("usersScreen.lastLoggedIn"),
               flex: 1,
               valueFormatter: ({ value }) => (value ? DateTime.fromJSDate(value).toFormat("dd.MM.yyyy - HH:mm") : ""),
             },
@@ -120,8 +120,8 @@ function UsersIndexRoute() {
                   showInMenu
                   onClick={() =>
                     showConfirmDialog({
-                      title: t("deleteUser"),
-                      description: t("confirmUserDeleteDescription", {
+                      title: t("usersScreen.deleteUser"),
+                      description: t("usersScreen.confirmUserDeleteDescription", {
                         firstName: params.row.firstName,
                         lastName: params.row.lastName,
                       }),

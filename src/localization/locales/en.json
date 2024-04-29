@@ -5,19 +5,19 @@
   "users": "Users",
   "logout": "Logout",
   "search": "Search",
-  "status": "Status",
-  "newProject": "New project",
-  "type": "Type",
-  "estimatedStart": "Start estimate",
-  "estimatedEnd": "End estimate",
-  "deleteProject": "Delete project",
-  "confirmProjectDeleteDescription": "Are you sure you want to delete project: {{projectName}}?",
-  "deleteUser": "Delete user",
-  "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?",
   "generic": {
     "delete": "Delete",
     "cancel": "Cancel",
-    "confirm": "OK"
+    "confirm": "OK",
+    "showFilters": "Show filters"
+  },
+  "project": {
+    "status": "Status",
+    "type": "Type",
+    "estimatedStart": "Start estimate",
+    "estimatedEnd": "End estimate",
+    "deleteProject": "Delete project",
+    "confirmProjectDeleteDescription": "Are you sure you want to delete project: {{projectName}}?"
   },
   "projectStatuses": {
     "ongoing": "Ongoing",
@@ -25,16 +25,21 @@
     "tender": "Tender",
     "done": "Done"
   },
-  "showFilters": "Show filters",
-  "addNewProject": "Add new project",
-  "createNewProject": "Create new project",
-  "createNewProjectDescription": "Create a new project",
+  "newProjectDialog": {
+    "addNewProject": "Add new project",
+    "createNewProject": "Create new project",
+    "createNewProjectDescription": "Create a new project",
+    "creation/ImportOfANewProject": "Creation / Import of a new project",
+    "enterProjectName": "Enter project name"
+  },
   "projectName": "Project name",
-  "creation/ImportOfANewProject": "Creation / Import of a new project",
-  "enterProjectName": "Enter project name",
-  "company": "Company",
-  "role": "Role",
-  "lastLoggedIn": "Last logged in",
+  "usersScreen": {
+    "company": "Company",
+    "role": "Role",
+    "lastLoggedIn": "Last logged in",
+    "deleteUser": "Delete user",
+    "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?"
+  },
   "name": "Name",
   "addANewUser": "Add a new user",
   "newUserDialog": {

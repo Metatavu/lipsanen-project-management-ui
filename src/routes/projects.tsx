@@ -59,7 +59,7 @@ function ProjectsIndexRoute() {
         <Box sx={{ display: "flex", gap: "1rem" }}>
           <Button variant="contained" color="primary" size="large">
             <FilterListIcon />
-            {t("showFilters")}
+            {t("generic.showFilters")}
           </Button>
           <NewProjectDialog />
         </Box>
@@ -89,24 +89,24 @@ function ProjectsIndexRoute() {
             },
             {
               field: "type",
-              headerName: t("type"),
+              headerName: t("project.type"),
               editable: true,
               flex: 1,
             },
             {
               field: "start_estimate",
-              headerName: t("estimatedStart"),
+              headerName: t("project.estimatedStart"),
               editable: true,
               flex: 1,
             },
             {
               field: "complete_estimate",
-              headerName: t("estimatedStart"),
+              headerName: t("project.estimatedStart"),
               flex: 1,
             },
             {
               field: "status",
-              headerName: t("status"),
+              headerName: t("project.status"),
               flex: 1,
               renderCell: (params) => ProjectUtils.renderStatusElement(params.value),
             },
@@ -120,8 +120,8 @@ function ProjectsIndexRoute() {
                   showInMenu
                   onClick={() =>
                     showConfirmDialog({
-                      title: t("deleteProject"),
-                      description: t("confirmProjectDeleteDescription", { projectName: params.row.name }),
+                      title: t("project.deleteProject"),
+                      description: t("project.confirmProjectDeleteDescription", { projectName: params.row.name }),
                       cancelButtonEnabled: true,
                       confirmButtonText: t("generic.delete"),
                       onConfirmClick: () => handleProjectDelete(params.row.id),

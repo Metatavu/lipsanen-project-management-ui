@@ -5,19 +5,19 @@
   "users": "Käyttäjät",
   "logout": "Kirjaudu ulos",
   "search": "Haku",
-  "status": "Tila",
-  "newProject": "Uusi projekti",
-  "type": "Tyyppi",
-  "estimatedStart": "Aloitus arviolta",
-  "estimatedEnd": "Lopetus arviolta",
-  "deleteProject": "Poista projekti",
-  "confirmProjectDeleteDescription": "Haluatko varmasti poistaa projektin: {{projectName}}?",
-  "deleteUser": "Poista käyttäjä",
-  "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?",
   "generic": {
     "delete": "Poistaa",
     "cancel": "Peruuttaa",
-    "confirm": "Vahvistaa"
+    "confirm": "Vahvistaa",
+    "showFilters": "Näytä suotimet"
+  },
+  "project": {
+    "status": "Tila",
+    "type": "Tyyppi",
+    "estimatedStart": "Aloitus arviolta",
+    "estimatedEnd": "Lopetus arviolta",
+    "deleteProject": "Poista projekti",
+    "confirmProjectDeleteDescription": "Haluatko varmasti poistaa projektin: {{projectName}}?"
   },
   "projectStatuses": {
     "ongoing": "Käynnissä",
@@ -25,16 +25,21 @@
     "tender": "Tarjous",
     "done": "Valmis"
   },
-  "showFilters": "Näytä suotimet",
-  "addNewProject": "Lisää uusi projekti",
-  "createNewProject": "Luo täysin uusi",
-  "createNewProjectDescription": "Luo uusi projekti",
+  "newProjectDialog": {
+    "addNewProject": "Lisää uusi projekti",
+    "createNewProject": "Luo täysin uusi",
+    "createNewProjectDescription": "Luo uusi projekti",
+    "creation/ImportOfANewProject": "Uuden projektin luonti / tuonti",
+    "enterProjectName": "Anna projetin nimi"
+  },
   "projectName": "Projektin nimi",
-  "creation/ImportOfANewProject": "Uuden projektin luonti / tuonti",
-  "enterProjectName": "Anna projetin nimi",
-  "company": "Yritys",
-  "role": "Rooli",
-  "lastLoggedIn": "Viimeksi paikalla",
+  "usersScreen": {
+    "company": "Yritys",
+    "role": "Rooli",
+    "lastLoggedIn": "Viimeksi paikalla",
+    "deleteUser": "Poista käyttäjä",
+    "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?"
+  },
   "name": "Nimi",
   "addANewUser": "Lisää uusi käyttäjä",
   "newUserDialog": {
