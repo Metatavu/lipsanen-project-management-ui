@@ -26,8 +26,14 @@ import { filesApi } from "api/files";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import { useListFilesQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
 
+/**
+ * Settings file route
+ */
 export const Route = createFileRoute("/settings")({ component: SettingsIndexRoute });
 
+/**
+ * Setting index route component
+ */
 function SettingsIndexRoute() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -62,18 +68,27 @@ function SettingsIndexRoute() {
     if (projectTheme) applyProjectThemeSettings(projectTheme);
   }, [projectTheme]);
 
+  /**
+   * Create project theme mutation
+   */
   const createProjectThemeMutation = useMutation({
     mutationFn: (params: CreateProjectThemeRequest) => projectThemesApi.createProjectTheme(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
     onError: (error) => console.error(t("errorHandling.errorCreatingProjectTheme"), error),
   });
 
+  /**
+   * Update project theme mutation
+   */
   const updateProjectThemeMutation = useMutation({
     mutationFn: (params: UpdateProjectThemeRequest) => projectThemesApi.updateProjectTheme(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
     onError: (error) => console.error(t("errorHandling.errorUpdatingProjectTheme"), error),
   });
 
+  /**
+   * Upload file mutation
+   */
   const uploadFileMutation = useMutation({
     mutationFn: (file: File) => filesApi.uploadFile(file),
     onSuccess: async (fileName) => {
@@ -277,6 +292,9 @@ function SettingsIndexRoute() {
     );
   };
 
+  /**
+   * Render project select field options
+   */
   const renderProjectSelectFieldOptions = () => {
     if (!projects?.length) return <MenuItem value="">{""}</MenuItem>;
 
@@ -287,6 +305,9 @@ function SettingsIndexRoute() {
     ));
   };
 
+  /**
+   * Render project select field
+   */
   const renderProjectSelectField = () => {
     if (listProjectsQuery.isFetching) {
       <Skeleton sx={{ height: 72, width: "40%" }} />;
@@ -307,6 +328,9 @@ function SettingsIndexRoute() {
     );
   };
 
+  /**
+   * Main component render
+   */
   return (
     <FlexColumnLayout>
       <Toolbar disableGutters variant="dense">

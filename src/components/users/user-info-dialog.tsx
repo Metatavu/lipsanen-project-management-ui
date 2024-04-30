@@ -81,6 +81,9 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
       InputProps: { readOnly: true },
     };
 
+    /**
+     * Main component render
+     */
     return (
       <div style={{ backgroundColor: "rgba(33, 150, 243, 0.08)" }}>
         <Grid container spacing={1} padding={2}>

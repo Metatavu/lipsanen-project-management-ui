@@ -13,18 +13,26 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 
+/**
+ * Projects file route
+ */
 export const Route = createFileRoute("/projects")({ component: ProjectsIndexRoute });
 
+/**
+ * Projects index route component
+ */
 function ProjectsIndexRoute() {
   const { t } = useTranslation();
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 10 });
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
-
   const listProjectsQuery = useListProjectsQuery({ first, max });
   const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
   const projects = listProjectsQuery.data?.projects;
 
+  /**
+   * Main component render
+   */
   return (
     <FlexColumnLayout>
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
@@ -52,9 +60,8 @@ function ProjectsIndexRoute() {
               editable: true,
               flex: 1,
               renderCell: (params) => (
-                // TODO: Add link to project page
                 <Link
-                  to="/"
+                  to={`/projects/${params.id}/tracking` as string}
                   style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#0079BF" }}
                 >
                   <ConstructionIcon fontSize="small" sx={{ marginRight: 1, color: "#0079BF" }} />

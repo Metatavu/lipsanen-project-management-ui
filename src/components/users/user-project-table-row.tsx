@@ -9,11 +9,19 @@ type UserProjectTableRowProps = {
   projectId: string;
 };
 
+/**
+ * User project table row component
+ *
+ * @param projectId string
+ */
 const UserProjectTableRow = ({ projectId }: UserProjectTableRowProps) => {
   const findProjectQuery = useFindProjectQuery(projectId);
 
   const project = findProjectQuery.data ? mustHaveId(findProjectQuery.data) : undefined;
 
+  /**
+   * Main component render
+   */
   return (
     <TableRow>
       <LoadingTableCell loading={findProjectQuery.isFetching}>

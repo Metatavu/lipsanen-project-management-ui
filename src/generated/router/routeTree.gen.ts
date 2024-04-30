@@ -17,6 +17,8 @@ import { Route as ProjectsImport } from "./../../routes/projects"
 import { Route as ProjectTemplatesImport } from "./../../routes/project-templates"
 import { Route as MonitoringImport } from "./../../routes/monitoring"
 import { Route as IndexImport } from "./../../routes/index"
+import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/projects_.$projectId.tracking"
+import { Route as ProjectsProjectIdScheduleImport } from "./../../routes/projects_.$projectId.schedule"
 
 // Create/Update Routes
 
@@ -50,6 +52,16 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ProjectsProjectIdTrackingRoute = ProjectsProjectIdTrackingImport.update({
+  path: "/projects/$projectId/tracking",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProjectsProjectIdScheduleRoute = ProjectsProjectIdScheduleImport.update({
+  path: "/projects/$projectId/schedule",
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module "@tanstack/react-router" {
@@ -78,6 +90,14 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof UsersImport
       parentRoute: typeof rootRoute
     }
+    "/projects/$projectId/schedule": {
+      preLoaderRoute: typeof ProjectsProjectIdScheduleImport
+      parentRoute: typeof rootRoute
+    }
+    "/projects/$projectId/tracking": {
+      preLoaderRoute: typeof ProjectsProjectIdTrackingImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -90,6 +110,8 @@ export const routeTree = rootRoute.addChildren([
   ProjectsRoute,
   SettingsRoute,
   UsersRoute,
+  ProjectsProjectIdScheduleRoute,
+  ProjectsProjectIdTrackingRoute,
 ])
 
 /* prettier-ignore-end */

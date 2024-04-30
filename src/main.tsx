@@ -11,6 +11,8 @@ import { theme } from "./theme";
 import "localization/i18n";
 import AuthenticationProvider from "providers/authentication-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 
 const router = createRouter({ routeTree });
 
@@ -40,9 +42,11 @@ if (!rootElement.innerHTML) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthenticationProvider>
-          <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-          </QueryClientProvider>
+          <LocalizationProvider dateAdapter={AdapterLuxon}>
+            <QueryClientProvider client={queryClient}>
+              <RouterProvider router={router} />
+            </QueryClientProvider>
+          </LocalizationProvider>
         </AuthenticationProvider>
       </ThemeProvider>
     </StrictMode>,

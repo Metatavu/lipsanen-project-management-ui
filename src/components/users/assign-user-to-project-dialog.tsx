@@ -41,6 +41,9 @@ const AssignUserToProjectDialog = ({ userId }: Props) => {
   const [open, setOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>();
 
+  /**
+   * Update user mutation
+   */
   const updateUserMutation = useMutation({
     mutationFn: (params: UpdateUserRequest) => usersApi.updateUser(params),
     onSuccess: () => {

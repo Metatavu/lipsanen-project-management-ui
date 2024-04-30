@@ -2,9 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { handleError, handleErrorWithMessage } from "utils";
 import { useApi } from "./use-api";
-import { Company, ListCompaniesRequest, ListProjectsRequest, ListUsersRequest, Project, User } from "generated/client";
+import {
+  Company,
+  ListCompaniesRequest,
+  ListProjectMilestonesRequest,
+  ListProjectsRequest,
+  ListUsersRequest,
+  Project,
+  User,
+} from "generated/client";
 import { filesApi } from "api/files";
 
+/**
+ * List companies query hook
+ *
+ * @param params ListCompaniesRequest
+ */
 export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
   const { companiesApi } = useApi();
   const { t } = useTranslation();
@@ -23,6 +36,11 @@ export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
   });
 };
 
+/**
+ *List users query hook
+ *
+ * @param params ListUsersRequest
+ */
 export const useListUsersQuery = (params?: ListUsersRequest) => {
   const { usersApi } = useApi();
   const { t } = useTranslation();
@@ -41,6 +59,11 @@ export const useListUsersQuery = (params?: ListUsersRequest) => {
   });
 };
 
+/**
+ * Find user query hook
+ *
+ * @param userId string
+ */
 export const useFindUserQuery = (userId?: string) => {
   const { usersApi } = useApi();
   const { t } = useTranslation();
@@ -62,6 +85,11 @@ export const useFindUserQuery = (userId?: string) => {
   });
 };
 
+/**
+ * List projects query hook
+ *
+ * @param params ListProjectsRequest
+ */
 export const useListProjectsQuery = (params?: ListProjectsRequest) => {
   const { projectsApi } = useApi();
   const { t } = useTranslation();
@@ -80,6 +108,11 @@ export const useListProjectsQuery = (params?: ListProjectsRequest) => {
   });
 };
 
+/**
+ * Find project query hook
+ *
+ * @param projectId string
+ */
 export const useFindProjectQuery = (projectId?: string) => {
   const { projectsApi } = useApi();
 
@@ -94,6 +127,11 @@ export const useFindProjectQuery = (projectId?: string) => {
   });
 };
 
+/**
+ * List project themes query hook
+ *
+ * @param projectId string
+ */
 export const useListProjectThemesQuery = (projectId?: string) => {
   const { projectThemesApi } = useApi();
   const { t } = useTranslation();
@@ -113,8 +151,35 @@ export const useListProjectThemesQuery = (projectId?: string) => {
   });
 };
 
+/**
+ * List files query hook
+ */
 export const useListFilesQuery = () =>
   useQuery({
     queryKey: ["files"],
     queryFn: () => filesApi.listFiles().catch(handleErrorWithMessage("Error listing files")),
   });
+
+/**
+ * List project milestones query hook
+ *
+ * @param params ListProjectMilestonesRequest
+ */
+export const useListProjectMilestonesQuery = (params: ListProjectMilestonesRequest) => {
+  const { projectMilestonesApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId } = params;
+
+  return useQuery({
+    queryKey: ["projectMilestones", projectId],
+    queryFn: async () => {
+      try {
+        return projectMilestonesApi.listProjectMilestones({ projectId: projectId });
+      } catch (error) {
+        handleError("Error listing project milestones", error);
+        throw Error(t("errorHandling.errorListingProjectMilestones"), { cause: error });
+      }
+    },
+    enabled: !!projectId,
+  });
+};

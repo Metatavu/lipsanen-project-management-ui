@@ -1,4 +1,5 @@
 {
+  "back": "Back",
   "projects": "Projects",
   "monitoring": "Monitoring",
   "projectTemplates": "Project templates",
@@ -55,7 +56,9 @@
     "errorListingLogos": "Error while fetching logos list",
     "errorListingCompanies": "Error while fetching companies list",
     "errorCreatingNewCompany": "Error while creating a new company",
-    "errorAssigningUserToProject": "Error while assigning user to project"
+    "errorAssigningUserToProject": "Error while assigning user to project",
+    "errorCreatingProjectMilestone": "Error while creating a new project milestone",
+    "errorListingProjectMilestones": "Error while fetching project milestones list"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -93,5 +96,29 @@
     "uploadWarningDuplicateFileName": "Invalid file: File names must be unique.",
     "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
     "fileSuccessfullyUploaded": "File successfully uploaded"
+  },
+  "trackingScreen": {
+    "title": "Tracking"
+  },
+  "scheduleScreen": {
+    "title": "Schedule",
+    "objectives": "Objectives",
+    "addANewMilestone": "Add a new milestone",
+    "objective": "Objective",
+    "duration": "Duration",
+    "start": "Start",
+    "ready": "Ready",
+    "readiness": "Readiness",
+    "days": "days"
+  },
+  "newProjectMilestoneDialog": {
+    "title": "Create a new milestone",
+    "name": "Milestone name",
+    "enterName": "Enter milestone name",
+    "startDate": "Start date",
+    "enterStartDate": "Enter start date",
+    "endDate": "End date",
+    "enterEndDate": "Enter end date",
+    "create": "Create new milestone"
   }
 }
