@@ -45,6 +45,9 @@ const NewUserDialog = () => {
   const projects = listProjectsQuery.data?.projects;
   const companies = listCompaniesQuery.data?.companies;
 
+  /**
+   * Create user mutation
+   */
   const createUserMutation = useMutation({
     mutationFn: (params: CreateUserRequest) => usersApi.createUser(params),
     onSuccess: () => {
@@ -54,6 +57,9 @@ const NewUserDialog = () => {
     onError: (error) => console.error(t("errorHandling.errorCreatingUser"), error),
   });
 
+  /**
+   * Create company mutation
+   */
   const createCompanyMutation = useMutation({
     mutationFn: (params: CreateCompanyRequest) => companiesApi.createCompany(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
@@ -112,6 +118,9 @@ const NewUserDialog = () => {
 
   const isDisabled = !(!!userData.name && !!userData.email);
 
+  /**
+   * Main component render
+   */
   return (
     <>
       <Button onClick={() => setOpen(true)} variant="contained" color="primary" size="large">

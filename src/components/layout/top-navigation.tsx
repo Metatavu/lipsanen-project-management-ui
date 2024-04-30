@@ -15,6 +15,7 @@ import {
   Badge,
   styled,
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useMatches, useNavigate } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
 import { authAtom } from "../../atoms/auth";
@@ -47,8 +48,20 @@ const TopNavigation = () => {
     { route: "/settings", labelKey: "settingsScreen.title" },
   ];
 
-  const selectedRouteIndex = routeLinks.findIndex(
-    (link) => getNthSlugFromPathName(link.route, 0) === getNthSlugFromPathName(location.pathname, 0),
+  const projectRouteLinks: NavigationLink[] = [
+    { route: "/projects", labelKey: "back", icon: ArrowBackIcon },
+    { route: "/projects/$projectId/tracking", labelKey: "trackingScreen.title" },
+    { route: "/projects/$projectId/schedule", labelKey: "scheduleScreen.title" },
+  ];
+
+  const isProjectRoute = location.pathname.includes("projects/") && location.pathname.split("projects/")[1] !== "";
+
+  const { activeLinks, slug } = isProjectRoute
+    ? { activeLinks: projectRouteLinks, slug: 2 }
+    : { activeLinks: routeLinks, slug: 0 };
+
+  const selectedRouteIndex = activeLinks.findIndex(
+    (link) => getNthSlugFromPathName(link.route, slug) === getNthSlugFromPathName(location.pathname, slug),
   );
 
   return (
@@ -58,11 +71,12 @@ const TopNavigation = () => {
 
         <Stack direction="row" gap={3} sx={{ ml: 3, flexGrow: 1 }}>
           <Tabs value={selectedRouteIndex}>
-            {routeLinks.map(({ route, labelKey }, routeIndex) => (
+            {activeLinks.map(({ route, labelKey }, routeIndex) => (
               <Tab
                 sx={{ color: "white" }}
                 key={route}
-                label={t(labelKey)}
+                label={labelKey !== "back" && t(labelKey)}
+                icon={labelKey === "back" ? <ArrowBackIcon /> : undefined}
                 value={routeIndex}
                 onClick={() => navigate({ to: route })}
               />

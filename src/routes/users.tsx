@@ -17,8 +17,14 @@ import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+/**
+ * Users file route
+ */
 export const Route = createFileRoute("/users")({ component: UsersIndexRoute });
 
+/**
+ * Users index route component
+ */
 function UsersIndexRoute() {
   const { t } = useTranslation();
   const { usersApi } = useApi();
@@ -55,6 +61,9 @@ function UsersIndexRoute() {
     userId && deleteProjectMutation.mutateAsync({ userId: userId });
   };
 
+  /**
+   * Main component render
+   */
   return (
     <FlexColumnLayout>
       <UserInfoDialog userId={selectedUser?.id} handleClose={() => setSelectedUser(undefined)} />

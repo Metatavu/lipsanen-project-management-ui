@@ -1,4 +1,5 @@
 {
+  "back": "Takaisin",
   "projects": "Projektit",
   "monitoring": "Seuranta",
   "projectTemplates": "Projektimallit",
@@ -71,7 +72,9 @@
     "errorListingLogos": "Virhe haettaessa logoja",
     "errorListingCompanies": "Virhe haettaessa yrityksiä",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
-    "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin"
+    "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
+    "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin virstanpylvästä",
+    "errorListingProjectMilestones": "Virhe haettaessa projektin virstanpylväiden luetteloa"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -109,5 +112,29 @@
     "uploadWarningDuplicateFileName": "Virheellinen tiedosto: Tiedostonimien on oltava yksilöllisiä.",
     "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
     "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
+  },
+  "trackingScreen": {
+    "title": "Seuranta"
+  },
+  "scheduleScreen": {
+    "title": "Aikataulu",
+    "objectives": "Tavoitteet",
+    "addANewMilestone": "Lisää uusi virstanpylväs",
+    "objective": "Tavoite",
+    "duration": "kesto",
+    "start": "Alkaa",
+    "ready": "Valmis",
+    "readiness": "Valmius",
+    "days": "pv"
+  },
+  "newProjectMilestoneDialog": {
+    "title": "Luo uusi virstanpylväs",
+    "name": "Virstanpylväs nimi",
+    "enterName": "Anna virstanpylvään nimi",
+    "startDate": "Aloituspäivämäärä",
+    "enterStartDate": "Anna aloituspäivä",
+    "endDate": "Päättymispäivä",
+    "enterEndDate": "Anna lopetuspäivä",
+    "create": "Luo uusi virstanpylväs"
   }
 }

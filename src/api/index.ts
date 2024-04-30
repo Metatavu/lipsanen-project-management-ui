@@ -6,6 +6,7 @@ import {
   UsersApi,
   CompaniesApi,
   ProjectThemesApi,
+  ProjectMilestonesApi,
 } from "../generated/client";
 
 type ConfigConstructor<T> = new (_params: ConfigurationParameters) => T;
@@ -27,5 +28,6 @@ export const getApiClient = (accessToken?: string) => {
     projectThemesApi: new ProjectThemesApi(getConfiguration()),
     usersApi: new UsersApi(getConfiguration()),
     companiesApi: new CompaniesApi(getConfiguration()),
+    projectMilestonesApi: new ProjectMilestonesApi(getConfiguration()),
   };
 };

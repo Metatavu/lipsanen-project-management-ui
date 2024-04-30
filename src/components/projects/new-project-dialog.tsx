@@ -8,6 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  LinearProgress,
   TextField,
   Toolbar,
   Typography,
@@ -34,6 +35,9 @@ const NewProjectDialog = () => {
   const [open, setOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
 
+  /**
+   * Create project mutation
+   */
   const createProjectMutation = useMutation({
     mutationFn: (params: CreateProjectRequest) => projectsApi.createProject(params),
     onSuccess: () => {
@@ -43,6 +47,9 @@ const NewProjectDialog = () => {
     onError: (error) => console.error(t("errorHandling.errorCreatingNewProject"), error),
   });
 
+  /**
+   * Main component render
+   */
   return (
     <>
       <Button onClick={() => setOpen(true)} variant="contained" color="primary" size="large">
@@ -96,6 +103,7 @@ const NewProjectDialog = () => {
               {t("newProjectDialog.createNewProject")}
             </Button>
           </DialogActions>
+          {createProjectMutation.isPending && <LinearProgress />}
         </DialogContent>
       </Dialog>
     </>
