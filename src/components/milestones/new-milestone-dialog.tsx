@@ -1,4 +1,14 @@
-import { AppBar, Button, Dialog, DialogContent, DialogTitle, IconButton, TextField, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  LinearProgress,
+  TextField,
+  Toolbar,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
@@ -133,6 +143,7 @@ const NewMilestoneDialog = () => {
             <AddIcon />
             {t("newProjectMilestoneDialog.create")}
           </Button>
+          {createMilestoneMutation.isPending && <LinearProgress />}
         </DialogContent>
       </Dialog>
     </>

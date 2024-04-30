@@ -8,6 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  LinearProgress,
   TextField,
   Toolbar,
   Typography,
@@ -102,6 +103,7 @@ const NewProjectDialog = () => {
               {t("createNewProject")}
             </Button>
           </DialogActions>
+          {createProjectMutation.isPending && <LinearProgress />}
         </DialogContent>
       </Dialog>
     </>
