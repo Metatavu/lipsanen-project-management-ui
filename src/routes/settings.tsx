@@ -68,18 +68,27 @@ function SettingsIndexRoute() {
     if (projectTheme) applyProjectThemeSettings(projectTheme);
   }, [projectTheme]);
 
+  /**
+   * Create project theme mutation
+   */
   const createProjectThemeMutation = useMutation({
     mutationFn: (params: CreateProjectThemeRequest) => projectThemesApi.createProjectTheme(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
     onError: (error) => console.error(t("errorHandling.errorCreatingProjectTheme"), error),
   });
 
+  /**
+   * Update project theme mutation
+   */
   const updateProjectThemeMutation = useMutation({
     mutationFn: (params: UpdateProjectThemeRequest) => projectThemesApi.updateProjectTheme(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
     onError: (error) => console.error(t("errorHandling.errorUpdatingProjectTheme"), error),
   });
 
+  /**
+   * Upload file mutation
+   */
   const uploadFileMutation = useMutation({
     mutationFn: (file: File) => filesApi.uploadFile(file),
     onSuccess: async (fileName) => {

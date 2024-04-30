@@ -28,6 +28,9 @@ const NewMilestoneDialog = () => {
     endDate: null,
   });
 
+  /**
+   * Create milestone mutation
+   */
   const createMilestoneMutation = useMutation({
     mutationFn: (params: CreateProjectMilestoneRequest) => projectMilestonesApi.createProjectMilestone(params),
     onSuccess: () => {

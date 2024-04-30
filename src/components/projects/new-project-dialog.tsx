@@ -34,6 +34,9 @@ const NewProjectDialog = () => {
   const [open, setOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
 
+  /**
+   * Create project mutation
+   */
   const createProjectMutation = useMutation({
     mutationFn: (params: CreateProjectRequest) => projectsApi.createProject(params),
     onSuccess: () => {
