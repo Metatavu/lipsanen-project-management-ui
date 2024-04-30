@@ -112,6 +112,9 @@ const NewUserDialog = () => {
 
   const isDisabled = !(!!userData.name && !!userData.email);
 
+  /**
+   * Main component render
+   */
   return (
     <>
       <Button onClick={() => setOpen(true)} variant="contained" color="primary" size="large">

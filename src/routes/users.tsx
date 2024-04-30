@@ -13,8 +13,14 @@ import { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+/**
+ * Users file route
+ */
 export const Route = createFileRoute("/users")({ component: UsersIndexRoute });
 
+/**
+ * Users index route component
+ */
 function UsersIndexRoute() {
   const { t } = useTranslation();
 
@@ -31,6 +37,9 @@ function UsersIndexRoute() {
   const users = listUsersQuery.data?.users;
   const companies = listCompaniesQuery.data?.companies;
 
+  /**
+   * Main component render
+   */
   return (
     <FlexColumnLayout>
       <UserInfoDialog userId={selectedUser?.id} handleClose={() => setSelectedUser(undefined)} />

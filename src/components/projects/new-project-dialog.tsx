@@ -43,6 +43,9 @@ const NewProjectDialog = () => {
     onError: (error) => console.error(t("errorHandling.errorCreatingNewProject"), error),
   });
 
+  /**
+   * Main component render
+   */
   return (
     <>
       <Button onClick={() => setOpen(true)} variant="contained" color="primary" size="large">

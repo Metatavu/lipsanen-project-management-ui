@@ -12,10 +12,15 @@ import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-ma
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
-import { useNavigate } from "@tanstack/react-router";
 
+/**
+ * Projects file route
+ */
 export const Route = createFileRoute("/projects")({ component: ProjectsIndexRoute });
 
+/**
+ * Projects index route component
+ */
 function ProjectsIndexRoute() {
   const { t } = useTranslation();
 
@@ -25,6 +30,9 @@ function ProjectsIndexRoute() {
   const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
   const projects = listProjectsQuery.data?.projects;
 
+  /**
+   * Main component render
+   */
   return (
     <FlexColumnLayout>
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>

@@ -22,10 +22,16 @@ import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 
+/**
+ * Schedule file route
+ */
 export const Route = createFileRoute("/projects/$projectId/schedule")({
   component: ScheduleIndexRoute,
 });
 
+/**
+ * Schedule index route component
+ */
 function ScheduleIndexRoute() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
@@ -110,6 +116,8 @@ function ScheduleIndexRoute() {
 
   /**
    * Renders the milestone Gantt chart
+   *
+   * TODO: implement a gantt chart
    */
   const renderGanttChart = () => {
     return (
@@ -119,6 +127,9 @@ function ScheduleIndexRoute() {
     );
   };
 
+  /**
+   * Main component render
+   */
   return (
     <FlexColumnLayout>
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>

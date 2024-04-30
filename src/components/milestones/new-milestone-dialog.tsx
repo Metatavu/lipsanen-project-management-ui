@@ -49,7 +49,7 @@ const NewMilestoneDialog = () => {
   /**
    * Handles milestone creation form submit
    *
-   * @param event event
+   * @param field string
    */
   const handleDateFormChange = (field: keyof typeof milestoneData) => (value: DateTime<boolean> | null) => {
     setMilestoneData({ ...milestoneData, [field]: value });
@@ -74,8 +74,14 @@ const NewMilestoneDialog = () => {
     setOpen(false);
   };
 
+  /**
+   * Disables form submit based on required form fields
+   */
   const isDisabled = !(!!milestoneData.name && !!milestoneData.startDate && !!milestoneData.endDate);
 
+  /**
+   * Main component render
+   */
   return (
     <>
       <Button onClick={() => setOpen(true)} variant="contained" color="primary" size="large">
