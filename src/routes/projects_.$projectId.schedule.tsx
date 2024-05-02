@@ -21,6 +21,8 @@ import { useListProjectMilestonesQuery } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
+import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';
+import "gantt-task-react/dist/index.css";
 
 /**
  * Schedule file route
@@ -120,9 +122,69 @@ function ScheduleIndexRoute() {
    * TODO: implement a gantt chart
    */
   const renderGanttChart = () => {
+
+    let tasks: Task[] = [
+      {
+        start: new Date(2024, 5, 1),
+        end: new Date(2024, 5, 2),
+        name: 'Idea',
+        id: 'Task 0',
+        type: "project",
+        progress: 45,
+        isDisabled: false,
+        // styles: { progressColor: '#ffbb54', progressSelectedColor: '#ff9e0d' },
+      },
+      {
+        start: new Date(2024, 5, 1),
+        end: new Date(2024, 5, 4),
+        name: 'Research',
+        id: 'Task 1',
+        type: 'task',
+        progress: 70,
+        dependencies: ['Task 0'],
+        isDisabled: false,
+        styles: { progressColor: '#4caf50', progressSelectedColor: '#388e3c' },
+      },
+      {
+        start: new Date(2024, 5, 5),
+        end: new Date(2024, 5, 7),
+        name: 'Design',
+        id: 'Task 2',
+        type: 'task',
+        progress: 20,
+        dependencies: ['Task 1'],
+        isDisabled: false,
+        styles: { progressColor: '#2196f3', progressSelectedColor: '#1976d2' },
+      },
+      {
+        start: new Date(2024, 5, 7),
+        end: new Date(2024, 5, 8),
+        name: 'Development',
+        id: 'Task 3',
+        type: 'task',
+        progress: 90,
+        dependencies: ['Task 2'],
+        isDisabled: false,
+        styles: { progressColor: '#f44336', progressSelectedColor: '#d32f2f' },
+      },
+      {
+        start: new Date(2024, 5, 10),
+        end: new Date(2024, 5, 15),
+        name: 'Testing',
+        id: 'Task 4',
+        type: 'task',
+        progress: 10,
+        dependencies: ['Task 3'],
+        isDisabled: false,
+        styles: { progressColor: '#9c27b0', progressSelectedColor: '#7b1fa2' },
+      },
+    ];
+
     return (
-      <Box sx={{ width: "auto", padding: 0 }} p={2}>
-        <Typography variant="body1">Chart placeholder content</Typography>
+      <Box sx={{ width: '100%', overflowX: 'auto' }}>
+        <Box sx={{ width: "auto", padding: 0 }} p={2}>
+          <Gantt tasks={tasks} viewMode={ViewMode.Day} viewDate={new Date()} />
+        </Box>
       </Box>
     );
   };
