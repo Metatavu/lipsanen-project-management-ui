@@ -6,27 +6,41 @@
   "users": "Users",
   "logout": "Logout",
   "search": "Search",
-  "status": "Status",
-  "newProject": "New project",
-  "type": "Type",
-  "estimatedStart": "Start estimate",
-  "estimatedEnd": "End estimate",
+  "generic": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "OK",
+    "showFilters": "Show filters"
+  },
+  "project": {
+    "status": "Status",
+    "type": "Type",
+    "estimatedStart": "Start estimate",
+    "estimatedEnd": "End estimate",
+    "deleteProject": "Delete project",
+    "confirmProjectDeleteDescription": "Are you sure you want to delete project: {{projectName}}?"
+  },
   "projectStatuses": {
     "ongoing": "Ongoing",
     "tenderPreparation": "Tender preparation",
     "tender": "Tender",
     "done": "Done"
   },
-  "showFilters": "Show filters",
-  "addNewProject": "Add new project",
-  "createNewProject": "Create new project",
-  "createNewProjectDescription": "Create a new project",
+  "newProjectDialog": {
+    "addNewProject": "Add new project",
+    "createNewProject": "Create new project",
+    "createNewProjectDescription": "Create a new project",
+    "creation/ImportOfANewProject": "Creation / Import of a new project",
+    "enterProjectName": "Enter project name"
+  },
   "projectName": "Project name",
-  "creation/ImportOfANewProject": "Creation / Import of a new project",
-  "enterProjectName": "Enter project name",
-  "company": "Company",
-  "role": "Role",
-  "lastLoggedIn": "Last logged in",
+  "usersScreen": {
+    "company": "Company",
+    "role": "Role",
+    "lastLoggedIn": "Last logged in",
+    "deleteUser": "Delete user",
+    "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?"
+  },
   "name": "Name",
   "addANewUser": "Add a new user",
   "newUserDialog": {
@@ -45,10 +59,12 @@
     "errorListingProjects": "Error while fetching projects list",
     "errorListingUserProjects": "Error while fetching user's projects list",
     "errorFindingProject": "Error while finding a project",
+    "errorDeletingProject": "Error while deleting a project",
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user",
     "errorFindingUser": "Error while finding a user",
     "errorUpdatingUser": "Error while updating a user",
+    "errorDeletingUser": "Error while deleting a user",
     "errorListingProjectThemes": "Error while fetching project themes list",
     "errorCreatingProjectTheme": "Error while creating a new project theme",
     "errorUpdatingProjectTheme": "Error while updating a project theme",

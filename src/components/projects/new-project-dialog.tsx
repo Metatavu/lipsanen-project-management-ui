@@ -54,12 +54,12 @@ const NewProjectDialog = () => {
     <>
       <Button onClick={() => setOpen(true)} variant="contained" color="primary" size="large">
         <AddIcon />
-        {t("addNewProject")}
+        {t("newProjectDialog.addNewProject")}
       </Button>
       <Dialog fullWidth maxWidth="md" open={open} onClose={() => setOpen(false)}>
         <AppBar sx={{ position: "relative" }}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <DialogTitle sx={{ paddingLeft: 0 }}>{t("creation/ImportOfANewProject")}</DialogTitle>
+            <DialogTitle sx={{ paddingLeft: 0 }}>{t("newProjectDialog.creation/ImportOfANewProject")}</DialogTitle>
             <IconButton edge="start" color="inherit" onClick={() => setOpen(false)} aria-label="close">
               <CloseIcon />
             </IconButton>
@@ -68,7 +68,7 @@ const NewProjectDialog = () => {
         <DialogContentText sx={{ backgroundColor: "#2196F314", padding: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <InfoOutlinedIcon sx={{ marginRight: 1 }} />
-            <Typography variant="subtitle2">{t("createNewProjectDescription")}</Typography>
+            <Typography variant="subtitle2">{t("newProjectDialog.createNewProjectDescription")}</Typography>
           </Box>
         </DialogContentText>
         <DialogContent sx={{ flexDirection: "column" }}>
@@ -78,7 +78,7 @@ const NewProjectDialog = () => {
               id="project-name"
               name="name"
               label={t("projectName")}
-              placeholder={t("enterProjectName")}
+              placeholder={t("newProjectDialog.enterProjectName")}
               variant="outlined"
               value={newProjectName}
               onChange={(event) => setNewProjectName(event.target.value)}
@@ -100,7 +100,7 @@ const NewProjectDialog = () => {
               disabled={!newProjectName}
             >
               <AddIcon />
-              {t("createNewProject")}
+              {t("newProjectDialog.createNewProject")}
             </Button>
           </DialogActions>
           {createProjectMutation.isPending && <LinearProgress />}

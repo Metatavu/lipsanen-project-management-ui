@@ -11,6 +11,7 @@ import { theme } from "./theme";
 import "localization/i18n";
 import AuthenticationProvider from "providers/authentication-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ConfirmDialogProvider from "providers/confirm-dialog-provider";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 
@@ -44,7 +45,9 @@ if (!rootElement.innerHTML) {
         <AuthenticationProvider>
           <LocalizationProvider dateAdapter={AdapterLuxon}>
             <QueryClientProvider client={queryClient}>
-              <RouterProvider router={router} />
+              <ConfirmDialogProvider>
+                <RouterProvider router={router} />
+              </ConfirmDialogProvider>
             </QueryClientProvider>
           </LocalizationProvider>
         </AuthenticationProvider>
