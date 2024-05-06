@@ -44,7 +44,10 @@ function UsersIndexRoute() {
   const users = listUsersQuery.data?.users;
   const companies = listCompaniesQuery.data?.companies;
 
-  const deleteProjectMutation = useMutation({
+  /**
+   * Delete user mutation
+   */
+  const deleteUserMutation = useMutation({
     mutationFn: (params: DeleteUserRequest) => usersApi.deleteUser(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -58,7 +61,7 @@ function UsersIndexRoute() {
    * @params userId string
    */
   const handleUserDelete = (userId?: string) => {
-    userId && deleteProjectMutation.mutateAsync({ userId: userId });
+    userId && deleteUserMutation.mutateAsync({ userId: userId });
   };
 
   /**

@@ -3,6 +3,9 @@ import { GridCloseIcon } from "@mui/x-data-grid";
 import { ReactNode, createContext, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+/**
+ * Confirm dialog options type
+ */
 type ConfirmDialogOptions = {
   title: string;
   description: string;
@@ -11,12 +14,25 @@ type ConfirmDialogOptions = {
   onConfirmClick: () => void | Promise<void>;
 };
 
+/**
+ * Show confirm dialog handler
+ *
+ * @param options ConfirmDialogOptions
+ */
 type ShowConfirmDialogHandler = (options: ConfirmDialogOptions) => void;
 
+/**
+ * Confirm dialog context
+ */
 const ConfirmDialogContext = createContext<ShowConfirmDialogHandler>(() => {
   throw new Error("Component must be wrapped with DialogProvider");
 });
 
+/**
+ *  Confirmation dialog provider
+ *
+ * @param children ReactNode
+ */
 const ConfirmDialogProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<ConfirmDialogOptions>();
@@ -27,11 +43,17 @@ const ConfirmDialogProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
   const handleClose = () => setOpen(false);
 
+  /**
+   * Form submit handler
+   */
   const handleSubmit = () => {
     options?.onConfirmClick();
     handleClose();
   };
 
+  /**
+   * Main component render
+   */
   return (
     <>
       <Dialog open={open} onClose={handleClose}>
@@ -56,6 +78,9 @@ const ConfirmDialogProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+/**
+ * Use confirm dialog hook
+ */
 export const useConfirmDialog = () => {
   return useContext(ConfirmDialogContext);
 };

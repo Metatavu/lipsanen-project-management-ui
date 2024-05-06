@@ -38,6 +38,9 @@ function ProjectsIndexRoute() {
   const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
   const projects = listProjectsQuery.data?.projects;
 
+  /**
+   * Delete project mutation
+   */
   const deleteProjectMutation = useMutation({
     mutationFn: (params: DeleteProjectRequest) => projectsApi.deleteProject(params),
     onSuccess: () => {
