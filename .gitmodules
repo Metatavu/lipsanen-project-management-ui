@@ -1,3 +1,6 @@
 [submodule "lipsanen-project-management-spec"]
 	path = lipsanen-project-management-spec
 	url = https://github.com/Metatavu/lipsanen-project-management-spec
+[submodule "lipsanen-project-management-gantt-chart"]
+	path = lipsanen-project-management-gantt-chart
+	url = https://github.com/Metatavu/lipsanen-project-management-gantt-chart
