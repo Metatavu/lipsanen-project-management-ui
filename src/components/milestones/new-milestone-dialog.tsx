@@ -74,12 +74,16 @@ const NewMilestoneDialog = () => {
   const handleMilestoneFormSubmit = async () => {
     if (!milestoneData.startDate || !milestoneData.endDate) return;
 
+    // Convert DateTime objects to JavaScript Date objects
+    const startDateIsoConverted = new Date(milestoneData.startDate.toISODate()!);
+    const endDateIsoConverted = new Date(milestoneData.endDate.toISODate()!);
+
     await createMilestoneMutation.mutateAsync({
       projectId: projectId,
       milestone: {
         name: milestoneData.name,
-        startDate: milestoneData.startDate.toJSDate(),
-        endDate: milestoneData.endDate.toJSDate(),
+        startDate: startDateIsoConverted,
+        endDate: endDateIsoConverted
       },
     });
 
