@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo, ChangeEvent } from "react";
 import {
   AppBar,
   Button,
@@ -32,7 +32,7 @@ import { CreateTaskRequest, Task, TaskStatus, UpdateTaskRequest } from "generate
 /**
  * Task dialog properties
  */
-interface TaskDialogProps {
+interface Props {
   projectId: string;
   milestoneId: string;
   open: boolean;
@@ -43,7 +43,7 @@ interface TaskDialogProps {
 /**
  * Task dialog component
  */
-const TaskDialog: React.FC<TaskDialogProps> = ({ projectId, milestoneId, open, task, onClose }) => {
+const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const { t } = useTranslation();
   const { milestoneTasksApi } = useApi();
   const queryClient = useQueryClient();
@@ -102,9 +102,10 @@ const TaskDialog: React.FC<TaskDialogProps> = ({ projectId, milestoneId, open, t
   /**
    * Handles task creation form change
    *
+   * @param field string
    * @param event event
    */
-  const handleFormChange = (field: keyof typeof taskData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (field: keyof typeof taskData) => (event: ChangeEvent<HTMLInputElement>) => {
     setTaskData({ ...taskData, [field]: event.target.value });
   };
 
@@ -112,6 +113,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({ projectId, milestoneId, open, t
    * Handles task creation form date change
    *
    * @param field string
+   * @param value date
    */
   const handleDateFormChange = (field: keyof typeof taskData) => (value: DateTime<boolean> | null) => {
     setTaskData({ ...taskData, [field]: value });
@@ -259,8 +261,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({ projectId, milestoneId, open, t
           <Grid item xs={3}>
             <GenericDatePicker
               fullWidth
-              label=""
-              accessibilityLabel={t("newMilestoneTaskDialog.start")}
+              label={t("newMilestoneTaskDialog.start")}
               value={taskData.startDate}
               onChange={handleDateFormChange("startDate")}
             />
@@ -268,8 +269,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({ projectId, milestoneId, open, t
           <Grid item xs={3}>
             <GenericDatePicker
               fullWidth
-              label=""
-              accessibilityLabel={t("newMilestoneTaskDialog.end")}
+              label={t("newMilestoneTaskDialog.end")}
               value={taskData.endDate}
               onChange={handleDateFormChange("endDate")}
             />

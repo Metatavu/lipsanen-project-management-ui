@@ -7,12 +7,12 @@ import { DateTime } from "luxon";
  * Component Props
  */
 interface Props {
-  label: string;
   onChange: (value: DateTime | null) => void;
   value: DateTime<boolean> | null | undefined;
+  title?: string;
   minDate?: DateTime<boolean>;
   fullWidth?: boolean;
-  accessibilityLabel?: string;
+  label?: string;
 }
 
 /**
@@ -20,9 +20,9 @@ interface Props {
  *
  * @param props component properties
  */
-const GenericDatePicker = ({ label, onChange, value, minDate, fullWidth, accessibilityLabel }: Props) => (
+const GenericDatePicker = ({ onChange, value, title, minDate, fullWidth, label }: Props) => (
   <>
-    <Typography variant="subtitle1">{label}</Typography>
+    <Typography variant="subtitle1">{title}</Typography>
     <DatePicker
       value={value}
       onChange={onChange}
@@ -35,7 +35,7 @@ const GenericDatePicker = ({ label, onChange, value, minDate, fullWidth, accessi
         textField: {
           placeholder: "",
           fullWidth,
-          label: accessibilityLabel,
+          label: label,
           InputProps: {
             disableUnderline: true,
           },

@@ -4,6 +4,7 @@ import { handleError, handleErrorWithMessage } from "utils";
 import { useApi } from "./use-api";
 import {
   Company,
+  FindProjectMilestoneRequest,
   ListCompaniesRequest,
   ListMilestoneTasksRequest,
   ListProjectMilestonesRequest,
@@ -217,9 +218,10 @@ export const useListProjectMilestonesQuery = (params: ListProjectMilestonesReque
  * @param projectId string
  * @param milestoneId string
  */
-export const useFindProjectMilestoneQuery = (projectId: string, milestoneId: string) => {
+export const useFindProjectMilestoneQuery = (params: FindProjectMilestoneRequest) => {
   const { projectMilestonesApi } = useApi();
   const { t } = useTranslation();
+  const { projectId, milestoneId } = params;
 
   return useQuery({
     queryKey: ["projectMilestones", projectId, milestoneId],

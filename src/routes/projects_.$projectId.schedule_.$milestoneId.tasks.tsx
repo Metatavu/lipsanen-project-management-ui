@@ -49,6 +49,8 @@ function MilestoneTasksListRoute() {
 
   /**
    * Handles task select
+   * 
+   * @param task task
    */
   const onTaskSelect = (task: Task) => {
     setTask(task);

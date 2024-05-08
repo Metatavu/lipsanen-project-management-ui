@@ -126,12 +126,12 @@ const NewMilestoneDialog = () => {
             required
           />
           <GenericDatePicker
-            label={t("newProjectMilestoneDialog.startDate")}
+            title={t("newProjectMilestoneDialog.startDate")}
             value={milestoneData.startDate}
             onChange={handleDateFormChange("startDate")}
           />
           <GenericDatePicker
-            label={t("newProjectMilestoneDialog.endDate")}
+            title={t("newProjectMilestoneDialog.endDate")}
             value={milestoneData.endDate}
             onChange={handleDateFormChange("endDate")}
             minDate={milestoneData.startDate ?? undefined}

@@ -1,15 +1,23 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useTranslation } from "react-i18next";
 import TaskDialog from "./task-dialog";
 
-interface TaskButtonProps {
+/**
+ * Component props
+ */
+interface Props {
   projectId: string;
   milestoneId: string;
 }
 
-const TaskButton: React.FC<TaskButtonProps> = ({ projectId, milestoneId }) => {
+/**
+ * Task button component controlling the new task dialog
+ * 
+ * @param props component props
+ */
+const TaskButton = ({ projectId, milestoneId }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
