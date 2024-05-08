@@ -21,6 +21,9 @@ import { useListProjectMilestonesQuery } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
+import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
+import "../../lipsanen-project-management-gantt-chart/dist/index.css";
+import { Task } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 /**
  * Schedule file route
@@ -120,11 +123,21 @@ function ScheduleIndexRoute() {
    * TODO: implement a gantt chart
    */
   const renderGanttChart = () => {
-    return (
-      <Box sx={{ width: "auto", padding: 0 }} p={2}>
-        <Typography variant="body1">Chart placeholder content</Typography>
-      </Box>
-    );
+    // TODO: An example should be updated
+    const tasks: Task[] = [
+      {
+        start: new Date(2020, 1, 1),
+        end: new Date(2020, 1, 2),
+        name: "Idea",
+        id: "Task 0",
+        type: "task",
+        progress: 45,
+        isDisabled: true,
+        styles: { progressColor: "#ffbb54", progressSelectedColor: "#ff9e0d" },
+      },
+    ];
+
+    return <Gantt tasks={tasks} />;
   };
 
   /**
