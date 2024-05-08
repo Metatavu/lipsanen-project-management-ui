@@ -74,12 +74,16 @@ const NewMilestoneDialog = () => {
   const handleMilestoneFormSubmit = async () => {
     if (!milestoneData.startDate || !milestoneData.endDate) return;
 
+    // Convert DateTime objects to JavaScript Date objects
+    const startDateIsoConverted = new Date(milestoneData.startDate.toISODate()!);
+    const endDateIsoConverted = new Date(milestoneData.endDate.toISODate()!);
+
     await createMilestoneMutation.mutateAsync({
       projectId: projectId,
       milestone: {
         name: milestoneData.name,
-        startDate: milestoneData.startDate.toJSDate(),
-        endDate: milestoneData.endDate.toJSDate(),
+        startDate: startDateIsoConverted,
+        endDate: endDateIsoConverted
       },
     });
 
@@ -122,12 +126,12 @@ const NewMilestoneDialog = () => {
             required
           />
           <GenericDatePicker
-            label={t("newProjectMilestoneDialog.startDate")}
+            title={t("newProjectMilestoneDialog.startDate")}
             value={milestoneData.startDate}
             onChange={handleDateFormChange("startDate")}
           />
           <GenericDatePicker
-            label={t("newProjectMilestoneDialog.endDate")}
+            title={t("newProjectMilestoneDialog.endDate")}
             value={milestoneData.endDate}
             onChange={handleDateFormChange("endDate")}
             minDate={milestoneData.startDate ?? undefined}
