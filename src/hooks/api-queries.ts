@@ -5,6 +5,7 @@ import { useApi } from "./use-api";
 import {
   Company,
   ListCompaniesRequest,
+  ListMilestoneTasksRequest,
   ListProjectMilestonesRequest,
   ListProjectsRequest,
   ListUsersRequest,
@@ -152,6 +153,32 @@ export const useListProjectThemesQuery = (projectId?: string) => {
 };
 
 /**
+ * List project users query hook
+ * 
+ * @param projectId string
+ */
+export const useListProjectUsersQuery = (projectId?: string) => {
+  const { usersApi} = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["projects", projectId, "users"],
+    queryFn: async () => {
+      if (!projectId) return null;
+      try {
+        const users = await usersApi.listUsers();
+        const projectUsers = users.filter(user => user.projectIds?.includes(projectId));
+        return projectUsers;
+      } catch (error) {
+        handleError("Error listing project users", error);
+        throw Error(t("errorHandling.errorListingProjectUsers"), { cause: error });
+      }
+    },
+    enabled: !!projectId,
+  });
+};
+
+/**
  * List files query hook
  */
 export const useListFilesQuery = () =>
@@ -181,5 +208,53 @@ export const useListProjectMilestonesQuery = (params: ListProjectMilestonesReque
       }
     },
     enabled: !!projectId,
+  });
+};
+
+/**
+ * Find project milestone query hook
+ * 
+ * @param projectId string
+ * @param milestoneId string
+ */
+export const useFindProjectMilestoneQuery = (projectId: string, milestoneId: string) => {
+  const { projectMilestonesApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["projectMilestones", projectId, milestoneId],
+    queryFn: async () => {
+      try {
+        return projectMilestonesApi.findProjectMilestone({ projectId: projectId, milestoneId: milestoneId });
+      } catch (error) {
+        handleError("Error finding project milestone", error);
+        throw Error(t("errorHandling.errorFindingProjectMilestone"), { cause: error });
+      }
+    },
+    enabled: !!projectId && !!milestoneId,
+  });
+}
+
+/**
+ * List milestone tasks query hook
+ * 
+ * @param params ListMilestoneTasksRequest
+ */
+export const useListMilestoneTasksQuery = (params: ListMilestoneTasksRequest) => {
+  const { milestoneTasksApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId, milestoneId } = params;
+
+  return useQuery({
+    queryKey: ["milestoneTasks", projectId, milestoneId],
+    queryFn: async () => {
+      try {
+        return milestoneTasksApi.listTasks({ projectId: projectId, milestoneId: milestoneId });
+      } catch (error) {
+        handleError("Error listing milestone tasks", error);
+        throw Error(t("errorHandling.errorListingMilestoneTasks"), { cause: error });
+      }
+    },
+    enabled: !!projectId && !!milestoneId,
   });
 };

@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import LoadingTableCell from "components/generic/loading-table-cell";
 import NewMilestoneDialog from "components/milestones/new-milestone-dialog";
@@ -63,20 +63,25 @@ function ScheduleIndexRoute() {
       return (
         <TableRow key={milestone.id}>
           <TableCell style={{ overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar sx={{ backgroundColor: "#0079BF" }}>
-                <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
-              </Avatar>
-              {/* TODO: Handle overflowing name with maxWidth could be improved */}
-              <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
-                <Tooltip placement="top" title={milestone.name}>
-                  <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {milestone.name}
-                  </Typography>
-                </Tooltip>
-                <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
-              </Box>
-            </div>
+            <Link
+              to={`/projects/${projectId}/schedule/${milestone.id}/tasks` as string}
+              style={{ textDecoration: "none", color: "#000" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                <Avatar sx={{ backgroundColor: "#0079BF" }}>
+                  <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
+                </Avatar>
+                {/* TODO: Handle overflowing name with maxWidth could be improved */}
+                <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
+                  <Tooltip placement="top" title={milestone.name}>
+                    <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {milestone.name}
+                    </Typography>
+                  </Tooltip>
+                  <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
+                </Box>
+              </div>
+            </Link>
           </TableCell>
           <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
           <TableCell>{formattedStartDate}</TableCell>

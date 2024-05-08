@@ -11,6 +11,8 @@ interface Props {
   onChange: (value: DateTime | null) => void;
   value: DateTime<boolean> | null | undefined;
   minDate?: DateTime<boolean>;
+  fullWidth?: boolean;
+  accessibilityLabel?: string;
 }
 
 /**
@@ -18,7 +20,7 @@ interface Props {
  *
  * @param props component properties
  */
-const GenericDatePicker = ({ label, onChange, value, minDate }: Props) => (
+const GenericDatePicker = ({ label, onChange, value, minDate, fullWidth, accessibilityLabel }: Props) => (
   <>
     <Typography variant="subtitle1">{label}</Typography>
     <DatePicker
@@ -32,6 +34,8 @@ const GenericDatePicker = ({ label, onChange, value, minDate }: Props) => (
       slotProps={{
         textField: {
           placeholder: "",
+          fullWidth,
+          label: accessibilityLabel,
           InputProps: {
             disableUnderline: true,
           },

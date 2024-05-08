@@ -45,6 +45,11 @@ export interface UpdateProjectMilestoneRequest {
     milestoneId: string;
 }
 
+export interface ListMilestoneTasksRequest {
+    projectId: string;
+    milestoneId: string;
+}
+
 /**
  * 
  */
