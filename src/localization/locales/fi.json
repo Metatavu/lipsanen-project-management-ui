@@ -58,7 +58,12 @@
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
     "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin virstanpylvästä",
-    "errorListingProjectMilestones": "Virhe haettaessa projektin virstanpylväiden luetteloa"
+    "errorListingProjectMilestones": "Virhe haettaessa projektin virstanpylväiden luetteloa",
+    "errorFindingProjectMilestone": "Virhe haettaessa projektin virstanpylvää",
+    "errorListingMilestoneTasks": "Virhe haettaessa virstanpylvään tehtäviä",
+    "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
+    "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
+    "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -103,7 +108,9 @@
   "scheduleScreen": {
     "title": "Aikataulu",
     "objectives": "Tavoitteet",
+    "breadcrumbSeparator": " > ",
     "addANewMilestone": "Lisää uusi virstanpylväs",
+    "addANewTask": "Lisää uusi tehtävä",
     "objective": "Tavoite",
     "duration": "kesto",
     "start": "Alkaa",
@@ -120,5 +127,33 @@
     "endDate": "Päättymispäivä",
     "enterEndDate": "Anna lopetuspäivä",
     "create": "Luo uusi virstanpylväs"
+  },
+  "newMilestoneTaskDialog": {
+    "title": "Luo uusi tehtävä",
+    "name": "Tehtävän nimi",
+    "status": "Tila",
+    "assignees": "Tekijät",
+    "type": "Tyyppi",
+    "start": "Alkaa",
+    "end": "Valmis",
+    "estimatedDuration": "Arvioitu kesto",
+    "estimatedReadiness": "Arvioitu valmius",
+    "dependencies": "Riippuvuudet",
+    "attachments": "Liitteet",
+    "createButton": "Luo uusi tehtävä",
+    "taskConnectionsTable": {
+      "title": "Riippuvuudet",
+      "type": "Tyyppi",
+      "task": "Tehtävä",
+      "status": "Tila",
+      "addButton": "Lisää riippuvuus"
+    },
+    "taskAttachmentsTable": {
+      "title": "Liitteet",
+      "type": "Tyyppi",
+      "name": "Nimi",
+      "size": "Koko",
+      "addButton": "Lisää liite"
+    }
   }
 }
