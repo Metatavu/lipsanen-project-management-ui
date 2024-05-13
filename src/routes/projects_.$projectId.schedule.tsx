@@ -22,8 +22,7 @@ import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
-import "../../lipsanen-project-management-gantt-chart/dist/index.css";
-import { Task } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 /**
  * Schedule file route
@@ -119,25 +118,44 @@ function ScheduleIndexRoute() {
 
   /**
    * Renders the milestone Gantt chart
-   *
-   * TODO: implement a gantt chart
    */
   const renderGanttChart = () => {
-    // TODO: An example should be updated
-    const tasks: Task[] = [
-      {
-        start: new Date(2020, 1, 1),
-        end: new Date(2020, 1, 2),
-        name: "Idea",
-        id: "Task 0",
-        type: "task",
-        progress: 45,
-        isDisabled: true,
-        styles: { progressColor: "#ffbb54", progressSelectedColor: "#ff9e0d" },
-      },
-    ];
+    if (listProjectMilestonesQuery.isFetching) {
+      return (
+        <TableRow>
+          <LoadingTableCell loading />
+        </TableRow>
+      );
+    }
 
-    return <Gantt tasks={tasks} />;
+    const milestonesForGantt: Task[] = (milestones ?? []).map((milestone, index) => {
+
+      return {
+        start: milestone.startDate,
+        end: milestone.endDate,
+        name: milestone.name,
+        id: milestone.id ?? index.toString(),
+        type: "custom-milestone",
+        progress: 40,
+      };
+    });
+
+    return (
+      <Box sx={{ width: '100%', overflowX: 'auto' }}>
+        <Box sx={{ width: "auto", padding: 0 }} p={2}>
+          <Gantt
+              tasks={milestonesForGantt}
+              todayColor="rgba(100, 100, 300, 0.3)"
+              viewMode={ViewMode.Day}
+              viewDate={new Date()}
+              //TODO: Add proper height and row height
+              headerHeight={58}
+              rowHeight={77}
+              taskListHidden
+            />
+        </Box>
+      </Box>
+    );
   };
 
   /**
