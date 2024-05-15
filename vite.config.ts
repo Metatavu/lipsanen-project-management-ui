@@ -23,4 +23,7 @@ export default defineConfig({
       utils: "/src/utils",
     },
   },
+  optimizeDeps: {
+    exclude: ['js-big-decimal']
+  }
 });

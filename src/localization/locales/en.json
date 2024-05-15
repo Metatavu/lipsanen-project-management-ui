@@ -74,7 +74,12 @@
     "errorCreatingNewCompany": "Error while creating a new company",
     "errorAssigningUserToProject": "Error while assigning user to project",
     "errorCreatingProjectMilestone": "Error while creating a new project milestone",
-    "errorListingProjectMilestones": "Error while fetching project milestones list"
+    "errorListingProjectMilestones": "Error while fetching project milestones list",
+    "errorFindingProjectMilestone": "Error while finding a project milestone",
+    "errorListingMilestoneTasks": "Error while fetching milestone tasks list",
+    "errorCreatingMilestoneTask": "Error while creating a new task",
+    "errorUpdatingMilestoneTask": "Error while updating a task",
+    "errorListingProjectUsers": "Error while fetching project users list"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -119,7 +124,9 @@
   "scheduleScreen": {
     "title": "Schedule",
     "objectives": "Objectives",
+    "breadcrumbSeparator": " > ",
     "addANewMilestone": "Add a new milestone",
+    "addANewTask": "Add a new task",
     "objective": "Objective",
     "duration": "Duration",
     "start": "Start",
@@ -136,5 +143,33 @@
     "endDate": "End date",
     "enterEndDate": "Enter end date",
     "create": "Create new milestone"
+  },
+  "newMilestoneTaskDialog": {
+    "title": "Create a new task",
+    "name": "Task name",
+    "status": "Status",
+    "assignees": "Assignees",
+    "type": "Type",
+    "start": "Starts",
+    "end": "Ends",
+    "estimatedDuration": "Estimated duration",
+    "estimatedReadiness": "Estimated readiness",
+    "dependencies": "Dependencies",
+    "attachments": "Attachments",
+    "createButton": "Create new task",
+    "taskConnectionsTable": {
+      "title": "Task connections",
+      "type": "Type",
+      "task": "Task",
+      "status": "Status",
+      "addButton": "Add new connection"
+    },
+    "taskAttachmentsTable": {
+      "title": "Task attachments",
+      "type": "Type",
+      "name": "Name",
+      "size": "Size",
+      "addButton": "Add new attachment"
+    }
   }
 }
