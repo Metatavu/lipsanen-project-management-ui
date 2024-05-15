@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Avatar,
   Box,
@@ -40,6 +41,8 @@ function ScheduleIndexRoute() {
 
   const listProjectMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = listProjectMilestonesQuery.data;
+  const viewDate = useMemo(() => new Date(), []);
+
 
   /**
    * Renders the project milestones rows
@@ -128,26 +131,25 @@ function ScheduleIndexRoute() {
       );
     }
 
-    const milestonesForGantt: Task[] = (milestones ?? []).map((milestone, index) => {
+    const milestonesForGantt = (milestones ?? []).map<Task>((milestone, index) => ({
+      start: milestone.startDate,
+      end: milestone.endDate,
+      name: milestone.name,
+      id: milestone.id ?? index.toString(),
+      type: "custom-milestone",
+      progress: 40,
+    }));
 
-      return {
-        start: milestone.startDate,
-        end: milestone.endDate,
-        name: milestone.name,
-        id: milestone.id ?? index.toString(),
-        type: "custom-milestone",
-        progress: 40,
-      };
-    });
+    console.log(viewDate);
 
     return (
       <Box sx={{ width: '100%', overflowX: 'auto' }}>
         <Box sx={{ width: "auto", padding: 0 }} p={2}>
           <Gantt
               tasks={milestonesForGantt}
-              todayColor="rgba(100, 100, 300, 0.3)"
+              todayColor={"rgba(100, 100, 300, 0.3)"}
               viewMode={ViewMode.Day}
-              viewDate={new Date()}
+              viewDate={viewDate}
               //TODO: Add proper height and row height
               headerHeight={58}
               rowHeight={77}
