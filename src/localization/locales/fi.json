@@ -116,7 +116,7 @@
     "logo": "Logo",
     "disableProjectTheme": "Poista projektiteema käytöstä",
     "dropzoneText": "Tiputa tai klikkaa lisätäksesi tiedoston",
-    "uploadWarningNoFile": "Virheellinen tiedosto: Ei tiedostoa ladattu.",
+    "uploadWarningNoFile": "Virheellinen tiedosto: Ei tiedostoa.",
     "uploadWarningDuplicateFileName": "Virheellinen tiedosto: Tiedostonimien on oltava yksilöllisiä.",
     "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
     "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
