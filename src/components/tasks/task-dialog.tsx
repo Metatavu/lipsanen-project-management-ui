@@ -364,7 +364,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={() => setAttachmentDialogOpen(true)} disabled={false}>
+        <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={() => setAttachmentDialogOpen(true)}>
           <AddIcon />
           {t("newMilestoneTaskDialog.taskAttachmentsTable.addButton")}
         </Button>
