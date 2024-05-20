@@ -180,21 +180,12 @@ export const useListProjectUsersQuery = (projectId?: string) => {
 };
 
 /**
- * List logos query hook
+ * List files query hook
  */
-export const useListLogosQuery = (filesPath: string) =>
+export const useListFilesQuery = () =>
   useQuery({
-    queryKey: ["logos"],
-    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing logos")),
-  });
-
-/**
- * List task attachments query hook
- */
-export const useListTaskAttachmentsQuery = (filesPath: string) =>
-  useQuery({
-    queryKey: ["taskAttachments"],
-    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing task attachments")),
+    queryKey: ["files"],
+    queryFn: () => filesApi.listFiles().catch(handleErrorWithMessage("Error listing files")),
   });
 
 /**

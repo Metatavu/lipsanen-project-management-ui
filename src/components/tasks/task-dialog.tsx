@@ -1,7 +1,6 @@
 import { useState, useMemo, ChangeEvent } from "react";
 import {
   AppBar,
-  Box,
   Button,
   Dialog,
   DialogContent,
@@ -18,7 +17,6 @@ import {
   TableRow,
   TextField,
   Toolbar,
-  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
@@ -27,13 +25,9 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
 import { TaskFormData } from "types";
-import { useListProjectUsersQuery, useListTaskAttachmentsQuery } from "hooks/api-queries";
+import { useListProjectUsersQuery } from "hooks/api-queries";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import { CreateTaskRequest, Task, TaskStatus, UpdateTaskRequest } from "generated/client";
-import FileUploader from "components/generic/file-upload";
-import { filesApi } from "api/files";
-
-const TASK_ATTACHMENT_UPLOAD_PATH = "task-attachments";
 
 /**
  * Task dialog properties
@@ -54,7 +48,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const { milestoneTasksApi } = useApi();
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListProjectUsersQuery(projectId);
-  const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const projectUsers = useMemo(() => listProjectUsersQuery.data ?? [], [listProjectUsersQuery.data]);
 
   // Existing or new task data depending on task existence
@@ -81,7 +74,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   };
 
   const [taskData, setTaskData] = useState<TaskFormData>(existingOrNewTaskData);
-  const [attachmentDialogOpen, setAttachmentDialogOpen] = useState(false);
 
   /**
    * Create task mutation
@@ -105,18 +97,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
       onClose();
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
-  });
-
-  /**
-   * Upload task attachment mutation
-   */
-  const uploadTaskAttachmentMutation = useMutation({
-    mutationFn: (file: File) => filesApi.uploadFile(file, TASK_ATTACHMENT_UPLOAD_PATH),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskAttachments"] });
-      setAttachmentDialogOpen(false);
-    },
-    onError: (error) => console.error(t("errorHandling.errorUploadingTaskAttachment"), error),
   });
 
   /**
@@ -364,35 +344,13 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={() => setAttachmentDialogOpen(true)} disabled={false}>
+        <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={() => { }} disabled>
           <AddIcon />
           {t("newMilestoneTaskDialog.taskAttachmentsTable.addButton")}
         </Button>
       </>
     );
-  };
-
-  /**
-   * Renders upload task attachment dialog
-   */
-  const renderUploadTaskAttachmentDialog = () => {
-    return (
-      <Dialog open={attachmentDialogOpen} onClose={ () => setAttachmentDialogOpen(false) }>
-        <Box sx={{ padding: "1rem" }}>
-          <Typography variant="h5">Attachment upload dialog</Typography>
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: "5rem", justifyContent: "center", width: "100", padding: "1rem" }}>
-          <FileUploader
-            allowedFileTypes={[".png", ".svg", ".jpg", ".jpeg", ".pdf", ".doc", ".docx"]}
-            uploadFile={uploadTaskAttachmentMutation.mutateAsync}
-            existingFiles={listTaskAttachmentsQuery.data ?? []}
-            existingFilesPath={TASK_ATTACHMENT_UPLOAD_PATH}
-            widthPercent={80}
-          />
-        </Box>
-      </Dialog>
-    );
-  };
+  }
 
 
   /**
@@ -437,7 +395,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
           </Button>
         </DialogContent>
       </Dialog>
-      { renderUploadTaskAttachmentDialog() }
     </>
   );
 };

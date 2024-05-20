@@ -24,9 +24,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
 import { filesApi } from "api/files";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
-import { useListLogosQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
-
-const LOGOS_UPLOAD_PATH = "logos";
+import { useListFilesQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
 
 /**
  * Settings file route
@@ -41,7 +39,7 @@ function SettingsIndexRoute() {
   const queryClient = useQueryClient();
   const { projectThemesApi } = useApi();
   const listProjectsQuery = useListProjectsQuery();
-  const listLogosQuery = useListLogosQuery(LOGOS_UPLOAD_PATH);
+  const listLogosQuery = useListFilesQuery();
 
   const projects = listProjectsQuery.data?.projects;
 
@@ -89,16 +87,16 @@ function SettingsIndexRoute() {
   });
 
   /**
-   * Upload logo mutation
+   * Upload file mutation
    */
-  const uploadLogoMutation = useMutation({
-    mutationFn: (file: File) => filesApi.uploadFile(file, LOGOS_UPLOAD_PATH),
+  const uploadFileMutation = useMutation({
+    mutationFn: (file: File) => filesApi.uploadFile(file),
     onSuccess: async (fileName) => {
       handleLogoSelection(fileName);
-      await queryClient.invalidateQueries({ queryKey: ["logos"] });
+      await queryClient.invalidateQueries({ queryKey: ["files"] });
       await queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "projectThemes"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUploadingLogo"), error),
+    onError: (error) => console.error(t("errorHandling.errorUploadingImage"), error),
   });
 
   /**
@@ -282,9 +280,8 @@ function SettingsIndexRoute() {
           {/* TODO: Types from design, should we just allow all image types? */}
           <FileUploader
             allowedFileTypes={[".png", ".svg"]}
-            uploadFile={uploadLogoMutation.mutateAsync}
-            existingFiles={listLogosQuery.data ?? []}
-            existingFilesPath={LOGOS_UPLOAD_PATH}
+            uploadFile={uploadFileMutation.mutateAsync}
+            logos={listLogosQuery.data ?? []}
           />
         </Box>
         <Button variant="contained" color="error" size="large" onClick={disableProjectThemeHandler}>

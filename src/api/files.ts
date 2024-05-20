@@ -3,12 +3,10 @@ import { authAtom } from "atoms/auth";
 import { getDefaultStore } from "jotai";
 
 export const filesApi = {
-  listFiles: async (path: string) => {
+  listFiles: async () => {
     const auth = getDefaultStore().get(authAtom);
 
-    const queryParams = path ? `?path=${encodeURIComponent(path)}` : "";
-
-    const filesResponse = await fetch(`${config.lambdasBaseUrl}/listMedia${queryParams}`, {
+    const filesResponse = await fetch(`${config.lambdasBaseUrl}/listMedia`, {
       method: "GET",
       headers: {
         authorization: `Bearer ${auth?.tokenRaw}`,
@@ -19,12 +17,8 @@ export const filesApi = {
     const fileNames = filesResponseBody.data as string[];
     return fileNames.map((fileName) => `${config.cdnBaseUrl}/${fileName}`);
   },
-  uploadFile: async (file: File, path: string) => {
+  uploadFile: async (file: File) => {
     const auth = getDefaultStore().get(authAtom);
-
-    const filePath = path
-      ? `${path}/${file.name}`
-      : file.name;
 
     const presignedUrlResponse = await fetch(`${config.lambdasBaseUrl}/uploadFile`, {
       method: "POST",
@@ -32,7 +26,7 @@ export const filesApi = {
         authorization: `Bearer ${auth?.tokenRaw}`,
       },
       body: JSON.stringify({
-        path: filePath,
+        path: `${file.name}`,
         contentType: file.type,
       }),
     });
