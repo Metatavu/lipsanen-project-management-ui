@@ -1,4 +1,4 @@
-import { Alert, Box, IconButton, Snackbar } from "@mui/material";
+import { Alert, Box, IconButton } from "@mui/material";
 import { DropzoneArea } from "mui-file-dropzone";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +15,9 @@ const MAX_FILE_SIZE_IN_BYTES = 2000000;
 interface Props {
   allowedFileTypes: string[];
   uploadFile: (file: File) => void;
-  logos: string[];
+  existingFiles: string[];
+  existingFilesPath: string;
+  widthPercent?: number;
 }
 
 /**
@@ -23,44 +25,52 @@ interface Props {
  *
  * @params props component properties
  */
-const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
+const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFilesPath, widthPercent }: Props) => {
   const { t } = useTranslation();
   const [uploadMessage, setUploadMessage] = useState<UploadMessage>();
 
   /**
-   * Render upload dialog
+   * Render upload zone
    */
   const renderUploadZone = () => {
     return (
-      <>
-        <DropzoneArea
-          onDrop={(files) => handleDropFile(files)}
-          acceptedFiles={allowedFileTypes}
-          maxFileSize={MAX_FILE_SIZE_IN_BYTES}
-          filesLimit={1}
-          fileObjects={[]}
-          showPreviewsInDropzone={false}
-          dropzoneText={t("settingsScreen.dropzoneText")}
-          showAlerts={false}
-        />
-        <Snackbar open={!!uploadMessage} autoHideDuration={10000} onClose={() => setUploadMessage(undefined)}>
+      <DropzoneArea
+        onDrop={(files) => handleDropFile(files)}
+        acceptedFiles={allowedFileTypes}
+        maxFileSize={MAX_FILE_SIZE_IN_BYTES}
+        filesLimit={1}
+        fileObjects={[]}
+        showPreviewsInDropzone={false}
+        dropzoneText={t("settingsScreen.dropzoneText")}
+        showAlerts={false}
+      />
+    );
+  };
+
+  /**
+   * Render alert
+   */
+  const renderAlert = () => {
+    return (
+      uploadMessage && (
+        <Box sx={{ width: '100%', mt: 2 }}>
           <Alert
-            severity={uploadMessage?.severity}
+            severity={uploadMessage.severity}
             action={
               <IconButton
                 aria-label="close"
                 color="inherit"
-                sx={{ p: 0.5 }}
+                size="small"
                 onClick={() => setUploadMessage(undefined)}
               >
-                <CloseIcon />
+                <CloseIcon fontSize="inherit" />
               </IconButton>
             }
           >
-            {uploadMessage?.message}
+            {uploadMessage.message}
           </Alert>
-        </Snackbar>
-      </>
+        </Box>
+      )
     );
   };
 
@@ -72,7 +82,7 @@ const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
   const handleDropFile = (files: File[]) => {
     const file = files[0];
     if (!file) {
-      setUploadMessage({ message: t("errorHandling.errorUploadingImage"), severity: "error" });
+      setUploadMessage({ message: t("settingsScreen.uploadWarningNoFile"), severity: "error" });
       return;
     }
 
@@ -81,7 +91,9 @@ const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
       return;
     }
 
-    if (logos.some((logo) => logo === `${config.cdnBaseUrl}/${files[0].name}`)) {
+    const existingFileFullPath = `${config.cdnBaseUrl}/${existingFilesPath}/${files[0].name}`;
+
+    if (existingFiles.some((existingFile) => existingFile === existingFileFullPath)) {
       setUploadMessage({ message: t("settingsScreen.uploadWarningDuplicateFileName"), severity: "error" });
       return;
     }
@@ -89,7 +101,15 @@ const FileUploader = ({ allowedFileTypes, uploadFile, logos }: Props) => {
     uploadFile(file);
   };
 
-  return <Box sx={{ display: "flex", flexDirection: "row", width: "30%" }}>{renderUploadZone()}</Box>;
+  /**
+   * Component render
+   */
+  return (
+    <Box sx={{ width: `${widthPercent ?? 30}%` }}>
+      {renderUploadZone()}
+      {renderAlert()}
+    </Box>
+  );
 };
 
 export default FileUploader;

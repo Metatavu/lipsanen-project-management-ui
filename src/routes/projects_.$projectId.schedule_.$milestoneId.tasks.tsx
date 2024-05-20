@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Avatar,
   Box,
@@ -22,7 +23,6 @@ import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 import TaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
-import React from "react";
 import { Task } from "generated/client";
 
 /**
@@ -39,13 +39,13 @@ function MilestoneTasksListRoute() {
   const { t } = useTranslation();
   const { projectId, milestoneId } = Route.useParams();
 
-  const findProjectMilestoneQuery = useFindProjectMilestoneQuery(projectId, milestoneId);
+  const findProjectMilestoneQuery = useFindProjectMilestoneQuery({ projectId, milestoneId });
   const milestone = findProjectMilestoneQuery.data;
   const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
   const tasks = listMilestoneTasksQuery.data;
 
-  const [open, setOpen] = React.useState(false);
-  const [task, setTask] = React.useState<null | Task>(null);
+  const [open, setOpen] = useState(false);
+  const [task, setTask] = useState<null | Task>(null);
 
   /**
    * Handles task select
