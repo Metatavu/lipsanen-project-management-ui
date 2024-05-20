@@ -377,7 +377,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
    */
   const renderUploadTaskAttachmentDialog = () => {
     return (
-      <Dialog open={attachmentDialogOpen} onClose={ () => setAttachmentDialogOpen(false) }>
+      <Dialog open={attachmentDialogOpen} onClose={() => setAttachmentDialogOpen(false)}>
         <Box sx={{ padding: "1rem" }}>
           <Typography variant="h5">Attachment upload dialog</Typography>
         </Box>
