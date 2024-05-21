@@ -145,8 +145,6 @@ function ScheduleIndexRoute() {
       progress: 40,
     }));
 
-    console.log(viewDate);
-
     return (
       <Box sx={{ width: '100%', overflowX: 'auto' }}>
         <Box sx={{ width: "auto", padding: 0 }} p={2}>

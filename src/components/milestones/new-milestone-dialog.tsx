@@ -78,12 +78,15 @@ const NewMilestoneDialog = () => {
     const startDateIsoConverted = new Date(milestoneData.startDate.toISODate()!);
     const endDateIsoConverted = new Date(milestoneData.endDate.toISODate()!);
 
+    //TODO: check originalStartDate and originalEndDate
     await createMilestoneMutation.mutateAsync({
       projectId: projectId,
       milestone: {
         name: milestoneData.name,
         startDate: startDateIsoConverted,
-        endDate: endDateIsoConverted
+        endDate: endDateIsoConverted,
+        originalStartDate: startDateIsoConverted,
+        originalEndDate: endDateIsoConverted,
       },
     });
 
