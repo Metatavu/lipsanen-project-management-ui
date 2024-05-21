@@ -13,6 +13,13 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { UserRole } from './UserRole';
+import {
+    UserRoleFromJSON,
+    UserRoleFromJSONTyped,
+    UserRoleToJSON,
+} from './UserRole';
+
 /**
  * User object
  * @export
@@ -61,6 +68,12 @@ export interface User {
      * @memberof User
      */
     projectIds?: Array<string>;
+    /**
+     * User role
+     * @type {Array<UserRole>}
+     * @memberof User
+     */
+    readonly roles?: Array<UserRole>;
 }
 
 /**
@@ -92,6 +105,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'companyId': !exists(json, 'companyId') ? undefined : json['companyId'],
         'lastLoggedIn': !exists(json, 'lastLoggedIn') ? undefined : (new Date(json['lastLoggedIn'])),
         'projectIds': !exists(json, 'projectIds') ? undefined : json['projectIds'],
+        'roles': !exists(json, 'roles') ? undefined : ((json['roles'] as Array<any>).map(UserRoleFromJSON)),
     };
 }
 

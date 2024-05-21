@@ -51,6 +51,18 @@ export interface Milestone {
      */
     endDate: Date;
     /**
+     * Original start date of the milestone
+     * @type {Date}
+     * @memberof Milestone
+     */
+    originalStartDate: Date;
+    /**
+     * Original end date of the milestone
+     * @type {Date}
+     * @memberof Milestone
+     */
+    originalEndDate: Date;
+    /**
      * 
      * @type {Metadata}
      * @memberof Milestone
@@ -66,6 +78,8 @@ export function instanceOfMilestone(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "startDate" in value;
     isInstance = isInstance && "endDate" in value;
+    isInstance = isInstance && "originalStartDate" in value;
+    isInstance = isInstance && "originalEndDate" in value;
 
     return isInstance;
 }
@@ -84,6 +98,8 @@ export function MilestoneFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'name': json['name'],
         'startDate': (new Date(json['startDate'])),
         'endDate': (new Date(json['endDate'])),
+        'originalStartDate': (new Date(json['originalStartDate'])),
+        'originalEndDate': (new Date(json['originalEndDate'])),
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
 }
@@ -100,6 +116,8 @@ export function MilestoneToJSON(value?: Milestone | null): any {
         'name': value.name,
         'startDate': (value.startDate.toISOString().substring(0,10)),
         'endDate': (value.endDate.toISOString().substring(0,10)),
+        'originalStartDate': (value.originalStartDate.toISOString().substring(0,10)),
+        'originalEndDate': (value.originalEndDate.toISOString().substring(0,10)),
         'metadata': MetadataToJSON(value.metadata),
     };
 }

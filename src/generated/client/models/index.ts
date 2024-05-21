@@ -1,5 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './ChangeProposal';
+export * from './ChangeProposalStatus';
 export * from './Company';
 export * from './Metadata';
 export * from './Milestone';
@@ -13,3 +15,4 @@ export * from './TaskConnectionRole';
 export * from './TaskConnectionType';
 export * from './TaskStatus';
 export * from './User';
+export * from './UserRole';

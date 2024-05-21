@@ -25,6 +25,12 @@ import {
     TaskStatusFromJSONTyped,
     TaskStatusToJSON,
 } from './TaskStatus';
+import type { UserRole } from './UserRole';
+import {
+    UserRoleFromJSON,
+    UserRoleFromJSONTyped,
+    UserRoleToJSON,
+} from './UserRole';
 
 /**
  * milestone
@@ -69,6 +75,36 @@ export interface Task {
      */
     status: TaskStatus;
     /**
+     * List of assignee user IDs
+     * @type {Array<string>}
+     * @memberof Task
+     */
+    assigneeIds?: Array<string>;
+    /**
+     * 
+     * @type {UserRole}
+     * @memberof Task
+     */
+    userRole?: UserRole;
+    /**
+     * Estimated duration of the task
+     * @type {string}
+     * @memberof Task
+     */
+    estimatedDuration?: string;
+    /**
+     * Estimated readiness of the task
+     * @type {string}
+     * @memberof Task
+     */
+    estimatedReadiness?: string;
+    /**
+     * URLs of attachments related to the task
+     * @type {Array<string>}
+     * @memberof Task
+     */
+    attachmentUrls?: Array<string>;
+    /**
      * 
      * @type {Metadata}
      * @memberof Task
@@ -106,6 +142,11 @@ export function TaskFromJSONTyped(json: any, ignoreDiscriminator: boolean): Task
         'endDate': (new Date(json['endDate'])),
         'milestoneId': json['milestoneId'],
         'status': TaskStatusFromJSON(json['status']),
+        'assigneeIds': !exists(json, 'assigneeIds') ? undefined : json['assigneeIds'],
+        'userRole': !exists(json, 'userRole') ? undefined : UserRoleFromJSON(json['userRole']),
+        'estimatedDuration': !exists(json, 'estimatedDuration') ? undefined : json['estimatedDuration'],
+        'estimatedReadiness': !exists(json, 'estimatedReadiness') ? undefined : json['estimatedReadiness'],
+        'attachmentUrls': !exists(json, 'attachmentUrls') ? undefined : json['attachmentUrls'],
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
 }
@@ -124,6 +165,11 @@ export function TaskToJSON(value?: Task | null): any {
         'endDate': (value.endDate.toISOString().substring(0,10)),
         'milestoneId': value.milestoneId,
         'status': TaskStatusToJSON(value.status),
+        'assigneeIds': value.assigneeIds,
+        'userRole': UserRoleToJSON(value.userRole),
+        'estimatedDuration': value.estimatedDuration,
+        'estimatedReadiness': value.estimatedReadiness,
+        'attachmentUrls': value.attachmentUrls,
         'metadata': MetadataToJSON(value.metadata),
     };
 }
