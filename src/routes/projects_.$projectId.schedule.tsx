@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Avatar,
   Box,
@@ -21,6 +22,8 @@ import { useListProjectMilestonesQuery } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
+import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
+import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 /**
  * Schedule file route
@@ -38,6 +41,8 @@ function ScheduleIndexRoute() {
 
   const listProjectMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = listProjectMilestonesQuery.data;
+  const viewDate = useMemo(() => new Date(), []);
+
 
   /**
    * Renders the project milestones rows
@@ -121,13 +126,39 @@ function ScheduleIndexRoute() {
 
   /**
    * Renders the milestone Gantt chart
-   *
-   * TODO: implement a gantt chart
    */
   const renderGanttChart = () => {
+    if (listProjectMilestonesQuery.isFetching) {
+      return (
+        <TableRow>
+          <LoadingTableCell loading />
+        </TableRow>
+      );
+    }
+
+    const milestonesForGantt = (milestones ?? []).map<Task>((milestone, index) => ({
+      start: milestone.startDate,
+      end: milestone.endDate,
+      name: milestone.name,
+      id: milestone.id ?? index.toString(),
+      type: "custom-milestone",
+      progress: 40,
+    }));
+
     return (
-      <Box sx={{ width: "auto", padding: 0 }} p={2}>
-        <Typography variant="body1">Chart placeholder content</Typography>
+      <Box sx={{ width: '100%', overflowX: 'auto' }}>
+        <Box sx={{ width: "auto", padding: 0 }} p={2}>
+          <Gantt
+              tasks={milestonesForGantt}
+              todayColor={"rgba(100, 100, 300, 0.3)"}
+              viewMode={ViewMode.Day}
+              viewDate={viewDate}
+              //TODO: Add proper height and row height
+              headerHeight={58}
+              rowHeight={77}
+              taskListHidden
+            />
+        </Box>
       </Box>
     );
   };

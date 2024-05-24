@@ -30,12 +30,14 @@ export interface DeleteUserRequest {
 
 export interface FindUserRequest {
     userId: string;
+    includeRoles?: boolean;
 }
 
 export interface ListUsersRequest {
     companyId?: string;
     first?: number;
     max?: number;
+    includeRoles?: boolean;
 }
 
 export interface UpdateUserRequest {
@@ -160,6 +162,10 @@ export class UsersApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
+        if (requestParameters.includeRoles !== undefined) {
+            queryParameters['includeRoles'] = requestParameters.includeRoles;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
@@ -216,6 +222,10 @@ export class UsersApi extends runtime.BaseAPI {
 
         if (requestParameters.max !== undefined) {
             queryParameters['max'] = requestParameters.max;
+        }
+
+        if (requestParameters.includeRoles !== undefined) {
+            queryParameters['includeRoles'] = requestParameters.includeRoles;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

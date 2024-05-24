@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './ChangeProposalsApi';
 export * from './CompaniesApi';
 export * from './ProjectMilestonesApi';
 export * from './ProjectThemesApi';

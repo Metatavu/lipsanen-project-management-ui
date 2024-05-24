@@ -6,7 +6,7 @@ import {
   Company,
   FindProjectMilestoneRequest,
   ListCompaniesRequest,
-  ListMilestoneTasksRequest,
+  ListTasksRequest,
   ListProjectMilestonesRequest,
   ListProjectsRequest,
   ListUsersRequest,
@@ -251,7 +251,7 @@ export const useFindProjectMilestoneQuery = (params: FindProjectMilestoneRequest
  * 
  * @param params ListMilestoneTasksRequest
  */
-export const useListMilestoneTasksQuery = (params: ListMilestoneTasksRequest) => {
+export const useListMilestoneTasksQuery = (params: ListTasksRequest) => {
   const { milestoneTasksApi } = useApi();
   const { t } = useTranslation();
   const { projectId, milestoneId } = params;

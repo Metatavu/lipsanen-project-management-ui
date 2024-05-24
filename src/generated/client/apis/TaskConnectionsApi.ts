@@ -40,6 +40,7 @@ export interface FindTaskConnectionRequest {
 
 export interface ListTaskConnectionsRequest {
     projectId: string;
+    taskId?: string;
     connectionRole?: TaskConnectionRole;
 }
 
@@ -227,6 +228,10 @@ export class TaskConnectionsApi extends runtime.BaseAPI {
         }
 
         const queryParameters: any = {};
+
+        if (requestParameters.taskId !== undefined) {
+            queryParameters['taskId'] = requestParameters.taskId;
+        }
 
         if (requestParameters.connectionRole !== undefined) {
             queryParameters['connectionRole'] = requestParameters.connectionRole;
