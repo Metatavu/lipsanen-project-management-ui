@@ -63,6 +63,7 @@
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user",
     "errorFindingUser": "Error while finding a user",
+    "errorFindingMultipleUsers": "Error while finding multiple users",
     "errorUpdatingUser": "Error while updating a user",
     "errorDeletingUser": "Error while deleting a user",
     "errorListingProjectThemes": "Error while fetching project themes list",
@@ -81,7 +82,8 @@
     "errorListingMilestoneTasks": "Error while fetching milestone tasks list",
     "errorCreatingMilestoneTask": "Error while creating a new task",
     "errorUpdatingMilestoneTask": "Error while updating a task",
-    "errorListingProjectUsers": "Error while fetching project users list"
+    "errorListingProjectUsers": "Error while fetching project users list",
+    "errorListingChangeProposals": "Error while fetching change proposals list"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -174,5 +176,13 @@
       "size": "Size",
       "addButton": "Add new attachment"
     }
+  },
+  "changeProposalsDrawer": {
+    "viewChangeProposals": "View change proposals ({{value}})",
+    "changeProposals": "Change proposals",
+    "changeProposalPoosition": "Change proposal {{current}}/{{total}}",
+    "accept": "Accept",
+    "reject": "Reject",
+    "numberOfChangeProposals": "{{value}} proposals"
   }
 }

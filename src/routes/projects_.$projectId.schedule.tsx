@@ -43,7 +43,6 @@ function ScheduleIndexRoute() {
   const milestones = listProjectMilestonesQuery.data;
   const viewDate = useMemo(() => new Date(), []);
 
-
   /**
    * Renders the project milestones rows
    */
@@ -146,18 +145,18 @@ function ScheduleIndexRoute() {
     }));
 
     return (
-      <Box sx={{ width: '100%', overflowX: 'auto' }}>
+      <Box sx={{ width: "100%", overflowX: "auto" }}>
         <Box sx={{ width: "auto", padding: 0 }} p={2}>
           <Gantt
-              tasks={milestonesForGantt}
-              todayColor={"rgba(100, 100, 300, 0.3)"}
-              viewMode={ViewMode.Day}
-              viewDate={viewDate}
-              //TODO: Add proper height and row height
-              headerHeight={58}
-              rowHeight={77}
-              taskListHidden
-            />
+            tasks={milestonesForGantt}
+            todayColor={"rgba(100, 100, 300, 0.3)"}
+            viewMode={ViewMode.Day}
+            viewDate={viewDate}
+            //TODO: Add proper height and row height
+            headerHeight={58}
+            rowHeight={77}
+            taskListHidden
+          />
         </Box>
       </Box>
     );

@@ -12,6 +12,7 @@ import {
   ListUsersRequest,
   Project,
   User,
+  ListChangeProposalsRequest,
 } from "generated/client";
 import { filesApi } from "api/files";
 
@@ -88,6 +89,37 @@ export const useFindUserQuery = (userId?: string) => {
 };
 
 /**
+ * Find users query hook
+ *
+ * @param userIds list of strings
+ */
+export const useFindUsersQuery = (userIds?: string[]) => {
+  const { usersApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["users", userIds],
+    queryFn: async () => {
+      try {
+        if (!userIds?.length) return null;
+
+        const userPromises = userIds.map(async (userId) => {
+          return await usersApi.findUser({ userId: userId });
+        });
+
+        const users = await Promise.all(userPromises);
+        return users;
+      } catch (error) {
+        handleError("Error finding multiple users", error);
+        throw Error(t("errorHandling.errorFindingMultipleUsers"), { cause: error });
+      }
+    },
+    enabled: !!userIds?.length,
+    placeholderData: () => null,
+  });
+};
+
+/**
  * List projects query hook
  *
  * @param params ListProjectsRequest
@@ -155,11 +187,11 @@ export const useListProjectThemesQuery = (projectId?: string) => {
 
 /**
  * List project users query hook
- * 
+ *
  * @param projectId string
  */
 export const useListProjectUsersQuery = (projectId?: string) => {
-  const { usersApi} = useApi();
+  const { usersApi } = useApi();
   const { t } = useTranslation();
 
   return useQuery({
@@ -168,7 +200,7 @@ export const useListProjectUsersQuery = (projectId?: string) => {
       if (!projectId) return null;
       try {
         const users = await usersApi.listUsers();
-        const projectUsers = users.filter(user => user.projectIds?.includes(projectId));
+        const projectUsers = users.filter((user) => user.projectIds?.includes(projectId));
         return projectUsers;
       } catch (error) {
         handleError("Error listing project users", error);
@@ -223,7 +255,7 @@ export const useListProjectMilestonesQuery = (params: ListProjectMilestonesReque
 
 /**
  * Find project milestone query hook
- * 
+ *
  * @param projectId string
  * @param milestoneId string
  */
@@ -244,11 +276,11 @@ export const useFindProjectMilestoneQuery = (params: FindProjectMilestoneRequest
     },
     enabled: !!projectId && !!milestoneId,
   });
-}
+};
 
 /**
  * List milestone tasks query hook
- * 
+ *
  * @param params ListMilestoneTasksRequest
  */
 export const useListMilestoneTasksQuery = (params: ListTasksRequest) => {
@@ -264,6 +296,30 @@ export const useListMilestoneTasksQuery = (params: ListTasksRequest) => {
       } catch (error) {
         handleError("Error listing milestone tasks", error);
         throw Error(t("errorHandling.errorListingMilestoneTasks"), { cause: error });
+      }
+    },
+    enabled: !!projectId && !!milestoneId,
+  });
+};
+
+/**
+ * List change proposals query hook
+ *
+ * @param params ListChangeProposalsRequest
+ */
+export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) => {
+  const { changeProposalsApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId, milestoneId } = params;
+
+  return useQuery({
+    queryKey: ["changeProposals", projectId, milestoneId],
+    queryFn: async () => {
+      try {
+        return changeProposalsApi.listChangeProposals({ projectId: projectId, milestoneId: milestoneId });
+      } catch (error) {
+        handleError("Error listing change proposals", error);
+        throw Error(t("errorHandling.errorListingChangeProposals"), { cause: error });
       }
     },
     enabled: !!projectId && !!milestoneId,
