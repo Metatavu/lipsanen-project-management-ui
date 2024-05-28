@@ -70,8 +70,10 @@
     "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",
     "errorUploadingLogo": "Virhe logon latauksessa",
     "errorListingLogos": "Virhe haettaessa logoja",
-    "errorUploadingTaskAttachment": "Virhe tehtävän liitteen latauksessa",
+    "errorUploadingNewTaskAttachment": "Virhe ladattaessa uutta tehtävän liitettä",
+    "errorUploadingExistingTaskAttachment": "Virhe ladattaessa olemassaolevaa tehtävän liitettä",
     "errorListingTaskAttachments": "Virhe haettaessa tehtävän liitteitä",
+    "errorDeletingTaskAttachment": "Virhe poistettaessa tehtävän liitettä",
     "errorListingCompanies": "Virhe haettaessa yrityksiä",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
@@ -153,6 +155,7 @@
     "status": "Tila",
     "assignees": "Tekijät",
     "type": "Tyyppi",
+    "userRole": "Rooli",
     "start": "Alkaa",
     "end": "Valmis",
     "estimatedDuration": "Arvioitu kesto",
@@ -160,6 +163,7 @@
     "dependencies": "Riippuvuudet",
     "attachments": "Liitteet",
     "createButton": "Luo uusi tehtävä",
+    "updateButton": "Päivitä tehtävä",
     "taskConnectionsTable": {
       "title": "Riippuvuudet",
       "type": "Tyyppi",
@@ -171,8 +175,15 @@
       "title": "Liitteet",
       "type": "Tyyppi",
       "name": "Nimi",
-      "size": "Koko",
-      "addButton": "Lisää liite"
+      "preview": "Esikatselu",
+      "delete": "Poista",
+      "clickToPreview": "Klikkaa esikatsellaksesi",
+      "addButton": "Lisää liite",
+      "uploadDialogTitle": "Lataa uusi liite",
+      "deleteConfirmationDialog": {
+        "title": "Poista tehtävän liite",
+        "description": "Haluatko varmasti poistaa liitteen: {{attachmentName}}?"
+      }
     }
   }
 }

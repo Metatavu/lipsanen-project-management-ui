@@ -1,4 +1,4 @@
-import { Alert, Box, IconButton } from "@mui/material";
+import { Alert, Box, CircularProgress, IconButton } from "@mui/material";
 import { DropzoneArea } from "mui-file-dropzone";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,9 @@ interface Props {
   uploadFile: (file: File) => void;
   existingFiles: string[];
   existingFilesPath: string;
-  widthPercent?: number;
+  width?: number;
+  loaderVisible?: boolean;
+  uploadExistingFile?: (file: string) => void;
 }
 
 /**
@@ -25,7 +27,7 @@ interface Props {
  *
  * @params props component properties
  */
-const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFilesPath, widthPercent }: Props) => {
+const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFilesPath, width, loaderVisible, uploadExistingFile }: Props) => {
   const { t } = useTranslation();
   const [uploadMessage, setUploadMessage] = useState<UploadMessage>();
 
@@ -33,11 +35,20 @@ const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFil
    * Render upload zone
    */
   const renderUploadZone = () => {
+    if (loaderVisible) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
     return (
       <DropzoneArea
         onDrop={(files) => handleDropFile(files)}
         acceptedFiles={allowedFileTypes}
         maxFileSize={MAX_FILE_SIZE_IN_BYTES}
+        onAlert={(message, variant) => variant === "error" && setUploadMessage({ message, severity: "error" })}
         filesLimit={1}
         fileObjects={[]}
         showPreviewsInDropzone={false}
@@ -94,6 +105,11 @@ const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFil
     const existingFileFullPath = `${config.cdnBaseUrl}/${existingFilesPath}/${files[0].name}`;
 
     if (existingFiles.some((existingFile) => existingFile === existingFileFullPath)) {
+      if (uploadExistingFile) {
+        uploadExistingFile(existingFileFullPath);
+        return;
+      }
+      
       setUploadMessage({ message: t("settingsScreen.uploadWarningDuplicateFileName"), severity: "error" });
       return;
     }
@@ -105,7 +121,7 @@ const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFil
    * Component render
    */
   return (
-    <Box sx={{ width: `${widthPercent ?? 30}%` }}>
+    <Box width={width ?? 200}>
       {renderUploadZone()}
       {renderAlert()}
     </Box>
