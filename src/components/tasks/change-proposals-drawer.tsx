@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
+import { ChangeProposal, Task } from "generated/client";
 import { DateTime } from "luxon";
 import { useFindUsersQuery } from "hooks/api-queries";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
@@ -17,72 +17,8 @@ interface Props {
   tasks?: Task[];
   selectedChangeProposal: string;
   setSelectedChangeProposal: (selectedChangeProposal: string) => void;
+  loading: boolean;
 }
-
-// TODO: will be replaced with real data
-const mockChangeProposals: ChangeProposal[] = [
-  {
-    id: "1",
-    taskId: "056f047f-b441-4fad-90b7-95a6b4afca6e",
-    startDate: new Date("2024-06-01"),
-    endDate: new Date("2024-06-10"),
-    reason: "Project delay due to resource unavailability",
-    comment: "We need more time to allocate resources.",
-    status: ChangeProposalStatus.Pending,
-    metadata: {
-      creatorId: "4fea2090-00be-4b44-94d3-8dcb7e5936be",
-      createdAt: new Date("2024-05-27T13:57:14.25185Z"),
-    },
-  },
-  {
-    id: "2",
-    taskId: "532c18c0-e4bf-48d9-a831-377d9e359352",
-    startDate: new Date("2024-07-15"),
-    reason: "Client requested change in start date",
-    status: ChangeProposalStatus.Approved,
-    metadata: {
-      creatorId: "6611cf14-2841-420f-89d8-ce3e06c1e490",
-      createdAt: new Date("2024-05-27T13:57:14.25185Z"),
-    },
-  },
-  {
-    id: "3",
-    taskId: "c21ecec6-175b-4ac5-8045-8e23246a2a9b",
-    endDate: new Date("2024-08-20"),
-    reason: "Extended testing phase required",
-    comment: "Testing phase needs an additional week.",
-    status: ChangeProposalStatus.Pending,
-    metadata: {
-      creatorId: "cd7b03e2-7553-4804-9363-835f1fb78a5f",
-      createdAt: new Date("2024-05-27T13:57:14.25185Z"),
-    },
-  },
-  {
-    id: "4",
-    taskId: "5f407123-ffe4-4a86-bfa6-99b772eb35d0",
-    reason: "Budget constraints",
-    comment: "Need to halt the task temporarily.",
-    status: ChangeProposalStatus.Rejected,
-    metadata: {
-      creatorId: "4fea2090-00be-4b44-94d3-8dcb7e5936be",
-      createdAt: new Date("2024-05-27T13:57:14.25185Z"),
-    },
-  },
-  {
-    id: "5",
-    taskId: "817bab82-bb26-4a46-b7f4-aae93f9bf316",
-    startDate: new Date("2024-09-01"),
-    endDate: new Date("2024-09-15"),
-    reason: "Change in project scope",
-    comment:
-      "Project scope has increased, requiring more timfdsfaffsd fffffffffffffffff ffffffffffffffffffffffff fffffffffffffffffffff fffffffffffffffff fffffffffe.",
-    status: ChangeProposalStatus.Pending,
-    metadata: {
-      creatorId: "6611cf14-2841-420f-89d8-ce3e06c1e490",
-      createdAt: new Date("2024-05-27T13:57:14.25185Z"),
-    },
-  },
-];
 
 /**
  * Change proposals drawer component
@@ -94,10 +30,11 @@ const ChangeProposalsDrawer = ({
   tasks,
   selectedChangeProposal,
   setSelectedChangeProposal,
+  loading,
 }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [height, setHeight] = useState(400);
+  const [height, setHeight] = useState(150);
   const [maxHeight, setMaxHeight] = useState<number | null>(null);
   const startY = useRef(0);
   const startHeight = useRef(height);
@@ -105,7 +42,7 @@ const ChangeProposalsDrawer = ({
 
   const proposalCreatorUsersIds = [
     ...new Set(
-      mockChangeProposals
+      changeProposals
         ?.flatMap((proposal) => proposal.metadata?.creatorId)
         .filter((creatorId): creatorId is string => creatorId !== undefined),
     ),
@@ -117,7 +54,7 @@ const ChangeProposalsDrawer = ({
     if (contentRef.current) {
       setMaxHeight(contentRef.current.scrollHeight);
     }
-  }, [contentRef, mockChangeProposals]);
+  }, [contentRef, changeProposals]);
 
   /**
    * Handler for mouse down click event
@@ -156,7 +93,7 @@ const ChangeProposalsDrawer = ({
    *
    * @param changeProposals List of change proposals
    */
-  const renderChangeProposalsList = (changeProposals: ChangeProposal[]) => {
+  const renderChangeProposalsList = (changeProposals?: ChangeProposal[]) => {
     if (!changeProposals?.length) return null;
 
     return (
@@ -257,21 +194,24 @@ const ChangeProposalsDrawer = ({
     );
   };
 
-  // TODO: Remove the filter when not using mock data
-  const filteredMockProposals = mockChangeProposals.filter(
-    (proposal) => proposal.status === ChangeProposalStatus.Pending,
-  );
-
   /**
    * Main component render
    */
   return (
     <>
-      <Button onClick={() => setOpen(!open)} variant="contained" color="primary" size="large">
+      <Button
+        onClick={() => setOpen(!open)}
+        variant="contained"
+        color="primary"
+        size="large"
+        disabled={!changeProposals?.length}
+      >
         <RemoveRedEyeIcon sx={{ marginRight: 1 }} />
-        {t("changeProposalsDrawer.viewChangeProposals", { value: filteredMockProposals?.length })}
+        {loading
+          ? t("changeProposalsDrawer.viewChangeProposals")
+          : t("changeProposalsDrawer.viewChangeProposalsWithValue", { value: changeProposals?.length ?? 0 })}
       </Button>
-      <Drawer open={open && !!filteredMockProposals?.length} anchor="bottom" variant="persistent">
+      <Drawer open={open && !!changeProposals?.length} anchor="bottom" variant="persistent">
         <Box sx={{ display: "flex", justifyContent: "center" }} onMouseDown={handleMouseDown}>
           <DragHandleIcon />
         </Box>
@@ -281,14 +221,10 @@ const ChangeProposalsDrawer = ({
               {t("changeProposalsDrawer.changeProposals")}
             </Typography>
             <Typography component="h2" variant="h6" fontWeight={700}>
-              {t("changeProposalsDrawer.numberOfChangeProposals", { value: filteredMockProposals.length })}
+              {t("changeProposalsDrawer.numberOfChangeProposals", { value: changeProposals?.length })}
             </Typography>
           </Box>
-          {listProposalCreatorUsersQuery.isPending ? (
-            <LinearProgress />
-          ) : (
-            renderChangeProposalsList(filteredMockProposals)
-          )}
+          {listProposalCreatorUsersQuery.isPending ? <LinearProgress /> : renderChangeProposalsList(changeProposals)}
         </Box>
       </Drawer>
     </>

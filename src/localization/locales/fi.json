@@ -178,7 +178,8 @@
     }
   },
   "changeProposalsDrawer": {
-    "viewChangeProposals": "Tarkastele muutosehdotuksia ({{value}})",
+    "viewChangeProposals": "Tarkastele muutosehdotuksia",
+    "viewChangeProposalsWithValue": "Tarkastele muutosehdotuksia ({{value}})",
     "changeProposals": "Muutosehdotukset",
     "changeProposalPosition": "Muutosehdotus {{current}}/{{total}}",
     "accept": "Hyväksy",

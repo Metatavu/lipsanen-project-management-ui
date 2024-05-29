@@ -206,6 +206,7 @@ function MilestoneTasksListRoute() {
               tasks={tasks}
               selectedChangeProposal={selectedChangeProposal}
               setSelectedChangeProposal={setSelectedChangeProposal}
+              loading={listChangeProposalsQuery.isPending}
             />
             <TaskButton projectId={projectId} milestoneId={milestoneId} />
           </Box>

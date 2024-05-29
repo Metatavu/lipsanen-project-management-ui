@@ -178,9 +178,10 @@
     }
   },
   "changeProposalsDrawer": {
-    "viewChangeProposals": "View change proposals ({{value}})",
+    "viewChangeProposals": "View change proposals",
+    "viewChangeProposalsWithValue": "View change proposals ({{value}})",
     "changeProposals": "Change proposals",
-    "changeProposalPoosition": "Change proposal {{current}}/{{total}}",
+    "changeProposalPosition": "Change proposal {{current}}/{{total}}",
     "accept": "Accept",
     "reject": "Reject",
     "numberOfChangeProposals": "{{value}} proposals"
