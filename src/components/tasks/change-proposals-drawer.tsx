@@ -1,12 +1,13 @@
 import { Box, Button, Drawer, LinearProgress, List, ListItem, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { ChangeProposal, ChangeProposalStatus, Task, User } from "generated/client";
+import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
 import { DateTime } from "luxon";
 import { useFindUsersQuery } from "hooks/api-queries";
+import DragHandleIcon from "@mui/icons-material/DragHandle";
 
 /**
  * Change proposals component properties
@@ -88,9 +89,19 @@ const mockChangeProposals: ChangeProposal[] = [
  *
  * @props props component properties
  */
-const ChangeProposals = ({ changeProposals, tasks, selectedChangeProposal, setSelectedChangeProposal }: Props) => {
+const ChangeProposalsDrawer = ({
+  changeProposals,
+  tasks,
+  selectedChangeProposal,
+  setSelectedChangeProposal,
+}: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [height, setHeight] = useState(400);
+  const [maxHeight, setMaxHeight] = useState<number | null>(null);
+  const startY = useRef(0);
+  const startHeight = useRef(height);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const proposalCreatorUsersIds = [
     ...new Set(
@@ -101,6 +112,44 @@ const ChangeProposals = ({ changeProposals, tasks, selectedChangeProposal, setSe
   ];
   const listProposalCreatorUsersQuery = useFindUsersQuery(proposalCreatorUsersIds);
   const creatorUsers = (listProposalCreatorUsersQuery.data ?? []).filter((user) => user);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setMaxHeight(contentRef.current.scrollHeight);
+    }
+  }, [contentRef, mockChangeProposals]);
+
+  /**
+   * Handler for mouse down click event
+   *
+   * @param e MouseEvent
+   */
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    startY.current = e.clientY;
+    startHeight.current = height;
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  /**
+   * Handler for mouse move event
+   *
+   * @param e MouseEvent
+   */
+  const handleMouseMove = (e: MouseEvent) => {
+    const newHeight = startHeight.current + (startY.current - e.clientY);
+    if (newHeight >= 100 && (maxHeight === null || newHeight <= maxHeight)) {
+      setHeight(newHeight);
+    }
+  };
+
+  /**
+   * Handler for mouse up event
+   */
+  const handleMouseUp = () => {
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+  };
 
   /**
    * Renders change proposals list
@@ -223,8 +272,10 @@ const ChangeProposals = ({ changeProposals, tasks, selectedChangeProposal, setSe
         {t("changeProposalsDrawer.viewChangeProposals", { value: filteredMockProposals?.length })}
       </Button>
       <Drawer open={open && !!filteredMockProposals?.length} anchor="bottom" variant="persistent">
-        {/* // TODO: Need draggable height */}
-        <Box sx={{ padding: "1rem", height: 400 }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }} onMouseDown={handleMouseDown}>
+          <DragHandleIcon />
+        </Box>
+        <Box ref={contentRef} sx={{ padding: "0 1rem 1rem 1rem", height: `${height}px` }}>
           <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <Typography component="h2" variant="h6" fontWeight={700}>
               {t("changeProposalsDrawer.changeProposals")}
@@ -244,4 +295,4 @@ const ChangeProposals = ({ changeProposals, tasks, selectedChangeProposal, setSe
   );
 };
 
-export default ChangeProposals;
+export default ChangeProposalsDrawer;

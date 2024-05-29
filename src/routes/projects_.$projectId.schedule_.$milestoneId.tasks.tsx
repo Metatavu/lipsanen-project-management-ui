@@ -29,7 +29,7 @@ import ProgressBadge from "components/generic/progress-badge";
 import TaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
 import { ChangeProposalStatus, Task } from "generated/client";
-import ChangeProposals from "components/tasks/change-proposals";
+import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
 
 /**
  * Milestone tasks file route
@@ -201,7 +201,7 @@ function MilestoneTasksListRoute() {
             {t("scheduleScreen.title")}
           </Typography>
           <Box sx={{ display: "flex", gap: "1rem" }}>
-            <ChangeProposals
+            <ChangeProposalsDrawer
               changeProposals={pendingChangeProposals}
               tasks={tasks}
               selectedChangeProposal={selectedChangeProposal}
