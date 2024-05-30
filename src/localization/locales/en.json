@@ -83,7 +83,8 @@
     "errorCreatingMilestoneTask": "Error while creating a new task",
     "errorUpdatingMilestoneTask": "Error while updating a task",
     "errorListingProjectUsers": "Error while fetching project users list",
-    "errorListingChangeProposals": "Error while fetching change proposals list"
+    "errorListingChangeProposals": "Error while fetching change proposals list",
+    "errorUpdatingChangeProposal": "Error while updating a change proposal"
   },
   "userInfoDialog": {
     "title": "User information",

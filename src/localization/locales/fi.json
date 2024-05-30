@@ -83,7 +83,8 @@
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
     "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
-    "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa"
+    "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
+    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",

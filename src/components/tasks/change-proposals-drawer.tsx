@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { ChangeProposal, Task } from "generated/client";
+import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
 import { DateTime } from "luxon";
 import { useFindUsersQuery } from "hooks/api-queries";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
@@ -15,9 +15,14 @@ import DragHandleIcon from "@mui/icons-material/DragHandle";
 interface Props {
   changeProposals?: ChangeProposal[];
   tasks?: Task[];
-  selectedChangeProposal: string;
-  setSelectedChangeProposal: (selectedChangeProposal: string) => void;
+  selectedChangeProposalId: string;
+  setSelectedChangeProposalId: (selectedChangeProposalId: string) => void;
   loading: boolean;
+  updateChangeProposalStatus: (
+    changeProposalId: string,
+    changeProposal: ChangeProposal,
+    status: ChangeProposalStatus,
+  ) => void;
 }
 
 /**
@@ -28,9 +33,10 @@ interface Props {
 const ChangeProposalsDrawer = ({
   changeProposals,
   tasks,
-  selectedChangeProposal,
-  setSelectedChangeProposal,
+  selectedChangeProposalId,
+  setSelectedChangeProposalId,
   loading,
+  updateChangeProposalStatus,
 }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -89,6 +95,19 @@ const ChangeProposalsDrawer = ({
   };
 
   /**
+   *  Handler for change proposal status change
+   *
+   * @param changeProposal ChangeProposal
+   * @param status ChangeProposalStatus
+   */
+  const handleStatusChange = (changeProposal: ChangeProposal, status: ChangeProposalStatus) => {
+    if (!changeProposal.id) return;
+
+    const changeProposalId = changeProposal.id;
+    updateChangeProposalStatus(changeProposalId, changeProposal, status);
+  };
+
+  /**
    * Renders change proposals list
    *
    * @param changeProposals List of change proposals
@@ -106,12 +125,16 @@ const ChangeProposalsDrawer = ({
           const proposalTask = tasks?.find((task) => task.id === changeProposal.taskId);
 
           return (
-            <ListItem onClick={() => setSelectedChangeProposal(proposalId)} key={changeProposal.id} sx={{ padding: 0 }}>
+            <ListItem
+              onClick={() => setSelectedChangeProposalId(proposalId)}
+              key={changeProposal.id}
+              sx={{ padding: 0 }}
+            >
               <Box
                 sx={{
                   width: "100%",
                   border: "2px solid #ECEFF1",
-                  borderColor: selectedChangeProposal === proposalId ? "#0079BF" : "",
+                  borderColor: selectedChangeProposalId === proposalId ? "#0079BF" : "",
                 }}
               >
                 <Box
@@ -119,9 +142,9 @@ const ChangeProposalsDrawer = ({
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    backgroundColor: selectedChangeProposal === proposalId ? "#0079BF" : "#ECEFF1",
+                    backgroundColor: selectedChangeProposalId === proposalId ? "#0079BF" : "#ECEFF1",
                     padding: "0.3rem",
-                    color: selectedChangeProposal === proposalId ? "#fff" : "#000",
+                    color: selectedChangeProposalId === proposalId ? "#fff" : "#000",
                   }}
                 >
                   <Box sx={{ display: "flex", flexDirection: "row", width: "50%", alignItems: "center" }}>
@@ -146,9 +169,10 @@ const ChangeProposalsDrawer = ({
                       sx={{
                         height: 32,
                         px: 2,
-                        color: selectedChangeProposal === proposalId ? "#fff" : "#000",
+                        color: selectedChangeProposalId === proposalId ? "#fff" : "#000",
                         fontSize: "10px",
                       }}
+                      onClick={() => handleStatusChange(changeProposal, ChangeProposalStatus.Approved)}
                     >
                       {t("changeProposalsDrawer.accept")}
                       <DoneIcon fontSize="small" sx={{ marginLeft: 1 }} />
@@ -158,9 +182,10 @@ const ChangeProposalsDrawer = ({
                       sx={{
                         height: 32,
                         px: 2,
-                        color: selectedChangeProposal === proposalId ? "#fff" : "#000",
+                        color: selectedChangeProposalId === proposalId ? "#fff" : "#000",
                         fontSize: "10px",
                       }}
+                      onClick={() => handleStatusChange(changeProposal, ChangeProposalStatus.Rejected)}
                     >
                       {t("changeProposalsDrawer.reject")}
                       <DeleteOutlineIcon fontSize="small" sx={{ marginLeft: 1 }} />
@@ -172,7 +197,7 @@ const ChangeProposalsDrawer = ({
                     display: "flex",
                     flexDirection: "row",
                     padding: "1.5rem",
-                    backgroundColor: selectedChangeProposal === proposalId ? "#0079BF1A" : "",
+                    backgroundColor: selectedChangeProposalId === proposalId ? "#0079BF1A" : "",
                   }}
                 >
                   <Typography variant="caption" sx={{ width: "20%" }}>

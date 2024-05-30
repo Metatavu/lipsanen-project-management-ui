@@ -28,8 +28,10 @@ import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 import TaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
-import { ChangeProposalStatus, Task } from "generated/client";
+import { ChangeProposal, ChangeProposalStatus, Task, UpdateChangeProposalRequest } from "generated/client";
 import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useApi } from "hooks/use-api";
 
 /**
  * Milestone tasks file route
@@ -44,6 +46,8 @@ export const Route = createFileRoute("/projects/$projectId/schedule/$milestoneId
 function MilestoneTasksListRoute() {
   const { t } = useTranslation();
   const { projectId, milestoneId } = Route.useParams();
+  const { changeProposalsApi } = useApi();
+  const queryClient = useQueryClient();
 
   const findProjectMilestoneQuery = useFindProjectMilestoneQuery({ projectId, milestoneId });
   const milestone = findProjectMilestoneQuery.data;
@@ -65,8 +69,10 @@ function MilestoneTasksListRoute() {
 
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<null | Task>(null);
-  // TODO: SelectedChangeProposal should be linked to the task list and chart in future.
-  const [selectedChangeProposal, setSelectedChangeProposal] = useState("");
+  const [selectedChangeProposalId, setSelectedChangeProposalId] = useState("");
+  const taskIdForSelectedChangeProposal = changeProposals?.find(
+    (proposal) => proposal.id === selectedChangeProposalId,
+  )?.taskId;
 
   /**
    * Handles task select
@@ -84,6 +90,40 @@ function MilestoneTasksListRoute() {
   const onTaskClose = () => {
     setTask(null);
     setOpen(false);
+  };
+
+  /**
+   * Update change proposal mutation
+   */
+  const updateChangeProposal = useMutation({
+    mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
+  });
+
+  /**
+   * Handler for updating change proposal status
+   *
+   * @param changeProposalId string
+   * @param changeProposal ChangeProposal
+   * @param status ChangeProposalStatus
+   */
+  const handleUpdateChangeProposalStatus = async (
+    changeProposalId: string,
+    changeProposal: ChangeProposal,
+    status: ChangeProposalStatus,
+  ) => {
+    await updateChangeProposal.mutateAsync({
+      changeProposal: {
+        ...changeProposal,
+        status: status,
+      },
+      projectId: projectId,
+      milestoneId: milestoneId,
+      changeProposalId: changeProposalId,
+    });
   };
 
   /**
@@ -109,7 +149,10 @@ function MilestoneTasksListRoute() {
       const taskCreator = creatorUsers.find((user) => user.id === task.metadata?.creatorId);
 
       return (
-        <TableRow key={task.id}>
+        <TableRow
+          key={task.id}
+          sx={{ backgroundColor: taskIdForSelectedChangeProposal === task.id ? "#0079BF1A" : "" }}
+        >
           <TableCell style={{ overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar sx={{ backgroundColor: "#0079BF" }}>
@@ -204,9 +247,10 @@ function MilestoneTasksListRoute() {
             <ChangeProposalsDrawer
               changeProposals={pendingChangeProposals}
               tasks={tasks}
-              selectedChangeProposal={selectedChangeProposal}
-              setSelectedChangeProposal={setSelectedChangeProposal}
+              selectedChangeProposalId={selectedChangeProposalId}
+              setSelectedChangeProposalId={setSelectedChangeProposalId}
               loading={listChangeProposalsQuery.isPending}
+              updateChangeProposalStatus={handleUpdateChangeProposalStatus}
             />
             <TaskButton projectId={projectId} milestoneId={milestoneId} />
           </Box>
