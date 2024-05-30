@@ -49,6 +49,6 @@ export const filesApi = {
       throw new Error(`Failed to upload file with status ${uploadResponse.status}`);
     }
 
-    return `${config.cdnBaseUrl}/${file.name}`;
+    return `${config.cdnBaseUrl}/${filePath}`;
   },
 };

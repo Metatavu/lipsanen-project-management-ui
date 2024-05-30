@@ -1,7 +1,7 @@
 import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
-import { ProjectStatus, TaskStatus, User } from "generated/client";
+import { ProjectStatus, TaskStatus, UserRole } from "generated/client";
 import { DefaultNamespace, ParseKeys } from "i18next";
 import { DateTime } from "luxon";
 
@@ -48,11 +48,12 @@ export interface MilestoneFormData {
  */
 export interface TaskFormData {
   name: string;
-  status: TaskStatus;
   startDate: DateTime | null;
   endDate: DateTime | null;
-  assignees: User[];
-  type: string;
-  estimatedDuration: string;
-  estimatedReadiness: string;
+  status: TaskStatus;
+  assigneeIds: string[];
+  userRole?: UserRole;
+  estimatedDuration?: string;
+  estimatedReadiness?: string;
+  attachmentUrls: string[];
 };
