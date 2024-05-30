@@ -75,6 +75,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
     endDate: null,
     status: TaskStatus.NotStarted,
     assigneeIds: [],
+    userRole: UserRole.User,
+    estimatedDuration: "",
+    estimatedReadiness: "",
     attachmentUrls: []
   };
 
@@ -88,7 +91,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const projectUsersMap = useMemo(() => {
     const users = listProjectUsersQuery.data ?? [];
     return users.reduce((acc, user) => {
-      acc[user.id!] = user.firstName + " " + user.lastName;
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      acc[user.id!] = `${user.firstName} ${user.lastName}`;
       return acc;
     }, {} as Record<string, string>);
   }, [listProjectUsersQuery.data]);
@@ -173,7 +177,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
    * @param field string
    * @param multipleSelect boolean
    */
-  const handleFormChange = (field: keyof TaskFormData, multipleSelect: boolean = false) => (
+  const handleFormChange = (field: keyof TaskFormData, multipleSelect = false) => (
     event: ChangeEvent<HTMLInputElement>
   ) => {
     const value = event.target.value;
@@ -202,10 +206,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
     if (!taskData.startDate || !taskData.endDate) return;
 
     // Convert DateTime objects to JavaScript Date objects
-    const startDateIsoConverted = new Date(taskData.startDate.toISODate()!);
+    // biome-ignore lint/style/noNonNullAssertion: We make sure startDate is not null before converting
+    const  startDateIsoConverted = new Date(taskData.startDate.toISODate()!);
+    // biome-ignore lint/style/noNonNullAssertion: We make sure endDate is not null before converting
     const endDateIsoConverted = new Date(taskData.endDate.toISODate()!);
     
-    if (task && task.id) {
+    if (task?.id) {
       await updateTaskMutation.mutateAsync({
         projectId: projectId,
         milestoneId: milestoneId,
@@ -248,16 +254,16 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
       endDate: null,
       status: TaskStatus.NotStarted,
       assigneeIds: [],
-      userRole: undefined,
-      estimatedDuration: undefined,
-      estimatedReadiness: undefined,
+      userRole: UserRole.User,
+      estimatedDuration: "",
+      estimatedReadiness: "",
       attachmentUrls: []
     });
     onClose();
   };
 
   /**
-   * Guesses attachment type from url
+   * Infers attachment type from url
    * 
    * TODO: It is not perfect as it takes any string after the last dot as attachment type
    * @param url attachment url
@@ -275,9 +281,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const getDropdownRenderValue = (options: string[] | Record<string, string>) => {
     if (Array.isArray(options)) {
       return (selected: unknown) => (selected as string[]).join(", ");
-    } else {
-      return (selected: unknown) => (selected as string[]).map(id => (options as Record<string, string>)[id]).join(", ");
     }
+    
+    return (selected: unknown) => (selected as string[]).map(id => (options as Record<string, string>)[id]).join(", ");
   };
 
   /**
@@ -462,8 +468,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {taskData.attachmentUrls.map((attachment, index) => (
-                <TableRow key={index}>
+              {taskData.attachmentUrls.map(attachment => (
+                <TableRow key={attachment}>
                   <TableCell>{getAttachmentTypeFromUrlCapitals(attachment)}</TableCell>
                   <TableCell>{attachment}</TableCell>
                   <TableCell>
