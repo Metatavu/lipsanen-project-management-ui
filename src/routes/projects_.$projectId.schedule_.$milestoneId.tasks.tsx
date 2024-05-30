@@ -17,13 +17,21 @@ import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import LoadingTableCell from "components/generic/loading-table-cell";
-import { useFindProjectMilestoneQuery, useListMilestoneTasksQuery } from "hooks/api-queries";
+import {
+  useFindProjectMilestoneQuery,
+  useFindUsersQuery,
+  useListChangeProposalsQuery,
+  useListMilestoneTasksQuery,
+} from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 import TaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
-import { Task } from "generated/client";
+import { ChangeProposal, ChangeProposalStatus, Task, UpdateChangeProposalRequest } from "generated/client";
+import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useApi } from "hooks/use-api";
 
 /**
  * Milestone tasks file route
@@ -38,18 +46,37 @@ export const Route = createFileRoute("/projects/$projectId/schedule/$milestoneId
 function MilestoneTasksListRoute() {
   const { t } = useTranslation();
   const { projectId, milestoneId } = Route.useParams();
+  const { changeProposalsApi } = useApi();
+  const queryClient = useQueryClient();
 
-  const findProjectMilestoneQuery = useFindProjectMilestoneQuery({projectId, milestoneId});
+  const findProjectMilestoneQuery = useFindProjectMilestoneQuery({ projectId, milestoneId });
   const milestone = findProjectMilestoneQuery.data;
   const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
   const tasks = listMilestoneTasksQuery.data;
+  const listChangeProposalsQuery = useListChangeProposalsQuery({ projectId, milestoneId });
+  const changeProposals = listChangeProposalsQuery.data;
+  const pendingChangeProposals = changeProposals?.filter(
+    (proposal) => proposal.status === ChangeProposalStatus.Pending,
+  );
+
+  const taskCreatorUserIds = [
+    ...new Set(
+      tasks?.flatMap((task) => task.metadata?.creatorId).filter((userId): userId is string => userId !== undefined),
+    ),
+  ];
+  const listCreatorUsersQuery = useFindUsersQuery(taskCreatorUserIds);
+  const creatorUsers = (listCreatorUsersQuery.data ?? []).filter((user) => user);
 
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<null | Task>(null);
+  const [selectedChangeProposalId, setSelectedChangeProposalId] = useState("");
+  const taskIdForSelectedChangeProposal = changeProposals?.find(
+    (proposal) => proposal.id === selectedChangeProposalId,
+  )?.taskId;
 
   /**
    * Handles task select
-   * 
+   *
    * @param task task
    */
   const onTaskSelect = (task: Task) => {
@@ -63,7 +90,41 @@ function MilestoneTasksListRoute() {
   const onTaskClose = () => {
     setTask(null);
     setOpen(false);
-  }
+  };
+
+  /**
+   * Update change proposal mutation
+   */
+  const updateChangeProposal = useMutation({
+    mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
+  });
+
+  /**
+   * Handler for updating change proposal status
+   *
+   * @param changeProposalId string
+   * @param changeProposal ChangeProposal
+   * @param status ChangeProposalStatus
+   */
+  const handleUpdateChangeProposalStatus = async (
+    changeProposalId: string,
+    changeProposal: ChangeProposal,
+    status: ChangeProposalStatus,
+  ) => {
+    await updateChangeProposal.mutateAsync({
+      changeProposal: {
+        ...changeProposal,
+        status: status,
+      },
+      projectId: projectId,
+      milestoneId: milestoneId,
+      changeProposalId: changeProposalId,
+    });
+  };
 
   /**
    * Renders the milestone tasks rows
@@ -85,9 +146,13 @@ function MilestoneTasksListRoute() {
       const difference = endDate.diff(startDate, "days").days;
       const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
+      const taskCreator = creatorUsers.find((user) => user.id === task.metadata?.creatorId);
 
       return (
-        <TableRow key={task.id}>
+        <TableRow
+          key={task.id}
+          sx={{ backgroundColor: taskIdForSelectedChangeProposal === task.id ? "#0079BF1A" : "" }}
+        >
           <TableCell style={{ overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar sx={{ backgroundColor: "#0079BF" }}>
@@ -100,7 +165,7 @@ function MilestoneTasksListRoute() {
                     {task.name}
                   </Typography>
                 </Tooltip>
-                <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
+                <Typography variant="body2">{`${taskCreator?.firstName} ${taskCreator?.lastName}`}</Typography>
               </Box>
             </div>
           </TableCell>
@@ -154,15 +219,12 @@ function MilestoneTasksListRoute() {
   };
 
   /**
-   * Renders the breadcrumb with objectives link and a current milestone name 
+   * Renders the breadcrumb with objectives link and a current milestone name
    */
   const renderBreadcrumb = () => {
     return (
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, padding: "1rem" }}>
-        <Link
-          to={`/projects/${projectId}/schedule` as string}
-          style={{ textDecoration: "none", color: "#0079BF" }}
-        >
+        <Link to={`/projects/${projectId}/schedule` as string} style={{ textDecoration: "none", color: "#0079BF" }}>
           <Typography variant="h5">{t("scheduleScreen.objectives")}</Typography>
         </Link>
         <Typography variant="h5">{t("scheduleScreen.breadcrumbSeparator")}</Typography>
@@ -182,6 +244,14 @@ function MilestoneTasksListRoute() {
             {t("scheduleScreen.title")}
           </Typography>
           <Box sx={{ display: "flex", gap: "1rem" }}>
+            <ChangeProposalsDrawer
+              changeProposals={pendingChangeProposals}
+              tasks={tasks}
+              selectedChangeProposalId={selectedChangeProposalId}
+              setSelectedChangeProposalId={setSelectedChangeProposalId}
+              loading={listChangeProposalsQuery.isPending}
+              updateChangeProposalStatus={handleUpdateChangeProposalStatus}
+            />
             <TaskButton projectId={projectId} milestoneId={milestoneId} />
           </Box>
         </Toolbar>
@@ -193,9 +263,9 @@ function MilestoneTasksListRoute() {
           </Box>
         </Card>
       </FlexColumnLayout>
-      { task &&
+      {task && (
         <TaskDialog projectId={projectId} milestoneId={milestoneId} open={open} task={task} onClose={onTaskClose} />
-      }
+      )}
     </>
   );
 }

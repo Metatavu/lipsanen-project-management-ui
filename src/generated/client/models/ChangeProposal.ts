@@ -43,7 +43,7 @@ export interface ChangeProposal {
      * @type {string}
      * @memberof ChangeProposal
      */
-    readonly taskId: string;
+    taskId: string;
     /**
      * Null if change is not needed and not null if the start date is proposed to change
      * @type {Date}
@@ -124,6 +124,7 @@ export function ChangeProposalToJSON(value?: ChangeProposal | null): any {
     }
     return {
         
+        'taskId': value.taskId,
         'startDate': value.startDate === undefined ? undefined : (value.startDate.toISOString().substring(0,10)),
         'endDate': value.endDate === undefined ? undefined : (value.endDate.toISOString().substring(0,10)),
         'reason': value.reason,

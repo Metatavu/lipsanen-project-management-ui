@@ -63,6 +63,7 @@
     "errorListingUsers": "Virhe haettaessa käyttäjiä",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
     "errorFindingUser": "Virhe haettaessa käyttäjää",
+    "errorFindingMultipleUsers": "Virhe etsittäessä useita käyttäjiä",
     "errorUpdatingUser": "Virhe päivitettäessä käyttäjää",
     "errorDeletingUser": "Virhe poistettaessa käyttäjää",
     "errorListingProjectThemes": "Virhe haettaessa projektiteemoja",
@@ -83,7 +84,9 @@
     "errorListingMilestoneTasks": "Virhe haettaessa virstanpylvään tehtäviä",
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
-    "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä"
+    "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
+    "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
+    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -185,5 +188,14 @@
         "description": "Haluatko varmasti poistaa liitteen: {{attachmentName}}?"
       }
     }
+  },
+  "changeProposalsDrawer": {
+    "viewChangeProposals": "Tarkastele muutosehdotuksia",
+    "viewChangeProposalsWithValue": "Tarkastele muutosehdotuksia ({{value}})",
+    "changeProposals": "Muutosehdotukset",
+    "changeProposalPosition": "Muutosehdotus {{current}}/{{total}}",
+    "accept": "Hyväksy",
+    "reject": "Hylkää",
+    "numberOfChangeProposals": "{{value}} kpl"
   }
 }
