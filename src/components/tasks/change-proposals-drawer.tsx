@@ -1,5 +1,5 @@
 import { Box, Button, Drawer, LinearProgress, List, ListItem, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DoneIcon from "@mui/icons-material/Done";
@@ -46,16 +46,23 @@ const ChangeProposalsDrawer = ({
   const startHeight = useRef(height);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const proposalCreatorUsersIds = [
-    ...new Set(
-      changeProposals
-        ?.flatMap((proposal) => proposal.metadata?.creatorId)
-        .filter((creatorId): creatorId is string => creatorId !== undefined),
-    ),
-  ];
+  const proposalCreatorUsersIds = useMemo(
+    () => [
+      ...new Set(
+        changeProposals
+          ?.flatMap((proposal) => proposal.metadata?.creatorId)
+          .filter((creatorId): creatorId is string => creatorId !== undefined),
+      ),
+    ],
+    [changeProposals],
+  );
+
   const listProposalCreatorUsersQuery = useFindUsersQuery(proposalCreatorUsersIds);
   const creatorUsers = (listProposalCreatorUsersQuery.data ?? []).filter((user) => user);
 
+  /**
+   * UseEffect to set maximum drawer height based on drawer content
+   */
   useEffect(() => {
     if (contentRef.current) {
       setMaxHeight(contentRef.current.scrollHeight);
