@@ -71,8 +71,10 @@
     "errorUpdatingProjectTheme": "Error while updating a project theme",
     "errorUploadingLogo": "Error while uploading logo",
     "errorListingLogos": "Error while fetching logos list",
-    "errorUploadingTaskAttachment": "Error while uploading task attachment",
+    "errorUploadingNewTaskAttachment": "Error while uploading new task attachment",
+    "errorUploadingExistingTaskAttachment": "Error while uploading existing task attachment",
     "errorListingTaskAttachments": "Error while fetching task attachments list",
+    "errorDeletingTaskAttachment": "Error while deleting task attachment",
     "errorListingCompanies": "Error while fetching companies list",
     "errorCreatingNewCompany": "Error while creating a new company",
     "errorAssigningUserToProject": "Error while assigning user to project",
@@ -156,6 +158,7 @@
     "status": "Status",
     "assignees": "Assignees",
     "type": "Type",
+    "userRole": "Role",
     "start": "Starts",
     "end": "Ends",
     "estimatedDuration": "Estimated duration",
@@ -163,6 +166,7 @@
     "dependencies": "Dependencies",
     "attachments": "Attachments",
     "createButton": "Create new task",
+    "updateButton": "Update task",
     "taskConnectionsTable": {
       "title": "Task connections",
       "type": "Type",
@@ -174,8 +178,15 @@
       "title": "Task attachments",
       "type": "Type",
       "name": "Name",
-      "size": "Size",
-      "addButton": "Add new attachment"
+      "preview": "Preview",
+      "delete": "Delete",
+      "clickToPreview": "Click to preview",
+      "addButton": "Add new attachment",
+      "uploadDialogTitle": "Add a new attachment",
+      "deleteConfirmationDialog": {
+        "title": "Delete task attachment",
+        "description": "Are you sure you want to delete attachment: {{attachmentName}}?"
+      }
     }
   },
   "changeProposalsDrawer": {
