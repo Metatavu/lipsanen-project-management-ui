@@ -28,7 +28,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
 import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
-import { useListMilestoneTasksQuery, useListProjectUsersQuery, useListTaskConnectionsQuery } from "hooks/api-queries";
+import { useListMilestoneTasksQuery, useListProjectUsersQuery, useListTaskAttachmentsQuery, useListTaskConnectionsQuery } from "hooks/api-queries";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import { CreateTaskConnectionRequest, CreateTaskRequest, DeleteTaskConnectionRequest, Task, TaskConnectionType, TaskStatus, UpdateTaskConnectionRequest, UpdateTaskRequest, UserRole } from "generated/client";
 import FileUploader from "components/generic/file-upload";
@@ -59,6 +59,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const listProjectUsersQuery = useListProjectUsersQuery(projectId);
   const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
+  const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const showConfirmDialog = useConfirmDialog();
 
   // Set initial task data based on existing task or new task
@@ -638,10 +639,19 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
             allowedFileTypes={[".png", ".svg", ".jpg", ".jpeg", ".pdf", ".doc", ".docx"]}
             uploadFile={handleUploadNewAttachment}
             existingFiles={taskData.attachmentUrls}
+            allFiles={listTaskAttachmentsQuery.data ?? []}
             existingFilesPath={TASK_ATTACHMENT_UPLOAD_PATH}
             width={400}
             loaderVisible={fileUploadLoaderVisible}
-            uploadExistingFile={handleUploadExistingAttachment}
+            uploadExistingFile={(file) =>
+              showConfirmDialog({
+                title: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.title"),
+                description: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.description"),
+                cancelButtonEnabled: true,
+                confirmButtonText: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.confirm"),
+                onConfirmClick: () => handleUploadExistingAttachment(file)
+              })
+            }
           />
         </Box>
       </Dialog>

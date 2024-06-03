@@ -193,6 +193,11 @@
       "clickToPreview": "Klikkaa esikatsellaksesi",
       "addButton": "Lisää liite",
       "uploadDialogTitle": "Lataa uusi liite",
+      "uploadExistingFileConfirmationDialog": {
+        "title": "Lataa olemassaoleva liite",
+        "description": "Tiedosto, jota yrität ladata, on jo olemassa palvelimen tallennustilassa. Sitä käytetään uudelleen tähän tehtävään. Haluatko varmasti jatkaa?",
+        "confirm": "Vahvista"
+      },
       "deleteConfirmationDialog": {
         "title": "Poista tehtävän liite",
         "description": "Haluatko varmasti poistaa liitteen: {{attachmentName}}?"

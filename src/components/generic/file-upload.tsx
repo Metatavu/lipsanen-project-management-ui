@@ -17,6 +17,7 @@ interface Props {
   uploadFile: (file: File) => void;
   existingFiles: string[];
   existingFilesPath: string;
+  allFiles?: string[];
   width?: number;
   loaderVisible?: boolean;
   uploadExistingFile?: (file: string) => void;
@@ -27,7 +28,16 @@ interface Props {
  *
  * @params props component properties
  */
-const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFilesPath, width, loaderVisible, uploadExistingFile }: Props) => {
+const FileUploader = ({
+  allowedFileTypes,
+  uploadFile,
+  existingFiles,
+  existingFilesPath,
+  allFiles,
+  width,
+  loaderVisible,
+  uploadExistingFile,
+}: Props) => {
   const { t } = useTranslation();
   const [uploadMessage, setUploadMessage] = useState<UploadMessage>();
 
@@ -104,13 +114,17 @@ const FileUploader = ({ allowedFileTypes, uploadFile, existingFiles, existingFil
 
     const existingFileFullPath = `${config.cdnBaseUrl}/${existingFilesPath}/${files[0].name}`;
 
-    if (existingFiles.some((existingFile) => existingFile === existingFileFullPath)) {
+    // If file is already attached to the task - do not upload it again and show a warning
+    if (existingFiles.includes(existingFileFullPath)) {
+      setUploadMessage({ message: t("settingsScreen.uploadWarningDuplicateFileName"), severity: "warning" });
+      return;
+    }
+
+    // Handles uploading files that exist in the S3
+    if (allFiles?.includes(existingFileFullPath)) {
       if (uploadExistingFile) {
         uploadExistingFile(existingFileFullPath);
-        return;
       }
-      
-      setUploadMessage({ message: t("settingsScreen.uploadWarningDuplicateFileName"), severity: "error" });
       return;
     }
 
