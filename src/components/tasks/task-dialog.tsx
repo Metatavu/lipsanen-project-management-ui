@@ -107,10 +107,21 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
       attachedTask: listMilestoneTasksQuery.data.find((taskElement) => taskElement.id === (connection.sourceTaskId === task.id ? connection.targetTaskId : connection.sourceTaskId)),
     }));
     setExistingTaskConnections(initialConnections);
+  }, [task, listTaskConnectionsQuery.data, listMilestoneTasksQuery.data]);
 
-    const availableTasks = listMilestoneTasksQuery.data?.filter((taskElement) => taskElement.id !== task.id).filter((taskElement) => !initialConnections.some((connection) => connection.attachedTask?.id === taskElement.id));
+  /**
+   * Set available tasks for task connections
+   */
+  useEffect(() => {
+    if (!listMilestoneTasksQuery.data) {
+      return;
+    }
+    const availableTasks = task
+      ? listMilestoneTasksQuery.data?.filter((taskElement) => taskElement.id !== task.id).filter((taskElement) => !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id))
+      : listMilestoneTasksQuery.data;
+
     setAvailableTaskConnectionTasks(availableTasks ?? []);
-  }, [task, listMilestoneTasksQuery.data, listTaskConnectionsQuery.data]);
+  }, [task, listMilestoneTasksQuery.data, existingTaskConnections]);
 
   /**
    * Project users map
