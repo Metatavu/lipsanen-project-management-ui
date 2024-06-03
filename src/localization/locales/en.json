@@ -75,6 +75,7 @@
     "errorUploadingExistingTaskAttachment": "Error while uploading existing task attachment",
     "errorListingTaskAttachments": "Error while fetching task attachments list",
     "errorDeletingTaskAttachment": "Error while deleting task attachment",
+    "errorListingTaskConnections": "Error while fetching task connections list",
     "errorListingCompanies": "Error while fetching companies list",
     "errorCreatingNewCompany": "Error while creating a new company",
     "errorAssigningUserToProject": "Error while assigning user to project",
@@ -82,11 +83,15 @@
     "errorListingProjectMilestones": "Error while fetching project milestones list",
     "errorFindingProjectMilestone": "Error while finding a project milestone",
     "errorListingMilestoneTasks": "Error while fetching milestone tasks list",
+    "errorFindingMilestoneTask": "Error while finding a milestone task",
     "errorCreatingMilestoneTask": "Error while creating a new task",
     "errorUpdatingMilestoneTask": "Error while updating a task",
     "errorListingProjectUsers": "Error while fetching project users list",
     "errorListingChangeProposals": "Error while fetching change proposals list",
-    "errorUpdatingChangeProposal": "Error while updating a change proposal"
+    "errorUpdatingChangeProposal": "Error while updating a change proposal",
+    "errorCreatingTaskConnection": "Error while creating a new task connection",
+    "errorUpdatingTaskConnection": "Error while updating a task connection",
+    "errorDeletingTaskConnection": "Error while deleting a task connection"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -172,7 +177,12 @@
       "type": "Type",
       "task": "Task",
       "status": "Status",
-      "addButton": "Add new connection"
+      "addButton": "Add new connection",
+      "taskTypeCheck": {
+        "sourceStartAfterTargetStartWarning": "Source task start date cannot be after target task start date",
+        "sourceEndAfterTargetEndWarning": "Source task end date cannot be after target task end date",
+        "sourceEndAfterTargetStartWarning": "Source task end date cannot be after target task start date"
+      }
     },
     "taskAttachmentsTable": {
       "title": "Task attachments",

@@ -13,6 +13,8 @@ import {
   Project,
   User,
   ListChangeProposalsRequest,
+  ListTaskConnectionsRequest,
+  FindTaskRequest
 } from "generated/client";
 import { filesApi } from "api/files";
 
@@ -323,5 +325,53 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
       }
     },
     enabled: !!projectId && !!milestoneId,
+  });
+};
+
+/**
+ * Find task query hook
+ * 
+ * @param taskId string
+ */
+export const useFindMilestoneTaskQuery = (params: FindTaskRequest) => {
+  const { milestoneTasksApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId, milestoneId, taskId } = params;
+
+  return useQuery({
+    queryKey: ["milestoneTasks", projectId, taskId],
+    queryFn: async () => {
+      try {
+        return milestoneTasksApi.findTask({ projectId: projectId, milestoneId: milestoneId, taskId: taskId });
+      } catch (error) {
+        handleError("Error finding milestone task", error);
+        throw Error(t("errorHandling.errorFindingMilestoneTask"), { cause: error });
+      }
+    },
+    enabled: !!projectId && !!taskId,
+  });
+};
+
+/**
+ * List task connections query hook
+ * 
+ * @param params ListTaskConnectionsRequest
+ */
+export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) => {
+  const { taskConnectionsApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId, taskId } = params;
+
+  return useQuery({
+    queryKey: ["taskConnections", projectId, taskId],
+    queryFn: async () => {
+      try {
+        return taskConnectionsApi.listTaskConnections({ projectId: projectId, taskId: taskId });
+      } catch (error) {
+        handleError("Error listing task connections", error);
+        throw Error(t("errorHandling.errorListingTaskConnections"), { cause: error });
+      }
+    },
+    enabled: !!projectId && !!taskId
   });
 };

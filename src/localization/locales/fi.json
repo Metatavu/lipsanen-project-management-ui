@@ -75,6 +75,7 @@
     "errorUploadingExistingTaskAttachment": "Virhe ladattaessa olemassaolevaa tehtävän liitettä",
     "errorListingTaskAttachments": "Virhe haettaessa tehtävän liitteitä",
     "errorDeletingTaskAttachment": "Virhe poistettaessa tehtävän liitettä",
+    "errorListingTaskConnections": "Virhe haettaessa tehtävien riippuvuuksia",
     "errorListingCompanies": "Virhe haettaessa yrityksiä",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
@@ -82,11 +83,15 @@
     "errorListingProjectMilestones": "Virhe haettaessa projektin virstanpylväiden luetteloa",
     "errorFindingProjectMilestone": "Virhe haettaessa projektin virstanpylvää",
     "errorListingMilestoneTasks": "Virhe haettaessa virstanpylvään tehtäviä",
+    "errorFindingMilestoneTask": "Virhe haettaessa virstanpylvän tehtävää",
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
     "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
     "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
-    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta"
+    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
+    "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
+    "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -172,7 +177,12 @@
       "type": "Tyyppi",
       "task": "Tehtävä",
       "status": "Tila",
-      "addButton": "Lisää riippuvuus"
+      "addButton": "Lisää riippuvuus",
+      "taskTypeCheck": {
+        "sourceStartAfterTargetStartWarning": "Lähdetehtävän aloituspäivä ei voi olla kohdetehtävän aloituspäivän jälkeen",
+        "sourceEndAfterTargetEndWarning": "Lähdetehtävän päättymispäivä ei voi olla kohdetehtävän päättymispäivän jälkeen",
+        "sourceEndAfterTargetStartWarning": "Lähdetehtävän päättymispäivä ei voi olla kohdetehtävän aloituspäivän jälkeen"
+      }
     },
     "taskAttachmentsTable": {
       "title": "Liitteet",
