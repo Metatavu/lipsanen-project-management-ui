@@ -127,6 +127,10 @@ function ScheduleIndexRoute() {
    * Renders the milestone Gantt chart
    */
   const renderGanttChart = () => {
+    if (!listProjectMilestonesQuery.data?.length) {
+      return;
+    }
+
     if (listProjectMilestonesQuery.isFetching) {
       return (
         <TableRow>
