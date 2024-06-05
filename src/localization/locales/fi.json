@@ -86,7 +86,8 @@
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
     "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
     "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
-    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta"
+    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
+    "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -189,13 +190,21 @@
       }
     }
   },
-  "changeProposalsDrawer": {
+  "changeProposals": {
     "viewChangeProposals": "Tarkastele muutosehdotuksia",
     "viewChangeProposalsWithValue": "Tarkastele muutosehdotuksia ({{value}})",
     "changeProposals": "Muutosehdotukset",
     "changeProposalPosition": "Muutosehdotus {{current}}/{{total}}",
     "accept": "Hyväksy",
     "reject": "Hylkää",
-    "numberOfChangeProposals": "{{value}} kpl"
+    "numberOfChangeProposals": "{{value}} kpl",
+    "addButton": "Lisää muutosehdotus",
+    "changeStart": "Muutettu aloitus",
+    "changeEnd": "Muutettu lopetus",
+    "reasonForChange": "Muutoksen syy",
+    "comment": "Kommentti",
+    "waitingForApproval": "Odottaa hyväksyntaa",
+    "abandoned": "Hylätty",
+    "accepted": "Hyväksytty"
   }
 }

@@ -30,7 +30,7 @@ export type UploadMessage = {
 export interface CompanyOptionType {
   inputValue?: string;
   name: string;
-};
+}
 
 export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
@@ -41,7 +41,7 @@ export interface MilestoneFormData {
   name: string;
   startDate: DateTime | null;
   endDate: DateTime | null;
-};
+}
 
 /**
  * Interface for task form data
@@ -56,4 +56,4 @@ export interface TaskFormData {
   estimatedDuration?: string;
   estimatedReadiness?: string;
   attachmentUrls: string[];
-};
+}

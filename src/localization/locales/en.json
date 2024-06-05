@@ -86,7 +86,8 @@
     "errorUpdatingMilestoneTask": "Error while updating a task",
     "errorListingProjectUsers": "Error while fetching project users list",
     "errorListingChangeProposals": "Error while fetching change proposals list",
-    "errorUpdatingChangeProposal": "Error while updating a change proposal"
+    "errorUpdatingChangeProposal": "Error while updating a change proposal",
+    "errorDeletingChangeProposal": "Error while deleting a change proposal"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -189,13 +190,21 @@
       }
     }
   },
-  "changeProposalsDrawer": {
+  "changeProposals": {
     "viewChangeProposals": "View change proposals",
     "viewChangeProposalsWithValue": "View change proposals ({{value}})",
     "changeProposals": "Change proposals",
     "changeProposalPosition": "Change proposal {{current}}/{{total}}",
     "accept": "Accept",
     "reject": "Reject",
-    "numberOfChangeProposals": "{{value}} proposals"
+    "numberOfChangeProposals": "{{value}} proposals",
+    "addButton": "Add new change proposal",
+    "changeStart": "Change start",
+    "changeEnd": "Change end",
+    "reasonForChange": "Reason for the change",
+    "comment": "Comment",
+    "waitingForApproval": "Waiting for approval",
+    "abandoned": "Abandoned",
+    "accepted": "Accepted"
   }
 }

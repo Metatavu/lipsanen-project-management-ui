@@ -156,7 +156,7 @@ const ChangeProposalsDrawer = ({
                 >
                   <Box sx={{ display: "flex", flexDirection: "row", width: "50%", alignItems: "center" }}>
                     <Typography fontWeight={700} component="h3" variant="body2" sx={{ flex: 1 }}>
-                      {t("changeProposalsDrawer.changeProposalPosition", {
+                      {t("changeProposals.changeProposalPosition", {
                         current: index + 1,
                         total: changeProposals.length,
                       })}
@@ -181,7 +181,7 @@ const ChangeProposalsDrawer = ({
                       }}
                       onClick={() => handleStatusChange(changeProposal, ChangeProposalStatus.Approved)}
                     >
-                      {t("changeProposalsDrawer.accept")}
+                      {t("changeProposals.accept")}
                       <DoneIcon fontSize="small" sx={{ marginLeft: 1 }} />
                     </Button>
                     <Button
@@ -194,7 +194,7 @@ const ChangeProposalsDrawer = ({
                       }}
                       onClick={() => handleStatusChange(changeProposal, ChangeProposalStatus.Rejected)}
                     >
-                      {t("changeProposalsDrawer.reject")}
+                      {t("changeProposals.reject")}
                       <DeleteOutlineIcon fontSize="small" sx={{ marginLeft: 1 }} />
                     </Button>
                   </Box>
@@ -240,8 +240,8 @@ const ChangeProposalsDrawer = ({
       >
         <RemoveRedEyeIcon sx={{ marginRight: 1 }} />
         {loading
-          ? t("changeProposalsDrawer.viewChangeProposals")
-          : t("changeProposalsDrawer.viewChangeProposalsWithValue", { value: changeProposals?.length ?? 0 })}
+          ? t("changeProposals.viewChangeProposals")
+          : t("changeProposals.viewChangeProposalsWithValue", { value: changeProposals?.length ?? 0 })}
       </Button>
       <Drawer open={open && !!changeProposals?.length} anchor="bottom" variant="persistent">
         <Box sx={{ display: "flex", justifyContent: "center" }} onMouseDown={handleMouseDown}>
@@ -250,10 +250,10 @@ const ChangeProposalsDrawer = ({
         <Box ref={contentRef} sx={{ padding: "0 1rem 1rem 1rem", height: `${height}px` }}>
           <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <Typography component="h2" variant="h6" fontWeight={700}>
-              {t("changeProposalsDrawer.changeProposals")}
+              {t("changeProposals.changeProposals")}
             </Typography>
             <Typography component="h2" variant="h6" fontWeight={700}>
-              {t("changeProposalsDrawer.numberOfChangeProposals", { value: changeProposals?.length })}
+              {t("changeProposals.numberOfChangeProposals", { value: changeProposals?.length })}
             </Typography>
           </Box>
           {listProposalCreatorUsersQuery.isPending ? <LinearProgress /> : renderChangeProposalsList(changeProposals)}
