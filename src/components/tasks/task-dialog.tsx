@@ -3,6 +3,7 @@ import {
   AppBar,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogContentText,
@@ -33,6 +34,7 @@ import GenericDatePicker from "components/generic/generic-date-picker";
 import {
   ChangeProposal,
   ChangeProposalStatus,
+  CreateChangeProposalRequest,
   CreateTaskRequest,
   DeleteChangeProposalRequest,
   Task,
@@ -46,6 +48,7 @@ import { filesApi } from "api/files";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import ChangeProposalUtils from "utils/change-proposals";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { REASONS_FOR_CHANGE } from "constants/index";
 
 const TASK_ATTACHMENT_UPLOAD_PATH = "task-attachments";
 
@@ -96,28 +99,15 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         attachmentUrls: [],
       };
 
-  // TODO: This is not the final list of reasons
-  const REASONS_FOR_CHANGE = ["Scheduled maintenance", "User request", "System error", "Other"];
-
-  const newChangeProposal: ChangeProposal = {
-    id: "",
-    taskId: "",
-    startDate: undefined,
-    endDate: undefined,
-    reason: "",
-    comment: "",
-    status: ChangeProposalStatus.Pending,
-  };
-
   const [taskData, setTaskData] = useState<TaskFormData>(existingOrNewTaskData);
 
-  // TODO: Create proposal next
-  const [createChangePropsalData, setCreateChangeProposalData] = useState<ChangeProposal>(newChangeProposal);
+  const [createChangeProposalData, setCreateChangeProposalData] = useState<ChangeProposal[]>([]);
   const [updateChangeProposalData, setUpdateChangeProposalData] = useState<ChangeProposal[]>(
     changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? [],
   );
   const [attachmentDialogOpen, setAttachmentDialogOpen] = useState(false);
   const [fileUploadLoaderVisible, setFileUploadLoaderVisible] = useState(false);
+  const [loadingProposalsDeletion, setLoadingProposalsDeletion] = useState<Record<string, boolean>>({});
 
   /**
    * Use effect to update task specific change proposals on change proposals change
@@ -165,18 +155,17 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
 
-  // TODO: This should be a create change proposal mutation
-  // /**
-  //  * Create task mutation
-  //  */
-  // const createTaskMutation = useMutation({
-  //   mutationFn: (params: CreateTaskRequest) => milestoneTasksApi.createTask(params),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
-  //     onClose();
-  //   },
-  //   onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
-  // });
+  /**
+   * Create task mutation
+   */
+  const createChangeProposalMutation = useMutation({
+    mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+      onClose();
+    },
+    onError: (error) => console.error(t("errorHandling.errorCreatingChangeProposal"), error),
+  });
 
   /**
    * Update change proposals mutation
@@ -282,7 +271,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   };
 
   /**
-   * Handles change proposal creation form date change
+   * Handles change proposal update form date change
    *
    * @param field string
    * @param changeProposalId string
@@ -294,7 +283,11 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
 
       const updatedProposals = updateChangeProposalData.map((proposal) => {
         if (proposal.id === changeProposalId) {
-          return { ...proposal, [field]: new Date(value.toJSDate()) };
+          // TODO: This is needed to ensure correct date is set when the initial value is undefined
+          const date = value.toJSDate();
+          date.setHours(3);
+
+          return { ...proposal, [field]: date };
         }
         return proposal;
       });
@@ -324,6 +317,52 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     };
 
   /**
+   * Handles change proposal creation forms date change
+   *
+   * @param field string
+   * @param changeProposalId string
+   * @param value date
+   */
+  const handleCreateChangeProposalDateFormChange =
+    (field: keyof ChangeProposal, changeProposalId: string) => (value: DateTime<boolean> | null) => {
+      if (!changeProposalId || !value) return;
+
+      const newProposals = createChangeProposalData.map((proposal) => {
+        if (proposal.id === changeProposalId) {
+          // TODO: This is needed to ensure correct date is set when the initial value is undefined
+          const date = value.toJSDate();
+          date.setHours(3);
+
+          return { ...proposal, [field]: date };
+        }
+        return proposal;
+      });
+
+      setCreateChangeProposalData(newProposals);
+    };
+
+  /**
+   * Handles change event for creating change proposals
+   *
+   * @param field string
+   * @param changeProposalId string
+   * @param event ChangeEvent<HTMLInputElement>
+   */
+  const handleCreateChangeProposalFormChange =
+    (field: keyof ChangeProposal, changeProposalId: string) => (event: ChangeEvent<HTMLInputElement>) => {
+      if (!changeProposalId) return;
+
+      const newProposals = createChangeProposalData.map((proposal) => {
+        if (proposal.id === changeProposalId) {
+          return { ...proposal, [field]: event.target.value };
+        }
+        return proposal;
+      });
+
+      setCreateChangeProposalData(newProposals);
+    };
+
+  /**
    * Handles deleting a change proposal
    *
    * @param changeProposalId string
@@ -331,11 +370,50 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const handleDeleteChangeProposal = async (changeProposalId?: string) => {
     if (!changeProposalId) return;
 
-    await deleteChangeProposalMutation.mutateAsync({
-      projectId: projectId,
-      milestoneId: milestoneId,
-      changeProposalId: changeProposalId,
-    });
+    setLoadingProposalsDeletion((prev) => ({ ...prev, [changeProposalId]: true }));
+    try {
+      await deleteChangeProposalMutation.mutateAsync({
+        projectId: projectId,
+        milestoneId: milestoneId,
+        changeProposalId: changeProposalId,
+      });
+    } finally {
+      setUpdateChangeProposalData(
+        updateChangeProposalData?.filter((proposal) => proposal.id !== changeProposalId) ?? [],
+      );
+      setLoadingProposalsDeletion((prev) => ({ ...prev, [changeProposalId]: false }));
+    }
+  };
+
+  /**
+   * Handles deleting an unsaved change proposal
+   *
+   * @param changeProposalId string
+   */
+  const handleDeleteUnsavedChangeProposal = async (changeProposalId?: string) => {
+    if (!changeProposalId) return;
+
+    const remainingProposals = createChangeProposalData.filter((proposal) => proposal.id !== changeProposalId);
+    setCreateChangeProposalData(remainingProposals);
+  };
+
+  /**
+   * Handles add new change propsal button click
+   */
+  const handleAddChangeProposalClick = () => {
+    if (!task?.id) return;
+
+    const newChangeProposal: ChangeProposal = {
+      id: `new-proposal-${createChangeProposalData.length + 1}`,
+      taskId: task.id,
+      startDate: undefined,
+      endDate: undefined,
+      reason: "",
+      comment: "",
+      status: ChangeProposalStatus.Pending,
+    };
+
+    setCreateChangeProposalData([...createChangeProposalData, newChangeProposal]);
   };
 
   /**
@@ -407,32 +485,37 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
    * Persists created and updated change proposals.
    */
   const persistChangeProposals = async () => {
-    // TODO: Better check than just start and end date?
-    if (!changeProposals && (!createChangePropsalData.startDate || !createChangePropsalData.endDate)) return;
+    if (!changeProposals && !createChangeProposalData.length) return;
 
-    if (createChangePropsalData.startDate && createChangePropsalData.endDate) {
-      // TODO: Handle create change proposal
-    }
-    if (changeProposals) {
-      const changedProposals = updateChangeProposalData.filter((updatedProposal) => {
-        const originalProposal = changeProposals.find((proposal) => proposal.id === updatedProposal.id);
+    const createdChangeProposalPromises = createChangeProposalData.map(
+      async (proposal) =>
+        await createChangeProposalMutation.mutateAsync({
+          projectId: projectId,
+          milestoneId: milestoneId,
+          changeProposal: proposal,
+        }),
+    );
 
-        return JSON.stringify(updatedProposal) !== JSON.stringify(originalProposal);
-      });
+    const updatedChangeProposals = changeProposals
+      ? updateChangeProposalData.filter((updatedProposal) => {
+          const originalProposal = changeProposals.find((proposal) => proposal.id === updatedProposal.id);
 
-      const changeProposalPromises = changedProposals.map(
-        async (proposal) =>
-          await updateChangeProposalsMutation.mutateAsync({
-            changeProposal: proposal,
-            projectId: projectId,
-            milestoneId: milestoneId,
-            // biome-ignore lint/style/noNonNullAssertion: id will exist at this point
-            changeProposalId: proposal.id!,
-          }),
-      );
+          return JSON.stringify(updatedProposal) !== JSON.stringify(originalProposal);
+        })
+      : [];
 
-      await Promise.all(changeProposalPromises);
-    }
+    const updatedChangeProposalPromises = updatedChangeProposals.map(
+      async (proposal) =>
+        await updateChangeProposalsMutation.mutateAsync({
+          changeProposal: proposal,
+          projectId: projectId,
+          milestoneId: milestoneId,
+          // biome-ignore lint/style/noNonNullAssertion: id will exist at this point
+          changeProposalId: proposal.id!,
+        }),
+    );
+
+    await Promise.all([...createdChangeProposalPromises, ...updatedChangeProposalPromises]);
   };
 
   /**
@@ -691,7 +774,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
    *
    * @param changeProposal change proposal
    */
-  const renderChangeProposalInfo = (changeProposal: ChangeProposal) => {
+  const renderExistingChangeProposals = (changeProposal: ChangeProposal) => {
+    if (!changeProposal?.id) return;
+
     const formattedStartDate = changeProposal.startDate ? DateTime.fromJSDate(changeProposal.startDate) : null;
     const formattedEndDate = changeProposal.endDate ? DateTime.fromJSDate(changeProposal.endDate) : null;
 
@@ -705,22 +790,22 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     return (
       <div key={changeProposal.id}>
         <Grid container spacing={1} padding={2} sx={{ borderBottom: "1px solid #e6e4e4" }}>
-          <Grid item xs={2}>
+          <Grid item xs={4} sx={{ display: "flex", flexDirection: "row" }}>
             <GenericDatePicker
               fullWidth
               label={t("changeProposals.changeStart")}
               value={formattedStartDate}
               onChange={handleUpdateChangeProposalDateFormChange("startDate", changeProposal.id)}
               hasBorder
+              maxDate={formattedEndDate ?? undefined}
             />
-          </Grid>
-          <Grid item xs={2}>
             <GenericDatePicker
               fullWidth
               label={t("changeProposals.changeEnd")}
               value={formattedEndDate}
               onChange={handleUpdateChangeProposalDateFormChange("endDate", changeProposal.id)}
               hasBorder
+              minDate={formattedStartDate ?? undefined}
             />
           </Grid>
           <Grid item xs={4}>
@@ -752,18 +837,100 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
             />
           </Grid>
           <Grid item xs={2}>
-            <IconButton
-              edge="start"
-              onClick={() => handleDeleteChangeProposal(changeProposal.id)}
-              aria-label="close"
-              sx={{ color: "#0000008F", marginLeft: "1rem" }}
-            >
-              <DeleteOutlineIcon />
-            </IconButton>
+            {loadingProposalsDeletion[changeProposal.id] ? (
+              <CircularProgress size={24} sx={{ marginLeft: "1rem" }} />
+            ) : (
+              <IconButton
+                edge="start"
+                onClick={() => handleDeleteChangeProposal(changeProposal.id)}
+                aria-label="close"
+                sx={{ color: "#0000008F", marginLeft: "1rem" }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            )}
           </Grid>
         </Grid>
       </div>
     );
+  };
+
+  /**
+   * Renders change proposal creation forms
+   */
+  const renderCreateChangeProposals = () => {
+    return createChangeProposalData.map((newChangeProposal) => {
+      if (!newChangeProposal.id) return;
+
+      const formattedStartDate = newChangeProposal.startDate ? DateTime.fromJSDate(newChangeProposal.startDate) : null;
+      const formattedEndDate = newChangeProposal.endDate ? DateTime.fromJSDate(newChangeProposal.endDate) : null;
+
+      return (
+        <div key={newChangeProposal.id}>
+          <Grid container spacing={1} padding={2} sx={{ borderBottom: "1px solid #e6e4e4" }}>
+            <Grid item xs={4} sx={{ display: "flex", flexDirection: "row" }}>
+              <GenericDatePicker
+                fullWidth
+                label={t("changeProposals.changeStart")}
+                value={formattedStartDate}
+                onChange={handleCreateChangeProposalDateFormChange("startDate", newChangeProposal.id)}
+                hasBorder
+                maxDate={formattedEndDate ?? undefined}
+              />
+              <GenericDatePicker
+                fullWidth
+                label={t("changeProposals.changeEnd")}
+                value={formattedEndDate}
+                onChange={handleCreateChangeProposalDateFormChange("endDate", newChangeProposal.id)}
+                hasBorder
+                minDate={formattedStartDate ?? undefined}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                value={newChangeProposal.reason}
+                label={t("changeProposals.reasonForChange")}
+                select
+                size="small"
+                sx={{ width: "100%", border: "1px solid #e6e4e4", padding: "1px 0px 8px" }}
+                onChange={handleCreateChangeProposalFormChange("reason", newChangeProposal.id)}
+              >
+                {REASONS_FOR_CHANGE.map((reason) => (
+                  <MenuItem key={reason} value={reason}>
+                    {reason}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={2}>
+              {ChangeProposalUtils.renderStatusElement(
+                newChangeProposal.status,
+                t("changeProposals.waitingForApproval"),
+              )}
+            </Grid>
+            <Grid item xs={8}>
+              <TextField
+                fullWidth
+                label={t("changeProposals.comment")}
+                value={newChangeProposal.comment}
+                onChange={handleCreateChangeProposalFormChange("comment", newChangeProposal.id)}
+                sx={{ border: "1px solid #e6e4e4" }}
+              />
+            </Grid>
+            <Grid item xs={2}>
+              <IconButton
+                edge="start"
+                onClick={() => handleDeleteUnsavedChangeProposal(newChangeProposal.id)}
+                aria-label="close"
+                sx={{ color: "#0000008F", marginLeft: "1rem" }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </div>
+      );
+    });
   };
 
   /**
@@ -775,10 +942,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         <DialogContentText sx={{ padding: 2 }} variant="h5">
           {t("changeProposals.changeProposals")}
         </DialogContentText>
-        {/* TODO: Displaying existing and updating seems to work but test more later */}
-        {updateChangeProposalData.map((proposal) => renderChangeProposalInfo(proposal))}
+        {updateChangeProposalData.map((proposal) => renderExistingChangeProposals(proposal))}
+        {!!createChangeProposalData.length && renderCreateChangeProposals()}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={() => {}}>
+          <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={handleAddChangeProposalClick}>
             <AddIcon />
             {t("changeProposals.addButton")}
           </Button>

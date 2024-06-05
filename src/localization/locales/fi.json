@@ -85,6 +85,7 @@
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
     "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
+    "errorCreatingChangeProposal": "Virhe luotaessa muutosehdotusta",
     "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
     "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
     "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta"

@@ -86,6 +86,7 @@
     "errorUpdatingMilestoneTask": "Error while updating a task",
     "errorListingProjectUsers": "Error while fetching project users list",
     "errorListingChangeProposals": "Error while fetching change proposals list",
+    "errorCreatingChangeProposal": "Error while creating a change proposal",
     "errorUpdatingChangeProposal": "Error while updating a change proposal",
     "errorDeletingChangeProposal": "Error while deleting a change proposal"
   },
