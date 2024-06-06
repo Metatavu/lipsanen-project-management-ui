@@ -786,6 +786,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       [ChangeProposalStatus.Rejected]: t("changeProposals.abandoned"),
     };
     const label = statusToLocalizedString[changeProposal.status];
+    const disabled = changeProposal.status !== ChangeProposalStatus.Pending;
 
     return (
       <div key={changeProposal.id}>
@@ -798,6 +799,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               onChange={handleUpdateChangeProposalDateFormChange("startDate", changeProposal.id)}
               hasBorder
               maxDate={formattedEndDate ?? undefined}
+              disabled={disabled}
             />
             <GenericDatePicker
               fullWidth
@@ -806,6 +808,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               onChange={handleUpdateChangeProposalDateFormChange("endDate", changeProposal.id)}
               hasBorder
               minDate={formattedStartDate ?? undefined}
+              disabled={disabled}
             />
           </Grid>
           <Grid item xs={4}>
@@ -814,8 +817,16 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               label={t("changeProposals.reasonForChange")}
               select
               size="small"
-              sx={{ width: "100%", border: "1px solid #e6e4e4", padding: "1px 0px 8px" }}
+              sx={{
+                width: "100%",
+                border: "1px solid #e6e4e4",
+                padding: "1px 0px 8px",
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "#000000",
+                },
+              }}
               onChange={handleUpdateChangeProposalFormChange("reason", changeProposal.id)}
+              disabled={disabled}
             >
               {REASONS_FOR_CHANGE.map((reason) => (
                 <MenuItem key={reason} value={reason}>
@@ -834,6 +845,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               value={changeProposal.comment}
               onChange={handleUpdateChangeProposalFormChange("comment", changeProposal.id)}
               sx={{ border: "1px solid #e6e4e4" }}
+              disabled={disabled}
             />
           </Grid>
           {changeProposal.status === ChangeProposalStatus.Pending && (

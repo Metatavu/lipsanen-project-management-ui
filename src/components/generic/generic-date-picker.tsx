@@ -15,6 +15,7 @@ interface Props {
   fullWidth?: boolean;
   label?: string;
   hasBorder?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -22,7 +23,17 @@ interface Props {
  *
  * @param props component properties
  */
-const GenericDatePicker = ({ onChange, value, title, minDate, fullWidth, label, hasBorder, maxDate }: Props) => (
+const GenericDatePicker = ({
+  onChange,
+  value,
+  title,
+  minDate,
+  fullWidth,
+  label,
+  hasBorder,
+  maxDate,
+  disabled,
+}: Props) => (
   <>
     <Typography variant="subtitle1">{title}</Typography>
     <DatePicker
@@ -47,6 +58,7 @@ const GenericDatePicker = ({ onChange, value, title, minDate, fullWidth, label, 
         openPickerIcon: { color: "primary" },
       }}
       sx={{ border: hasBorder ? "1px solid #e6e4e4" : "" }}
+      disabled={disabled}
     />
   </>
 );
