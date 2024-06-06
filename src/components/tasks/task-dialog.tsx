@@ -232,9 +232,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
       .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
 
     await Promise.all([
-      ...newConnections.map(createTaskConnectionsMutation.mutateAsync),
-      ...editedConnections.map(updateTaskConnectionsMutation.mutateAsync),
-      ...connectionsToDelete.map(deleteTaskConnectionsMutation.mutateAsync),
+      ...newConnections.map((connection) => createTaskConnectionsMutation.mutateAsync(connection)),
+      ...editedConnections.map((connection) => updateTaskConnectionsMutation.mutateAsync(connection)),
+      ...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection)),
     ]);
 
     queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
