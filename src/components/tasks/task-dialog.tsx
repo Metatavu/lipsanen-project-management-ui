@@ -92,7 +92,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const [newTaskConnections, setNewTaskConnections] = useState<TaskConnectionTableData[]>([]);
   const [existingTaskConnections, setExistingTaskConnections] = useState<TaskConnectionTableData[]>([]);
   const [availableTaskConnectionTasks, setAvailableTaskConnectionTasks] = useState<Task[]>([]);
-  const [taskConnectionsValid, setTaskConnectionsValid] = useState<boolean>(true);
+  const [taskConnectionsValid, setTaskConnectionsValid] = useState(true);
 
   /**
    * Set existing task connections
@@ -232,9 +232,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
       .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
 
     await Promise.all([
-      ...newConnections.map((params) => createTaskConnectionsMutation.mutateAsync(params)),
-      ...editedConnections.map((params) => updateTaskConnectionsMutation.mutateAsync(params)),
-      ...connectionsToDelete.map((params) => deleteTaskConnectionsMutation.mutateAsync(params)),
+      ...newConnections.map(createTaskConnectionsMutation.mutateAsync),
+      ...editedConnections.map(updateTaskConnectionsMutation.mutateAsync),
+      ...connectionsToDelete.map(deleteTaskConnectionsMutation.mutateAsync),
     ]);
 
     queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });

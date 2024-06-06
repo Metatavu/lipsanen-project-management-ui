@@ -197,7 +197,7 @@
       "uploadDialogTitle": "Add a new attachment",
       "uploadExistingFileConfirmationDialog": {
         "title": "Confirm existing file upload",
-        "description": "The file you are trying to upload already exists on the server storage. It will be reused for this task. Are you sure you want to proceed?",
+        "description": "A file with the same name you are trying to upload already exists. Do you want to reuse the already existing file? You can also change the name of the file and upload it again.",
         "confirm": "Continue"
       },
       "deleteConfirmationDialog": {

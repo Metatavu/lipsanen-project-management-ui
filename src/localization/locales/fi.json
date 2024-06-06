@@ -79,11 +79,11 @@
     "errorListingCompanies": "Virhe haettaessa yrityksiä",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
-    "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin virstanpylvästä",
-    "errorListingProjectMilestones": "Virhe haettaessa projektin virstanpylväiden luetteloa",
-    "errorFindingProjectMilestone": "Virhe haettaessa projektin virstanpylvää",
-    "errorListingMilestoneTasks": "Virhe haettaessa virstanpylvään tehtäviä",
-    "errorFindingMilestoneTask": "Virhe haettaessa virstanpylvän tehtävää",
+    "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin tavoitetta",
+    "errorListingProjectMilestones": "Virhe haettaessa projektin tavoitteita",
+    "errorFindingProjectMilestone": "Virhe haettaessa projektin tavoitetta",
+    "errorListingMilestoneTasks": "Virhe haettaessa tavoitteen tehtäviä",
+    "errorFindingMilestoneTask": "Virhe haettaessa tavoitteen tehtävää",
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
     "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
@@ -197,7 +197,7 @@
       "uploadDialogTitle": "Lataa uusi liite",
       "uploadExistingFileConfirmationDialog": {
         "title": "Lataa olemassaoleva liite",
-        "description": "Tiedosto, jota yrität ladata, on jo olemassa palvelimen tallennustilassa. Sitä käytetään uudelleen tähän tehtävään. Haluatko varmasti jatkaa?",
+        "description": "Samanniminen tiedosto, jota yrität ladata on jo olemassa. Haluatko käyttää olemassa olevaa tiedostoa uudelleen tässä tehtävässä? Voit myös muuttaa lataamasi tiedoston nimeä ja ladata sen uudelleen.",
         "confirm": "Vahvista"
       },
       "deleteConfirmationDialog": {
