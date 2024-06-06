@@ -1,4 +1,5 @@
 import { useState, useMemo, ChangeEvent, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import {
   AppBar,
   Box,
@@ -94,7 +95,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const [taskConnectionsValid, setTaskConnectionsValid] = useState<boolean>(true);
 
   /**
-   * Set initial tasks and available tasks for task connections
+   * Set existing task connections
    */
   useEffect(() => {
     if (!task || !listTaskConnectionsQuery.data || !listMilestoneTasksQuery.data) {
@@ -117,7 +118,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
       return;
     }
     const availableTasks = task
-      ? listMilestoneTasksQuery.data?.filter((taskElement) => taskElement.id !== task.id).filter((taskElement) => !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id))
+      ? listMilestoneTasksQuery.data
+          ?.filter((taskElement) => taskElement.id !== task.id)
+          .filter(
+            (taskElement) =>
+              !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
+          )
       : listMilestoneTasksQuery.data;
 
     setAvailableTaskConnectionTasks(availableTasks ?? []);
@@ -165,7 +171,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const createTaskConnectionsMutation = useMutation({
     mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId, task?.id] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
   });
@@ -176,7 +182,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const updateTaskConnectionsMutation = useMutation({
     mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId, task?.id] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
   });
@@ -187,7 +193,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const deleteTaskConnectionsMutation = useMutation({
     mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId, task?.id] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
     },
     onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
   });
@@ -231,7 +237,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
       ...connectionsToDelete.map((params) => deleteTaskConnectionsMutation.mutateAsync(params)),
     ]);
 
-    queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId, task?.id] });
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     setNewTaskConnections([]);
   };
 
@@ -239,16 +245,17 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
    * Add new task connection row
    */
   const addNewTaskConnectionRow = () => {
-    setNewTaskConnections([...newTaskConnections, { hierarchy: TaskConnectionRelationship.PARENT, type: TaskConnectionType.StartToStart, connectionId: "" }]);
+    setNewTaskConnections([...newTaskConnections, { hierarchy: TaskConnectionRelationship.PARENT, type: TaskConnectionType.StartToStart, connectionId: "", id: uuidv4() }]);
   };
 
   /**
    * Remove new task connection row
    *
-   * @param index row index
+   * @param id connection id
+   * Note: only new task connections have id
    */
-  const removeNewTaskConnectionRow = (index: number) => {
-    setNewTaskConnections((connections) => connections.filter((_, i) => i !== index));
+  const removeNewTaskConnectionRow = (id: string) => {
+    setNewTaskConnections((connections) => connections.filter((c) => c.id !== id));
   };
 
   /**
@@ -266,11 +273,25 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   };
 
   /**
+   * Handle edit new connection
+   * 
+   * @param id uuid of a new connection
+   * @param field field
+   * @param value value
+   */
+  const handleEditNewConnection = (id: string, field: keyof TaskConnectionTableData, value: TaskConnectionTableData[keyof TaskConnectionTableData]) => {
+    const updatedConnections = newTaskConnections.map((c) =>
+      c.id === id ? { ...c, [field]: value } : c
+    );
+    setNewTaskConnections(updatedConnections);
+  };
+
+  /**
    * Remove existing task connection row
    *
    * @param connectionId connection id
    */
-  const removeExistingTaskConnecitonRow = (connectionId: string) => {
+  const removeExistingTaskConnectionRow = (connectionId: string) => {
     setExistingTaskConnections((connections) => connections.filter((c) => c.connectionId !== connectionId));
   }
 
@@ -702,12 +723,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
             newTaskConnections={newTaskConnections}
             milestoneTasks={listMilestoneTasksQuery.data ?? []}
             availableTaskConnectionTasks={availableTaskConnectionTasks}
-            currentTask={task}
-            setNewTaskConnections={setNewTaskConnections}
+            taskData={taskData}
             handleEditConnection={handleEditConnection}
             addNewTaskConnectionRow={addNewTaskConnectionRow}
+            handleEditNewConnection={handleEditNewConnection}
             removeNewTaskConnectionRow={removeNewTaskConnectionRow}
-            removeExistingTaskConnecitonRow={removeExistingTaskConnecitonRow}
+            removeExistingTaskConnectionRow={removeExistingTaskConnectionRow}
             setTaskConnectionsValid={setTaskConnectionsValid}
           />
           {renderTaskAttachmentsTable()}

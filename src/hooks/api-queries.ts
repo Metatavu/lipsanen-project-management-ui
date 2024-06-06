@@ -331,7 +331,7 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
 /**
  * Find task query hook
  * 
- * @param taskId string
+ * @param params FindTaskRequest
  */
 export const useFindMilestoneTaskQuery = (params: FindTaskRequest) => {
   const { milestoneTasksApi } = useApi();

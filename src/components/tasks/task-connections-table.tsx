@@ -18,7 +18,7 @@ import {
   TaskConnectionType,
 } from "generated/client";
 import { useTranslation } from "react-i18next";
-import { TaskConnectionRelationship, TaskConnectionTableData } from "types";
+import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
 import { useEffect } from "react";
 
 /**
@@ -28,13 +28,13 @@ interface Props {
   existingTaskConnections: TaskConnectionTableData[];
   newTaskConnections: TaskConnectionTableData[];
   milestoneTasks: Task[];
-  currentTask?: Task;
+  taskData: TaskFormData;
   availableTaskConnectionTasks: Task[];
-  setNewTaskConnections: (connections: TaskConnectionTableData[]) => void;
   handleEditConnection: (connectionId: string, field: keyof TaskConnectionTableData, value: TaskConnectionType) => void;
   addNewTaskConnectionRow: () => void;
-  removeNewTaskConnectionRow: (index: number) => void;
-  removeExistingTaskConnecitonRow: (connectionId: string) => void;
+  handleEditNewConnection: (id: string, field: keyof TaskConnectionTableData, value: TaskConnectionTableData[keyof TaskConnectionTableData]) => void;
+  removeNewTaskConnectionRow: (id: string) => void;
+  removeExistingTaskConnectionRow: (connectionId: string) => void;
   setTaskConnectionsValid: (valid: boolean) => void;
 }
 
@@ -47,13 +47,13 @@ const TaskConnectionsTable = ({
   existingTaskConnections,
   newTaskConnections,
   milestoneTasks,
-  currentTask,
+  taskData,
   availableTaskConnectionTasks,
-  setNewTaskConnections,
   handleEditConnection,
   removeNewTaskConnectionRow,
   addNewTaskConnectionRow,
-  removeExistingTaskConnecitonRow,
+  handleEditNewConnection,
+  removeExistingTaskConnectionRow,
   setTaskConnectionsValid,
 }: Props) => {
   const { t } = useTranslation();
@@ -61,33 +61,42 @@ const TaskConnectionsTable = ({
   /**
    * Determine if task type is allowed
    * 
-   * @param task1 first task to compare
-   * @param task2 second task to compare
+   * @param connectedTask connected task
+   * @param editedTaskFormData edited / new task form data
    * @param type task connection type
    */
-  const determineIfTaskTypeIsAllowed = (task1: TaskConnectionTableData, task2: TaskConnectionTableData, type?: TaskConnectionType) => {
-    if (!task1 || !task2) {
+  const determineIfTaskTypeIsAllowed = (connectedTask: TaskConnectionTableData, editedTaskFormData: TaskFormData, type?: TaskConnectionType) => {
+    if (!connectedTask || !editedTaskFormData || !connectedTask.attachedTask || !editedTaskFormData.startDate || !editedTaskFormData.endDate) {
       return null;
     }
 
-    const sourceTask = task1.hierarchy === TaskConnectionRelationship.PARENT ? task1 : task2;
-    const targetTask = task1.hierarchy === TaskConnectionRelationship.PARENT ? task2 : task1;
+    const connectedTaskStartDate = connectedTask.attachedTask.startDate;
+    const connectedTaskEndDate = connectedTask.attachedTask.endDate;
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    const  editedTaskStartDate = new Date(editedTaskFormData.startDate.toISODate()!);
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    const  editedTaskEndDate = new Date(editedTaskFormData.endDate.toISODate()!);
 
-    if (!sourceTask.attachedTask || !targetTask.attachedTask) {
-      return null;
-    }
+    const sourceTaskDates =
+      connectedTask.hierarchy === TaskConnectionRelationship.PARENT
+        ? { startDate: connectedTaskStartDate, endDate: connectedTaskEndDate }
+        : { startDate: editedTaskStartDate, endDate: editedTaskEndDate };
+    const targetTaskDates =
+      connectedTask.hierarchy === TaskConnectionRelationship.PARENT
+        ? { startDate: editedTaskStartDate, endDate: editedTaskEndDate }
+        : { startDate: connectedTaskStartDate, endDate: connectedTaskEndDate };
 
     switch (type) {
       case TaskConnectionType.StartToStart:
-        return sourceTask.attachedTask.startDate > targetTask.attachedTask.startDate
+        return sourceTaskDates.startDate > targetTaskDates.startDate
           ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceStartAfterTargetStartWarning")
           : null;
       case TaskConnectionType.FinishToFinish:
-        return sourceTask.attachedTask.endDate > targetTask.attachedTask.endDate
+        return sourceTaskDates.endDate > targetTaskDates.endDate
           ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceEndAfterTargetEndWarning")
           : null;
       case TaskConnectionType.FinishToStart:
-        return sourceTask.attachedTask.endDate > targetTask.attachedTask.startDate
+        return sourceTaskDates.endDate > targetTaskDates.startDate
           ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceEndAfterTargetStartWarning")
           : null;
       default:
@@ -104,12 +113,12 @@ const TaskConnectionsTable = ({
     const validationErrors = allConnections.map(connection =>
       determineIfTaskTypeIsAllowed(
         { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
-        { ...connection, attachedTask: currentTask },
+        taskData,
         connection.type
       )
     );
     setTaskConnectionsValid(!validationErrors.some(error => error !== null));
-  }, [existingTaskConnections, newTaskConnections, milestoneTasks, currentTask]);
+  }, [existingTaskConnections, newTaskConnections, milestoneTasks, taskData]);
 
   /**
    * Render existing task connection table rows
@@ -136,7 +145,7 @@ const TaskConnectionsTable = ({
           <div style={{ color: 'red', fontSize: '0.75rem' }}>
             {determineIfTaskTypeIsAllowed(
               { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
-              { ...connection, attachedTask: currentTask },
+              taskData,
               connection.type
             )}
           </div>
@@ -148,7 +157,7 @@ const TaskConnectionsTable = ({
           <TextField fullWidth value={connection.attachedTask?.status ?? ""} disabled />
         </TableCell>
         <TableCell>
-          <IconButton onClick={() => removeExistingTaskConnecitonRow(connection.connectionId)}>
+          <IconButton onClick={() => removeExistingTaskConnectionRow(connection.connectionId)}>
             <DeleteIcon />
           </IconButton>
         </TableCell>
@@ -160,18 +169,13 @@ const TaskConnectionsTable = ({
    * Render new task connection table rows
    */
   const renderNewTaskConnectionTableRows = () => {
-    return newTaskConnections.map((connection, index) => (
-      // biome-ignore lint/suspicious/noArrayIndexKey: With new task connection rows we only have the index as key
-      <TableRow key={index}>
+    return newTaskConnections.map((connection) => (
+      <TableRow key={connection.id}>
         <TableCell>
           <TextField
             select
             value={connection.hierarchy}
-            onChange={(event) => {
-              const updatedConnections = [...newTaskConnections];
-              updatedConnections[index].hierarchy = event.target.value as TaskConnectionRelationship;
-              setNewTaskConnections(updatedConnections);
-            }}
+            onChange={(e) => handleEditNewConnection(connection.id ?? "", "hierarchy", e.target.value as keyof TaskConnectionTableData)}
           >
             <MenuItem value={TaskConnectionRelationship.PARENT}>
               {TaskConnectionRelationship.PARENT}
@@ -186,11 +190,7 @@ const TaskConnectionsTable = ({
             fullWidth
             select
             value={connection.type}
-            onChange={(event) => {
-              const updatedConnections = [...newTaskConnections];
-              updatedConnections[index].type = event.target.value as TaskConnectionType;
-              setNewTaskConnections(updatedConnections);
-            }}
+            onChange={(e) => handleEditNewConnection(connection.id ?? "", "type", e.target.value as keyof TaskConnectionTableData)}
           >
             {Object.values(TaskConnectionType).map((type) => (
               <MenuItem key={type} value={type}>
@@ -201,7 +201,7 @@ const TaskConnectionsTable = ({
           <div style={{ color: 'red', fontSize: '0.75rem' }}>
             {determineIfTaskTypeIsAllowed(
               { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
-              { ...connection, attachedTask: currentTask },
+              taskData,
               connection.type
             )}
           </div>
@@ -211,14 +211,14 @@ const TaskConnectionsTable = ({
             fullWidth
             select
             value={connection.attachedTask?.id ?? ""}
-            onChange={(event) => {
-              const selectedTask = milestoneTasks.find((task) => task.id === event.target.value);
-              const updatedConnections = [...newTaskConnections];
-              updatedConnections[index].attachedTask = selectedTask;
-              setNewTaskConnections(updatedConnections);
+            onChange={(e) => {
+              const selectedTask = milestoneTasks.find((task) => task.id === e.target.value);
+              if (selectedTask) {
+                handleEditNewConnection(connection.id ?? "", "attachedTask", selectedTask);
+              }
             }}
           >
-            {availableTaskConnectionTasks.filter((taskElement) => taskElement.id !== currentTask?.id).map((taskElement) => (
+            {availableTaskConnectionTasks.map((taskElement) => (
               <MenuItem key={taskElement.id} value={taskElement.id}>
                 {taskElement.name}
               </MenuItem>
@@ -229,7 +229,7 @@ const TaskConnectionsTable = ({
           <TextField fullWidth value={connection.attachedTask?.status ?? ""} disabled />
         </TableCell>
         <TableCell>
-          <IconButton onClick={() => removeNewTaskConnectionRow(index)}>
+          <IconButton onClick={() => removeNewTaskConnectionRow(connection.id ?? "")}>
             <DeleteIcon />
           </IconButton>
         </TableCell>
@@ -249,11 +249,11 @@ const TaskConnectionsTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell style={{ width: "15%" }}>hierarchy</TableCell>
+              <TableCell style={{ width: "15%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.hierarchy")}</TableCell>
               <TableCell style={{ width: "15%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.type")}</TableCell>
               <TableCell style={{ width: "40%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.task")}</TableCell>
               <TableCell style={{ width: "25%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.status")}</TableCell>
-              <TableCell style={{ width: "5%" }}>Delete</TableCell>
+              <TableCell style={{ width: "5%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.delete")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

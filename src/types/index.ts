@@ -66,7 +66,11 @@ export enum TaskConnectionRelationship {
   CHILD = "CHILD"
 };
 
+/**
+ * Interface for task connection table data
+ */
 export interface TaskConnectionTableData {
+  id?: string;
   connectionId: string;
   type: TaskConnectionType;
   hierarchy: TaskConnectionRelationship;

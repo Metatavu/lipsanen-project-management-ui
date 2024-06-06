@@ -174,9 +174,11 @@
     "updateButton": "Päivitä tehtävä",
     "taskConnectionsTable": {
       "title": "Riippuvuudet",
+      "hierarchy": "Hierarkia",
       "type": "Tyyppi",
       "task": "Tehtävä",
       "status": "Tila",
+      "delete": "Poista",
       "addButton": "Lisää riippuvuus",
       "taskTypeCheck": {
         "sourceStartAfterTargetStartWarning": "Lähdetehtävän aloituspäivä ei voi olla kohdetehtävän aloituspäivän jälkeen",

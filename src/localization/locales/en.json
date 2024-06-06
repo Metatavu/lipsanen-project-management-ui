@@ -174,9 +174,11 @@
     "updateButton": "Update task",
     "taskConnectionsTable": {
       "title": "Task connections",
+      "hierarchy": "Hierarchy",
       "type": "Type",
       "task": "Task",
       "status": "Status",
+      "delete": "Delete",
       "addButton": "Add new connection",
       "taskTypeCheck": {
         "sourceStartAfterTargetStartWarning": "Source task start date cannot be after target task start date",
