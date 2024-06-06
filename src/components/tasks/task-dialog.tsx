@@ -836,20 +836,22 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               sx={{ border: "1px solid #e6e4e4" }}
             />
           </Grid>
-          <Grid item xs={2}>
-            {loadingProposalsDeletion[changeProposal.id] ? (
-              <CircularProgress size={24} sx={{ marginLeft: "1rem" }} />
-            ) : (
-              <IconButton
-                edge="start"
-                onClick={() => handleDeleteChangeProposal(changeProposal.id)}
-                aria-label="close"
-                sx={{ color: "#0000008F", marginLeft: "1rem" }}
-              >
-                <DeleteOutlineIcon />
-              </IconButton>
-            )}
-          </Grid>
+          {changeProposal.status === ChangeProposalStatus.Pending && (
+            <Grid item xs={2}>
+              {loadingProposalsDeletion[changeProposal.id] ? (
+                <CircularProgress size={24} sx={{ marginLeft: "1rem" }} />
+              ) : (
+                <IconButton
+                  edge="start"
+                  onClick={() => handleDeleteChangeProposal(changeProposal.id)}
+                  aria-label="close"
+                  sx={{ color: "#0000008F", marginLeft: "1rem" }}
+                >
+                  <DeleteOutlineIcon />
+                </IconButton>
+              )}
+            </Grid>
+          )}
         </Grid>
       </div>
     );
