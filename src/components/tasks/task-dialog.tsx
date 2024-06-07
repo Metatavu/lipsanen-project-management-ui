@@ -1,4 +1,5 @@
-import { useState, useMemo, ChangeEvent } from "react";
+import { useState, useMemo, ChangeEvent, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import {
   AppBar,
   Box,
@@ -27,13 +28,14 @@ import { DateTime } from "luxon";
 import { useTranslation } from "react-i18next";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
-import { TaskFormData } from "types";
-import { useListProjectUsersQuery } from "hooks/api-queries";
+import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
+import { useListMilestoneTasksQuery, useListProjectUsersQuery, useListTaskAttachmentsQuery, useListTaskConnectionsQuery } from "hooks/api-queries";
 import GenericDatePicker from "components/generic/generic-date-picker";
-import { CreateTaskRequest, Task, TaskStatus, UpdateTaskRequest, UserRole } from "generated/client";
+import { CreateTaskConnectionRequest, CreateTaskRequest, DeleteTaskConnectionRequest, Task, TaskConnectionType, TaskStatus, UpdateTaskConnectionRequest, UpdateTaskRequest, UserRole } from "generated/client";
 import FileUploader from "components/generic/file-upload";
 import { filesApi } from "api/files";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
+import TaskConnectionsTable from "./task-connections-table";
 
 const TASK_ATTACHMENT_UPLOAD_PATH = "task-attachments";
 
@@ -53,9 +55,12 @@ interface Props {
  */
 const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const { t } = useTranslation();
-  const { milestoneTasksApi } = useApi();
+  const { milestoneTasksApi, taskConnectionsApi } = useApi();
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListProjectUsersQuery(projectId);
+  const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
+  const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
+  const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const showConfirmDialog = useConfirmDialog();
 
   // Set initial task data based on existing task or new task
@@ -84,6 +89,45 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   const [taskData, setTaskData] = useState<TaskFormData>(existingOrNewTaskData);
   const [attachmentDialogOpen, setAttachmentDialogOpen] = useState(false);
   const [fileUploadLoaderVisible, setFileUploadLoaderVisible] = useState(false);
+  const [newTaskConnections, setNewTaskConnections] = useState<TaskConnectionTableData[]>([]);
+  const [existingTaskConnections, setExistingTaskConnections] = useState<TaskConnectionTableData[]>([]);
+  const [availableTaskConnectionTasks, setAvailableTaskConnectionTasks] = useState<Task[]>([]);
+  const [taskConnectionsValid, setTaskConnectionsValid] = useState(true);
+
+  /**
+   * Set existing task connections
+   */
+  useEffect(() => {
+    if (!task || !listTaskConnectionsQuery.data || !listMilestoneTasksQuery.data) {
+      return;
+    }
+    const initialConnections = listTaskConnectionsQuery.data.map((connection) => ({
+      connectionId: connection.id ?? "",
+      type: connection.type,
+      hierarchy: connection.sourceTaskId === task.id ? TaskConnectionRelationship.CHILD : TaskConnectionRelationship.PARENT,
+      attachedTask: listMilestoneTasksQuery.data.find((taskElement) => taskElement.id === (connection.sourceTaskId === task.id ? connection.targetTaskId : connection.sourceTaskId)),
+    }));
+    setExistingTaskConnections(initialConnections);
+  }, [task, listTaskConnectionsQuery.data, listMilestoneTasksQuery.data]);
+
+  /**
+   * Set available tasks for task connections
+   */
+  useEffect(() => {
+    if (!listMilestoneTasksQuery.data) {
+      return;
+    }
+    const availableTasks = task
+      ? listMilestoneTasksQuery.data
+          ?.filter((taskElement) => taskElement.id !== task.id)
+          .filter(
+            (taskElement) =>
+              !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
+          )
+      : listMilestoneTasksQuery.data;
+
+    setAvailableTaskConnectionTasks(availableTasks ?? []);
+  }, [task, listMilestoneTasksQuery.data, existingTaskConnections]);
 
   /**
    * Project users map
@@ -120,6 +164,136 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
+
+  /**
+   * Create task connections mutation
+   */
+  const createTaskConnectionsMutation = useMutation({
+    mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
+  });
+
+  /**
+   * Update task connections mutation
+   */
+  const updateTaskConnectionsMutation = useMutation({
+    mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
+  });
+
+  /**
+   * Delete task connections mutation
+   */
+  const deleteTaskConnectionsMutation = useMutation({
+    mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
+  });
+
+  /**
+   * Persist new and edited task connections
+   *
+   * @param taskId task id
+   */
+  const persistNewAndEditedTaskConnections = async (taskId: string) => {
+    const newConnections = newTaskConnections.map((connection) => ({
+      projectId: projectId,
+      taskConnection: {
+        sourceTaskId:
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? taskId : connection.attachedTask?.id ?? "",
+        targetTaskId:
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? connection.attachedTask?.id ?? "" : taskId,
+        type: connection.type,
+      },
+    }));
+
+    const editedConnections = existingTaskConnections.map((connection) => ({
+      projectId: projectId,
+      connectionId: connection.connectionId ?? "",
+      taskConnection: {
+        sourceTaskId:
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? taskId : connection.attachedTask?.id ?? "",
+        targetTaskId:
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? connection.attachedTask?.id ?? "" : taskId,
+        type: connection.type,
+      },
+    }));
+
+    const connectionsToDelete = (listTaskConnectionsQuery.data ?? [])
+      .filter((connection) => !existingTaskConnections.some((c) => c.connectionId === connection.id))
+      .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
+
+    await Promise.all([
+      ...newConnections.map((connection) => createTaskConnectionsMutation.mutateAsync(connection)),
+      ...editedConnections.map((connection) => updateTaskConnectionsMutation.mutateAsync(connection)),
+      ...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection)),
+    ]);
+
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
+    setNewTaskConnections([]);
+  };
+
+  /**
+   * Add new task connection row
+   */
+  const addNewTaskConnectionRow = () => {
+    setNewTaskConnections([...newTaskConnections, { hierarchy: TaskConnectionRelationship.PARENT, type: TaskConnectionType.StartToStart, connectionId: "", id: uuidv4() }]);
+  };
+
+  /**
+   * Remove new task connection row
+   *
+   * @param id connection id
+   * Note: only new task connections have id
+   */
+  const removeNewTaskConnectionRow = (id: string) => {
+    setNewTaskConnections((connections) => connections.filter((c) => c.id !== id));
+  };
+
+  /**
+   * Handle edit connection
+   *
+   * @param connectionId connection id
+   * @param field field
+   * @param value value
+   */
+  const handleEditConnection = (connectionId: string, field: keyof TaskConnectionTableData, value: TaskConnectionType) => {
+    const updatedConnections = existingTaskConnections.map((c) =>
+      c.connectionId === connectionId ? { ...c, [field]: value } : c
+    );
+    setExistingTaskConnections(updatedConnections);
+  };
+
+  /**
+   * Handle edit new connection
+   * 
+   * @param id uuid of a new connection
+   * @param field field
+   * @param value value
+   */
+  const handleEditNewConnection = (id: string, field: keyof TaskConnectionTableData, value: TaskConnectionTableData[keyof TaskConnectionTableData]) => {
+    const updatedConnections = newTaskConnections.map((c) =>
+      c.id === id ? { ...c, [field]: value } : c
+    );
+    setNewTaskConnections(updatedConnections);
+  };
+
+  /**
+   * Remove existing task connection row
+   *
+   * @param connectionId connection id
+   */
+  const removeExistingTaskConnectionRow = (connectionId: string) => {
+    setExistingTaskConnections((connections) => connections.filter((c) => c.connectionId !== connectionId));
+  }
 
   /**
    * Upload task attachment handler function
@@ -229,8 +403,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
           attachmentUrls: taskData.attachmentUrls
         }
       });
+
+      await persistNewAndEditedTaskConnections(task.id);
     } else {
-      await createTaskMutation.mutateAsync({
+      const createdTask = await createTaskMutation.mutateAsync({
         projectId: projectId,
         milestoneId: milestoneId,
         task: {
@@ -246,6 +422,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
           attachmentUrls: taskData.attachmentUrls
         }
       });
+
+      if (createdTask.id) {
+        await persistNewAndEditedTaskConnections(createdTask.id);
+      }
     }
 
     setTaskData({
@@ -410,43 +590,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   };
 
   /**
-   * Renders task connections table
-   * 
-   * TODO: Implement task connections table logic and add new connection functionality
-   */
-  const renderTaskConnectionsTable = () => {
-    return (
-      <>
-        <DialogContentText sx={{ padding: 2 }} variant="h5">
-          {t("newMilestoneTaskDialog.taskConnectionsTable.title")}
-        </DialogContentText>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>{t("newMilestoneTaskDialog.taskConnectionsTable.type")}</TableCell>
-                <TableCell>{t("newMilestoneTaskDialog.taskConnectionsTable.task")}</TableCell>
-                <TableCell>{t("newMilestoneTaskDialog.taskConnectionsTable.status")}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>Type 1</TableCell>
-                <TableCell>Task name</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={() => { }} disabled>
-          <AddIcon />
-          {t("newMilestoneTaskDialog.taskConnectionsTable.addButton")}
-        </Button>
-      </>
-    );
-  };
-
-  /**
    * Renders task attachments table
    * 
    * TODO: Implement task attachments table logic and add new attachment functionality
@@ -528,10 +671,19 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
             allowedFileTypes={[".png", ".svg", ".jpg", ".jpeg", ".pdf", ".doc", ".docx"]}
             uploadFile={handleUploadNewAttachment}
             existingFiles={taskData.attachmentUrls}
+            allFiles={listTaskAttachmentsQuery.data ?? []}
             existingFilesPath={TASK_ATTACHMENT_UPLOAD_PATH}
             width={400}
             loaderVisible={fileUploadLoaderVisible}
-            uploadExistingFile={handleUploadExistingAttachment}
+            uploadExistingFile={(file) =>
+              showConfirmDialog({
+                title: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.title"),
+                description: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.description"),
+                cancelButtonEnabled: true,
+                confirmButtonText: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.confirm"),
+                onConfirmClick: () => handleUploadExistingAttachment(file)
+              })
+            }
           />
         </Box>
       </Dialog>
@@ -542,7 +694,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
   /**
    * Disables form submit based on required form fields
    */
-  const isDisabled = !(!!taskData.name && !!taskData.startDate && !!taskData.endDate && !!taskData.status);
+  const isDisabled = !(!!taskData.name && !!taskData.startDate && !!taskData.endDate && !!taskData.status && !!taskConnectionsValid);
 
   /**
    * Main component render
@@ -566,7 +718,19 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose }: Props) => {
         </AppBar>
         {renderNewTaskInfoSection()}
         <DialogContent style={{ padding: 0 }}>
-          {renderTaskConnectionsTable()}
+          <TaskConnectionsTable
+            existingTaskConnections={existingTaskConnections}
+            newTaskConnections={newTaskConnections}
+            milestoneTasks={listMilestoneTasksQuery.data ?? []}
+            availableTaskConnectionTasks={availableTaskConnectionTasks}
+            taskData={taskData}
+            handleEditConnection={handleEditConnection}
+            addNewTaskConnectionRow={addNewTaskConnectionRow}
+            handleEditNewConnection={handleEditNewConnection}
+            removeNewTaskConnectionRow={removeNewTaskConnectionRow}
+            removeExistingTaskConnectionRow={removeExistingTaskConnectionRow}
+            setTaskConnectionsValid={setTaskConnectionsValid}
+          />
           {renderTaskAttachmentsTable()}
           <Button
             fullWidth

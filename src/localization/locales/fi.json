@@ -75,18 +75,23 @@
     "errorUploadingExistingTaskAttachment": "Virhe ladattaessa olemassaolevaa tehtävän liitettä",
     "errorListingTaskAttachments": "Virhe haettaessa tehtävän liitteitä",
     "errorDeletingTaskAttachment": "Virhe poistettaessa tehtävän liitettä",
+    "errorListingTaskConnections": "Virhe haettaessa tehtävien riippuvuuksia",
     "errorListingCompanies": "Virhe haettaessa yrityksiä",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
-    "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin virstanpylvästä",
-    "errorListingProjectMilestones": "Virhe haettaessa projektin virstanpylväiden luetteloa",
-    "errorFindingProjectMilestone": "Virhe haettaessa projektin virstanpylvää",
-    "errorListingMilestoneTasks": "Virhe haettaessa virstanpylvään tehtäviä",
+    "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin tavoitetta",
+    "errorListingProjectMilestones": "Virhe haettaessa projektin tavoitteita",
+    "errorFindingProjectMilestone": "Virhe haettaessa projektin tavoitetta",
+    "errorListingMilestoneTasks": "Virhe haettaessa tavoitteen tehtäviä",
+    "errorFindingMilestoneTask": "Virhe haettaessa tavoitteen tehtävää",
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
     "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
     "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
-    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta"
+    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
+    "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
+    "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -169,10 +174,17 @@
     "updateButton": "Päivitä tehtävä",
     "taskConnectionsTable": {
       "title": "Riippuvuudet",
+      "hierarchy": "Hierarkia",
       "type": "Tyyppi",
       "task": "Tehtävä",
       "status": "Tila",
-      "addButton": "Lisää riippuvuus"
+      "delete": "Poista",
+      "addButton": "Lisää riippuvuus",
+      "taskTypeCheck": {
+        "sourceStartAfterTargetStartWarning": "Lähdetehtävän aloituspäivä ei voi olla kohdetehtävän aloituspäivän jälkeen",
+        "sourceEndAfterTargetEndWarning": "Lähdetehtävän päättymispäivä ei voi olla kohdetehtävän päättymispäivän jälkeen",
+        "sourceEndAfterTargetStartWarning": "Lähdetehtävän päättymispäivä ei voi olla kohdetehtävän aloituspäivän jälkeen"
+      }
     },
     "taskAttachmentsTable": {
       "title": "Liitteet",
@@ -183,6 +195,11 @@
       "clickToPreview": "Klikkaa esikatsellaksesi",
       "addButton": "Lisää liite",
       "uploadDialogTitle": "Lataa uusi liite",
+      "uploadExistingFileConfirmationDialog": {
+        "title": "Lataa olemassaoleva liite",
+        "description": "Samanniminen tiedosto, jota yrität ladata on jo olemassa. Haluatko käyttää olemassa olevaa tiedostoa uudelleen tässä tehtävässä? Voit myös muuttaa lataamasi tiedoston nimeä ja ladata sen uudelleen.",
+        "confirm": "Vahvista"
+      },
       "deleteConfirmationDialog": {
         "title": "Poista tehtävän liite",
         "description": "Haluatko varmasti poistaa liitteen: {{attachmentName}}?"
