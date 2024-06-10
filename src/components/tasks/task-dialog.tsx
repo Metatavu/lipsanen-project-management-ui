@@ -283,11 +283,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
 
       const updatedProposals = updateChangeProposalData.map((proposal) => {
         if (proposal.id === changeProposalId) {
-          // TODO: This is needed to ensure correct date is set when the initial value is undefined
-          const date = value.toJSDate();
-          date.setHours(3);
-
-          return { ...proposal, [field]: date };
+          return { ...proposal, [field]: value.toJSDate() };
         }
         return proposal;
       });
@@ -329,11 +325,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
 
       const newProposals = createChangeProposalData.map((proposal) => {
         if (proposal.id === changeProposalId) {
-          // TODO: This is needed to ensure correct date is set when the initial value is undefined
-          const date = value.toJSDate();
-          date.setHours(3);
-
-          return { ...proposal, [field]: date };
+          return { ...proposal, [field]: value.toJSDate() };
         }
         return proposal;
       });
@@ -420,13 +412,11 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
    * Handles task update or task create form submit
    */
   const handleTaskFormSubmit = async () => {
-    if (!taskData.startDate || !taskData.endDate) return;
+    if (!taskData.startDate?.isValid || !taskData.endDate?.isValid) return;
 
     // Convert DateTime objects to JavaScript Date objects
-    // biome-ignore lint/style/noNonNullAssertion: We make sure startDate is not null before converting
-    const startDateIsoConverted = new Date(taskData.startDate.toISODate()!);
-    // biome-ignore lint/style/noNonNullAssertion: We make sure endDate is not null before converting
-    const endDateIsoConverted = new Date(taskData.endDate.toISODate()!);
+    const startDateIsoConverted = new Date(taskData.startDate.toISODate());
+    const endDateIsoConverted = new Date(taskData.endDate.toISODate());
 
     if (task?.id) {
       await updateTaskMutation.mutateAsync({
@@ -487,14 +477,23 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const persistChangeProposals = async () => {
     if (!changeProposals && !createChangeProposalData.length) return;
 
-    const createdChangeProposalPromises = createChangeProposalData.map(
-      async (proposal) =>
-        await createChangeProposalMutation.mutateAsync({
-          projectId: projectId,
-          milestoneId: milestoneId,
-          changeProposal: proposal,
-        }),
-    );
+    const createdChangeProposalPromises = createChangeProposalData.map(async (proposal) => {
+      if (!proposal.startDate || !proposal.endDate) return;
+
+      const startDate = DateTime.fromJSDate(proposal.startDate);
+      const endDate = DateTime.fromJSDate(proposal.endDate);
+
+      if (!startDate.isValid || !endDate.isValid) return;
+
+      proposal.startDate = new Date(startDate.toISODate());
+      proposal.endDate = new Date(endDate.toISODate());
+
+      return await createChangeProposalMutation.mutateAsync({
+        projectId: projectId,
+        milestoneId: milestoneId,
+        changeProposal: proposal,
+      });
+    });
 
     const updatedChangeProposals = changeProposals
       ? updateChangeProposalData.filter((updatedProposal) => {
@@ -780,12 +779,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     const formattedStartDate = changeProposal.startDate ? DateTime.fromJSDate(changeProposal.startDate) : null;
     const formattedEndDate = changeProposal.endDate ? DateTime.fromJSDate(changeProposal.endDate) : null;
 
-    const statusToLocalizedString = {
-      [ChangeProposalStatus.Approved]: t("changeProposals.accepted"),
-      [ChangeProposalStatus.Pending]: t("changeProposals.waitingForApproval"),
-      [ChangeProposalStatus.Rejected]: t("changeProposals.abandoned"),
-    };
-    const label = statusToLocalizedString[changeProposal.status];
+    const statusLabelRecord = {
+      [ChangeProposalStatus.Approved]: "changeProposals.accepted",
+      [ChangeProposalStatus.Pending]: "changeProposals.waitingForApproval",
+      [ChangeProposalStatus.Rejected]: "changeProposals.abandoned",
+    } as const;
+    const statusLabel = statusLabelRecord[changeProposal.status];
     const disabled = changeProposal.status !== ChangeProposalStatus.Pending;
 
     return (
@@ -836,7 +835,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
             </TextField>
           </Grid>
           <Grid item xs={2}>
-            {ChangeProposalUtils.renderStatusElement(changeProposal.status, label)}
+            {ChangeProposalUtils.renderStatusElement(changeProposal.status, t(statusLabel))}
           </Grid>
           <Grid item xs={8}>
             <TextField
@@ -959,7 +958,14 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         {updateChangeProposalData.map((proposal) => renderExistingChangeProposals(proposal))}
         {!!createChangeProposalData.length && renderCreateChangeProposals()}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button variant="text" color="primary" sx={{ borderRadius: 25 }} onClick={handleAddChangeProposalClick}>
+          {/* TODO: Should we be able to create a change proposal while creating a task? */}
+          <Button
+            variant="text"
+            color="primary"
+            sx={{ borderRadius: 25 }}
+            onClick={handleAddChangeProposalClick}
+            disabled={!task?.id}
+          >
             <AddIcon />
             {t("changeProposals.addButton")}
           </Button>

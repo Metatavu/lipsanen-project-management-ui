@@ -7,11 +7,11 @@ import { DateTime } from "luxon";
  * Component Props
  */
 interface Props {
-  onChange: (value: DateTime | null) => void;
-  value: DateTime<boolean> | null | undefined;
+  onChange: (value: DateTime<true> | DateTime<false> | null) => void;
+  value: DateTime<true> | DateTime<false> | null | undefined;
   title?: string;
-  minDate?: DateTime<boolean>;
-  maxDate?: DateTime<boolean>;
+  minDate?: DateTime<true> | DateTime<false>;
+  maxDate?: DateTime<true> | DateTime<false>;
   fullWidth?: boolean;
   label?: string;
   hasBorder?: boolean;

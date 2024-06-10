@@ -39,8 +39,8 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
  */
 export interface MilestoneFormData {
   name: string;
-  startDate: DateTime | null;
-  endDate: DateTime | null;
+  startDate: DateTime<true> | DateTime<false> | null;
+  endDate: DateTime<true> | DateTime<false> | null;
 }
 
 /**
@@ -48,8 +48,8 @@ export interface MilestoneFormData {
  */
 export interface TaskFormData {
   name: string;
-  startDate: DateTime | null;
-  endDate: DateTime | null;
+  startDate: DateTime<true> | DateTime<false> | null;
+  endDate: DateTime<true> | DateTime<false> | null;
   status: TaskStatus;
   assigneeIds: string[];
   userRole?: UserRole;
