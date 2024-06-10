@@ -1,7 +1,7 @@
 import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
-import { ProjectStatus, TaskStatus, UserRole } from "generated/client";
+import { ProjectStatus, Task, TaskConnectionType, TaskStatus, UserRole } from "generated/client";
 import { DefaultNamespace, ParseKeys } from "i18next";
 import { DateTime } from "luxon";
 
@@ -56,4 +56,23 @@ export interface TaskFormData {
   estimatedDuration?: string;
   estimatedReadiness?: string;
   attachmentUrls: string[];
+}
+
+/**
+ * Interface for task connection relationship
+ */
+export enum TaskConnectionRelationship {
+  PARENT = "PARENT",
+  CHILD = "CHILD",
+}
+
+/**
+ * Interface for task connection table data
+ */
+export interface TaskConnectionTableData {
+  id?: string;
+  connectionId: string;
+  type: TaskConnectionType;
+  hierarchy: TaskConnectionRelationship;
+  attachedTask?: Task;
 }

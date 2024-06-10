@@ -75,6 +75,7 @@
     "errorUploadingExistingTaskAttachment": "Error while uploading existing task attachment",
     "errorListingTaskAttachments": "Error while fetching task attachments list",
     "errorDeletingTaskAttachment": "Error while deleting task attachment",
+    "errorListingTaskConnections": "Error while fetching task connections list",
     "errorListingCompanies": "Error while fetching companies list",
     "errorCreatingNewCompany": "Error while creating a new company",
     "errorAssigningUserToProject": "Error while assigning user to project",
@@ -82,13 +83,17 @@
     "errorListingProjectMilestones": "Error while fetching project milestones list",
     "errorFindingProjectMilestone": "Error while finding a project milestone",
     "errorListingMilestoneTasks": "Error while fetching milestone tasks list",
+    "errorFindingMilestoneTask": "Error while finding a milestone task",
     "errorCreatingMilestoneTask": "Error while creating a new task",
     "errorUpdatingMilestoneTask": "Error while updating a task",
     "errorListingProjectUsers": "Error while fetching project users list",
     "errorListingChangeProposals": "Error while fetching change proposals list",
     "errorCreatingChangeProposal": "Error while creating a change proposal",
     "errorUpdatingChangeProposal": "Error while updating a change proposal",
-    "errorDeletingChangeProposal": "Error while deleting a change proposal"
+    "errorDeletingChangeProposal": "Error while deleting a change proposal",
+    "errorCreatingTaskConnection": "Error while creating a new task connection",
+    "errorUpdatingTaskConnection": "Error while updating a task connection",
+    "errorDeletingTaskConnection": "Error while deleting a task connection"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -171,10 +176,17 @@
     "updateButton": "Update task",
     "taskConnectionsTable": {
       "title": "Task connections",
+      "hierarchy": "Hierarchy",
       "type": "Type",
       "task": "Task",
       "status": "Status",
-      "addButton": "Add new connection"
+      "delete": "Delete",
+      "addButton": "Add new connection",
+      "taskTypeCheck": {
+        "sourceStartAfterTargetStartWarning": "Source task start date cannot be after target task start date",
+        "sourceEndAfterTargetEndWarning": "Source task end date cannot be after target task end date",
+        "sourceEndAfterTargetStartWarning": "Source task end date cannot be after target task start date"
+      }
     },
     "taskAttachmentsTable": {
       "title": "Task attachments",
@@ -185,6 +197,11 @@
       "clickToPreview": "Click to preview",
       "addButton": "Add new attachment",
       "uploadDialogTitle": "Add a new attachment",
+      "uploadExistingFileConfirmationDialog": {
+        "title": "Confirm existing file upload",
+        "description": "A file with the same name you are trying to upload already exists. Do you want to reuse the already existing file? You can also change the name of the file and upload it again.",
+        "confirm": "Continue"
+      },
       "deleteConfirmationDialog": {
         "title": "Delete task attachment",
         "description": "Are you sure you want to delete attachment: {{attachmentName}}?"
