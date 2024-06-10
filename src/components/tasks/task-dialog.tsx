@@ -1118,6 +1118,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
    * Renders change proposal section
    */
   const renderChangeProposalsSection = () => {
+    if (!task?.id) return;
+
     return (
       <div>
         <DialogContentText sx={{ padding: 2 }} variant="h5">
@@ -1126,7 +1128,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         {updateChangeProposalData.map((proposal) => renderExistingChangeProposals(proposal))}
         {!!createChangeProposalData.length && renderCreateChangeProposals()}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          {/* TODO: Should we be able to create a change proposal while creating a task? */}
           <Button
             variant="text"
             color="primary"
