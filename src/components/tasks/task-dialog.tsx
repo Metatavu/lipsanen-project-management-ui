@@ -217,10 +217,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const handleUploadExistingAttachment = async (attachmentUrl: string) => {
     try {
       setFileUploadLoaderVisible(true);
-      const newAttachmentUrlsIfDoesntExist = taskData.attachmentUrls.includes(attachmentUrl)
+      const updatedAttachmentUrls = taskData.attachmentUrls.includes(attachmentUrl)
         ? taskData.attachmentUrls
-        : taskData.attachmentUrls.concat(attachmentUrl);
-      setTaskData({ ...taskData, attachmentUrls: newAttachmentUrlsIfDoesntExist });
+        : [...taskData.attachmentUrls, attachmentUrl];
+      setTaskData({ ...taskData, attachmentUrls: updatedAttachmentUrls });
       setAttachmentDialogOpen(false);
       setFileUploadLoaderVisible(false);
     } catch (error) {
