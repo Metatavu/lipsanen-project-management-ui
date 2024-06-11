@@ -904,9 +904,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
                           title: t("newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.title"),
                           description: t(
                             "newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.description",
-                            {
-                              attachmentName: attachment,
-                            },
+                            { attachmentName: attachment },
                           ),
                           cancelButtonEnabled: true,
                           confirmButtonText: t("generic.delete"),
