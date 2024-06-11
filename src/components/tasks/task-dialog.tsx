@@ -377,7 +377,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     field: keyof TaskConnectionTableData,
     value: TaskConnectionTableData[keyof TaskConnectionTableData],
   ) => {
-    const updatedConnections = newTaskConnections.map((c) => (c.id === id ? { ...c, [field]: value } : c));
+    const updatedConnections = newTaskConnections.map(
+      (connection) => (connection.id === id ? { ...connection, [field]: value } : connection)
+    );
     setNewTaskConnections(updatedConnections);
   };
 
