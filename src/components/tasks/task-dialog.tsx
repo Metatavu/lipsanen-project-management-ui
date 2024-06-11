@@ -712,16 +712,15 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         })
       : [];
 
-    const updatedChangeProposalPromises = updatedChangeProposals.map(
-      async (proposal) =>
-        await updateChangeProposalsMutation.mutateAsync({
-          changeProposal: proposal,
-          projectId: projectId,
-          milestoneId: milestoneId,
-          // biome-ignore lint/style/noNonNullAssertion: id will exist at this point
-          changeProposalId: proposal.id!,
-        }),
-    );
+    const updatedChangeProposalPromises = updatedChangeProposals.map((proposal) => {
+      if (!proposal.id) throw Error("No ID in change proposal");
+      return updateChangeProposalsMutation.mutateAsync({
+        changeProposal: proposal,
+        projectId: projectId,
+        milestoneId: milestoneId,
+        changeProposalId: proposal.id,
+      });
+    });
 
     await Promise.all([...createdChangeProposalPromises, ...updatedChangeProposalPromises]);
   };
