@@ -617,6 +617,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     if (!taskData.startDate?.isValid || !taskData.endDate?.isValid) return;
 
     // Convert DateTime objects to JavaScript Date objects
+    // These are required to ensure the API client sends correct date, as it doesn't take time zones into account.
     const startDateIsoConverted = new Date(taskData.startDate.toISODate());
     const endDateIsoConverted = new Date(taskData.endDate.toISODate());
 
