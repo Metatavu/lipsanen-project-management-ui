@@ -180,8 +180,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     const users = listProjectUsersQuery.data ?? [];
     return users.reduce(
       (acc, user) => {
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        acc[user.id!] = `${user.firstName} ${user.lastName}`;
+        if (user.id) acc[user.id] = `${user.firstName} ${user.lastName}`;
         return acc;
       },
       {} as Record<string, string>,
