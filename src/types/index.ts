@@ -30,7 +30,7 @@ export type UploadMessage = {
 export interface CompanyOptionType {
   inputValue?: string;
   name: string;
-};
+}
 
 export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
@@ -39,32 +39,32 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
  */
 export interface MilestoneFormData {
   name: string;
-  startDate: DateTime | null;
-  endDate: DateTime | null;
-};
+  startDate: DateTime<true> | DateTime<false> | null;
+  endDate: DateTime<true> | DateTime<false> | null;
+}
 
 /**
  * Interface for task form data
  */
 export interface TaskFormData {
   name: string;
-  startDate: DateTime | null;
-  endDate: DateTime | null;
+  startDate: DateTime<true> | DateTime<false> | null;
+  endDate: DateTime<true> | DateTime<false> | null;
   status: TaskStatus;
   assigneeIds: string[];
   userRole?: UserRole;
   estimatedDuration?: string;
   estimatedReadiness?: string;
   attachmentUrls: string[];
-};
+}
 
 /**
  * Interface for task connection relationship
  */
 export enum TaskConnectionRelationship {
   PARENT = "PARENT",
-  CHILD = "CHILD"
-};
+  CHILD = "CHILD",
+}
 
 /**
  * Interface for task connection table data
@@ -75,4 +75,4 @@ export interface TaskConnectionTableData {
   type: TaskConnectionType;
   hierarchy: TaskConnectionRelationship;
   attachedTask?: Task;
-};
+}

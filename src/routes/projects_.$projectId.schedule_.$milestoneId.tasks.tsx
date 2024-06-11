@@ -263,8 +263,15 @@ function MilestoneTasksListRoute() {
           </Box>
         </Card>
       </FlexColumnLayout>
-      {task && (
-        <TaskDialog projectId={projectId} milestoneId={milestoneId} open={open} task={task} onClose={onTaskClose} />
+      {task && !listChangeProposalsQuery.isPending && (
+        <TaskDialog
+          projectId={projectId}
+          milestoneId={milestoneId}
+          open={open}
+          task={task}
+          onClose={onTaskClose}
+          changeProposals={changeProposals}
+        />
       )}
     </>
   );

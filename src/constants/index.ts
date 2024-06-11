@@ -8,3 +8,6 @@ export const DEFAULT_THEME_COLORS = [
 ];
 
 export const DEFAULT_LOGO = `${config.cdnBaseUrl}/Lipsanen logo.png`;
+
+// TODO: This should be finalized and come from the API
+export const REASONS_FOR_CHANGE = ["Supply issue", "Bad weather", "Strikes", "Other"];

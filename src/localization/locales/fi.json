@@ -87,8 +87,10 @@
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
     "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
     "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
+    "errorCreatingChangeProposal": "Virhe luotaessa muutosehdotusta",
     "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
     "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
+    "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
     "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
     "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
     "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä"
@@ -206,13 +208,21 @@
       }
     }
   },
-  "changeProposalsDrawer": {
+  "changeProposals": {
     "viewChangeProposals": "Tarkastele muutosehdotuksia",
     "viewChangeProposalsWithValue": "Tarkastele muutosehdotuksia ({{value}})",
     "changeProposals": "Muutosehdotukset",
     "changeProposalPosition": "Muutosehdotus {{current}}/{{total}}",
     "accept": "Hyväksy",
     "reject": "Hylkää",
-    "numberOfChangeProposals": "{{value}} kpl"
+    "numberOfChangeProposals": "{{value}} kpl",
+    "addButton": "Lisää muutosehdotus",
+    "changeStart": "Muuta alkua",
+    "changeEnd": "Muuta loppua",
+    "reasonForChange": "Muutoksen syy",
+    "comment": "Kommentti",
+    "waitingForApproval": "Odottaa hyväksyntaa",
+    "abandoned": "Hylätty",
+    "accepted": "Hyväksytty"
   }
 }

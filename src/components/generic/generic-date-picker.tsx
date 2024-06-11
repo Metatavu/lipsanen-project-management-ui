@@ -7,12 +7,15 @@ import { DateTime } from "luxon";
  * Component Props
  */
 interface Props {
-  onChange: (value: DateTime | null) => void;
-  value: DateTime<boolean> | null | undefined;
+  onChange: (value: DateTime<true> | DateTime<false> | null) => void;
+  value: DateTime<true> | DateTime<false> | null | undefined;
   title?: string;
-  minDate?: DateTime<boolean>;
+  minDate?: DateTime<true> | DateTime<false>;
+  maxDate?: DateTime<true> | DateTime<false>;
   fullWidth?: boolean;
   label?: string;
+  hasBorder?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -20,7 +23,17 @@ interface Props {
  *
  * @param props component properties
  */
-const GenericDatePicker = ({ onChange, value, title, minDate, fullWidth, label }: Props) => (
+const GenericDatePicker = ({
+  onChange,
+  value,
+  title,
+  minDate,
+  fullWidth,
+  label,
+  hasBorder,
+  maxDate,
+  disabled,
+}: Props) => (
   <>
     <Typography variant="subtitle1">{title}</Typography>
     <DatePicker
@@ -28,6 +41,7 @@ const GenericDatePicker = ({ onChange, value, title, minDate, fullWidth, label }
       onChange={onChange}
       format="dd.MM.yyyy"
       minDate={minDate}
+      maxDate={maxDate}
       slots={{
         openPickerIcon: CalendarTodayOutlined,
       }}
@@ -43,6 +57,8 @@ const GenericDatePicker = ({ onChange, value, title, minDate, fullWidth, label }
         inputAdornment: { position: "start" },
         openPickerIcon: { color: "primary" },
       }}
+      sx={{ border: hasBorder ? "1px solid #e6e4e4" : "" }}
+      disabled={disabled}
     />
   </>
 );
