@@ -14,7 +14,8 @@ import {
   User,
   ListChangeProposalsRequest,
   ListTaskConnectionsRequest,
-  FindTaskRequest
+  FindTaskRequest,
+  ListTaskCommentsRequest,
 } from "generated/client";
 import { filesApi } from "api/files";
 
@@ -330,7 +331,7 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
 
 /**
  * Find task query hook
- * 
+ *
  * @param params FindTaskRequest
  */
 export const useFindMilestoneTaskQuery = (params: FindTaskRequest) => {
@@ -354,7 +355,7 @@ export const useFindMilestoneTaskQuery = (params: FindTaskRequest) => {
 
 /**
  * List task connections query hook
- * 
+ *
  * @param params ListTaskConnectionsRequest
  */
 export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) => {
@@ -372,6 +373,30 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
         throw Error(t("errorHandling.errorListingTaskConnections"), { cause: error });
       }
     },
-    enabled: !!projectId && !!taskId
+    enabled: !!projectId && !!taskId,
+  });
+};
+
+/**
+ * List task comments query hook
+ *
+ * @param params ListTaskCommentsRequest
+ */
+export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
+  const { taskCommentsApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId, milestoneId, taskId } = params;
+
+  return useQuery({
+    queryKey: ["comments", projectId, milestoneId],
+    queryFn: async () => {
+      try {
+        return taskCommentsApi.listTaskComments({ projectId: projectId, milestoneId: milestoneId, taskId: taskId });
+      } catch (error) {
+        handleError("Error listing task comments", error);
+        throw Error(t("errorHandling.errorListingTaskComments"), { cause: error });
+      }
+    },
+    enabled: !!projectId && !!milestoneId && !!taskId,
   });
 };

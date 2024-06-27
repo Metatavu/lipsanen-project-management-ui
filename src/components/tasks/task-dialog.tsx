@@ -2,6 +2,7 @@ import { useState, useMemo, ChangeEvent, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   CircularProgress,
@@ -11,6 +12,7 @@ import {
   DialogTitle,
   Grid,
   IconButton,
+  LinearProgress,
   MenuItem,
   Table,
   TableBody,
@@ -22,6 +24,8 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
@@ -34,6 +38,7 @@ import {
   useListMilestoneTasksQuery,
   useListProjectUsersQuery,
   useListTaskAttachmentsQuery,
+  useListTaskCommentsQuery,
   useListTaskConnectionsQuery,
 } from "hooks/api-queries";
 import GenericDatePicker from "components/generic/generic-date-picker";
@@ -52,6 +57,9 @@ import {
   DeleteTaskConnectionRequest,
   TaskConnectionType,
   UpdateTaskConnectionRequest,
+  CreateTaskCommentRequest,
+  DeleteTaskCommentRequest,
+  UpdateTaskCommentRequest,
 } from "generated/client";
 import FileUploader from "components/generic/file-upload";
 import { filesApi } from "api/files";
@@ -60,6 +68,7 @@ import ChangeProposalUtils from "utils/change-proposals";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { REASONS_FOR_CHANGE } from "constants/index";
 import TaskConnectionsTable from "./task-connections-table";
+import { MentionsInput, Mention, MentionItem } from "react-mentions";
 
 const TASK_ATTACHMENT_UPLOAD_PATH = "task-attachments";
 
@@ -80,12 +89,16 @@ interface Props {
  */
 const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposals }: Props) => {
   const { t } = useTranslation();
-  const { milestoneTasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
+  const { milestoneTasksApi, taskConnectionsApi, changeProposalsApi, taskCommentsApi } = useApi();
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListProjectUsersQuery(projectId);
   const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
+  // TODO: Is there a better way to handle task.id here?
+  const listTaskCommentsQuery = task?.id
+    ? useListTaskCommentsQuery({ projectId, milestoneId, taskId: task.id })
+    : undefined;
   const showConfirmDialog = useConfirmDialog();
 
   // Set initial task data based on existing task or new task
@@ -108,8 +121,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         status: TaskStatus.NotStarted,
         assigneeIds: [],
         userRole: UserRole.User,
-        estimatedDuration: "",
-        estimatedReadiness: "",
+        estimatedDuration: undefined,
+        estimatedReadiness: undefined,
         attachmentUrls: [],
       };
 
@@ -126,6 +139,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const [availableTaskConnectionTasks, setAvailableTaskConnectionTasks] = useState<Task[]>([]);
   const [taskConnectionsValid, setTaskConnectionsValid] = useState(true);
   const [loadingProposalsDeletion, setLoadingProposalsDeletion] = useState<Record<string, boolean>>({});
+  const [newComment, setNewComment] = useState("");
+  const [commentReferencedUsers, setCommentReferencedUsers] = useState<string[]>([]);
 
   /**
    * Use effect to update task specific change proposals on change proposals change
@@ -277,6 +292,39 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
     },
     onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
+  });
+
+  /**
+   * Create task comment mutation
+   */
+  const createTaskCommentMutation = useMutation({
+    mutationFn: (params: CreateTaskCommentRequest) => taskCommentsApi.createTaskComment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", projectId, milestoneId, { taskId: task?.id }] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorCreatingTaskComment"), error),
+  });
+
+  /**
+   * Update task comment mutation
+   */
+  const updateTaskCommentMutation = useMutation({
+    mutationFn: (params: UpdateTaskCommentRequest) => taskCommentsApi.updateTaskComment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", projectId, milestoneId, { taskId: task?.id }] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorUpdatingTaskComment"), error),
+  });
+
+  /**
+   * Delete task comment mutation
+   */
+  const deleteTaskCommentMutation = useMutation({
+    mutationFn: (params: DeleteTaskCommentRequest) => taskCommentsApi.deleteTaskComment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", projectId, milestoneId, { taskId: task?.id }] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorDeletingTaskComment"), error),
   });
 
   /**
@@ -611,6 +659,53 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   };
 
   /**
+   * Handles deleting a task comment
+   *
+   * @param id comment id
+   */
+  const handleDeleteComment = async (id: string) => {
+    if (!task?.id) return;
+
+    // TODO: Or should the comments only be persisted when the task is saved as the other task dialog content is?
+    await deleteTaskCommentMutation.mutateAsync({
+      projectId: projectId,
+      milestoneId: milestoneId,
+      taskId: task.id,
+      commentId: id,
+    });
+    await listTaskCommentsQuery?.refetch();
+  };
+
+  /**
+   * Handle mention changes in comment creation
+   *
+   * @param _event
+   * @param _newValue
+   * @param newPlainTextValue
+   * @param mentions
+   */
+  const handleMentionChange = (
+    _event: { target: { value: string } },
+    _newValue: string,
+    newPlainTextValue: string,
+    mentions: MentionItem[],
+  ) => {
+    commentReferencedUsers.length &&
+      commentReferencedUsers.map((userId) => {
+        if (!newPlainTextValue.includes(projectUsersMap[userId])) {
+          handleMentionDelete(userId);
+        }
+      });
+
+    setNewComment(newPlainTextValue);
+    mentions.length && setCommentReferencedUsers((prev) => [...prev, ...mentions.map((mention) => mention.id)]);
+  };
+
+  const handleMentionDelete = (id: string) => {
+    setCommentReferencedUsers((prevUsers) => prevUsers.filter((userId) => userId !== id));
+  };
+
+  /**
    * Handles task update or task create form submit
    */
   const handleTaskFormSubmit = async () => {
@@ -665,6 +760,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     }
 
     persistChangeProposals();
+    persistNewComment();
 
     setTaskData({
       name: "",
@@ -673,8 +769,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       status: TaskStatus.NotStarted,
       assigneeIds: [],
       userRole: UserRole.User,
-      estimatedDuration: "",
-      estimatedReadiness: "",
+      estimatedDuration: undefined,
+      estimatedReadiness: undefined,
       attachmentUrls: [],
     });
     onClose();
@@ -723,6 +819,24 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     });
 
     await Promise.all([...createdChangeProposalPromises, ...updatedChangeProposalPromises]);
+  };
+
+  /**
+   * Persists new comment
+   */
+  const persistNewComment = () => {
+    if (!newComment || !task?.id) return;
+
+    createTaskCommentMutation.mutateAsync({
+      projectId: projectId,
+      milestoneId: milestoneId,
+      taskId: task.id,
+      taskComment: {
+        comment: newComment,
+        taskId: task.id,
+        referencedUsers: commentReferencedUsers,
+      },
+    });
   };
 
   /**
@@ -1143,6 +1257,138 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   };
 
   /**
+   * Renders comments section
+   */
+  const renderCommentsSection = () => {
+    const commentsLoading = listTaskCommentsQuery?.isLoading || listTaskCommentsQuery?.isFetching;
+
+    return (
+      <Box sx={{ backgroundColor: "#F3F3F3" }}>
+        <DialogContentText sx={{ padding: 2 }} variant="h5">
+          {t("taskComments.comments")}
+        </DialogContentText>
+        <DialogContent sx={{ display: "flex", flexDirection: "row", overflow: "hidden" }}>
+          {/* TODO: Placeholder icon until user icons ready */}
+          <Avatar sx={{ backgroundColor: "#0079BF", marginRight: "1rem" }}>
+            <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
+          </Avatar>
+          {renderMentionsInput()}
+        </DialogContent>
+        {commentsLoading ? <LinearProgress /> : renderComments()}
+      </Box>
+    );
+  };
+
+  /**
+   * Renders the mentions input for comments
+   */
+  const renderMentionsInput = () => {
+    // TODO: Is it correct for it to only be project Users, rather than all users?
+    const projectUsers = Object.keys(projectUsersMap)
+      .filter((userId) => !commentReferencedUsers.includes(userId))
+      .map((userId) => ({
+        id: userId,
+        display: projectUsersMap[userId],
+      }));
+
+    {
+      /* TODO: Mentions list styling position needs to be fixed */
+    }
+    return (
+      <MentionsInput
+        value={newComment}
+        onChange={handleMentionChange}
+        style={{
+          width: "100%",
+          height: "auto",
+          backgroundColor: "white",
+          highlighter: {
+            boxSizing: "border-box",
+            overflow: "hidden",
+            height: 70,
+          },
+          suggestions: {
+            list: {
+              backgroundColor: "white",
+              border: "1px solid rgba(0,0,0,0.15)",
+              fontSize: 14,
+            },
+            item: {
+              padding: "5px 15px",
+              borderBottom: "1px solid rgba(0,0,0,0.15)",
+              "&focused": {
+                backgroundColor: "#2196F314",
+              },
+            },
+          },
+        }}
+        placeholder={t("taskComments.addAComment")}
+      >
+        <Mention
+          trigger="@"
+          data={projectUsers}
+          displayTransform={(_, display) => `@${display}`}
+          // TODO: This style to highlight the mention is not working
+          style={{ color: "blue" }}
+        />
+      </MentionsInput>
+    );
+  };
+
+  /**
+   * Renders list of comments
+   */
+  const renderComments = () => {
+    return listTaskCommentsQuery?.data?.map((comment) => {
+      if (!comment?.id) return;
+
+      const commentId = comment.id;
+      const commentCreator = comment.metadata?.creatorId && projectUsersMap[comment.metadata.creatorId];
+      const lastModifiedDate =
+        comment.metadata?.modifiedAt && DateTime.fromJSDate(comment.metadata?.modifiedAt).toFormat("dd.MM.yyyy HH:mm");
+
+      return (
+        <DialogContent key={comment.id} sx={{ display: "flex", flexDirection: "row" }}>
+          {/* TODO: Placeholder icon until user icons ready */}
+          <Avatar sx={{ backgroundColor: "#0079BF", marginRight: "1rem" }}>
+            <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
+          </Avatar>
+          <Box sx={{ width: "100%" }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {commentCreator}
+                </Typography>
+                <Typography>-</Typography>
+                <Typography variant="subtitle1">{lastModifiedDate}</Typography>
+              </Box>
+              <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+                {/* TODO: Implement edit after clarification */}
+                {/* TODO: Add edited flag when edited- compare the metatdata editedAt and createdAt */}
+                <IconButton edge="start" onClick={() => {}} sx={{ color: "#0000008F" }}>
+                  <EditIcon />
+                </IconButton>
+                {/* TODO: Only the user who created a comment should be able to delete */}
+                <IconButton edge="start" onClick={() => handleDeleteComment(commentId)} sx={{ color: "#0000008F" }}>
+                  <DeleteOutlineIcon />
+                </IconButton>
+              </Box>
+            </Box>
+            <Typography>{comment.comment}</Typography>
+          </Box>
+        </DialogContent>
+      );
+    });
+  };
+
+  /**
    * Renders upload task attachment dialog
    */
   const renderUploadTaskAttachmentDialog = () => {
@@ -1225,6 +1471,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           />
           {renderTaskAttachmentsTable()}
           {renderChangeProposalsSection()}
+          {renderCommentsSection()}
           <Button
             fullWidth
             onClick={handleTaskFormSubmit}

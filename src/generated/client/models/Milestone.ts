@@ -63,6 +63,12 @@ export interface Milestone {
      */
     originalEndDate: Date;
     /**
+     * Estimated readiness of the milestone
+     * @type {number}
+     * @memberof Milestone
+     */
+    estimatedReadiness?: number;
+    /**
      * 
      * @type {Metadata}
      * @memberof Milestone
@@ -100,6 +106,7 @@ export function MilestoneFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'endDate': (new Date(json['endDate'])),
         'originalStartDate': (new Date(json['originalStartDate'])),
         'originalEndDate': (new Date(json['originalEndDate'])),
+        'estimatedReadiness': !exists(json, 'estimatedReadiness') ? undefined : json['estimatedReadiness'],
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
 }
@@ -118,6 +125,7 @@ export function MilestoneToJSON(value?: Milestone | null): any {
         'endDate': (value.endDate.toISOString().substring(0,10)),
         'originalStartDate': (value.originalStartDate.toISOString().substring(0,10)),
         'originalEndDate': (value.originalEndDate.toISOString().substring(0,10)),
+        'estimatedReadiness': value.estimatedReadiness,
         'metadata': MetadataToJSON(value.metadata),
     };
 }

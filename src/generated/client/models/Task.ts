@@ -87,17 +87,17 @@ export interface Task {
      */
     userRole?: UserRole;
     /**
-     * Estimated duration of the task
-     * @type {string}
+     * Estimated duration of the task in days
+     * @type {number}
      * @memberof Task
      */
-    estimatedDuration?: string;
+    estimatedDuration?: number;
     /**
      * Estimated readiness of the task
-     * @type {string}
+     * @type {number}
      * @memberof Task
      */
-    estimatedReadiness?: string;
+    estimatedReadiness?: number;
     /**
      * URLs of attachments related to the task
      * @type {Array<string>}

@@ -93,7 +93,11 @@
     "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
     "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
     "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
-    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä"
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä",
+    "errorListingTaskComments": "Virhe haettaessa tehtävän kommenttiluetteloa",
+    "errorCreatingTaskComment": "Virhe luotaessa uutta tehtäväkommenttia",
+    "errorUpdatingTaskComment": "Virhe päivitettäessä tehtävän kommenttia",
+    "errorDeletingTaskComment": "Virhe poistettaessa tehtävän kommenttia"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -224,5 +228,9 @@
     "waitingForApproval": "Odottaa hyväksyntaa",
     "abandoned": "Hylätty",
     "accepted": "Hyväksytty"
+  },
+  "taskComments": {
+    "comments": "Kommentit",
+    "addAComment": "Lisää kommentti"
   }
 }

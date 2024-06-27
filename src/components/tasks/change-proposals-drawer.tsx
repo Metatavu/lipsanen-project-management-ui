@@ -63,6 +63,7 @@ const ChangeProposalsDrawer = ({
   /**
    * UseEffect to set maximum drawer height based on drawer content
    */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (contentRef.current) {
       setMaxHeight(contentRef.current.scrollHeight);

@@ -1,9 +1,12 @@
 apis/ChangeProposalsApi.ts
 apis/CompaniesApi.ts
+apis/NotificationEventsApi.ts
+apis/NotificationsApi.ts
 apis/ProjectMilestonesApi.ts
 apis/ProjectThemesApi.ts
 apis/ProjectsApi.ts
 apis/SystemApi.ts
+apis/TaskCommentsApi.ts
 apis/TaskConnectionsApi.ts
 apis/TasksApi.ts
 apis/UsersApi.ts
@@ -15,10 +18,14 @@ models/Company.ts
 models/Metadata.ts
 models/Milestone.ts
 models/ModelError.ts
+models/Notification.ts
+models/NotificationEvent.ts
+models/NotificationType.ts
 models/Project.ts
 models/ProjectStatus.ts
 models/ProjectTheme.ts
 models/Task.ts
+models/TaskComment.ts
 models/TaskConnection.ts
 models/TaskConnectionRole.ts
 models/TaskConnectionType.ts

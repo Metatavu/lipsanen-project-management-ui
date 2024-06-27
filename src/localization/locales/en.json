@@ -93,7 +93,11 @@
     "errorDeletingChangeProposal": "Error while deleting a change proposal",
     "errorCreatingTaskConnection": "Error while creating a new task connection",
     "errorUpdatingTaskConnection": "Error while updating a task connection",
-    "errorDeletingTaskConnection": "Error while deleting a task connection"
+    "errorDeletingTaskConnection": "Error while deleting a task connection",
+    "errorListingTaskComments": "Error while fetching task comments list",
+    "errorCreatingTaskComment": "Error while creating a new task comment",
+    "errorUpdatingTaskComment": "Error while updating a task comment",
+    "errorDeletingTaskComment": "Error while deleting a task comment"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -224,5 +228,9 @@
     "waitingForApproval": "Waiting for approval",
     "abandoned": "Abandoned",
     "accepted": "Accepted"
+  },
+  "taskComments": {
+    "comments": "Comments",
+    "addAComment": "Add a comment"
   }
 }
