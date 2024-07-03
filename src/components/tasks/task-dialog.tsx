@@ -95,7 +95,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
-  // TODO: Is there a better way to handle task.id here?
   const listTaskCommentsQuery = task?.id
     ? useListTaskCommentsQuery({ projectId, milestoneId, taskId: task.id })
     : undefined;
@@ -140,7 +139,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const [taskConnectionsValid, setTaskConnectionsValid] = useState(true);
   const [loadingProposalsDeletion, setLoadingProposalsDeletion] = useState<Record<string, boolean>>({});
   const [newComment, setNewComment] = useState("");
+  const [newCommentDisplay, setNewCommentDisplay] = useState("");
   const [commentReferencedUsers, setCommentReferencedUsers] = useState<string[]>([]);
+  const [isEditingId, setIsEditingId] = useState("");
+  const [editingComment, setEditingComment] = useState("");
+  const [editingCommentDisplay, setEditingCommentDisplay] = useState("");
+  const [editingReferencedUsers, setEditingReferencedUsers] = useState<string[]>([]);
 
   /**
    * Use effect to update task specific change proposals on change proposals change
@@ -666,7 +670,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const handleDeleteComment = async (id: string) => {
     if (!task?.id) return;
 
-    // TODO: Or should the comments only be persisted when the task is saved as the other task dialog content is?
     await deleteTaskCommentMutation.mutateAsync({
       projectId: projectId,
       milestoneId: milestoneId,
@@ -679,13 +682,13 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   /**
    * Handle mention changes in comment creation
    *
-   * @param _event
+   * @param event
    * @param _newValue
    * @param newPlainTextValue
    * @param mentions
    */
   const handleMentionChange = (
-    _event: { target: { value: string } },
+    event: { target: { value: string } },
     _newValue: string,
     newPlainTextValue: string,
     mentions: MentionItem[],
@@ -698,11 +701,82 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       });
 
     setNewComment(newPlainTextValue);
+    setNewCommentDisplay(event.target.value);
     mentions.length && setCommentReferencedUsers((prev) => [...prev, ...mentions.map((mention) => mention.id)]);
+  };
+
+  /**
+   * Handle mention changes in comment update
+   *
+   * @param event
+   * @param _newValue
+   * @param newPlainTextValue
+   * @param mentions
+   */
+  const handleUpdateMentionChange = (
+    event: { target: { value: string } },
+    _newValue: string,
+    newPlainTextValue: string,
+    mentions: MentionItem[],
+  ) => {
+    editingReferencedUsers.length &&
+      editingReferencedUsers.map((userId) => {
+        if (!newPlainTextValue.includes(projectUsersMap[userId])) {
+          handleMentionDelete(userId);
+        }
+      });
+
+    setEditingComment(newPlainTextValue);
+    setEditingCommentDisplay(event.target.value);
+    mentions.length && setEditingReferencedUsers((prev) => [...prev, ...mentions.map((mention) => mention.id)]);
   };
 
   const handleMentionDelete = (id: string) => {
     setCommentReferencedUsers((prevUsers) => prevUsers.filter((userId) => userId !== id));
+  };
+
+  /**
+   * Handles edit click to edit a comment
+   *
+   * @param commentId string
+   * @param commentValue string
+   */
+  const handleEditClick = (commentId: string, commentValue: string) => {
+    if (isEditingId) {
+      setIsEditingId("");
+      setEditingComment("");
+      setEditingCommentDisplay("");
+      setEditingReferencedUsers([]);
+    } else {
+      setIsEditingId(commentId);
+      setEditingComment(commentValue);
+      setEditingCommentDisplay(commentValue);
+      const existingReferencedUsers = extractMentions(commentValue);
+      setEditingReferencedUsers(existingReferencedUsers);
+    }
+  };
+
+  /**
+   * Extracts all mentions from a comment
+   *
+   * @param comment string
+   */
+  const extractMentions = (comment: string) => {
+    const mentionRegex = /@\w+\s\w+/g;
+    const mentions = comment.match(mentionRegex) || [];
+
+    const validMentionIds = mentions
+      .map((mention) => mention.slice(1))
+      .filter((mentionName) => {
+        return Object.values(projectUsersMap).includes(mentionName);
+      })
+      .map((mentionName) => {
+        const userId = Object.keys(projectUsersMap).find((userId) => projectUsersMap[userId] === mentionName);
+        return userId || "";
+      })
+      .filter((mentionId) => !!mentionId);
+
+    return validMentionIds;
   };
 
   /**
@@ -760,7 +834,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     }
 
     persistChangeProposals();
-    persistNewComment();
 
     setTaskData({
       name: "",
@@ -824,10 +897,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   /**
    * Persists new comment
    */
-  const persistNewComment = () => {
+  const persistNewComment = async () => {
     if (!newComment || !task?.id) return;
 
-    createTaskCommentMutation.mutateAsync({
+    await createTaskCommentMutation.mutateAsync({
       projectId: projectId,
       milestoneId: milestoneId,
       taskId: task.id,
@@ -837,6 +910,36 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         referencedUsers: commentReferencedUsers,
       },
     });
+    await listTaskCommentsQuery?.refetch();
+    setNewComment("");
+    setNewCommentDisplay("");
+    setCommentReferencedUsers([]);
+  };
+
+  /**
+   * Updates task comment
+   *
+   * @param commentId string
+   */
+  const updateComment = async (commentId: string) => {
+    if (!commentId || !task?.id) return;
+
+    await updateTaskCommentMutation.mutateAsync({
+      commentId: commentId,
+      projectId: projectId,
+      milestoneId: milestoneId,
+      taskId: task.id,
+      taskComment: {
+        comment: editingComment,
+        taskId: task.id,
+        referencedUsers: editingReferencedUsers,
+      },
+    });
+    await listTaskCommentsQuery?.refetch();
+    setIsEditingId("");
+    setEditingComment("");
+    setEditingCommentDisplay("");
+    setEditingReferencedUsers([]);
   };
 
   /**
@@ -1267,12 +1370,13 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         <DialogContentText sx={{ padding: 2 }} variant="h5">
           {t("taskComments.comments")}
         </DialogContentText>
-        <DialogContent sx={{ display: "flex", flexDirection: "row", overflow: "hidden" }}>
+        <DialogContent sx={{ display: "flex", flexDirection: "row", marginBottom: "1rem" }}>
           {/* TODO: Placeholder icon until user icons ready */}
           <Avatar sx={{ backgroundColor: "#0079BF", marginRight: "1rem" }}>
             <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
           </Avatar>
           {renderMentionsInput()}
+          <Button onClick={persistNewComment}>{t("taskComments.addComment")}</Button>
         </DialogContent>
         {commentsLoading ? <LinearProgress /> : renderComments()}
       </Box>
@@ -1281,37 +1385,45 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
 
   /**
    * Renders the mentions input for comments
+   *
+   * @param editingValue editing value
    */
-  const renderMentionsInput = () => {
+  const renderMentionsInput = (editingValue?: string) => {
     // TODO: Is it correct for it to only be project Users, rather than all users?
     const projectUsers = Object.keys(projectUsersMap)
-      .filter((userId) => !commentReferencedUsers.includes(userId))
+      .filter((userId) =>
+        editingValue ? !editingReferencedUsers.includes(userId) : !commentReferencedUsers.includes(userId),
+      )
       .map((userId) => ({
         id: userId,
         display: projectUsersMap[userId],
       }));
 
-    {
-      /* TODO: Mentions list styling position needs to be fixed */
-    }
+    const handleChange = editingValue ? handleUpdateMentionChange : handleMentionChange;
+
     return (
       <MentionsInput
-        value={newComment}
-        onChange={handleMentionChange}
+        value={editingValue ? editingCommentDisplay : newCommentDisplay}
+        onChange={handleChange}
         style={{
           width: "100%",
           height: "auto",
           backgroundColor: "white",
           highlighter: {
             boxSizing: "border-box",
-            overflow: "hidden",
-            height: 70,
+            height: 100,
+          },
+          input: {
+            border: "1px solid #0000001A",
           },
           suggestions: {
             list: {
               backgroundColor: "white",
               border: "1px solid rgba(0,0,0,0.15)",
               fontSize: 14,
+              // Styles to ensure mention list visibility- could be improved
+              maxHeight: 100,
+              overflowY: "auto",
             },
             item: {
               padding: "5px 15px",
@@ -1322,16 +1434,54 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
             },
           },
         }}
-        placeholder={t("taskComments.addAComment")}
+        placeholder={t("taskComments.addComment")}
       >
         <Mention
           trigger="@"
           data={projectUsers}
           displayTransform={(_, display) => `@${display}`}
-          // TODO: This style to highlight the mention is not working
-          style={{ color: "blue" }}
+          style={{
+            textDecoration: "underline",
+            textDecorationColor: "#2196F3",
+          }}
         />
       </MentionsInput>
+    );
+  };
+
+  /**
+   *  Applies highlight styles to mentions in comments
+   *
+   * @param comment string
+   */
+  const parseAndStyleMentions = (comment: string) => {
+    const mentionRegex = /@\w+\s\w+/g;
+    const parts = comment.split(mentionRegex);
+    const mentions = comment.match(mentionRegex);
+
+    return (
+      <>
+        {parts.map((part, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: no id available here
+          <Typography component="span" key={index}>
+            {part}
+            {mentions?.[index] && Object.values(projectUsersMap).includes(mentions[index].substring(1)) ? (
+              <Typography
+                component="span"
+                sx={{ color: "#0079BF" }}
+                key={`mention-${
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                  index
+                }`}
+              >
+                {mentions[index]}
+              </Typography>
+            ) : (
+              mentions?.[index]
+            )}
+          </Typography>
+        ))}
+      </>
     );
   };
 
@@ -1343,9 +1493,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       if (!comment?.id) return;
 
       const commentId = comment.id;
+      const editDisabled = !!isEditingId && isEditingId !== commentId;
+      const editActive = !!isEditingId && isEditingId === commentId;
       const commentCreator = comment.metadata?.creatorId && projectUsersMap[comment.metadata.creatorId];
       const lastModifiedDate =
         comment.metadata?.modifiedAt && DateTime.fromJSDate(comment.metadata?.modifiedAt).toFormat("dd.MM.yyyy HH:mm");
+      const hasBeenEdited = comment.metadata?.modifiedAt?.getTime() !== comment.metadata?.createdAt?.getTime();
 
       return (
         <DialogContent key={comment.id} sx={{ display: "flex", flexDirection: "row" }}>
@@ -1368,11 +1521,20 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
                 </Typography>
                 <Typography>-</Typography>
                 <Typography variant="subtitle1">{lastModifiedDate}</Typography>
+                {hasBeenEdited && (
+                  <Typography variant="subtitle1" color="#0000008F">
+                    {t("taskComments.editFlag")}
+                  </Typography>
+                )}
               </Box>
               <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-                {/* TODO: Implement edit after clarification */}
-                {/* TODO: Add edited flag when edited- compare the metatdata editedAt and createdAt */}
-                <IconButton edge="start" onClick={() => {}} sx={{ color: "#0000008F" }}>
+                {/* TODO: Only the user who created a comment should be able to edit */}
+                <IconButton
+                  edge="start"
+                  onClick={() => handleEditClick(commentId, comment.comment)}
+                  disabled={editDisabled}
+                  sx={{ color: "#0000008F" }}
+                >
                   <EditIcon />
                 </IconButton>
                 {/* TODO: Only the user who created a comment should be able to delete */}
@@ -1381,7 +1543,25 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
                 </IconButton>
               </Box>
             </Box>
-            <Typography>{comment.comment}</Typography>
+            {editActive ? (
+              <>
+                {renderMentionsInput(comment.comment)}
+                <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+                  <Button onClick={() => updateComment(commentId)}>{t("taskComments.updateComment")}</Button>
+                  <Button
+                    onClick={() => {
+                      setIsEditingId("");
+                      setEditingComment("");
+                    }}
+                    sx={{ color: "#0000008F" }}
+                  >
+                    {t("generic.cancel")}
+                  </Button>
+                </Box>
+              </>
+            ) : (
+              <Typography>{parseAndStyleMentions(comment.comment)}</Typography>
+            )}
           </Box>
         </DialogContent>
       );

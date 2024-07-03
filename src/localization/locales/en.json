@@ -231,6 +231,8 @@
   },
   "taskComments": {
     "comments": "Comments",
-    "addAComment": "Add a comment"
+    "addComment": "Add comment",
+    "editFlag": "(Edited)",
+    "updateComment": "Update comment"
   }
 }

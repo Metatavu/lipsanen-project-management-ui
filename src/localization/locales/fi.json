@@ -231,6 +231,8 @@
   },
   "taskComments": {
     "comments": "Kommentit",
-    "addAComment": "Lisää kommentti"
+    "addComment": "Lisää kommentti",
+    "editFlag": "(Muokattu)",
+    "updateComment": "Päivitä kommentti"
   }
 }

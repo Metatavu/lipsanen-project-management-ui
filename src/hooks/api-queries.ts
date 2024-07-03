@@ -388,7 +388,7 @@ export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
   const { projectId, milestoneId, taskId } = params;
 
   return useQuery({
-    queryKey: ["comments", projectId, milestoneId],
+    queryKey: ["comments", projectId, milestoneId, taskId],
     queryFn: async () => {
       try {
         return taskCommentsApi.listTaskComments({ projectId: projectId, milestoneId: milestoneId, taskId: taskId });
