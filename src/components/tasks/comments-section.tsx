@@ -12,13 +12,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateTaskCommentRequest, DeleteTaskCommentRequest, Task, UpdateTaskCommentRequest } from "generated/client";
+import { CreateTaskCommentRequest, DeleteTaskCommentRequest, UpdateTaskCommentRequest } from "generated/client";
 import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mention, MentionItem, MentionsInput } from "react-mentions";
 import { useListTaskCommentsQuery } from "hooks/api-queries";
+import { userProfileAtom } from "atoms/auth";
+import { useAtomValue } from "jotai";
 
 /**
  * Component props
@@ -28,6 +30,7 @@ interface Props {
   milestoneId: string;
   taskId: string;
   projectUsersMap: Record<string, string>;
+  projectKeycloakUsersMap: Record<string, string>;
 }
 
 /**
@@ -35,10 +38,11 @@ interface Props {
  *
  * @param props component props
  */
-const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap }: Props) => {
+const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, projectKeycloakUsersMap }: Props) => {
   const { t } = useTranslation();
   const { taskCommentsApi } = useApi();
   const queryClient = useQueryClient();
+  const loggedInUser = useAtomValue(userProfileAtom);
   const listTaskCommentsQuery = useListTaskCommentsQuery({ projectId, milestoneId, taskId: taskId });
 
   const [newComment, setNewComment] = useState("");
@@ -148,13 +152,18 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap }: Pr
     editingReferencedUsers.length &&
       editingReferencedUsers.map((userId) => {
         if (!newPlainTextValue.includes(projectUsersMap[userId])) {
-          handleMentionDelete(userId);
+          handleUpdateMentionDelete(userId);
         }
       });
 
     setEditingComment(newPlainTextValue);
     setEditingCommentDisplay(event.target.value);
-    mentions.length && setEditingReferencedUsers((prev) => [...prev, ...mentions.map((mention) => mention.id)]);
+    mentions.length &&
+      setEditingReferencedUsers((prev) => {
+        const updatedUsers = [...prev, ...mentions.map((mention) => mention.id)];
+        const uniqueUsers = Array.from(new Set(updatedUsers));
+        return uniqueUsers;
+      });
   };
 
   /**
@@ -164,6 +173,15 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap }: Pr
    */
   const handleMentionDelete = (id: string) => {
     setCommentReferencedUsers((prevUsers) => prevUsers.filter((userId) => userId !== id));
+  };
+
+  /**
+   * Handles removing a referenced user when mention removed from a comment when updating
+   *
+   * @param id string
+   */
+  const handleUpdateMentionDelete = (id: string) => {
+    setEditingReferencedUsers((prevUsers) => prevUsers.filter((userId) => userId !== id));
   };
 
   /**
@@ -238,6 +256,10 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap }: Pr
       commentId: id,
     });
     await listTaskCommentsQuery?.refetch();
+    setIsEditingId("");
+    setEditingComment("");
+    setEditingCommentDisplay("");
+    setEditingReferencedUsers([]);
   };
 
   /**
@@ -363,7 +385,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap }: Pr
       const commentId = comment.id;
       const editDisabled = !!isEditingId && isEditingId !== commentId;
       const editActive = !!isEditingId && isEditingId === commentId;
-      const commentCreator = comment.metadata?.creatorId && projectUsersMap[comment.metadata.creatorId];
+      const commentCreator = comment.metadata?.creatorId && projectKeycloakUsersMap[comment.metadata.creatorId];
       const lastModifiedDate =
         comment.metadata?.modifiedAt && DateTime.fromJSDate(comment.metadata?.modifiedAt).toFormat("dd.MM.yyyy HH:mm");
       const hasBeenEdited = comment.metadata?.modifiedAt?.getTime() !== comment.metadata?.createdAt?.getTime();
@@ -396,19 +418,21 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap }: Pr
                 )}
               </Box>
               <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-                {/* TODO: Only the user who created a comment should be able to edit */}
-                <IconButton
-                  edge="start"
-                  onClick={() => handleEditClick(commentId, comment.comment)}
-                  disabled={editDisabled}
-                  sx={{ color: "#0000008F" }}
-                >
-                  <EditIcon />
-                </IconButton>
-                {/* TODO: Only the user who created a comment should be able to delete */}
-                <IconButton edge="start" onClick={() => handleDeleteComment(commentId)} sx={{ color: "#0000008F" }}>
-                  <DeleteOutlineIcon />
-                </IconButton>
+                {loggedInUser?.id === comment.metadata?.creatorId && (
+                  <IconButton
+                    edge="start"
+                    onClick={() => handleEditClick(commentId, comment.comment)}
+                    disabled={editDisabled}
+                    sx={{ color: "#0000008F" }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                )}
+                {loggedInUser?.id === comment.metadata?.creatorId && (
+                  <IconButton edge="start" onClick={() => handleDeleteComment(commentId)} sx={{ color: "#0000008F" }}>
+                    <DeleteOutlineIcon />
+                  </IconButton>
+                )}
               </Box>
             </Box>
             {editActive ? (

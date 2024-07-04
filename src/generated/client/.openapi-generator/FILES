@@ -1,5 +1,6 @@
 apis/ChangeProposalsApi.ts
 apis/CompaniesApi.ts
+apis/JobPositionsApi.ts
 apis/NotificationEventsApi.ts
 apis/NotificationsApi.ts
 apis/ProjectMilestonesApi.ts
@@ -15,6 +16,7 @@ index.ts
 models/ChangeProposal.ts
 models/ChangeProposalStatus.ts
 models/Company.ts
+models/JobPosition.ts
 models/Metadata.ts
 models/Milestone.ts
 models/ModelError.ts

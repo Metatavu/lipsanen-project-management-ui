@@ -2,6 +2,7 @@
 /* eslint-disable */
 export * from './ChangeProposalsApi';
 export * from './CompaniesApi';
+export * from './JobPositionsApi';
 export * from './NotificationEventsApi';
 export * from './NotificationsApi';
 export * from './ProjectMilestonesApi';

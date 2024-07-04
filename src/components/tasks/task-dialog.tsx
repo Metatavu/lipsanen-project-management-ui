@@ -189,6 +189,20 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   }, [listProjectUsersQuery.data]);
 
   /**
+   * Project keycloak users map
+   */
+  const projectKeycloakUsersMap = useMemo(() => {
+    const users = listProjectUsersQuery.data ?? [];
+    return users.reduce(
+      (acc, user) => {
+        if (user.keycloakId) acc[user.keycloakId] = `${user.firstName} ${user.lastName}`;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+  }, [listProjectUsersQuery.data]);
+
+  /**
    * Create task mutation
    */
   const createTaskMutation = useMutation({
@@ -1232,6 +1246,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               milestoneId={milestoneId}
               taskId={task.id}
               projectUsersMap={projectUsersMap}
+              projectKeycloakUsersMap={projectKeycloakUsersMap}
             />
           )}
           <Button

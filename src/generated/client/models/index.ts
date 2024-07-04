@@ -3,6 +3,7 @@
 export * from './ChangeProposal';
 export * from './ChangeProposalStatus';
 export * from './Company';
+export * from './JobPosition';
 export * from './Metadata';
 export * from './Milestone';
 export * from './ModelError';

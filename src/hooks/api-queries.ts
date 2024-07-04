@@ -107,11 +107,12 @@ export const useFindUsersQuery = (userIds?: string[]) => {
         if (!userIds?.length) return null;
 
         const userPromises = userIds.map(async (userId) => {
-          return await usersApi.findUser({ userId: userId });
+          return await usersApi.listUsers({ keycloakId: userId });
         });
 
         const users = await Promise.all(userPromises);
-        return users;
+        const flattenedUsers = users.flat();
+        return flattenedUsers;
       } catch (error) {
         handleError("Error finding multiple users", error);
         throw Error(t("errorHandling.errorFindingMultipleUsers"), { cause: error });
