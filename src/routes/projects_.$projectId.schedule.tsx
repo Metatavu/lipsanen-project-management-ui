@@ -24,6 +24,8 @@ import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { TaskStatusColor } from "types";
+import ChartHelpers from "utils/chart-helpers";
 
 /**
  * Schedule file route
@@ -92,7 +94,7 @@ function ScheduleIndexRoute() {
           <TableCell>{formattedEndDate}</TableCell>
           <TableCell>
             {/* TODO: Add progress calculation when data available*/}
-            <ProgressBadge progress={50} />
+            <ProgressBadge progress={milestone.estimatedReadiness ?? 0} />
           </TableCell>
         </TableRow>
       );
@@ -145,7 +147,13 @@ function ScheduleIndexRoute() {
       name: milestone.name,
       id: milestone.id ?? index.toString(),
       type: "custom-milestone",
-      progress: 40,
+      progress: milestone.estimatedReadiness ?? 0,
+      styles: {
+        backgroundColor: TaskStatusColor.NOT_STARTED,
+        backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
+        progressColor: ChartHelpers.getMilestoneColorBasedOnReadiness(milestone),
+        progressSelectedColor: ChartHelpers.getMilestoneSelectedColorBasedOnReadiness(milestone)
+      }
     }));
 
     return (

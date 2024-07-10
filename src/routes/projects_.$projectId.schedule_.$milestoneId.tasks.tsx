@@ -37,6 +37,7 @@ import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/compone
 import { ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 import * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 import { TaskStatusColor } from "types";
+import ChartHelpers from "utils/chart-helpers";
 
 /**
  * Milestone tasks file route
@@ -184,7 +185,7 @@ function MilestoneTasksListRoute() {
         <TableCell>{formattedEndDate}</TableCell>
         <TableCell>
           {/* TODO: Add progress calculation when data available*/}
-          <ProgressBadge progress={50} />
+          <ProgressBadge progress={milestone.estimatedReadiness ?? 0} />
         </TableCell>
       </TableRow>
     );
@@ -238,7 +239,7 @@ function MilestoneTasksListRoute() {
           <TableCell>{formattedEndDate}</TableCell>
           <TableCell>
             {/* TODO: Add progress calculation when data available*/}
-            <ProgressBadge progress={50} />
+            <ProgressBadge progress={task.estimatedReadiness ?? 0} />
           </TableCell>
         </TableRow>
       );
@@ -307,34 +308,6 @@ function MilestoneTasksListRoute() {
   }
 
   /**
-   * Get task color based on task status
-   */
-  const getTaskColorBasedOnStatus = (task: Task) => {
-    switch (task.status) {
-      case "IN_PROGRESS":
-        return TaskStatusColor.IN_PROGRESS;
-      case "DONE":
-        return TaskStatusColor.DONE;
-      default:
-        return TaskStatusColor.NOT_STARTED;
-    }
-  };
-
-  /**
-   * Get task selected color based on task status
-   */
-  const getTaskSelectedColorBasedOnStatus = (task: Task) => {
-    switch (task.status) {
-      case "IN_PROGRESS":
-        return TaskStatusColor.IN_PROGRESS_SELECTED;
-      case "DONE":
-        return TaskStatusColor.DONE_SELECTED;
-      default:
-        return TaskStatusColor.NOT_STARTED_SELECTED;
-    }
-  };
-
-  /**
    * Renders the task Gantt chart
    *
    * TODO: implement a gantt chart
@@ -358,12 +331,12 @@ function MilestoneTasksListRoute() {
       name: task.name,
       id: task.id ?? index.toString(),
       type: "task",
-      progress: 90,
+      progress: task.estimatedReadiness ?? 0,
       styles: {
         backgroundColor: TaskStatusColor.NOT_STARTED,
         backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
-        progressColor: getTaskColorBasedOnStatus(task),
-        progressSelectedColor: getTaskSelectedColorBasedOnStatus(task),
+        progressColor: ChartHelpers.getTaskColorBasedOnStatus(task),
+        progressSelectedColor: ChartHelpers.getTaskSelectedColorBasedOnStatus(task),
       },
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
       dependencies: getTaskChildren(task.id!).map((connection) => connection.sourceTaskId),
@@ -375,12 +348,12 @@ function MilestoneTasksListRoute() {
       name: milestone.name,
       id: milestone.id ?? "0",
       type: "custom-milestone",
-      progress: 40,
+      progress: milestone.estimatedReadiness ?? 0,
       styles: {
         backgroundColor: TaskStatusColor.NOT_STARTED,
         backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
-        progressColor: "#0079BF",
-        progressSelectedColor: "#005A8C"
+        progressColor: ChartHelpers.getMilestoneColorBasedOnReadiness(milestone),
+        progressSelectedColor: ChartHelpers.getMilestoneSelectedColorBasedOnReadiness(milestone)
       },
     } as GanttTypes.Task;
 
