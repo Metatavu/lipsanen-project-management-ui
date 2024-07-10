@@ -14,12 +14,13 @@
 
 
 /**
- * Role of the task in the connection
+ * Access role of the user
  * @export
  */
 export const UserRole = {
     Admin: 'ADMIN',
-    User: 'USER'
+    User: 'USER',
+    ProjectOwner: 'PROJECT_OWNER'
 } as const;
 export type UserRole = typeof UserRole[keyof typeof UserRole];
 
