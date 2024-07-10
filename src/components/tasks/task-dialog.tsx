@@ -1232,6 +1232,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
             color="primary"
             size="large"
             sx={{ minHeight: 50, marginTop: 2, marginBottom: 2 }}
+            //TODO: reconsider disabling the button @daniil
             disabled={isDisabled}
           >
             {!task && <AddIcon />}

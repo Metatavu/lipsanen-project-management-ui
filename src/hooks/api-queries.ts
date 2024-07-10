@@ -372,6 +372,6 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
         throw Error(t("errorHandling.errorListingTaskConnections"), { cause: error });
       }
     },
-    enabled: !!projectId && !!taskId
+    enabled: !!projectId
   });
 };

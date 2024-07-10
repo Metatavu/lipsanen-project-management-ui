@@ -76,3 +76,17 @@ export interface TaskConnectionTableData {
   hierarchy: TaskConnectionRelationship;
   attachedTask?: Task;
 }
+
+/**
+ * Interface for describing task status colors
+ */
+export enum TaskStatusColor {
+  NOT_STARTED = "#37474F",
+  NOT_STARTED_SELECTED = "#546E7A",
+  IN_PROGRESS = "#2E7D32",
+  IN_PROGRESS_SELECTED = "#388E3C",
+  DONE = "#0079BF",
+  DONE_SELECTED = "#2196F3",
+  OVERDUE = "#D32F2F",
+  OVERDUE_SELECTED = "#F44336",
+}
