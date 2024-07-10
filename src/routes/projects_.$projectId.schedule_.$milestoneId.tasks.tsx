@@ -108,6 +108,7 @@ function MilestoneTasksListRoute() {
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+      queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
