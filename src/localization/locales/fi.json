@@ -147,7 +147,11 @@
     "start": "Alkaa",
     "ready": "Valmis",
     "readiness": "Valmius",
-    "days": "pv"
+    "days": "pv",
+    "labelDay": "Päivä",
+    "labelWeek": "Viikko",
+    "labelMonth": "Kuukausi",
+    "showConnections": "Näytä riippuvuudet"
   },
   "newProjectMilestoneDialog": {
     "title": "Luo uusi virstanpylväs",

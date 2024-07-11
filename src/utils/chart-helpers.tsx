@@ -57,6 +57,23 @@ namespace ChartHelpers {
     }
     return TaskStatusColor.NOT_STARTED_SELECTED;
   };
+
+  /**
+   * Save task connections visible setting to local storage
+   * 
+   * @param visible boolean
+   */
+  export const saveTaskConnectionsVisibleSetting = (visible: boolean) => {
+    localStorage.setItem("taskConnectionsVisible", JSON.stringify(visible));
+  };
+
+  /**
+   * Get task connections visible setting from local storage
+   */
+  export const getTaskConnectionsVisibleSetting = () => {
+    const savedSetting = localStorage.getItem("taskConnectionsVisible");
+    return savedSetting ? JSON.parse(savedSetting) : false;
+  };
 }
 
 export default ChartHelpers;

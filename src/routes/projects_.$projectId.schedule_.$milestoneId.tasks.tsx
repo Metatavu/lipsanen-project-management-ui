@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Avatar,
   Box,
@@ -12,6 +12,8 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -38,6 +40,7 @@ import { ViewMode } from "../../lipsanen-project-management-gantt-chart/src/type
 import * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
+import { theme } from "theme";
 
 /**
  * Milestone tasks file route
@@ -77,12 +80,20 @@ function MilestoneTasksListRoute() {
 
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<null | Task>(null);
+  const [taskConnectionsVisible, setTaskConnectionsVisible] = useState(ChartHelpers.getTaskConnectionsVisibleSetting);
   const [selectedChangeProposalId, setSelectedChangeProposalId] = useState("");
   const taskIdForSelectedChangeProposal = changeProposals?.find(
     (proposal) => proposal.id === selectedChangeProposalId,
   )?.taskId;
 
   const viewDate = useMemo(() => new Date(), []);
+
+  /**
+   * Save task connections visible setting to local storage
+   */
+  useEffect(() => {
+    ChartHelpers.saveTaskConnectionsVisibleSetting(taskConnectionsVisible);
+  }, [taskConnectionsVisible]);
 
   /**
    * Handles task select
@@ -369,10 +380,12 @@ function MilestoneTasksListRoute() {
             //TODO: enable if a customer wants to update tasks by dragging them in the gantt chart
             // onDateChange={onUpdateTask}
             //TODO: Add proper height and row height
+            arrowColor={theme.palette.primary.main}
             headerHeight={58}
             rowHeight={77}
             taskListHidden
             onProgressChange={() => {}}
+            arrowsVisible={taskConnectionsVisible}
           />
         </Box>
       </Box>
@@ -384,12 +397,27 @@ function MilestoneTasksListRoute() {
    */
   const renderBreadcrumb = () => {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, padding: "1rem" }}>
-        <Link to={`/projects/${projectId}/schedule` as string} style={{ textDecoration: "none", color: "#0079BF" }}>
-          <Typography variant="h5">{t("scheduleScreen.objectives")}</Typography>
-        </Link>
-        <Typography variant="h5">{t("scheduleScreen.breadcrumbSeparator")}</Typography>
-        <Typography variant="h5">{milestone?.name}</Typography>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, padding: "1rem" }}>
+          <Link to={`/projects/${projectId}/schedule` as string} style={{ textDecoration: "none", color: "#0079BF" }}>
+            <Typography variant="h5">{t("scheduleScreen.objectives")}</Typography>
+          </Link>
+          <Typography variant="h5">{t("scheduleScreen.breadcrumbSeparator")}</Typography>
+          <Typography variant="h5">{milestone?.name}</Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: "1rem" }}>
+          <FormControlLabel
+            control={
+              <Switch
+                size="medium"
+                value={taskConnectionsVisible}
+                defaultChecked={taskConnectionsVisible}
+                onChange={() => setTaskConnectionsVisible(!taskConnectionsVisible)}
+              />
+            }
+            label={t("scheduleScreen.showConnections")}
+          />
+        </Box>
       </Box>
     );
   };
