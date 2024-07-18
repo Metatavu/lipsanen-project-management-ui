@@ -84,7 +84,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListProjectUsersQuery(projectId);
   const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
+  const tasks = listMilestoneTasksQuery.data ?? [];
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
+  const taskConnections = listTaskConnectionsQuery.data ?? [];
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const showConfirmDialog = useConfirmDialog();
 
@@ -108,8 +110,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         status: TaskStatus.NotStarted,
         assigneeIds: [],
         userRole: UserRole.User,
-        estimatedDuration: "",
-        estimatedReadiness: "",
+        estimatedDuration: 0,
+        estimatedReadiness: 0,
         attachmentUrls: [],
       };
 
@@ -136,42 +138,30 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
 
   /**
    * Set existing task connections
+   * Set available task connection tasks
    */
   useEffect(() => {
-    if (!task || !listTaskConnectionsQuery.data || !listMilestoneTasksQuery.data) {
+    if (!task) {
       return;
     }
-    const initialConnections = listTaskConnectionsQuery.data.map((connection) => ({
+    const initialConnections = taskConnections.map((connection) => ({
       connectionId: connection.id ?? "",
       type: connection.type,
       hierarchy:
         connection.sourceTaskId === task.id ? TaskConnectionRelationship.CHILD : TaskConnectionRelationship.PARENT,
-      attachedTask: listMilestoneTasksQuery.data.find(
+      attachedTask: tasks.find(
         (taskElement) =>
           taskElement.id === (connection.sourceTaskId === task.id ? connection.targetTaskId : connection.sourceTaskId),
       ),
     }));
     setExistingTaskConnections(initialConnections);
-  }, [task, listTaskConnectionsQuery.data, listMilestoneTasksQuery.data]);
 
-  /**
-   * Set available tasks for task connections
-   */
-  useEffect(() => {
-    if (!listMilestoneTasksQuery.data) {
-      return;
-    }
-    const availableTasks = task
-      ? listMilestoneTasksQuery.data
-          ?.filter((taskElement) => taskElement.id !== task.id)
-          .filter(
-            (taskElement) =>
-              !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
-          )
-      : listMilestoneTasksQuery.data;
+    const availableTasks = tasks.filter((milestoneTask) =>
+      milestoneTask.id !== task.id && !initialConnections.some((connection) => connection.attachedTask?.id === milestoneTask.id),
+    );
 
-    setAvailableTaskConnectionTasks(availableTasks ?? []);
-  }, [task, listMilestoneTasksQuery.data, existingTaskConnections]);
+    setAvailableTaskConnectionTasks(availableTasks);
+  }, [task, taskConnections, tasks]);
 
   /**
    * Project users map
@@ -194,7 +184,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     mutationFn: (params: CreateTaskRequest) => milestoneTasksApi.createTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
-      onClose();
+      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
@@ -206,7 +196,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     mutationFn: (params: UpdateTaskRequest) => milestoneTasksApi.updateTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
-      onClose();
+      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
@@ -252,7 +242,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const createTaskConnectionsMutation = useMutation({
     mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
+      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
   });
@@ -263,7 +253,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const updateTaskConnectionsMutation = useMutation({
     mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
+      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
   });
@@ -274,10 +264,22 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const deleteTaskConnectionsMutation = useMutation({
     mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections", { taskId: task?.id }] });
+      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
   });
+
+  /**
+   * Deletes removed task connections
+   * Note: to be used only when editing existing task
+   */
+  const deleteRemovedTaskConnections = async () => {
+    const connectionsToDelete = (listTaskConnectionsQuery.data ?? [])
+      .filter((connection) => !existingTaskConnections.some((c) => c.connectionId === connection.id))
+      .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
+
+    await Promise.all([...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection))]);
+  };
 
   /**
    * Persist new and edited task connections
@@ -308,18 +310,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       },
     }));
 
-    const connectionsToDelete = (listTaskConnectionsQuery.data ?? [])
-      .filter((connection) => !existingTaskConnections.some((c) => c.connectionId === connection.id))
-      .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
-
     await Promise.all([
       ...newConnections.map((connection) => createTaskConnectionsMutation.mutateAsync(connection)),
       ...editedConnections.map((connection) => updateTaskConnectionsMutation.mutateAsync(connection)),
-      ...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection)),
     ]);
-
-    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
-    setNewTaskConnections([]);
   };
 
   /**
@@ -640,6 +634,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         },
       });
 
+      await deleteRemovedTaskConnections();
       await persistNewAndEditedTaskConnections(task.id);
     } else {
       const createdTask = await createTaskMutation.mutateAsync({
@@ -673,10 +668,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       status: TaskStatus.NotStarted,
       assigneeIds: [],
       userRole: UserRole.User,
-      estimatedDuration: "",
-      estimatedReadiness: "",
+      estimatedDuration: 0,
+      estimatedReadiness: 0,
       attachmentUrls: [],
     });
+    setNewTaskConnections([]);
+    setExistingTaskConnections([]);
     onClose();
   };
 

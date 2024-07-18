@@ -132,6 +132,8 @@ function MilestoneTasksListRoute() {
     mutationFn: (params: UpdateTaskRequest) => milestoneTasksApi.updateTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
+      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });

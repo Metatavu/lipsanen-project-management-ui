@@ -53,8 +53,8 @@ export interface TaskFormData {
   status: TaskStatus;
   assigneeIds: string[];
   userRole?: UserRole;
-  estimatedDuration?: string;
-  estimatedReadiness?: string;
+  estimatedDuration?: number;
+  estimatedReadiness?: number;
   attachmentUrls: string[];
 }
 
