@@ -138,7 +138,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
 
   /**
    * Set existing task connections
-   * Set available task connection tasks
    */
   useEffect(() => {
     if (!task) {
@@ -155,13 +154,26 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       ),
     }));
     setExistingTaskConnections(initialConnections);
+  }, [task, taskConnections, tasks]);
 
-    const availableTasks = tasks.filter((milestoneTask) =>
-      milestoneTask.id !== task.id && !initialConnections.some((connection) => connection.attachedTask?.id === milestoneTask.id),
-    );
+  /**
+   * Set available tasks for task connections
+   */
+  useEffect(() => {
+    if (!tasks) {
+      return;
+    }
+    const availableTasks = task
+      ? tasks
+          .filter((taskElement) => taskElement.id !== task.id)
+          .filter(
+            (taskElement) =>
+              !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
+          )
+      : tasks;
 
     setAvailableTaskConnectionTasks(availableTasks);
-  }, [task, taskConnections, tasks]);
+  }, [task, tasks, existingTaskConnections]);
 
   /**
    * Project users map
