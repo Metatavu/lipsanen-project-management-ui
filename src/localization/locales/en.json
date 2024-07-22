@@ -4,6 +4,7 @@
   "monitoring": "Monitoring",
   "projectTemplates": "Project templates",
   "users": "Users",
+  "roles": "Roles",
   "logout": "Logout",
   "search": "Search",
   "generic": {
@@ -40,6 +41,13 @@
     "lastLoggedIn": "Last logged in",
     "deleteUser": "Delete user",
     "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?"
+  },
+  "rolesScreen": {
+    "icon": "Icon",
+    "color": "Color",
+    "users": "Users",
+    "deleteTitle": "Delete position",
+    "deleteDescription": "Are you sure you want to delete position: {{name}}?"
   },
   "name": "Name",
   "addANewUser": "Add a new user",
@@ -93,7 +101,11 @@
     "errorDeletingChangeProposal": "Error while deleting a change proposal",
     "errorCreatingTaskConnection": "Error while creating a new task connection",
     "errorUpdatingTaskConnection": "Error while updating a task connection",
-    "errorDeletingTaskConnection": "Error while deleting a task connection"
+    "errorDeletingTaskConnection": "Error while deleting a task connection",
+    "errorListingJobPositions": "Error while fetching job positions list",
+    "errorCreatingJobPosition": "Error while creating a new job position",
+    "errorUpdatingJobPosition": "Error while updating a job position",
+    "errorDeletingJobPosition": "Error while deleting a job position"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -118,6 +130,16 @@
     "selectRole": "Select role",
     "assign": "Assign",
     "cancel": "Cancel"
+  },
+  "jobPositionDialog": {
+    "title": "Job positions",
+    "addNewJobPosition": "Add a new position",
+    "name": "Name",
+    "enterName": "Enter name",
+    "color": "Color",
+    "enterColor": "Enter color",
+    "selectIcon": "Select icon",
+    "create": "Create new position"
   },
   "settingsScreen": {
     "title": "Settings",
@@ -148,6 +170,12 @@
     "ready": "Ready",
     "readiness": "Readiness",
     "days": "days"
+  },
+  "colorSelector": {
+    "otherColor": "Other color"
+  },
+  "iconSelector": {
+    "selectIcon": "Select icon"
   },
   "newProjectMilestoneDialog": {
     "title": "Create a new milestone",

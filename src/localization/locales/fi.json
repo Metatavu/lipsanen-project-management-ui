@@ -4,6 +4,7 @@
   "monitoring": "Seuranta",
   "projectTemplates": "Projektimallit",
   "users": "Käyttäjät",
+  "roles": "Roolit",
   "logout": "Kirjaudu ulos",
   "search": "Haku",
   "generic": {
@@ -40,6 +41,13 @@
     "lastLoggedIn": "Viimeksi paikalla",
     "deleteUser": "Poista käyttäjä",
     "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?"
+  },
+  "rolesScreen": {
+    "icon": "Ikoni",
+    "color": "Väri",
+    "users": "Käyttäjiä",
+    "deleteTitle": "Poista rooli",
+    "deleteDescription": "Haluatko varmasti poistaa roolin: {{name}}?"
   },
   "name": "Nimi",
   "addANewUser": "Lisää uusi käyttäjä",
@@ -93,7 +101,11 @@
     "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
     "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
     "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
-    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä"
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä",
+    "errorListingJobPositions": "Virhe haettaessa rooleja",
+    "errorCreatingJobPosition": "Virhe luotaessa uutta roolia",
+    "errorUpdatingJobPosition": "Virhe päivitettäessä roolia",
+    "errorDeletingJobPosition": "Virhe poistettaessa roolia"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -118,6 +130,16 @@
     "selectRole": "Valitse rooli",
     "assign": "Lisää",
     "cancel": "Peruuta"
+  },
+  "jobPositionDialog": {
+    "title": "Rooleja",
+    "addNewJobPosition": "Lisää uusi rooli",
+    "name": "Nimi",
+    "enterName": "Anna nimi",
+    "color": "Väri",
+    "enterColor": "Anna väri",
+    "selectIcon": "Valitse ikoni",
+    "create": "Luo uusi rooli"
   },
   "settingsScreen": {
     "title": "Asetukset",
@@ -148,6 +170,12 @@
     "ready": "Valmis",
     "readiness": "Valmius",
     "days": "pv"
+  },
+  "colorSelector": {
+    "otherColor": "Muu väri"
+  },
+  "iconSelector": {
+    "selectIcon": "Valitse ikoni"
   },
   "newProjectMilestoneDialog": {
     "title": "Luo uusi virstanpylväs",
