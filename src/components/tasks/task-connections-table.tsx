@@ -19,7 +19,7 @@ import {
 } from "generated/client";
 import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 /**
  * Component properties
@@ -57,6 +57,27 @@ const TaskConnectionsTable = ({
   setTaskConnectionsValid,
 }: Props) => {
   const { t } = useTranslation();
+
+  /**
+   * Get unused available task options
+   */
+  const unusedAvailableTaskConnectionTasks = useMemo(() => {
+    const newConnectionTaskIds = newTaskConnections.map((connection) => connection.attachedTask?.id);
+    return availableTaskConnectionTasks.filter((task) => !newConnectionTaskIds.includes(task.id));
+  }, [availableTaskConnectionTasks, newTaskConnections]);
+
+  /**
+   * Get available task options for a dropdown select
+   * 
+   * @param selectedTaskId selected task id
+   */
+  const getAvailableTaskOptions = (selectedTaskId?: string) => {
+    const selectedTask = milestoneTasks.find((task) => task.id === selectedTaskId);
+    if (selectedTask) {
+      return [selectedTask, ...unusedAvailableTaskConnectionTasks];
+    }
+    return unusedAvailableTaskConnectionTasks;
+  };
 
   /**
    * Determine if task type is allowed
@@ -218,7 +239,7 @@ const TaskConnectionsTable = ({
               }
             }}
           >
-            {availableTaskConnectionTasks.map((taskElement) => (
+            {getAvailableTaskOptions(connection.attachedTask?.id).map((taskElement) => (
               <MenuItem key={taskElement.id} value={taskElement.id}>
                 {taskElement.name}
               </MenuItem>
@@ -249,7 +270,9 @@ const TaskConnectionsTable = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell style={{ width: "15%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.hierarchy")}</TableCell>
+              <TableCell style={{ width: "15%" }}>
+                {t("newMilestoneTaskDialog.taskConnectionsTable.hierarchy")}
+              </TableCell>
               <TableCell style={{ width: "15%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.type")}</TableCell>
               <TableCell style={{ width: "40%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.task")}</TableCell>
               <TableCell style={{ width: "25%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.status")}</TableCell>
@@ -261,7 +284,11 @@ const TaskConnectionsTable = ({
             {renderNewTaskConnectionTableRows()}
           </TableBody>
         </Table>
-        <Button onClick={addNewTaskConnectionRow} startIcon={<AddIcon />}>
+        <Button
+          onClick={addNewTaskConnectionRow}
+          startIcon={<AddIcon />}
+          disabled={unusedAvailableTaskConnectionTasks.length === 0}
+        >
           {t("newMilestoneTaskDialog.taskConnectionsTable.addButton")}
         </Button>
       </TableContainer>

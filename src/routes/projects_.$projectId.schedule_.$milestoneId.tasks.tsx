@@ -120,6 +120,7 @@ function MilestoneTasksListRoute() {
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
       queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
@@ -326,10 +327,6 @@ function MilestoneTasksListRoute() {
    * TODO: implement a gantt chart
    */
   const renderGanttChart = () => {
-    if (!listMilestoneTasksQuery.data?.length) {
-      return;
-    }
-
     if (listMilestoneTasksQuery.isFetching || listTaskConnectionsQuery.isFetching) {
       return (
         <TableRow>
