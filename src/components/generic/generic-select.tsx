@@ -1,13 +1,13 @@
 import { SyntheticEvent, HTMLAttributes, ReactNode } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { AutocompleteRenderOptionState } from "@mui/material/Autocomplete";
-import { useTranslation } from "react-i18next";
 /**
  * Component Props
  */
 interface Props<T> {
   options: T[];
   selectedOption: T | null;
+  label: string;
   setSelectedOption: (option: any) => void;
   getOptionLabel: (option: T) => string;
   renderOption?: (props: HTMLAttributes<HTMLLIElement>, option: T, state: AutocompleteRenderOptionState) => ReactNode;
@@ -18,8 +18,7 @@ interface Props<T> {
  *
  * @param props component properties
  */
-const GenericSelect = <T,>({ options, selectedOption, setSelectedOption, getOptionLabel, renderOption }: Props<T>) => {
-  const { t } = useTranslation();
+const GenericSelect = <T,>({ options, selectedOption, label, setSelectedOption, getOptionLabel, renderOption }: Props<T>) => {
 
   /**
    * Change event handler
@@ -42,7 +41,7 @@ const GenericSelect = <T,>({ options, selectedOption, setSelectedOption, getOpti
       getOptionLabel={getOptionLabel}
       renderOption={renderOption || ((props, option) => <li {...props}>{getOptionLabel(option)}</li>)}
       fullWidth
-      renderInput={(params) => <TextField {...params} label={t("newUserDialog.assignUserToProject")} />}
+      renderInput={(params) => <TextField {...params} label={label}/>}
     />
   );
 };

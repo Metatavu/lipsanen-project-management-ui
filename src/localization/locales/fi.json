@@ -61,7 +61,8 @@
     "createNewCompany": "Perusta uusi yritys",
     "invalidEmailWarning": "Anna kelvollinen sähköpostiosoite",
     "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen",
-    "assignUserToProject": "Lisää käyttäjä projektiin"
+    "assignUserToProject": "Lisää käyttäjä projektiin",
+    "assignUserToPosition": "Lisää käyttäjä rooliin"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",

@@ -115,6 +115,7 @@ const NewUserDialog = () => {
 
     setUserData({ name: "", email: "" });
     setSelectedCompany(undefined);
+    setSelectedJobPosition(undefined);
     setSelectedProject(undefined);
     setOpen(false);
   };
@@ -167,12 +168,14 @@ const NewUserDialog = () => {
           />
           <GenericSelect
             options={listJobPositionsQuery.data?.jobPositions ?? []}
+            label={t("newUserDialog.assignUserToPosition")}
             selectedOption={selectedJobPosition}
             setSelectedOption={setSelectedJobPosition}
             getOptionLabel={(option) => option?.name || ""}
           />
           <GenericSelect
             options={projects ?? []}
+            label={t("newUserDialog.assignUserToProject")}
             selectedOption={selectedProject}
             setSelectedOption={setSelectedProject}
             getOptionLabel={(option) => option?.name || ""}

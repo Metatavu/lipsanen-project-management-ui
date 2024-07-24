@@ -61,7 +61,8 @@
     "createNewCompany": "Create new company",
     "invalidEmailWarning": "Enter a valid email",
     "emailNotUniqueWarning": "Email must be unique",
-    "assignUserToProject": "Assign user to project"
+    "assignUserToProject": "Assign user to project",
+    "assignUserToPosition": "Assign user to a position"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
