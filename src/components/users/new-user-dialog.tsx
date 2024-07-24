@@ -14,12 +14,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Company, CreateCompanyRequest, CreateUserRequest, Project } from "generated/client";
+import { Company, CreateCompanyRequest, CreateUserRequest, JobPosition, Project } from "generated/client";
 import CreatableSelect from "components/generic/creatable-select";
 import GenericSelect from "components/generic/generic-select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
-import { useListUsersQuery, useListProjectsQuery, useListCompaniesQuery } from "hooks/api-queries";
+import { useListUsersQuery, useListProjectsQuery, useListCompaniesQuery, useListJobPositionsQuery } from "hooks/api-queries";
 
 /**
  * New user dialog component
@@ -36,10 +36,12 @@ const NewUserDialog = () => {
 
   const [selectedCompany, setSelectedCompany] = useState<Company>();
   const [selectedProject, setSelectedProject] = useState<Project>();
+  const [selectedJobPosition, setSelectedJobPosition] = useState<JobPosition>();
 
   const listUsersQuery = useListUsersQuery();
   const listProjectsQuery = useListProjectsQuery();
   const listCompaniesQuery = useListCompaniesQuery();
+  const listJobPositionsQuery = useListJobPositionsQuery();
 
   const users = listUsersQuery.data?.users;
   const projects = listProjectsQuery.data?.projects;
@@ -107,6 +109,7 @@ const NewUserDialog = () => {
         email: userData.email,
         companyId: selectedCompany?.id,
         projectIds: selectedProject?.id ? [selectedProject.id] : [],
+        jobPositionId: selectedJobPosition?.id,
       },
     });
 
@@ -161,6 +164,12 @@ const NewUserDialog = () => {
             options={companies ?? []}
             selectedCompany={selectedCompany}
             setSelectedCompany={handleCompanyChange}
+          />
+          <GenericSelect
+            options={listJobPositionsQuery.data?.jobPositions ?? []}
+            selectedOption={selectedJobPosition}
+            setSelectedOption={setSelectedJobPosition}
+            getOptionLabel={(option) => option?.name || ""}
           />
           <GenericSelect
             options={projects ?? []}

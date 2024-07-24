@@ -40,7 +40,8 @@
     "role": "Rooli",
     "lastLoggedIn": "Viimeksi paikalla",
     "deleteUser": "Poista käyttäjä",
-    "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?"
+    "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?",
+    "position": "Rooli"
   },
   "rolesScreen": {
     "icon": "Ikoni",
@@ -114,7 +115,8 @@
     "unknownOrganization": "Tuntematon organisaatio",
     "lastLogin": "Liittyi mukaan",
     "userYetToLogin": "Ei vielä liittynyt",
-    "role": "Rooli",
+    "position": "Rooli",
+    "role": "Käyttöoikeusrooli",
     "noAssignedRole": "Ei määritettyä roolia",
     "projects": "Projektit",
     "projectName": "Nimi",

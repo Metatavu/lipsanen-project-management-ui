@@ -383,7 +383,7 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
  * 
  * @param params ListJobPositionsRequest
  */
-export const useListJobPositionsQuery = (params: ListJobPositionsRequest) => {
+export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
   const { jobPositionsApi } = useApi();
   const { t } = useTranslation();
 
@@ -399,4 +399,4 @@ export const useListJobPositionsQuery = (params: ListJobPositionsRequest) => {
       }
     },
   });
-}
+};
