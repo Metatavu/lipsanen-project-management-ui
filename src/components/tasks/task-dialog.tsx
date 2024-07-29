@@ -316,9 +316,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         await createTaskConnectionsMutation.mutateAsync(connection);
       }
 
-      for (const connection of editedConnections) {
-        await updateTaskConnectionsMutation.mutateAsync(connection);
-      }
+      
 
       for (const connection of connectionsToDelete) {
         await deleteTaskConnectionsMutation.mutateAsync(connection);
