@@ -628,7 +628,23 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     if (task?.id) {
       await persistNewAndEditedTaskConnections(task.id);
 
-      
+      await updateTaskMutation.mutateAsync({
+        projectId: projectId,
+        milestoneId: milestoneId,
+        taskId: task.id,
+        task: {
+          milestoneId: milestoneId,
+          name: taskData.name,
+          startDate: startDateIsoConverted,
+          endDate: endDateIsoConverted,
+          status: taskData.status,
+          assigneeIds: taskData.assigneeIds,
+          userRole: taskData.userRole,
+          estimatedDuration: taskData.estimatedDuration,
+          estimatedReadiness: taskData.estimatedReadiness,
+          attachmentUrls: taskData.attachmentUrls,
+        },
+      });
 
     } else {
       const createdTask = await createTaskMutation.mutateAsync({
