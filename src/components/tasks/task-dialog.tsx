@@ -312,11 +312,17 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       .filter((connection) => !existingTaskConnections.some((c) => c.connectionId === connection.id))
       .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
 
-    await Promise.all([
-      ...newConnections.map((connection) => createTaskConnectionsMutation.mutateAsync(connection)),
-      ...editedConnections.map((connection) => updateTaskConnectionsMutation.mutateAsync(connection)),
-      ...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection)),
-    ]);
+      for (const connection of newConnections) {
+        await createTaskConnectionsMutation.mutateAsync(connection);
+      }
+
+      for (const connection of editedConnections) {
+        await updateTaskConnectionsMutation.mutateAsync(connection);
+      }
+
+      for (const connection of connectionsToDelete) {
+        await deleteTaskConnectionsMutation.mutateAsync(connection);
+      }
 
     queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     setNewTaskConnections([]);
@@ -622,7 +628,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     const endDateIsoConverted = new Date(taskData.endDate.toISODate());
 
     if (task?.id) {
-      await persistNewAndEditedTaskConnections(task.id);
       await updateTaskMutation.mutateAsync({
         projectId: projectId,
         milestoneId: milestoneId,
@@ -640,6 +645,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           attachmentUrls: taskData.attachmentUrls,
         },
       });
+
+      await persistNewAndEditedTaskConnections(task.id);
     } else {
       const createdTask = await createTaskMutation.mutateAsync({
         projectId: projectId,
