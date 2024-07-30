@@ -106,12 +106,14 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   const handleUserDataSave = async () => {
     if (!changesMade || !findUserQuery.data || !userId) return;
 
+    const [firstName, lastName] = name.split(" ");
+
     await updateUserMutation.mutateAsync({
       userId: userId,
       user: {
         ...findUserQuery.data,
-        firstName: name.split(" ")[0] || "",
-        lastName: name.split(" ")[1] || "",
+        firstName: firstName || "",
+        lastName: lastName || "",
         companyId: organization,
         jobPositionId: jobPositionId,
       },
