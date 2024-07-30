@@ -115,9 +115,10 @@ function RolesIndexRoute() {
                 headerName: t("rolesScreen.icon"),
                 editable: true,
                 flex: 1,
-                renderCell: (params) => {
-                    return renderMdiIconifyIconWithBackground(params.row.iconName, params.row.color);
-                },
+                renderCell: (params) => renderMdiIconifyIconWithBackground(
+                  params.row.iconName,
+                  params.row.color,
+                ),
               },
               {
                 field: "color",
