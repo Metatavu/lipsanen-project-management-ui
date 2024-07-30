@@ -343,7 +343,7 @@ function MilestoneTasksListRoute() {
         progressColor: ChartHelpers.getTaskColorBasedOnStatus(task),
         progressSelectedColor: ChartHelpers.getTaskSelectedColorBasedOnStatus(task),
       },
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      // biome-ignore lint/style/noNonNullAssertion: Entities from API must have IDs
       dependencies: getTaskChildren(task.id!).map((connection) => connection.sourceTaskId),
     }));
 
