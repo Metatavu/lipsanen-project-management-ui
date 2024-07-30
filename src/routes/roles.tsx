@@ -125,9 +125,7 @@ function RolesIndexRoute() {
                 headerName: t("rolesScreen.color"),
                 editable: true,
                 flex: 1,
-                renderCell: (params) => {
-                    return renderColorCircle(params.row.color);
-                },
+                renderCell: (params) => renderColorCircle(params.row.color),
               },
               {
                 field: "usersCount",
