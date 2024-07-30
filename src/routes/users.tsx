@@ -102,8 +102,9 @@ function UsersIndexRoute() {
               flex: 1,
               renderCell: (params) => {
                 const user: User = params.row;
-                const iconName = jobPositions?.find((position) => user.jobPositionId === position.id)?.iconName ?? DEFAULT_USER_ICON;
-                const iconColor = jobPositions?.find((position) => user.jobPositionId === position.id)?.color ?? theme.palette.primary.main;
+                const jobPosition = jobPositions?.find((position) => user.jobPositionId === position.id);
+                const iconName = jobPosition?.iconName ?? DEFAULT_USER_ICON;
+                const iconColor = jobPosition?.color ?? theme.palette.primary.main;
                 
                 return (
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
