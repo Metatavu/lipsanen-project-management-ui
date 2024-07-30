@@ -90,3 +90,12 @@ export enum TaskStatusColor {
   OVERDUE = "#D32F2F",
   OVERDUE_SELECTED = "#F44336",
 }
+
+/**
+ * Interface for icon options
+ */
+export interface IconOption {
+  label: string;
+  value: string;
+  icon: object;
+}
