@@ -287,13 +287,8 @@ function MilestoneTasksListRoute() {
     );
   };
 
-  const getTaskChildren = (taskId: string) => {
-    if (!taskConnections) {
-      return [];
-    }
-
-    return taskConnections.filter((connection) => connection.targetTaskId === taskId);
-  }
+  const getTaskChildren = (taskId: string) =>
+    (taskConnections ?? []).filter((connection) => connection.targetTaskId === taskId);
 
   /**
    * Handles updating a task
