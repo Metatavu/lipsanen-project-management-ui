@@ -35,6 +35,7 @@ export interface FindUserRequest {
 
 export interface ListUsersRequest {
     companyId?: string;
+    keycloakId?: string;
     first?: number;
     max?: number;
     includeRoles?: boolean;
@@ -214,6 +215,10 @@ export class UsersApi extends runtime.BaseAPI {
 
         if (requestParameters.companyId !== undefined) {
             queryParameters['companyId'] = requestParameters.companyId;
+        }
+
+        if (requestParameters.keycloakId !== undefined) {
+            queryParameters['keycloakId'] = requestParameters.keycloakId;
         }
 
         if (requestParameters.first !== undefined) {

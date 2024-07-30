@@ -87,17 +87,23 @@ export interface Task {
      */
     userRole?: UserRole;
     /**
-     * Estimated duration of the task
+     * Job title suggested for the task
      * @type {string}
      * @memberof Task
      */
-    estimatedDuration?: string;
+    jobPositionId?: string;
+    /**
+     * Estimated duration of the task in days
+     * @type {number}
+     * @memberof Task
+     */
+    estimatedDuration?: number;
     /**
      * Estimated readiness of the task
-     * @type {string}
+     * @type {number}
      * @memberof Task
      */
-    estimatedReadiness?: string;
+    estimatedReadiness?: number;
     /**
      * URLs of attachments related to the task
      * @type {Array<string>}
@@ -144,6 +150,7 @@ export function TaskFromJSONTyped(json: any, ignoreDiscriminator: boolean): Task
         'status': TaskStatusFromJSON(json['status']),
         'assigneeIds': !exists(json, 'assigneeIds') ? undefined : json['assigneeIds'],
         'userRole': !exists(json, 'userRole') ? undefined : UserRoleFromJSON(json['userRole']),
+        'jobPositionId': !exists(json, 'jobPositionId') ? undefined : json['jobPositionId'],
         'estimatedDuration': !exists(json, 'estimatedDuration') ? undefined : json['estimatedDuration'],
         'estimatedReadiness': !exists(json, 'estimatedReadiness') ? undefined : json['estimatedReadiness'],
         'attachmentUrls': !exists(json, 'attachmentUrls') ? undefined : json['attachmentUrls'],
@@ -167,6 +174,7 @@ export function TaskToJSON(value?: Task | null): any {
         'status': TaskStatusToJSON(value.status),
         'assigneeIds': value.assigneeIds,
         'userRole': UserRoleToJSON(value.userRole),
+        'jobPositionId': value.jobPositionId,
         'estimatedDuration': value.estimatedDuration,
         'estimatedReadiness': value.estimatedReadiness,
         'attachmentUrls': value.attachmentUrls,

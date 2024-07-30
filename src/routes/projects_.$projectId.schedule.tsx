@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Avatar,
   Box,
   Card,
+  Slider,
   Table,
   TableBody,
   TableCell,
@@ -24,6 +25,8 @@ import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { TaskStatusColor } from "types";
+import ChartHelpers from "utils/chart-helpers";
 
 /**
  * Schedule file route
@@ -42,6 +45,33 @@ function ScheduleIndexRoute() {
   const listProjectMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = listProjectMilestonesQuery.data;
   const viewDate = useMemo(() => new Date(), []);
+  const [viewMode, setViewMode] = useState(ViewMode.Day);
+
+  /**
+   * Marks for the slider
+   */
+  const sliderMarks = [
+    { value: 0, label: t("scheduleScreen.labelMonth") },
+    { value: 1, label: t("scheduleScreen.labelWeek") },
+    { value: 2, label: t("scheduleScreen.labelDay") },
+  ];
+  
+  /**
+   * View modes for the slider
+   */
+  const sliderViewModes = [ViewMode.Month, ViewMode.Week, ViewMode.Day];
+
+  /**
+   * Handles the view mode change
+   *
+   * @param event event
+   * @param newValue new value
+   */
+  const handleViewModeChange = (event: Event, newValue: number | number[]) => {
+    if (typeof newValue === "number") {
+      setViewMode(sliderViewModes[newValue]);
+    }
+  };
 
   /**
    * Renders the project milestones rows
@@ -92,7 +122,7 @@ function ScheduleIndexRoute() {
           <TableCell>{formattedEndDate}</TableCell>
           <TableCell>
             {/* TODO: Add progress calculation when data available*/}
-            <ProgressBadge progress={50} />
+            <ProgressBadge progress={milestone.estimatedReadiness ?? 0} />
           </TableCell>
         </TableRow>
       );
@@ -145,7 +175,13 @@ function ScheduleIndexRoute() {
       name: milestone.name,
       id: milestone.id ?? index.toString(),
       type: "custom-milestone",
-      progress: 40,
+      progress: milestone.estimatedReadiness ?? 0,
+      styles: {
+        backgroundColor: TaskStatusColor.NOT_STARTED,
+        backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
+        progressColor: ChartHelpers.getMilestoneColorBasedOnReadiness(milestone),
+        progressSelectedColor: ChartHelpers.getMilestoneSelectedColorBasedOnReadiness(milestone)
+      }
     }));
 
     return (
@@ -154,7 +190,7 @@ function ScheduleIndexRoute() {
           <Gantt
             tasks={milestonesForGantt}
             todayColor={"rgba(100, 100, 300, 0.3)"}
-            viewMode={ViewMode.Day}
+            viewMode={viewMode}
             viewDate={viewDate}
             //TODO: Add proper height and row height
             headerHeight={58}
@@ -180,9 +216,23 @@ function ScheduleIndexRoute() {
         </Box>
       </Toolbar>
       <Card sx={{ flex: 1, minWidth: 0, overflow: "auto" }}>
-        <Typography component="h2" variant="h6" sx={{ padding: "1rem" }}>
-          {t("scheduleScreen.objectives")}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Typography component="h2" variant="h6" sx={{ padding: "1rem" }}>
+            {t("scheduleScreen.objectives")}
+          </Typography>
+          <Box sx={{ width: "120px", marginInline: "2rem", marginTop: "1rem" }}>
+            <Slider
+              defaultValue={2}
+              aria-labelledby="discrete-slider"
+              valueLabelDisplay="off"
+              step={1}
+              marks={sliderMarks}
+              min={0}
+              max={2}
+              onChange={handleViewModeChange}
+            />
+          </Box>
+        </Box>
         <Box sx={{ display: "flex", flexDirection: "row" }}>
           {renderProjectMilestonesTable()}
           {renderGanttChart()}
