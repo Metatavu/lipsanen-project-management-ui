@@ -93,7 +93,12 @@
     "errorDeletingChangeProposal": "Error while deleting a change proposal",
     "errorCreatingTaskConnection": "Error while creating a new task connection",
     "errorUpdatingTaskConnection": "Error while updating a task connection",
-    "errorDeletingTaskConnection": "Error while deleting a task connection"
+    "errorDeletingTaskConnection": "Error while deleting a task connection",
+    "errorListingJobPositions": "Error while fetching job positions list",
+    "errorCreatingJobPosition": "Error while creating a new job position",
+    "errorUpdatingJobPosition": "Error while updating a job position",
+    "errorDeletingJobPosition": "Error while deleting a job position",
+    "errorListingNotificationEvents": "Error while fetching notification events list"
   },
   "userInfoDialog": {
     "title": "User information",

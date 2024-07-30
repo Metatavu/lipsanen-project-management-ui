@@ -93,7 +93,12 @@
     "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
     "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
     "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
-    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä"
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä",
+    "errorListingJobPositions": "Virhe haettaessa rooleja",
+    "errorCreatingJobPosition": "Virhe luotaessa uutta roolia",
+    "errorUpdatingJobPosition": "Virhe päivitettäessä roolia",
+    "errorDeletingJobPosition": "Virhe poistettaessa roolia",
+    "errorListingNotificationEvents": "Virhe haettaessa ilmoitustapahtumia"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",

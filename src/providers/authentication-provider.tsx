@@ -17,6 +17,8 @@ const AuthenticationProvider = ({ children }: Props) => {
   const updateAuthData = useCallback(() => {
     if (!(keycloak.tokenParsed && keycloak.token)) return;
 
+    console.log("User authenticated", keycloak);
+
     setAuth({
       token: keycloak.tokenParsed,
       tokenRaw: keycloak.token,

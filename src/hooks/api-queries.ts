@@ -14,7 +14,10 @@ import {
   User,
   ListChangeProposalsRequest,
   ListTaskConnectionsRequest,
-  FindTaskRequest
+  FindTaskRequest,
+  ListJobPositionsRequest,
+  JobPosition,
+  ListNotificationEventsRequest
 } from "generated/client";
 import { filesApi } from "api/files";
 
@@ -69,7 +72,7 @@ export const useListUsersQuery = (params?: ListUsersRequest) => {
  *
  * @param userId string
  */
-export const useFindUserQuery = (userId?: string) => {
+export const useFindUserQuery = (userId?: string, includeRoles?: boolean) => {
   const { usersApi } = useApi();
   const { t } = useTranslation();
 
@@ -78,7 +81,7 @@ export const useFindUserQuery = (userId?: string) => {
     queryFn: async () => {
       try {
         if (!userId) return null;
-        const user = await usersApi.findUser({ userId: userId });
+        const user = await usersApi.findUser({ userId: userId, includeRoles: includeRoles });
         return user ?? null;
       } catch (error) {
         handleError("Error finding user", error);
@@ -375,3 +378,48 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
     enabled: !!projectId && !!taskId
   });
 };
+
+/**
+ * List job positions query hook
+ * 
+ * @param params ListJobPositionsRequest
+ */
+export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
+  const { jobPositionsApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["jobPositions", params],
+    queryFn: async (): Promise<{ jobPositions: JobPosition[]; maxResults: number }> => {
+      try {
+        const [jobPositions, headers] = await jobPositionsApi.listJobPositionsWithHeaders(params ?? {});
+        return { jobPositions: jobPositions, maxResults: parseInt(headers.get("X-Total-Count") ?? "0") };
+      } catch (error) {
+        handleError("Error listing job positions", error);
+        throw Error(t("errorHandling.errorListingJobPositions"), { cause: error });
+      }
+    },
+  });
+};
+
+/**
+ * LIst notification events query hook
+ * 
+ * @param params ListNotificationEventsRequest
+ */
+export const useListNotificationEventsQuery = (params: ListNotificationEventsRequest) => {
+  const { NotificationEventsApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["notificationEvents", params],
+    queryFn: async () => {
+      try {
+        return NotificationEventsApi.listNotificationEvents(params);
+      } catch (error) {
+        handleError("Error listing notification events", error);
+        throw Error(t("errorHandling.errorListingNotificationEvents"), { cause: error });
+      }
+    },
+  });
+}
