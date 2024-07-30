@@ -172,7 +172,11 @@
     "start": "Start",
     "ready": "Ready",
     "readiness": "Readiness",
-    "days": "days"
+    "days": "days",
+    "labelDay": "Day",
+    "labelWeek": "Week",
+    "labelMonth": "Month",
+    "showConnections": "Show connections"
   },
   "colorSelector": {
     "otherColor": "Other color"
