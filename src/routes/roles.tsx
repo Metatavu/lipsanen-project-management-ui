@@ -43,10 +43,7 @@ function RolesIndexRoute() {
      * @param positionId position id
      */
     const getNumberOfUsersInPosition = (positionId?: string) => {
-        if (!positionId) {
-            return 0;
-        }
-
+        if (!positionId) return 0;
         return users.filter(user => user.jobPositionId === positionId).length;
     };
 
