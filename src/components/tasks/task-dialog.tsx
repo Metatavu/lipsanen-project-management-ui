@@ -31,7 +31,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
 import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
 import {
-  useListMilestoneTasksQuery,
+  useListTasksQuery,
   useListProjectUsersQuery,
   useListTaskAttachmentsQuery,
   useListTaskConnectionsQuery,
@@ -80,10 +80,10 @@ interface Props {
  */
 const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposals }: Props) => {
   const { t } = useTranslation();
-  const { milestoneTasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
+  const { tasksApi: milestoneTasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListProjectUsersQuery(projectId);
-  const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
+  const listMilestoneTasksQuery = useListTasksQuery({ projectId, milestoneId });
   const tasks = listMilestoneTasksQuery.data ?? [];
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
   const taskConnections = listTaskConnectionsQuery.data ?? [];
@@ -195,8 +195,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const createTaskMutation = useMutation({
     mutationFn: (params: CreateTaskRequest) => milestoneTasksApi.createTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
-      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones", milestoneId] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
@@ -207,8 +206,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => milestoneTasksApi.updateTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
-      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones", milestoneId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
@@ -219,7 +217,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const createChangeProposalMutation = useMutation({
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", projectId, "milestones", milestoneId, "changeProposals"],
+      });
       onClose();
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingChangeProposal"), error),
@@ -231,7 +231,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const updateChangeProposalsMutation = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", projectId, "milestones", milestoneId, "changeProposals"],
+      });
       onClose();
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
@@ -243,7 +245,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const deleteChangeProposalMutation = useMutation({
     mutationFn: (params: DeleteChangeProposalRequest) => changeProposalsApi.deleteChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", projectId, "milestones", milestoneId, "changeProposals"],
+      });
     },
     onError: (error) => console.error(t("errorHandling.errorDeletingChangeProposal"), error),
   });
@@ -254,7 +258,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const createTaskConnectionsMutation = useMutation({
     mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
   });
@@ -265,7 +269,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const updateTaskConnectionsMutation = useMutation({
     mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
   });
@@ -276,7 +280,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const deleteTaskConnectionsMutation = useMutation({
     mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
     onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
   });
@@ -290,7 +294,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       .filter((connection) => !existingTaskConnections.some((c) => c.connectionId === connection.id))
       .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
 
-    await Promise.all([...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection))]);
+    await Promise.all([
+      ...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection)),
+    ]);
   };
 
   /**

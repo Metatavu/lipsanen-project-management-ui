@@ -107,7 +107,11 @@
     "errorListingJobPositions": "Virhe haettaessa rooleja",
     "errorCreatingJobPosition": "Virhe luotaessa uutta roolia",
     "errorUpdatingJobPosition": "Virhe päivitettäessä roolia",
-    "errorDeletingJobPosition": "Virhe poistettaessa roolia"
+    "errorDeletingJobPosition": "Virhe poistettaessa roolia",
+    "errorListingTasks": "Virhe haettaessa tehtäviä",
+    "errorFindingTask": "Virhe haettaessa tehtävää",
+    "errorUpdatingTask": "Virhe päivitettäessä tehtävää",
+    "errorDeletingTask": "Virhe poistettaessa tehtävää"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -160,6 +164,9 @@
   },
   "trackingScreen": {
     "title": "Seuranta"
+  },
+  "tasksScreen": {
+    "title": "Tehtävät"
   },
   "scheduleScreen": {
     "title": "Aikataulu",

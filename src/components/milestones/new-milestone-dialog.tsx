@@ -44,7 +44,7 @@ const NewMilestoneDialog = () => {
   const createMilestoneMutation = useMutation({
     mutationFn: (params: CreateProjectMilestoneRequest) => projectMilestonesApi.createProjectMilestone(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
       setOpen(false);
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingProjectMilestone"), error),
@@ -72,11 +72,11 @@ const NewMilestoneDialog = () => {
    * Handles milestone creation form submit
    */
   const handleMilestoneFormSubmit = async () => {
-    if (!milestoneData.startDate || !milestoneData.endDate) return;
+    if (!milestoneData.startDate?.isValid || !milestoneData.endDate?.isValid) return;
 
     // Convert DateTime objects to JavaScript Date objects
-    const startDateIsoConverted = new Date(milestoneData.startDate.toISODate()!);
-    const endDateIsoConverted = new Date(milestoneData.endDate.toISODate()!);
+    const startDateIsoConverted = new Date(milestoneData.startDate.toISODate());
+    const endDateIsoConverted = new Date(milestoneData.endDate.toISODate());
 
     //TODO: check originalStartDate and originalEndDate
     await createMilestoneMutation.mutateAsync({
