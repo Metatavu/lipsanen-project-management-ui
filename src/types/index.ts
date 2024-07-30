@@ -76,3 +76,12 @@ export interface TaskConnectionTableData {
   hierarchy: TaskConnectionRelationship;
   attachedTask?: Task;
 }
+
+/**
+ * Interface for icon options
+ */
+export interface IconOption {
+  label: string;
+  value: string;
+  icon: object;
+}
