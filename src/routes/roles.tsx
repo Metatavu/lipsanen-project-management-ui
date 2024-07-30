@@ -73,10 +73,7 @@ function RolesIndexRoute() {
      * @param color color string
      */
     const renderColorCircle = (color?: string) => {
-        if (!color) {
-            return null;
-        }
-
+        if (!color) return null;
         return (
             <div style={{ width: 30, height: 30, borderRadius: "50%", backgroundColor: color }} />
         );
