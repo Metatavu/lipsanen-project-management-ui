@@ -105,9 +105,9 @@ function RolesIndexRoute() {
                 editable: true,
                 flex: 1,
                 renderCell: (params) => (
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {params.row.name}
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {params.row.name}
+                  </div>
                 ),
               },
               {
