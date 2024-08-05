@@ -13,6 +13,7 @@
 import { Route as rootRoute } from "./../../routes/__root"
 import { Route as UsersImport } from "./../../routes/users"
 import { Route as SettingsImport } from "./../../routes/settings"
+import { Route as RolesImport } from "./../../routes/roles"
 import { Route as ProjectsImport } from "./../../routes/projects"
 import { Route as ProjectTemplatesImport } from "./../../routes/project-templates"
 import { Route as MonitoringImport } from "./../../routes/monitoring"
@@ -30,6 +31,11 @@ const UsersRoute = UsersImport.update({
 
 const SettingsRoute = SettingsImport.update({
   path: "/settings",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RolesRoute = RolesImport.update({
+  path: "/roles",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -89,6 +95,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ProjectsImport
       parentRoute: typeof rootRoute
     }
+    "/roles": {
+      preLoaderRoute: typeof RolesImport
+      parentRoute: typeof rootRoute
+    }
     "/settings": {
       preLoaderRoute: typeof SettingsImport
       parentRoute: typeof rootRoute
@@ -119,6 +129,7 @@ export const routeTree = rootRoute.addChildren([
   MonitoringRoute,
   ProjectTemplatesRoute,
   ProjectsRoute,
+  RolesRoute,
   SettingsRoute,
   UsersRoute,
   ProjectsProjectIdScheduleRoute,

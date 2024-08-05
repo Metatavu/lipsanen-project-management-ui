@@ -4,6 +4,7 @@
   "monitoring": "Monitoring",
   "projectTemplates": "Project templates",
   "users": "Users",
+  "roles": "Roles",
   "logout": "Logout",
   "search": "Search",
   "generic": {
@@ -39,7 +40,15 @@
     "role": "Role",
     "lastLoggedIn": "Last logged in",
     "deleteUser": "Delete user",
-    "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?"
+    "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?",
+    "position": "Position"
+  },
+  "rolesScreen": {
+    "icon": "Icon",
+    "color": "Color",
+    "users": "Users",
+    "deleteTitle": "Delete position",
+    "deleteDescription": "Are you sure you want to delete position: {{name}}?"
   },
   "name": "Name",
   "addANewUser": "Add a new user",
@@ -52,7 +61,8 @@
     "createNewCompany": "Create new company",
     "invalidEmailWarning": "Enter a valid email",
     "emailNotUniqueWarning": "Email must be unique",
-    "assignUserToProject": "Assign user to project"
+    "assignUserToProject": "Assign user to project",
+    "assignUserToPosition": "Assign user to a position"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
@@ -108,6 +118,7 @@
     "unknownOrganization": "Unknown organization",
     "lastLogin": "Last login",
     "userYetToLogin": "Yet to login",
+    "position": "Position",
     "role": "Role",
     "noAssignedRole": "No assigned role",
     "projects": "Projects",
@@ -124,6 +135,16 @@
     "selectRole": "Select role",
     "assign": "Assign",
     "cancel": "Cancel"
+  },
+  "jobPositionDialog": {
+    "title": "Job positions",
+    "addNewJobPosition": "Add a new position",
+    "name": "Name",
+    "enterName": "Enter name",
+    "color": "Color",
+    "enterColor": "Enter color",
+    "selectIcon": "Select icon",
+    "create": "Create new position"
   },
   "settingsScreen": {
     "title": "Settings",
@@ -153,7 +174,17 @@
     "start": "Start",
     "ready": "Ready",
     "readiness": "Readiness",
-    "days": "days"
+    "days": "days",
+    "labelDay": "Day",
+    "labelWeek": "Week",
+    "labelMonth": "Month",
+    "showConnections": "Show connections"
+  },
+  "colorSelector": {
+    "otherColor": "Other color"
+  },
+  "iconSelector": {
+    "selectIcon": "Select icon"
   },
   "newProjectMilestoneDialog": {
     "title": "Create a new milestone",

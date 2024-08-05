@@ -4,6 +4,7 @@
   "monitoring": "Seuranta",
   "projectTemplates": "Projektimallit",
   "users": "Käyttäjät",
+  "roles": "Roolit",
   "logout": "Kirjaudu ulos",
   "search": "Haku",
   "generic": {
@@ -39,7 +40,15 @@
     "role": "Rooli",
     "lastLoggedIn": "Viimeksi paikalla",
     "deleteUser": "Poista käyttäjä",
-    "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?"
+    "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?",
+    "position": "Rooli"
+  },
+  "rolesScreen": {
+    "icon": "Ikoni",
+    "color": "Väri",
+    "users": "Käyttäjiä",
+    "deleteTitle": "Poista rooli",
+    "deleteDescription": "Haluatko varmasti poistaa roolin: {{name}}?"
   },
   "name": "Nimi",
   "addANewUser": "Lisää uusi käyttäjä",
@@ -52,7 +61,8 @@
     "createNewCompany": "Perusta uusi yritys",
     "invalidEmailWarning": "Anna kelvollinen sähköpostiosoite",
     "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen",
-    "assignUserToProject": "Lisää käyttäjä projektiin"
+    "assignUserToProject": "Lisää käyttäjä projektiin",
+    "assignUserToPosition": "Lisää käyttäjä rooliin"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
@@ -108,7 +118,8 @@
     "unknownOrganization": "Tuntematon organisaatio",
     "lastLogin": "Liittyi mukaan",
     "userYetToLogin": "Ei vielä liittynyt",
-    "role": "Rooli",
+    "position": "Rooli",
+    "role": "Käyttöoikeusrooli",
     "noAssignedRole": "Ei määritettyä roolia",
     "projects": "Projektit",
     "projectName": "Nimi",
@@ -124,6 +135,16 @@
     "selectRole": "Valitse rooli",
     "assign": "Lisää",
     "cancel": "Peruuta"
+  },
+  "jobPositionDialog": {
+    "title": "Rooleja",
+    "addNewJobPosition": "Lisää uusi rooli",
+    "name": "Nimi",
+    "enterName": "Anna nimi",
+    "color": "Väri",
+    "enterColor": "Anna väri",
+    "selectIcon": "Valitse ikoni",
+    "create": "Luo uusi rooli"
   },
   "settingsScreen": {
     "title": "Asetukset",
@@ -153,7 +174,17 @@
     "start": "Alkaa",
     "ready": "Valmis",
     "readiness": "Valmius",
-    "days": "pv"
+    "days": "pv",
+    "labelDay": "Päivä",
+    "labelWeek": "Viikko",
+    "labelMonth": "Kuukausi",
+    "showConnections": "Näytä riippuvuudet"
+  },
+  "colorSelector": {
+    "otherColor": "Muu väri"
+  },
+  "iconSelector": {
+    "selectIcon": "Valitse ikoni"
   },
   "newProjectMilestoneDialog": {
     "title": "Luo uusi virstanpylväs",

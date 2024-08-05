@@ -25,6 +25,10 @@ import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
 
+const ADMIN_ROLE = "admin";
+const PROJECT_OWNER_ROLE = "project-owner";
+const USER_ROLE = "user";
+
 const NotificationBadge = styled(Badge)({
   "& .MuiBadge-badge": {
     right: 2,
@@ -45,6 +49,9 @@ const TopNavigation = () => {
     { route: "/monitoring", labelKey: "monitoring" },
     { route: "/project-templates", labelKey: "projectTemplates" },
     { route: "/users", labelKey: "users" },
+    ...(auth?.roles.includes(ADMIN_ROLE) || auth?.roles.includes(PROJECT_OWNER_ROLE)
+      ? [{ route: "/roles", labelKey: "roles" }] as NavigationLink[]
+      : []),
     { route: "/settings", labelKey: "settingsScreen.title" },
   ];
 

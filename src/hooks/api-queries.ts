@@ -375,7 +375,30 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
         throw Error(t("errorHandling.errorListingTaskConnections"), { cause: error });
       }
     },
-    enabled: !!projectId && !!taskId
+    enabled: !!projectId
+  });
+};
+
+/**
+ * List job positions query hook
+ * 
+ * @param params ListJobPositionsRequest
+ */
+export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
+  const { jobPositionsApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["jobPositions", params],
+    queryFn: async (): Promise<{ jobPositions: JobPosition[]; maxResults: number }> => {
+      try {
+        const [jobPositions, headers] = await jobPositionsApi.listJobPositionsWithHeaders(params ?? {});
+        return { jobPositions: jobPositions, maxResults: parseInt(headers.get("X-Total-Count") ?? "0") };
+      } catch (error) {
+        handleError("Error listing job positions", error);
+        throw Error(t("errorHandling.errorListingJobPositions"), { cause: error });
+      }
+    },
   });
 };
 

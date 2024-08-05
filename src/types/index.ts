@@ -53,8 +53,8 @@ export interface TaskFormData {
   status: TaskStatus;
   assigneeIds: string[];
   userRole?: UserRole;
-  estimatedDuration?: string;
-  estimatedReadiness?: string;
+  estimatedDuration?: number;
+  estimatedReadiness?: number;
   attachmentUrls: string[];
 }
 
@@ -75,4 +75,27 @@ export interface TaskConnectionTableData {
   type: TaskConnectionType;
   hierarchy: TaskConnectionRelationship;
   attachedTask?: Task;
+}
+
+/**
+ * Interface for describing task status colors
+ */
+export enum TaskStatusColor {
+  NOT_STARTED = "#37474F",
+  NOT_STARTED_SELECTED = "#546E7A",
+  IN_PROGRESS = "#2E7D32",
+  IN_PROGRESS_SELECTED = "#388E3C",
+  DONE = "#0079BF",
+  DONE_SELECTED = "#2196F3",
+  OVERDUE = "#D32F2F",
+  OVERDUE_SELECTED = "#F44336",
+}
+
+/**
+ * Interface for icon options
+ */
+export interface IconOption {
+  label: string;
+  value: string;
+  icon: object;
 }

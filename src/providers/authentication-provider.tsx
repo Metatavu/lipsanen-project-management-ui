@@ -23,6 +23,7 @@ const AuthenticationProvider = ({ children }: Props) => {
       token: keycloak.tokenParsed,
       tokenRaw: keycloak.token,
       logout: () => keycloak.logout({ redirectUri: `${window.location.origin}` }),
+      roles: keycloak.realmAccess?.roles ?? []
     });
 
     setUserProfile(keycloak.profile);
