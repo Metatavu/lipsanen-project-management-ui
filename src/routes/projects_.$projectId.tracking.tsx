@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
 import {
-  Avatar,
   Box,
   Card,
   Table,
@@ -9,33 +7,18 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Toolbar,
   Tooltip,
   Typography,
-  Switch,
-  Button,
 } from '@mui/material';
-import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import FilterListIcon from "@mui/icons-material/FilterList";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ConstructionIcon from "@mui/icons-material/Construction";
 import { FlexColumnLayout } from 'components/generic/flex-column-layout';
-import ProgressBadge from 'components/generic/progress-badge';
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useApi } from 'hooks/use-api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFindMilestoneTaskQuery, useFindUserQuery, useListMilestoneTasksQuery, useListNotificationEventsQuery, useListProjectMilestonesQuery, useListUsersQuery } from 'hooks/api-queries';
-import { useAtom } from 'jotai';
-import { Notification, NotificationEvent, Task, UpdateNotificationEventRequest } from 'generated/client';
-import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
-import { Link } from "@tanstack/react-router";
-import ProjectUtils from "utils/project";
-import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
-import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
-import { useConfirmDialog } from "providers/confirm-dialog-provider";
-import { theme } from 'theme';
+import { useListMilestoneTasksQuery, useListNotificationEventsQuery, useListProjectMilestonesQuery, useListUsersQuery } from 'hooks/api-queries';
+import { NotificationEvent, UpdateNotificationEventRequest } from 'generated/client';
+import TaskList from 'components/tasks/task-list';
 
 /**
  * Tracking file route
@@ -44,13 +27,15 @@ export const Route = createFileRoute("/projects/$projectId/tracking")({
   component: TrackingIndexRoute,
 });
 
+// TODO: Finalise tracking screen
+
 /**
  * Tracking index route component
  */
 function TrackingIndexRoute() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
-  const { notificationsApi, NotificationEventsApi } = useApi();
+  const { NotificationEventsApi } = useApi();
   const queryClient = useQueryClient();
 
   const users = useListUsersQuery().data?.users || [];
@@ -62,10 +47,7 @@ function TrackingIndexRoute() {
 
   const listTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId: testMilestone?.id ?? "" });
   const tasks = listTasksQuery.data || [];
-
-  console.log("Tasks are ", tasks);
-  console.log("Task assignees are ", tasks.map(task => task.assigneeIds));
-  console.log("Test user id is ", testUser?.id);
+  const testUserTasks = tasks.filter(task => (task.assigneeIds ?? []).includes(testUser?.id ?? ""));
 
   const listNotificationEventsQuery = useListNotificationEventsQuery({ userId: testUser?.id ?? "", projectId: projectId });
   const notificationEvents = listNotificationEventsQuery.data || [];
@@ -111,7 +93,7 @@ function TrackingIndexRoute() {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <AssignmentOutlinedIcon sx={{ marginRight: '0.5rem' }} />
             <Typography variant="subtitle1" fontWeight="bold">
-              {notificationEvent.notification.taskId ?? "Perustukset / Lohko 2"}
+              {tasks.find(task => task.id === notificationEvent.notification.taskId)?.name ?? "Perustukset / Lohko 2"}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -132,7 +114,9 @@ function TrackingIndexRoute() {
             {notificationEvent.notification.message ?? "Lorem ipsum dolor sit amet consectetur. Id dictum etiam velit interdum."}
           </Typography>
           <Typography variant="body2" color="textSecondary">
-            {notificationEvent.notification.date ?? "dd.mm.yyyy - hh:mm"}
+          {notificationEvent.metadata?.createdAt
+            ? `${notificationEvent.metadata.createdAt.toLocaleDateString('en-GB').replace(/\//g, ".")} - ${notificationEvent.metadata.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+            : ""}
           </Typography>
         </Box>
       </Card>
@@ -141,80 +125,12 @@ function TrackingIndexRoute() {
   
   const renderNotificationsColumn = () => {
     return (
-      <Card sx={{ width: "25%", height: "100%", overflow: "auto", boxShadow: "none", padding: "1rem" }}>
+      <Card sx={{ width: "30%", height: "100%", overflow: "auto", boxShadow: "none", padding: "1rem" }}>
         <Typography component="h2" variant="h6" sx={{ padding: "0 0 1rem 0", borderBottom: '1px solid #e0e0e0' }}>
           Notifikaatiot
         </Typography>
         <Box sx={{ padding: "0 1rem" }}>
           {notificationEvents.map((notificationEvent) => renderNotificationCard(notificationEvent))}
-        </Box>
-      </Card>
-    );
-  };
-
-  const renderTasksColumn = () => {
-    if (!testMilestone || !testMilestone.id) return null;
-    if (listTasksQuery.isFetching) return null;
-    // const maxResults = useCachedMaxResultsFromQuery(listTasksQuery);
-
-    const columns = [
-      {
-        field: "assigneeIds",
-        headerName: "Tekijä",
-        flex: 1,
-        renderCell: (params) => {
-          const assigneeIds = params.value as string[];
-          const assignees = users.filter(user => assigneeIds.includes(user.id ?? ""));
-          const assigneesSorted = assignees.sort((a, b) => (a.id === testUser?.id ? -1 : 1));
-          const assigneeNames = assigneesSorted.map(assignee => `${assignee.firstName} ${assignee.lastName}`).join(", ");
-          return (
-            <Tooltip title={assigneeNames}>
-              <Typography sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontSize: theme.typography.fontSize }}>
-                {assigneeNames}
-              </Typography>
-            </Tooltip>
-          );
-        }
-      },
-      {
-        field: "name",
-        headerName: "Tehtävä",
-        flex: 1
-      },
-      {
-        field: "endDate",
-        headerName: "Valmis arvio",
-        flex: 1,
-        renderCell: (params) => new Date(params.value).toLocaleDateString()
-      },
-      {
-        field: "status",
-        headerName: "Tila",
-        flex: 1
-      },
-      {
-        field: "estimatedReadiness",
-        headerName: "Valmius",
-        flex: 1,
-        renderCell: (params) => <ProgressBadge progress={params.value ?? 0} />
-      }
-    ];
-
-    return (
-      <Card sx={{ flex: 1, minWidth: 0, overflow: "auto", boxShadow: "none" }}>
-        <Typography component="h2" variant="h6" sx={{ padding: "1rem" }}>
-          Omat tehtäväni
-        </Typography>
-        <Box sx={{ padding: "1rem" }}>
-          <DataGrid
-            loading={listTasksQuery.isLoading}
-            sx={{ height: "100%", width: "100%" }}
-            rows={tasks ?? []}
-            rowCount={10}
-            columns={columns}
-            pageSizeOptions={[10, 25, 50]}
-            disableRowSelectionOnClick
-          />
         </Box>
       </Card>
     );
@@ -265,7 +181,8 @@ function TrackingIndexRoute() {
         {/* Tasks and Delays Column */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem', overflow: 'auto' }}>
           {/* Tasks Column */}
-          {renderTasksColumn()}
+          {/* {renderTasksColumn()} */}
+          <TaskList user={testUser!} tasks={testUserTasks} loading={listTasksQuery.isLoading} />
           {/* Delays Column */}
           {renderDelaysColumn()}
         </Box>

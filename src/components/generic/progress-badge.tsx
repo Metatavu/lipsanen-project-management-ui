@@ -5,6 +5,7 @@ import Badge from "@mui/material/Badge";
  */
 interface Props {
   progress: number;
+  customWidth?: string;
 }
 
 /**
@@ -12,7 +13,7 @@ interface Props {
  *
  * @param props component properties
  */
-const ProgressBadge = ({ progress }: Props) => {
+const ProgressBadge = ({ progress, customWidth }: Props) => {
   const backgroundClipPath = `inset(0 ${100 - progress}% 0 0)`;
 
   return (
@@ -22,7 +23,7 @@ const ProgressBadge = ({ progress }: Props) => {
       style={{
         position: "relative",
         borderRadius: "999px",
-        width: "80px",
+        width: customWidth || "80px",
         height: "36px",
         border: "1px solid #0000001A",
         display: "flex",
