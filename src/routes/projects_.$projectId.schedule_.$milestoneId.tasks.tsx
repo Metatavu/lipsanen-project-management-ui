@@ -23,7 +23,7 @@ import {
   useFindProjectMilestoneQuery,
   useFindUsersQuery,
   useListChangeProposalsQuery,
-  useListMilestoneTasksQuery,
+  useListTasksQuery,
   useListTaskConnectionsQuery,
 } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
@@ -31,7 +31,13 @@ import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
 import TaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
-import { ChangeProposal, ChangeProposalStatus, Task, UpdateChangeProposalRequest, UpdateTaskRequest } from "generated/client";
+import {
+  ChangeProposal,
+  ChangeProposalStatus,
+  Task,
+  UpdateChangeProposalRequest,
+  UpdateTaskRequest,
+} from "generated/client";
 import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
@@ -55,12 +61,12 @@ export const Route = createFileRoute("/projects/$projectId/schedule/$milestoneId
 function MilestoneTasksListRoute() {
   const { t } = useTranslation();
   const { projectId, milestoneId } = Route.useParams();
-  const { milestoneTasksApi, changeProposalsApi } = useApi();
+  const { tasksApi: milestoneTasksApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
 
   const findProjectMilestoneQuery = useFindProjectMilestoneQuery({ projectId, milestoneId });
   const milestone = findProjectMilestoneQuery.data;
-  const listMilestoneTasksQuery = useListMilestoneTasksQuery({ projectId, milestoneId });
+  const listMilestoneTasksQuery = useListTasksQuery({ projectId, milestoneId });
   const tasks = listMilestoneTasksQuery.data;
   const listChangeProposalsQuery = useListChangeProposalsQuery({ projectId, milestoneId });
   const changeProposals = listChangeProposalsQuery.data;
@@ -119,9 +125,7 @@ function MilestoneTasksListRoute() {
   const updateChangeProposal = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["changeProposals", projectId, milestoneId] });
-      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
@@ -132,9 +136,8 @@ function MilestoneTasksListRoute() {
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => milestoneTasksApi.updateTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestoneTasks", projectId, milestoneId] });
-      queryClient.invalidateQueries({ queryKey: ["taskConnections", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["projectMilestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
@@ -179,20 +182,20 @@ function MilestoneTasksListRoute() {
     return (
       <TableRow key={milestone.id}>
         <TableCell style={{ overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar sx={{ backgroundColor: "#0079BF" }}>
-                <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
-              </Avatar>
-              {/* TODO: Handle overflowing name with maxWidth could be improved */}
-              <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
-                <Tooltip placement="top" title={milestone.name}>
-                  <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {milestone.name}
-                  </Typography>
-                </Tooltip>
-                <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
-              </Box>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Avatar sx={{ backgroundColor: "#0079BF" }}>
+              <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
+            </Avatar>
+            {/* TODO: Handle overflowing name with maxWidth could be improved */}
+            <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
+              <Tooltip placement="top" title={milestone.name}>
+                <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {milestone.name}
+                </Typography>
+              </Tooltip>
+              <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
+            </Box>
+          </div>
         </TableCell>
         <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
         <TableCell>{formattedStartDate}</TableCell>
@@ -292,7 +295,7 @@ function MilestoneTasksListRoute() {
 
   /**
    * Handles updating a task
-   * 
+   *
    * @param task chart task
    * TODO: enable if a customer wants to update tasks by dragging them in the gantt chart
    */
@@ -314,7 +317,7 @@ function MilestoneTasksListRoute() {
       taskId: task.id,
       task: updatedTask,
     });
-  }
+  };
 
   /**
    * Renders the task Gantt chart
@@ -347,20 +350,22 @@ function MilestoneTasksListRoute() {
       dependencies: getTaskChildren(task.id!).map((connection) => connection.sourceTaskId),
     }));
 
-    const oneMilestoneForGantt = milestone && {
-      start: milestone.startDate,
-      end: milestone.endDate,
-      name: milestone.name,
-      id: milestone.id ?? "0",
-      type: "custom-milestone",
-      progress: milestone.estimatedReadiness ?? 0,
-      styles: {
-        backgroundColor: TaskStatusColor.NOT_STARTED,
-        backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
-        progressColor: ChartHelpers.getMilestoneColorBasedOnReadiness(milestone),
-        progressSelectedColor: ChartHelpers.getMilestoneSelectedColorBasedOnReadiness(milestone)
-      },
-    } as GanttTypes.Task;
+    const oneMilestoneForGantt =
+      milestone &&
+      ({
+        start: milestone.startDate,
+        end: milestone.endDate,
+        name: milestone.name,
+        id: milestone.id ?? "0",
+        type: "custom-milestone",
+        progress: milestone.estimatedReadiness ?? 0,
+        styles: {
+          backgroundColor: TaskStatusColor.NOT_STARTED,
+          backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
+          progressColor: ChartHelpers.getMilestoneColorBasedOnReadiness(milestone),
+          progressSelectedColor: ChartHelpers.getMilestoneSelectedColorBasedOnReadiness(milestone),
+        },
+      } as GanttTypes.Task);
 
     return (
       <Box sx={{ width: "100%", overflowX: "auto" }}>
