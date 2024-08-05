@@ -37,6 +37,12 @@ export interface User {
      * @type {string}
      * @memberof User
      */
+    readonly keycloakId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
     firstName: string;
     /**
      * 
@@ -69,11 +75,17 @@ export interface User {
      */
     projectIds?: Array<string>;
     /**
-     * User role
+     * User roles, can be empty or filled if includeRoles pameter is used. Defines the access level of the user.
      * @type {Array<UserRole>}
      * @memberof User
      */
     readonly roles?: Array<UserRole>;
+    /**
+     * Job position that the user has
+     * @type {string}
+     * @memberof User
+     */
+    jobPositionId?: string;
 }
 
 /**
@@ -99,6 +111,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
+        'keycloakId': !exists(json, 'keycloakId') ? undefined : json['keycloakId'],
         'firstName': json['firstName'],
         'lastName': json['lastName'],
         'email': json['email'],
@@ -106,6 +119,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'lastLoggedIn': !exists(json, 'lastLoggedIn') ? undefined : (new Date(json['lastLoggedIn'])),
         'projectIds': !exists(json, 'projectIds') ? undefined : json['projectIds'],
         'roles': !exists(json, 'roles') ? undefined : ((json['roles'] as Array<any>).map(UserRoleFromJSON)),
+        'jobPositionId': !exists(json, 'jobPositionId') ? undefined : json['jobPositionId'],
     };
 }
 
@@ -125,6 +139,7 @@ export function UserToJSON(value?: User | null): any {
         'companyId': value.companyId,
         'lastLoggedIn': value.lastLoggedIn === undefined ? undefined : (value.lastLoggedIn.toISOString()),
         'projectIds': value.projectIds,
+        'jobPositionId': value.jobPositionId,
     };
 }
 
