@@ -23,24 +23,21 @@ import {
 export interface CreateTaskRequest {
     task: Task;
     projectId: string;
-    milestoneId: string;
 }
 
 export interface DeleteTaskRequest {
     projectId: string;
-    milestoneId: string;
     taskId: string;
 }
 
 export interface FindTaskRequest {
     projectId: string;
-    milestoneId: string;
     taskId: string;
 }
 
 export interface ListTasksRequest {
     projectId: string;
-    milestoneId: string;
+    milestoneId?: string;
     first?: number;
     max?: number;
 }
@@ -48,7 +45,6 @@ export interface ListTasksRequest {
 export interface UpdateTaskRequest {
     task: Task;
     projectId: string;
-    milestoneId: string;
     taskId: string;
 }
 
@@ -58,8 +54,8 @@ export interface UpdateTaskRequest {
 export class TasksApi extends runtime.BaseAPI {
 
     /**
-     * Create a new milestone task
-     * Create a new milestone task
+     * Create a new task
+     * Create a new task
      */
     async createTaskRaw(requestParameters: CreateTaskRequest): Promise<runtime.ApiResponse<Task>> {
         if (requestParameters.task === null || requestParameters.task === undefined) {
@@ -68,10 +64,6 @@ export class TasksApi extends runtime.BaseAPI {
 
         if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling createTask.');
-        }
-
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling createTask.');
         }
 
         const queryParameters: any = {};
@@ -89,7 +81,7 @@ export class TasksApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/tasks`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))),
+            path: `/v1/projects/{projectId}/tasks`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -100,8 +92,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Create a new milestone task
-     * Create a new milestone task
+     * Create a new task
+     * Create a new task
      */
     async createTask(requestParameters: CreateTaskRequest): Promise<Task> {
         const response = await this.createTaskRaw(requestParameters);
@@ -109,8 +101,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Create a new milestone task
-     * Create a new milestone task
+     * Create a new task
+     * Create a new task
      */
     async createTaskWithHeaders(requestParameters: CreateTaskRequest): Promise<[ Task, Headers ]> {
         const response = await this.createTaskRaw(requestParameters);
@@ -119,16 +111,12 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Delete a milestone task
-     * Delete a milestone task
+     * Delete a task
+     * Delete a task
      */
     async deleteTaskRaw(requestParameters: DeleteTaskRequest): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling deleteTask.');
-        }
-
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling deleteTask.');
         }
 
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
@@ -148,7 +136,7 @@ export class TasksApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/tasks/{taskId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
+            path: `/v1/projects/{projectId}/tasks/{taskId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -158,16 +146,16 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Delete a milestone task
-     * Delete a milestone task
+     * Delete a task
+     * Delete a task
      */
     async deleteTask(requestParameters: DeleteTaskRequest): Promise<void> {
         await this.deleteTaskRaw(requestParameters);
     }
 
     /**
-     * Delete a milestone task
-     * Delete a milestone task
+     * Delete a task
+     * Delete a task
      */
     async deleteTaskWithHeaders(requestParameters: DeleteTaskRequest): Promise<Headers> {
         const response = await this.deleteTaskRaw(requestParameters);
@@ -175,16 +163,12 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get a milestone task
-     * Get a milestone task
+     * Get a task
+     * Get a task
      */
     async findTaskRaw(requestParameters: FindTaskRequest): Promise<runtime.ApiResponse<Task>> {
         if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling findTask.');
-        }
-
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling findTask.');
         }
 
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
@@ -204,7 +188,7 @@ export class TasksApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/tasks/{taskId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
+            path: `/v1/projects/{projectId}/tasks/{taskId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -214,8 +198,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get a milestone task
-     * Get a milestone task
+     * Get a task
+     * Get a task
      */
     async findTask(requestParameters: FindTaskRequest): Promise<Task> {
         const response = await this.findTaskRaw(requestParameters);
@@ -223,8 +207,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get a milestone task
-     * Get a milestone task
+     * Get a task
+     * Get a task
      */
     async findTaskWithHeaders(requestParameters: FindTaskRequest): Promise<[ Task, Headers ]> {
         const response = await this.findTaskRaw(requestParameters);
@@ -233,19 +217,19 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get all milestone tasks
-     * Get all milestone tasks
+     * Get all tasks
+     * Get all tasks
      */
     async listTasksRaw(requestParameters: ListTasksRequest): Promise<runtime.ApiResponse<Array<Task>>> {
         if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listTasks.');
         }
 
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling listTasks.');
-        }
-
         const queryParameters: any = {};
+
+        if (requestParameters.milestoneId !== undefined) {
+            queryParameters['milestoneId'] = requestParameters.milestoneId;
+        }
 
         if (requestParameters.first !== undefined) {
             queryParameters['first'] = requestParameters.first;
@@ -266,7 +250,7 @@ export class TasksApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/tasks`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))),
+            path: `/v1/projects/{projectId}/tasks`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -276,8 +260,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get all milestone tasks
-     * Get all milestone tasks
+     * Get all tasks
+     * Get all tasks
      */
     async listTasks(requestParameters: ListTasksRequest): Promise<Array<Task>> {
         const response = await this.listTasksRaw(requestParameters);
@@ -285,8 +269,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get all milestone tasks
-     * Get all milestone tasks
+     * Get all tasks
+     * Get all tasks
      */
     async listTasksWithHeaders(requestParameters: ListTasksRequest): Promise<[ Array<Task>, Headers ]> {
         const response = await this.listTasksRaw(requestParameters);
@@ -295,8 +279,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Update a milestone task
-     * Update a milestone task
+     * Update a task
+     * Update a task
      */
     async updateTaskRaw(requestParameters: UpdateTaskRequest): Promise<runtime.ApiResponse<Task>> {
         if (requestParameters.task === null || requestParameters.task === undefined) {
@@ -305,10 +289,6 @@ export class TasksApi extends runtime.BaseAPI {
 
         if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling updateTask.');
-        }
-
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling updateTask.');
         }
 
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
@@ -330,7 +310,7 @@ export class TasksApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/tasks/{taskId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
+            path: `/v1/projects/{projectId}/tasks/{taskId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -341,8 +321,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Update a milestone task
-     * Update a milestone task
+     * Update a task
+     * Update a task
      */
     async updateTask(requestParameters: UpdateTaskRequest): Promise<Task> {
         const response = await this.updateTaskRaw(requestParameters);
@@ -350,8 +330,8 @@ export class TasksApi extends runtime.BaseAPI {
     }
 
     /**
-     * Update a milestone task
-     * Update a milestone task
+     * Update a task
+     * Update a task
      */
     async updateTaskWithHeaders(requestParameters: UpdateTaskRequest): Promise<[ Task, Headers ]> {
         const response = await this.updateTaskRaw(requestParameters);

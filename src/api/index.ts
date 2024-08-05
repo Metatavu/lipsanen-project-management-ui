@@ -35,7 +35,7 @@ export const getApiClient = (accessToken?: string) => {
     usersApi: new UsersApi(getConfiguration()),
     companiesApi: new CompaniesApi(getConfiguration()),
     projectMilestonesApi: new ProjectMilestonesApi(getConfiguration()),
-    milestoneTasksApi: new TasksApi(getConfiguration()),
+    tasksApi: new TasksApi(getConfiguration()),
     changeProposalsApi: new ChangeProposalsApi(getConfiguration()),
     taskConnectionsApi: new TaskConnectionsApi(getConfiguration()),
     jobPositionsApi: new JobPositionsApi(getConfiguration()),

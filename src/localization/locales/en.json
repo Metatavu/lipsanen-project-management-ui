@@ -109,7 +109,11 @@
     "errorUpdatingJobPosition": "Error while updating a job position",
     "errorDeletingJobPosition": "Error while deleting a job position",
     "errorListingNotificationEvents": "Error while fetching notification events list",
-    "errorUpdatingNotificationEvent": "Error while updating a notification event"
+    "errorUpdatingNotificationEvent": "Error while updating a notification event",
+    "errorListingTasks": "Error while fetching tasks list",
+    "errorFindingTask": "Error while fetching a task",
+    "errorUpdatingTask": "Error while updating a task",
+    "errorDeletingTask": "Error while deleting a task"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -162,6 +166,9 @@
   },
   "trackingScreen": {
     "title": "Tracking"
+  },
+  "tasksScreen": {
+    "title": "Tasks"
   },
   "scheduleScreen": {
     "title": "Schedule",

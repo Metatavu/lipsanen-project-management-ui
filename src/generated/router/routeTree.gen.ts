@@ -19,6 +19,7 @@ import { Route as ProjectTemplatesImport } from "./../../routes/project-template
 import { Route as MonitoringImport } from "./../../routes/monitoring"
 import { Route as IndexImport } from "./../../routes/index"
 import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/projects_.$projectId.tracking"
+import { Route as ProjectsProjectIdTasksImport } from "./../../routes/projects_.$projectId.tasks"
 import { Route as ProjectsProjectIdScheduleImport } from "./../../routes/projects_.$projectId.schedule"
 import { Route as ProjectsProjectIdScheduleMilestoneIdTasksImport } from "./../../routes/projects_.$projectId.schedule_.$milestoneId.tasks"
 
@@ -61,6 +62,11 @@ const IndexRoute = IndexImport.update({
 
 const ProjectsProjectIdTrackingRoute = ProjectsProjectIdTrackingImport.update({
   path: "/projects/$projectId/tracking",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProjectsProjectIdTasksRoute = ProjectsProjectIdTasksImport.update({
+  path: "/projects/$projectId/tasks",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -111,6 +117,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ProjectsProjectIdScheduleImport
       parentRoute: typeof rootRoute
     }
+    "/projects/$projectId/tasks": {
+      preLoaderRoute: typeof ProjectsProjectIdTasksImport
+      parentRoute: typeof rootRoute
+    }
     "/projects/$projectId/tracking": {
       preLoaderRoute: typeof ProjectsProjectIdTrackingImport
       parentRoute: typeof rootRoute
@@ -133,6 +143,7 @@ export const routeTree = rootRoute.addChildren([
   SettingsRoute,
   UsersRoute,
   ProjectsProjectIdScheduleRoute,
+  ProjectsProjectIdTasksRoute,
   ProjectsProjectIdTrackingRoute,
   ProjectsProjectIdScheduleMilestoneIdTasksRoute,
 ])
