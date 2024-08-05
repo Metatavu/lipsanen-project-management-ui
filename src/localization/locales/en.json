@@ -98,7 +98,8 @@
     "errorCreatingJobPosition": "Error while creating a new job position",
     "errorUpdatingJobPosition": "Error while updating a job position",
     "errorDeletingJobPosition": "Error while deleting a job position",
-    "errorListingNotificationEvents": "Error while fetching notification events list"
+    "errorListingNotificationEvents": "Error while fetching notification events list",
+    "errorUpdatingNotificationEvent": "Error while updating a notification event"
   },
   "userInfoDialog": {
     "title": "User information",

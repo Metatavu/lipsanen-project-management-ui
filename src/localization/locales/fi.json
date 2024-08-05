@@ -98,7 +98,8 @@
     "errorCreatingJobPosition": "Virhe luotaessa uutta roolia",
     "errorUpdatingJobPosition": "Virhe päivitettäessä roolia",
     "errorDeletingJobPosition": "Virhe poistettaessa roolia",
-    "errorListingNotificationEvents": "Virhe haettaessa ilmoitustapahtumia"
+    "errorListingNotificationEvents": "Virhe haettaessa ilmoitustapahtumia",
+    "errorUpdatingNotificationEvent": "Virhe päivitettäessä ilmoitustapahtumia"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
