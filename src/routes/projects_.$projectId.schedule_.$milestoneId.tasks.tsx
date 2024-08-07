@@ -160,7 +160,6 @@ function MilestoneTasksListRoute() {
         status: status,
       },
       projectId: projectId,
-      milestoneId: milestoneId,
       changeProposalId: changeProposalId,
     });
   };
@@ -313,7 +312,6 @@ function MilestoneTasksListRoute() {
 
     await updateTaskMutation.mutateAsync({
       projectId: projectId,
-      milestoneId: milestoneId,
       taskId: task.id,
       task: updatedTask,
     });
