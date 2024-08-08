@@ -248,6 +248,7 @@ const TaskDialog = ({
       tasksApi.updateTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) =>
       console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
