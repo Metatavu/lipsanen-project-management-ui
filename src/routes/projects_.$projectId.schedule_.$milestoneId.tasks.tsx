@@ -61,7 +61,7 @@ export const Route = createFileRoute("/projects/$projectId/schedule/$milestoneId
 function MilestoneTasksListRoute() {
   const { t } = useTranslation();
   const { projectId, milestoneId } = Route.useParams();
-  const { tasksApi: milestoneTasksApi, changeProposalsApi } = useApi();
+  const { tasksApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
 
   const findProjectMilestoneQuery = useFindProjectMilestoneQuery({ projectId, milestoneId });
@@ -125,7 +125,7 @@ function MilestoneTasksListRoute() {
   const updateChangeProposal = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
@@ -134,10 +134,9 @@ function MilestoneTasksListRoute() {
    * Update task mutation
    */
   const updateTaskMutation = useMutation({
-    mutationFn: (params: UpdateTaskRequest) => milestoneTasksApi.updateTask(params),
+    mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
