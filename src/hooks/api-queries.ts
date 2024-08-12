@@ -110,7 +110,7 @@ export const useFindUsersQuery = (userIds?: string[]) => {
           return await usersApi.listUsers({ keycloakId: userId });
         });
 
-        const users = await Promise.all(userPromises);
+        const userLists = await Promise.all(userPromises);
         const flattenedUsers = users.flat();
         return flattenedUsers;
       } catch (error) {
