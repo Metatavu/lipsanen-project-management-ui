@@ -123,12 +123,11 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
     newPlainTextValue: string,
     mentions: MentionItem[],
   ) => {
-    commentReferencedUsers.length &&
-      commentReferencedUsers.map((userId) => {
-        if (!newPlainTextValue.includes(projectUsersMap[userId])) {
-          handleMentionDelete(userId);
-        }
-      });
+    commentReferencedUsers.forEach((userId) => {
+      if (!newPlainTextValue.includes(projectUsersMap[userId])) {
+        handleMentionDelete(userId);
+      }
+    });
 
     setNewComment(newPlainTextValue);
     setNewCommentDisplay(event.target.value);
