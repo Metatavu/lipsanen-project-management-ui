@@ -190,16 +190,13 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
     const mentionRegex = /@\w+\s\w+/g;
     const mentions = comment.match(mentionRegex) || [];
 
-    const validMentionIds = mentions
-      .map((mention) => mention.slice(1))
-      .filter((mentionName) => {
-        return Object.values(projectUsersMap).includes(mentionName);
-      })
-      .map((mentionName) => {
-        const userId = Object.keys(projectUsersMap).find((userId) => projectUsersMap[userId] === mentionName);
-        return userId || "";
-      })
-      .filter((mentionId) => !!mentionId);
+    const validMentionIds = mentions.reduce<string[]>((list, mention) => {
+      const mentionName = mention.slice(1);
+      const userEntry = projectUsersMap.entries().find(([, name]) => mentionName === name);
+      const userId = userEntry?.at(0);
+      if (userId) list.push(userId);
+      return list;
+    }, []);
 
     return validMentionIds;
   };
