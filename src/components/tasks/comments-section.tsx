@@ -148,12 +148,11 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
     newPlainTextValue: string,
     mentions: MentionItem[],
   ) => {
-    editingReferencedUsers.length &&
-      editingReferencedUsers.map((userId) => {
-        if (!newPlainTextValue.includes(projectUsersMap[userId])) {
-          handleUpdateMentionDelete(userId);
-        }
-      });
+    editingReferencedUsers.forEach((userId) => {
+      if (!newPlainTextValue.includes(projectUsersMap[userId])) {
+        handleUpdateMentionDelete(userId);
+      }
+    });
 
     setEditingComment(newPlainTextValue);
     setEditingCommentDisplay(event.target.value);
