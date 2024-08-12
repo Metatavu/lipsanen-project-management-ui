@@ -111,8 +111,7 @@ export const useFindUsersQuery = (userIds?: string[]) => {
         });
 
         const userLists = await Promise.all(userPromises);
-        const flattenedUsers = users.flat();
-        return flattenedUsers;
+        return userLists.flat();
       } catch (error) {
         handleError("Error finding multiple users", error);
         throw Error(t("errorHandling.errorFindingMultipleUsers"), { cause: error });
