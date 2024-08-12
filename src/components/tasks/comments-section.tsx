@@ -208,31 +208,31 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
    */
   const parseAndStyleMentions = (comment: string) => {
     const mentionRegex = /@\w+\s\w+/g;
-    const parts = comment.split(mentionRegex);
+    const plainTextParts = comment.split(mentionRegex);
     const mentions = comment.match(mentionRegex);
+    const projectUserNames = Object.values(projectUsersMap);
 
     return (
       <>
-        {parts.map((part, index) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: no id available here
-          <Typography component="span" key={index}>
-            {part}
-            {mentions?.[index] && Object.values(projectUsersMap).includes(mentions[index].substring(1)) ? (
-              <Typography
-                component="span"
-                sx={{ color: "#0079BF" }}
-                key={`mention-${
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                  index
-                }`}
-              >
-                {mentions[index]}
-              </Typography>
-            ) : (
-              mentions?.[index]
-            )}
-          </Typography>
-        ))}
+        {plainTextParts.map((part, index) => {
+          const mention = mentions?.at(index);
+          const mentionName = mention?.substring(1);
+          const mentionKey = `${mentionName}-${index}`;
+          const mentionMatchesUser = mentionName && projectUserNames.includes(mentionName);
+
+          return (
+            <Typography component="span" key={mentionKey}>
+              {part}
+              {mentionMatchesUser ? (
+                <Typography component="span" sx={{ color: "#0079BF" }}>
+                  {mention}
+                </Typography>
+              ) : (
+                mention
+              )}
+            </Typography>
+          );
+        })}
       </>
     );
   };
