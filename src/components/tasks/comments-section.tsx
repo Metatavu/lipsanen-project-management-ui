@@ -123,6 +123,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
     newPlainTextValue: string,
     mentions: MentionItem[],
   ) => {
+    // biome-ignore lint/complexity/noForEach: Using forEach for readability
     commentReferencedUsers.forEach((userId) => {
       if (!newPlainTextValue.includes(projectUsersMap[userId])) {
         handleMentionDelete(userId);
@@ -148,6 +149,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
     newPlainTextValue: string,
     mentions: MentionItem[],
   ) => {
+    // biome-ignore lint/complexity/noForEach: Using forEach for readability
     editingReferencedUsers.forEach((userId) => {
       if (!newPlainTextValue.includes(projectUsersMap[userId])) {
         handleUpdateMentionDelete(userId);
@@ -192,7 +194,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
 
     const validMentionIds = mentions.reduce<string[]>((list, mention) => {
       const mentionName = mention.slice(1);
-      const userEntry = projectUsersMap.entries().find(([, name]) => mentionName === name);
+      const userEntry = Object.entries(projectUsersMap).find(([, name]) => mentionName === name);
       const userId = userEntry?.at(0);
       if (userId) list.push(userId);
       return list;
