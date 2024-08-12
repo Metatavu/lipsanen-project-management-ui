@@ -156,12 +156,11 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
 
     setEditingComment(newPlainTextValue);
     setEditingCommentDisplay(event.target.value);
-    mentions.length &&
-      setEditingReferencedUsers((prev) => {
-        const updatedUsers = [...prev, ...mentions.map((mention) => mention.id)];
-        const uniqueUsers = Array.from(new Set(updatedUsers));
-        return uniqueUsers;
-      });
+    setEditingReferencedUsers((prev) => {
+      const updatedUsers = [...prev, ...mentions.map((mention) => mention.id)];
+      const uniqueUsers = Array.from(new Set(updatedUsers));
+      return uniqueUsers;
+    });
   };
 
   /**
