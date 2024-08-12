@@ -131,7 +131,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
 
     setNewComment(newPlainTextValue);
     setNewCommentDisplay(event.target.value);
-    mentions.length && setCommentReferencedUsers((prev) => [...prev, ...mentions.map((mention) => mention.id)]);
+    setCommentReferencedUsers((prev) => [...prev, ...mentions.map((mention) => mention.id)]);
   };
 
   /**
