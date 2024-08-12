@@ -94,8 +94,8 @@
     "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
     "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
     "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä",
-    "errorListingTaskComments": "Virhe haettaessa tehtävän kommenttiluetteloa",
-    "errorCreatingTaskComment": "Virhe luotaessa uutta tehtäväkommenttia",
+    "errorListingTaskComments": "Virhe haettaessa tehtävän kommentteja",
+    "errorCreatingTaskComment": "Virhe luotaessa uutta kommenttia tehtävään",
     "errorUpdatingTaskComment": "Virhe päivitettäessä tehtävän kommenttia",
     "errorDeletingTaskComment": "Virhe poistettaessa tehtävän kommenttia"
   },
