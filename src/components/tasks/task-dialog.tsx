@@ -39,6 +39,7 @@ import {
   useListProjectUsersQuery,
   useListTaskAttachmentsQuery,
   useListTaskConnectionsQuery,
+  useListJobPositionsQuery,
 } from "hooks/api-queries";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
@@ -51,7 +52,6 @@ import {
   TaskStatus,
   UpdateChangeProposalRequest,
   UpdateTaskRequest,
-  UserRole,
   CreateTaskConnectionRequest,
   DeleteTaskConnectionRequest,
   TaskConnectionType,
@@ -108,6 +108,8 @@ const TaskDialog = ({
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(
     TASK_ATTACHMENT_UPLOAD_PATH,
   );
+  const listJobPositionsQuery = useListJobPositionsQuery();
+  const jobPositions = listJobPositionsQuery.data?.jobPositions ?? [];
   const showConfirmDialog = useConfirmDialog();
 
   // Set initial task data based on existing task or new task
@@ -118,7 +120,7 @@ const TaskDialog = ({
         endDate: DateTime.fromJSDate(task.endDate),
         status: task.status,
         assigneeIds: task.assigneeIds ?? [],
-        userRole: task.userRole,
+        positionId: task.jobPositionId,
         estimatedDuration: task.estimatedDuration,
         estimatedReadiness: task.estimatedReadiness,
         attachmentUrls: task.attachmentUrls ?? [],
@@ -129,7 +131,7 @@ const TaskDialog = ({
         endDate: null,
         status: TaskStatus.NotStarted,
         assigneeIds: [],
-        userRole: UserRole.User,
+        positionId: "",
         estimatedDuration: 0,
         estimatedReadiness: 0,
         attachmentUrls: [],
@@ -685,7 +687,6 @@ const TaskDialog = ({
     try {
       await deleteChangeProposalMutation.mutateAsync({
         projectId: projectId,
-        milestoneId: milestoneId,
         changeProposalId: changeProposalId,
       });
     } finally {
@@ -753,7 +754,6 @@ const TaskDialog = ({
     if (task?.id) {
       await updateTaskMutation.mutateAsync({
         projectId: projectId,
-        milestoneId: milestoneId,
         taskId: task.id,
         task: {
           milestoneId: milestoneId,
@@ -762,7 +762,7 @@ const TaskDialog = ({
           endDate: endDateIsoConverted,
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
-          userRole: taskData.userRole,
+          jobPositionId: taskData.positionId,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
           attachmentUrls: taskData.attachmentUrls,
@@ -774,7 +774,6 @@ const TaskDialog = ({
     } else {
       const createdTask = await createTaskMutation.mutateAsync({
         projectId: projectId,
-        milestoneId: milestoneId,
         task: {
           milestoneId: milestoneId,
           name: taskData.name,
@@ -782,7 +781,7 @@ const TaskDialog = ({
           endDate: endDateIsoConverted,
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
-          userRole: taskData.userRole,
+          jobPositionId: taskData.positionId,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
           attachmentUrls: taskData.attachmentUrls,
@@ -802,7 +801,7 @@ const TaskDialog = ({
       endDate: null,
       status: TaskStatus.NotStarted,
       assigneeIds: [],
-      userRole: UserRole.User,
+      positionId: "",
       estimatedDuration: 0,
       estimatedReadiness: 0,
       attachmentUrls: [],
@@ -832,7 +831,6 @@ const TaskDialog = ({
 
         return await createChangeProposalMutation.mutateAsync({
           projectId: projectId,
-          milestoneId: milestoneId,
           changeProposal: proposal,
         });
       },
@@ -856,7 +854,6 @@ const TaskDialog = ({
         return updateChangeProposalsMutation.mutateAsync({
           changeProposal: proposal,
           projectId: projectId,
-          milestoneId: milestoneId,
           changeProposalId: proposal.id,
         });
       },
@@ -975,9 +972,17 @@ const TaskDialog = ({
           </Grid>
           <Grid item xs={6}>
             {renderDropdownPicker(
-              "userRole",
-              t("newMilestoneTaskDialog.userRole"),
-              Object.values(UserRole),
+              "positionId",
+              t("newMilestoneTaskDialog.position"),
+              jobPositions.reduce(
+                (acc, position) => {
+                  if (position.id) {
+                    acc[position.id] = position.name;
+                  }
+                  return acc;
+                },
+                {} as Record<string, string>,
+              ),
               false,
             )}
           </Grid>
