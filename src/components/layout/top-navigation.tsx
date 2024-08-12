@@ -16,7 +16,7 @@ import {
   styled,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useMatches, useNavigate } from "@tanstack/react-router";
+import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
 import { authAtom } from "../../atoms/auth";
 import { useAtom } from "jotai";
@@ -24,6 +24,10 @@ import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/ho
 import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
+
+const ADMIN_ROLE = "admin";
+const PROJECT_OWNER_ROLE = "project-owner";
+const USER_ROLE = "user";
 
 const NotificationBadge = styled(Badge)({
   "& .MuiBadge-badge": {
@@ -37,6 +41,7 @@ const TopNavigation = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   useMatches();
+  const pathParams = useParams({ strict: false });
 
   const accountMenuState = usePopupState({ variant: "popover", popupId: "accountMenu" });
 
@@ -45,6 +50,9 @@ const TopNavigation = () => {
     { route: "/monitoring", labelKey: "monitoring" },
     { route: "/project-templates", labelKey: "projectTemplates" },
     { route: "/users", labelKey: "users" },
+    ...(auth?.roles.includes(ADMIN_ROLE) || auth?.roles.includes(PROJECT_OWNER_ROLE)
+      ? ([{ route: "/roles", labelKey: "roles" }] as NavigationLink[])
+      : []),
     { route: "/settings", labelKey: "settingsScreen.title" },
   ];
 
@@ -52,6 +60,7 @@ const TopNavigation = () => {
     { route: "/projects", labelKey: "back", icon: ArrowBackIcon },
     { route: "/projects/$projectId/tracking", labelKey: "trackingScreen.title" },
     { route: "/projects/$projectId/schedule", labelKey: "scheduleScreen.title" },
+    { route: "/projects/$projectId/tasks", labelKey: "tasksScreen.title" },
   ];
 
   const isProjectRoute = location.pathname.includes("projects/") && location.pathname.split("projects/")[1] !== "";
@@ -78,7 +87,7 @@ const TopNavigation = () => {
                 label={labelKey !== "back" && t(labelKey)}
                 icon={labelKey === "back" ? <ArrowBackIcon /> : undefined}
                 value={routeIndex}
-                onClick={() => navigate({ to: route })}
+                onClick={() => navigate({ to: route, params: pathParams })}
               />
             ))}
           </Tabs>

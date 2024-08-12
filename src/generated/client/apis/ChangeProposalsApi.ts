@@ -18,29 +18,34 @@ import {
     ChangeProposal,
     ChangeProposalFromJSON,
     ChangeProposalToJSON,
+    Task,
+    TaskFromJSON,
+    TaskToJSON,
 } from '../models';
 
 export interface CreateChangeProposalRequest {
     changeProposal: ChangeProposal;
     projectId: string;
-    milestoneId: string;
 }
 
 export interface DeleteChangeProposalRequest {
     projectId: string;
-    milestoneId: string;
     changeProposalId: string;
 }
 
 export interface FindChangeProposalRequest {
     projectId: string;
-    milestoneId: string;
+    changeProposalId: string;
+}
+
+export interface ListChangeProposalTasksPreviewRequest {
+    projectId: string;
     changeProposalId: string;
 }
 
 export interface ListChangeProposalsRequest {
     projectId: string;
-    milestoneId: string;
+    milestoneId?: string;
     taskId?: string;
     first?: number;
     max?: number;
@@ -49,7 +54,6 @@ export interface ListChangeProposalsRequest {
 export interface UpdateChangeProposalRequest {
     changeProposal: ChangeProposal;
     projectId: string;
-    milestoneId: string;
     changeProposalId: string;
 }
 
@@ -71,10 +75,6 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling createChangeProposal.');
         }
 
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling createChangeProposal.');
-        }
-
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -90,7 +90,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/changeProposals`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))),
+            path: `/v1/projects/{projectId}/changeProposals`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -128,10 +128,6 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling deleteChangeProposal.');
         }
 
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling deleteChangeProposal.');
-        }
-
         if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
             throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling deleteChangeProposal.');
         }
@@ -149,7 +145,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -184,10 +180,6 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling findChangeProposal.');
         }
 
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling findChangeProposal.');
-        }
-
         if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
             throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling findChangeProposal.');
         }
@@ -205,7 +197,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -234,6 +226,60 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
+     * List of updated tasks that are affected by the change proposal
+     * List of updated tasks that are affected by the change proposal
+     */
+    async listChangeProposalTasksPreviewRaw(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<runtime.ApiResponse<Array<Task>>> {
+        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
+            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listChangeProposalTasksPreview.');
+        }
+
+        if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
+            throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling listChangeProposalTasksPreview.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}/tasks`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TaskFromJSON));
+    }
+
+    /**
+     * List of updated tasks that are affected by the change proposal
+     * List of updated tasks that are affected by the change proposal
+     */
+    async listChangeProposalTasksPreview(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<Array<Task>> {
+        const response = await this.listChangeProposalTasksPreviewRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * List of updated tasks that are affected by the change proposal
+     * List of updated tasks that are affected by the change proposal
+     */
+    async listChangeProposalTasksPreviewWithHeaders(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<[ Array<Task>, Headers ]> {
+        const response = await this.listChangeProposalTasksPreviewRaw(requestParameters);
+        const value = await response.value(); 
+        return [ value, response.raw.headers ];
+    }
+
+    /**
      * Lists change proposals within a milestone. Proposals are sorted from earliest to latest created.
      * List change proposals within a milestone
      */
@@ -242,11 +288,11 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listChangeProposals.');
         }
 
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling listChangeProposals.');
-        }
-
         const queryParameters: any = {};
+
+        if (requestParameters.milestoneId !== undefined) {
+            queryParameters['milestoneId'] = requestParameters.milestoneId;
+        }
 
         if (requestParameters.taskId !== undefined) {
             queryParameters['taskId'] = requestParameters.taskId;
@@ -271,7 +317,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/changeProposals`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))),
+            path: `/v1/projects/{projectId}/changeProposals`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -312,10 +358,6 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling updateChangeProposal.');
         }
 
-        if (requestParameters.milestoneId === null || requestParameters.milestoneId === undefined) {
-            throw new runtime.RequiredError('milestoneId','Required parameter requestParameters.milestoneId was null or undefined when calling updateChangeProposal.');
-        }
-
         if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
             throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling updateChangeProposal.');
         }
@@ -335,7 +377,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/milestones/{milestoneId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"milestoneId"}}`, encodeURIComponent(String(requestParameters.milestoneId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

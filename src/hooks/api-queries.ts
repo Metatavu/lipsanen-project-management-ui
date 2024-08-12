@@ -16,13 +16,15 @@ import {
   ListTaskConnectionsRequest,
   FindTaskRequest,
   ListTaskCommentsRequest,
+  ListJobPositionsRequest,
+  JobPosition,
 } from "generated/client";
 import { filesApi } from "api/files";
 
 /**
  * List companies query hook
  *
- * @param params ListCompaniesRequest
+ * @param {ListCompaniesRequest} params
  */
 export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
   const { companiesApi } = useApi();
@@ -30,10 +32,16 @@ export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
 
   return useQuery({
     queryKey: ["companies", params],
-    queryFn: async (): Promise<{ companies: Company[]; maxResults: number }> => {
+    queryFn: async (): Promise<{
+      companies: Company[];
+      maxResults: number;
+    }> => {
       try {
         const [companies, headers] = await companiesApi.listCompaniesWithHeaders(params ?? {});
-        return { companies: companies, maxResults: parseInt(headers.get("X-Total-Count") ?? "0") };
+        return {
+          companies: companies,
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+        };
       } catch (error) {
         handleError("Error listing companies", error);
         throw Error(t("errorHandling.errorListingCompanies"), { cause: error });
@@ -56,7 +64,10 @@ export const useListUsersQuery = (params?: ListUsersRequest) => {
     queryFn: async (): Promise<{ users: User[]; maxResults: number }> => {
       try {
         const [users, headers] = await usersApi.listUsersWithHeaders(params ?? {});
-        return { users: users, maxResults: parseInt(headers.get("X-Total-Count") ?? "0") };
+        return {
+          users: users,
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+        };
       } catch (error) {
         handleError("Error listing users", error);
         throw Error(t("errorHandling.errorListingUsers"), { cause: error });
@@ -106,15 +117,15 @@ export const useFindUsersQuery = (userIds?: string[]) => {
       try {
         if (!userIds?.length) return null;
 
-        const userPromises = userIds.map(async (userId) =>
-          usersApi.listUsers({ keycloakId: userId })
-        );
+        const userPromises = userIds.map(async (userId) => usersApi.listUsers({ keycloakId: userId }));
 
         const userLists = await Promise.all(userPromises);
         return userLists.flat();
       } catch (error) {
         handleError("Error finding multiple users", error);
-        throw Error(t("errorHandling.errorFindingMultipleUsers"), { cause: error });
+        throw Error(t("errorHandling.errorFindingMultipleUsers"), {
+          cause: error,
+        });
       }
     },
     enabled: !!userIds?.length,
@@ -136,7 +147,10 @@ export const useListProjectsQuery = (params?: ListProjectsRequest) => {
     queryFn: async (): Promise<{ projects: Project[]; maxResults: number }> => {
       try {
         const [projects, headers] = await projectsApi.listProjectsWithHeaders(params ?? {});
-        return { projects: projects, maxResults: parseInt(headers.get("X-Total-Count") ?? "0") };
+        return {
+          projects: projects,
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+        };
       } catch (error) {
         handleError("Error listing projects", error);
         throw Error(t("errorHandling.errorListingProjects"), { cause: error });
@@ -181,7 +195,9 @@ export const useListProjectThemesQuery = (projectId?: string) => {
         return projectThemesApi.listProjectThemes({ projectId: projectId });
       } catch (error) {
         handleError("Error listing project themes", error);
-        throw Error(t("errorHandling.errorListingProjectThemes"), { cause: error });
+        throw Error(t("errorHandling.errorListingProjectThemes"), {
+          cause: error,
+        });
       }
     },
     enabled: !!projectId,
@@ -191,7 +207,7 @@ export const useListProjectThemesQuery = (projectId?: string) => {
 /**
  * List project users query hook
  *
- * @param projectId string
+ * @param projectId project ID
  */
 export const useListProjectUsersQuery = (projectId?: string) => {
   const { usersApi } = useApi();
@@ -207,7 +223,9 @@ export const useListProjectUsersQuery = (projectId?: string) => {
         return projectUsers;
       } catch (error) {
         handleError("Error listing project users", error);
-        throw Error(t("errorHandling.errorListingProjectUsers"), { cause: error });
+        throw Error(t("errorHandling.errorListingProjectUsers"), {
+          cause: error,
+        });
       }
     },
     enabled: !!projectId,
@@ -216,6 +234,8 @@ export const useListProjectUsersQuery = (projectId?: string) => {
 
 /**
  * List logos query hook
+ *
+ * @param filesPath path to logo files
  */
 export const useListLogosQuery = (filesPath: string) =>
   useQuery({
@@ -235,97 +255,100 @@ export const useListTaskAttachmentsQuery = (filesPath: string) =>
 /**
  * List project milestones query hook
  *
- * @param params ListProjectMilestonesRequest
+ * @param params request params
  */
-export const useListProjectMilestonesQuery = (params: ListProjectMilestonesRequest) => {
+export const useListProjectMilestonesQuery = ({ projectId }: ListProjectMilestonesRequest) => {
   const { projectMilestonesApi } = useApi();
   const { t } = useTranslation();
-  const { projectId } = params;
 
   return useQuery({
-    queryKey: ["projectMilestones", projectId],
+    queryKey: ["projects", projectId, "milestones"],
     queryFn: async () => {
       try {
-        return projectMilestonesApi.listProjectMilestones({ projectId: projectId });
+        return projectMilestonesApi.listProjectMilestones({ projectId });
       } catch (error) {
         handleError("Error listing project milestones", error);
-        throw Error(t("errorHandling.errorListingProjectMilestones"), { cause: error });
+        throw Error(t("errorHandling.errorListingProjectMilestones"), {
+          cause: error,
+        });
       }
     },
-    enabled: !!projectId,
   });
 };
 
 /**
  * Find project milestone query hook
  *
- * @param projectId string
- * @param milestoneId string
+ * @param params request params
  */
-export const useFindProjectMilestoneQuery = (params: FindProjectMilestoneRequest) => {
+export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindProjectMilestoneRequest) => {
   const { projectMilestonesApi } = useApi();
   const { t } = useTranslation();
-  const { projectId, milestoneId } = params;
 
   return useQuery({
-    queryKey: ["projectMilestones", projectId, milestoneId],
+    queryKey: ["projects", projectId, "milestones", milestoneId],
     queryFn: async () => {
       try {
-        return projectMilestonesApi.findProjectMilestone({ projectId: projectId, milestoneId: milestoneId });
+        return projectMilestonesApi.findProjectMilestone({
+          projectId,
+          milestoneId,
+        });
       } catch (error) {
         handleError("Error finding project milestone", error);
-        throw Error(t("errorHandling.errorFindingProjectMilestone"), { cause: error });
+        throw Error(t("errorHandling.errorFindingProjectMilestone"), {
+          cause: error,
+        });
       }
     },
-    enabled: !!projectId && !!milestoneId,
   });
 };
 
 /**
- * List milestone tasks query hook
+ * List tasks query hook
  *
- * @param params ListMilestoneTasksRequest
+ * @param params request params
  */
-export const useListMilestoneTasksQuery = (params: ListTasksRequest) => {
-  const { milestoneTasksApi } = useApi();
+export const useListTasksQuery = ({ projectId, ...filters }: ListTasksRequest) => {
+  const { tasksApi } = useApi();
   const { t } = useTranslation();
-  const { projectId, milestoneId } = params;
 
   return useQuery({
-    queryKey: ["milestoneTasks", projectId, milestoneId],
+    queryKey: ["projects", projectId, "tasks", filters],
     queryFn: async () => {
       try {
-        return milestoneTasksApi.listTasks({ projectId: projectId, milestoneId: milestoneId });
+        return tasksApi.listTasks({ projectId, ...filters });
       } catch (error) {
-        handleError("Error listing milestone tasks", error);
-        throw Error(t("errorHandling.errorListingMilestoneTasks"), { cause: error });
+        handleError("Error listing tasks", error);
+        throw Error(t("errorHandling.errorListingTasks"), { cause: error });
       }
     },
-    enabled: !!projectId && !!milestoneId,
   });
 };
 
 /**
  * List change proposals query hook
  *
- * @param params ListChangeProposalsRequest
+ * @param params request params
  */
-export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) => {
+export const useListChangeProposalsQuery = ({ projectId, ...filters }: ListChangeProposalsRequest) => {
   const { changeProposalsApi } = useApi();
   const { t } = useTranslation();
-  const { projectId, milestoneId } = params;
 
   return useQuery({
-    queryKey: ["changeProposals", projectId, milestoneId],
+    queryKey: ["projects", projectId, "changeProposals", filters],
     queryFn: async () => {
       try {
-        return changeProposalsApi.listChangeProposals({ projectId: projectId, milestoneId: milestoneId });
+        return changeProposalsApi.listChangeProposals({
+          projectId,
+          ...filters,
+        });
       } catch (error) {
         handleError("Error listing change proposals", error);
-        throw Error(t("errorHandling.errorListingChangeProposals"), { cause: error });
+        throw Error(t("errorHandling.errorListingChangeProposals"), {
+          cause: error,
+        });
       }
     },
-    enabled: !!projectId && !!milestoneId,
   });
 };
 
@@ -334,22 +357,22 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
  *
  * @param params FindTaskRequest
  */
-export const useFindMilestoneTaskQuery = (params: FindTaskRequest) => {
-  const { milestoneTasksApi } = useApi();
+export const useFindTaskQuery = ({ projectId, taskId }: FindTaskRequest) => {
+  const { tasksApi: milestoneTasksApi } = useApi();
   const { t } = useTranslation();
-  const { projectId, milestoneId, taskId } = params;
 
   return useQuery({
-    queryKey: ["milestoneTasks", projectId, taskId],
+    queryKey: ["projects", projectId, "tasks", taskId],
     queryFn: async () => {
       try {
-        return milestoneTasksApi.findTask({ projectId: projectId, milestoneId: milestoneId, taskId: taskId });
+        return milestoneTasksApi.findTask({ projectId, taskId });
       } catch (error) {
         handleError("Error finding milestone task", error);
-        throw Error(t("errorHandling.errorFindingMilestoneTask"), { cause: error });
+        throw Error(t("errorHandling.errorFindingMilestoneTask"), {
+          cause: error,
+        });
       }
     },
-    enabled: !!projectId && !!taskId,
   });
 };
 
@@ -358,22 +381,25 @@ export const useFindMilestoneTaskQuery = (params: FindTaskRequest) => {
  *
  * @param params ListTaskConnectionsRequest
  */
-export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) => {
+export const useListTaskConnectionsQuery = ({ projectId, ...filters }: ListTaskConnectionsRequest) => {
   const { taskConnectionsApi } = useApi();
   const { t } = useTranslation();
-  const { projectId, taskId } = params;
 
   return useQuery({
-    queryKey: ["taskConnections", projectId, taskId],
+    queryKey: ["projects", projectId, "connections", filters],
     queryFn: async () => {
       try {
-        return taskConnectionsApi.listTaskConnections({ projectId: projectId, taskId: taskId });
+        return taskConnectionsApi.listTaskConnections({
+          projectId,
+          ...filters,
+        });
       } catch (error) {
         handleError("Error listing task connections", error);
-        throw Error(t("errorHandling.errorListingTaskConnections"), { cause: error });
+        throw Error(t("errorHandling.errorListingTaskConnections"), {
+          cause: error,
+        });
       }
     },
-    enabled: !!projectId && !!taskId,
   });
 };
 
@@ -385,18 +411,49 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
 export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
   const { taskCommentsApi } = useApi();
   const { t } = useTranslation();
-  const { projectId, milestoneId, taskId } = params;
+  const { projectId, taskId } = params;
 
   return useQuery({
-    queryKey: ["comments", projectId, milestoneId, taskId],
+    queryKey: ["comments", projectId, taskId],
     queryFn: async () => {
       try {
-        return taskCommentsApi.listTaskComments({ projectId: projectId, milestoneId: milestoneId, taskId: taskId });
+        return taskCommentsApi.listTaskComments({ projectId: projectId, taskId: taskId });
       } catch (error) {
         handleError("Error listing task comments", error);
         throw Error(t("errorHandling.errorListingTaskComments"), { cause: error });
       }
     },
-    enabled: !!projectId && !!milestoneId && !!taskId,
+    enabled: !!projectId && !!taskId,
+  });
+};
+
+/**
+ * List job positions query hook
+ *
+ * @param params request params
+ */
+export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
+  const { jobPositionsApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["jobPositions", params],
+    queryFn: async (): Promise<{
+      jobPositions: JobPosition[];
+      maxResults: number;
+    }> => {
+      try {
+        const [jobPositions, headers] = await jobPositionsApi.listJobPositionsWithHeaders(params ?? {});
+        return {
+          jobPositions: jobPositions,
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+        };
+      } catch (error) {
+        handleError("Error listing job positions", error);
+        throw Error(t("errorHandling.errorListingJobPositions"), {
+          cause: error,
+        });
+      }
+    },
   });
 };

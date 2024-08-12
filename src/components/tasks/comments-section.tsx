@@ -43,7 +43,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
   const { taskCommentsApi } = useApi();
   const queryClient = useQueryClient();
   const loggedInUser = useAtomValue(userProfileAtom);
-  const listTaskCommentsQuery = useListTaskCommentsQuery({ projectId, milestoneId, taskId: taskId });
+  const listTaskCommentsQuery = useListTaskCommentsQuery({ projectId, taskId: taskId });
 
   const [newComment, setNewComment] = useState("");
   const [newCommentDisplay, setNewCommentDisplay] = useState("");
@@ -247,7 +247,6 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
   const handleDeleteComment = async (id: string) => {
     await deleteTaskCommentMutation.mutateAsync({
       projectId: projectId,
-      milestoneId: milestoneId,
       taskId: taskId,
       commentId: id,
     });
@@ -266,7 +265,6 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
 
     await createTaskCommentMutation.mutateAsync({
       projectId: projectId,
-      milestoneId: milestoneId,
       taskId: taskId,
       taskComment: {
         comment: newComment,
@@ -291,7 +289,6 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
     await updateTaskCommentMutation.mutateAsync({
       commentId: commentId,
       projectId: projectId,
-      milestoneId: milestoneId,
       taskId: taskId,
       taskComment: {
         comment: editingComment,
