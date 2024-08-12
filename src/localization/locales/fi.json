@@ -93,7 +93,7 @@
     "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
     "errorCreatingTaskConnection": "Virhe luotaessa riippuvuutta tehtäville",
     "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien riippuvuutta",
-    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä",
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien riippuvuutta",
     "errorListingTaskComments": "Virhe haettaessa tehtävän kommentteja",
     "errorCreatingTaskComment": "Virhe luotaessa uutta kommenttia tehtävään",
     "errorUpdatingTaskComment": "Virhe päivitettäessä tehtävän kommenttia",
