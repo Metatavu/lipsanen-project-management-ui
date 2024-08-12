@@ -319,12 +319,10 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
         display: projectUsersMap[userId],
       }));
 
-    const handleChange = editingValue ? handleUpdateMentionChange : handleMentionChange;
-
     return (
       <MentionsInput
         value={editingValue ? editingCommentDisplay : newCommentDisplay}
-        onChange={handleChange}
+        onChange={editingValue ? handleUpdateMentionChange : handleMentionChange}
         style={{
           width: "100%",
           height: "auto",
