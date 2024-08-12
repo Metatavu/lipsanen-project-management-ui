@@ -106,7 +106,7 @@ export const useFindUsersQuery = (userIds?: string[]) => {
       try {
         if (!userIds?.length) return null;
 
-        const userPromises = userIds.map(async (userId) => {
+        const userPromises = userIds.map(async (userId) =>
           usersApi.listUsers({ keycloakId: userId })
         });
 
