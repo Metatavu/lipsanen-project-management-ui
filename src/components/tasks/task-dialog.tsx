@@ -193,12 +193,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
    */
   const projectKeycloakUsersMap = useMemo(() => {
     const users = listProjectUsersQuery.data ?? [];
-    return users.reduce(
-      (acc, user) => {
-        if (user.keycloakId) acc[user.keycloakId] = `${user.firstName} ${user.lastName}`;
-        return acc;
+    return users.reduce<Record<string, string>>(
+      (record, user) => {
+        if (user.keycloakId) record[user.keycloakId] = `${user.firstName} ${user.lastName}`;
+        return record;
       },
-      {} as Record<string, string>,
+      {},
     );
   }, [listProjectUsersQuery.data]);
 
