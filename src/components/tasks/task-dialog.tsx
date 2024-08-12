@@ -92,7 +92,7 @@ const TaskDialog = ({
 }: Props) => {
   const { t } = useTranslation();
   const {
-    tasksApi: milestoneTasksApi,
+    tasksApi,
     taskConnectionsApi,
     changeProposalsApi,
   } = useApi();
@@ -234,11 +234,9 @@ const TaskDialog = ({
    */
   const createTaskMutation = useMutation({
     mutationFn: (params: CreateTaskRequest) =>
-      milestoneTasksApi.createTask(params),
+      tasksApi.createTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "milestones", milestoneId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
     },
     onError: (error) =>
       console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
@@ -249,11 +247,10 @@ const TaskDialog = ({
    */
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) =>
-      milestoneTasksApi.updateTask(params),
+      tasksApi.updateTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "milestones", milestoneId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) =>
       console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
@@ -266,9 +263,7 @@ const TaskDialog = ({
     mutationFn: (params: CreateChangeProposalRequest) =>
       changeProposalsApi.createChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "changeProposals"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
       onClose();
     },
     onError: (error) =>
@@ -282,9 +277,7 @@ const TaskDialog = ({
     mutationFn: (params: UpdateChangeProposalRequest) =>
       changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "changeProposals"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
       onClose();
     },
     onError: (error) =>
@@ -298,9 +291,7 @@ const TaskDialog = ({
     mutationFn: (params: DeleteChangeProposalRequest) =>
       changeProposalsApi.deleteChangeProposal(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "changeProposals"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
     },
     onError: (error) =>
       console.error(t("errorHandling.errorDeletingChangeProposal"), error),
@@ -313,9 +304,7 @@ const TaskDialog = ({
     mutationFn: (params: CreateTaskConnectionRequest) =>
       taskConnectionsApi.createTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "connections"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
     onError: (error) =>
       console.error(t("errorHandling.errorCreatingTaskConnection"), error),
@@ -328,9 +317,7 @@ const TaskDialog = ({
     mutationFn: (params: UpdateTaskConnectionRequest) =>
       taskConnectionsApi.updateTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "connections"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
     onError: (error) =>
       console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
@@ -343,9 +330,7 @@ const TaskDialog = ({
     mutationFn: (params: DeleteTaskConnectionRequest) =>
       taskConnectionsApi.deleteTaskConnection(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", projectId, "connections"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
     onError: (error) =>
       console.error(t("errorHandling.errorDeletingTaskConnection"), error),
