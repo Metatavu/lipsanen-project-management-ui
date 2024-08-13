@@ -132,7 +132,12 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
 
     setNewComment(newPlainTextValue);
     setNewCommentDisplay(event.target.value);
-    setCommentReferencedUsers((prev) => [...prev, ...mentions.map((mention) => mention.id)]);
+    if (mentions.some((mention) => !commentReferencedUsers.includes(mention.id))) {
+      setCommentReferencedUsers((prev) => [
+        ...prev,
+        ...mentions.map((mention) => mention.id).filter((id) => !prev.includes(id)),
+      ]);
+    }
   };
 
   /**
@@ -382,7 +387,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
       const hasBeenEdited = comment.metadata?.modifiedAt?.getTime() !== comment.metadata?.createdAt?.getTime();
 
       return (
-        <DialogContent key={comment.id} sx={{ display: "flex", flexDirection: "row" }}>
+        <DialogContent key={comment.id} sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
           {/* TODO: Placeholder icon until user icons ready */}
           <Avatar sx={{ backgroundColor: "#0079BF", marginRight: "1rem" }}>
             <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
