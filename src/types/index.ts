@@ -1,7 +1,7 @@
 import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
-import { ProjectStatus, Task, TaskConnectionType, TaskStatus, UserRole } from "generated/client";
+import { JobPosition, ProjectStatus, Task, TaskConnectionType, TaskStatus, UserRole } from "generated/client";
 import { DefaultNamespace, ParseKeys } from "i18next";
 import { DateTime } from "luxon";
 
@@ -52,6 +52,7 @@ export interface TaskFormData {
   endDate: DateTime<true> | DateTime<false> | null;
   status: TaskStatus;
   assigneeIds: string[];
+  positionId?: string;
   userRole?: UserRole;
   estimatedDuration?: number;
   estimatedReadiness?: number;
@@ -99,3 +100,10 @@ export interface IconOption {
   value: string;
   icon: object;
 }
+
+// Change proposal scopes: task, role and reason
+export enum ChangeProposalScope {
+  TASK = "TASK",
+  ROLE = "ROLE",
+  REASON = "REASON",
+};

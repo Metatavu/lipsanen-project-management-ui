@@ -110,6 +110,7 @@
     "errorDeletingJobPosition": "Virhe poistettaessa roolia",
     "errorListingNotificationEvents": "Virhe haettaessa ilmoitustapahtumia",
     "errorUpdatingNotificationEvent": "Virhe päivitettäessä ilmoitustapahtumia",
+    "errorDeletingNotificationEvent": "Virhe poistettaessa ilmoitustapahtumia",
     "errorListingTasks": "Virhe haettaessa tehtäviä",
     "errorFindingTask": "Virhe haettaessa tehtävää",
     "errorUpdatingTask": "Virhe päivitettäessä tehtävää",
@@ -165,7 +166,50 @@
     "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
   },
   "trackingScreen": {
-    "title": "Seuranta"
+    "title": "Seuranta",
+    "notificationsList": {
+      "title": "Notifikaatiot",
+      "today": "Tänään",
+      "yesterday": "Eilen",
+      "markRead": "Merkitse luetuksi",
+      "delete": "Poista"
+    },
+    "tasksList": {
+      "title": "Tehtävät",
+      "assignee": "Tekijä",
+      "task": "Tehtävä",
+      "readyBy": "Valmis arvio",
+      "status": "Tila",
+      "readiness": "Valmius"
+    },
+    "delaysList": {
+      "title": "Projektien myoöhästymiset",
+      "groupBy": "Ryhmittele",
+      "scopes": {
+        "task": "Tehtävä",
+        "role": "Rooli",
+        "reason": "Syy"
+      },
+      "byTask": {
+        "delayedTask": "Myöhästynyt tehtävä",
+        "creator": "Tekijä",
+        "delayReason": "Myöhästymisen syy",
+        "delayQuantity": "Aiheuttanut myöhästymisiä kpl"
+      },
+      "byRole": {
+        "role": "Rooli",
+        "tasks": "Tehtäviä",
+        "delayedNumber": "Myöhästyneitä kpl",
+        "delayPercentage": "Myöhästymis %",
+        "overallDelay": "Osuus myöhästyneistä %"
+      },
+      "byReason": {
+        "delayReason": "Myöhästymisen syy",
+        "delayedNumber": "Myöhästyneitä kpl",
+        "delayQuantity": "Aiheuttanut myöhästymisiä kpl",
+        "overallDelay": "Osuus myöhästyneistä %"
+      }
+    }
   },
   "tasksScreen": {
     "title": "Tehtävät"
@@ -210,6 +254,7 @@
     "assignees": "Tekijät",
     "type": "Tyyppi",
     "userRole": "Rooli",
+    "position": "Rooli",
     "start": "Alkaa",
     "end": "Valmis",
     "estimatedDuration": "Arvioitu kesto",
