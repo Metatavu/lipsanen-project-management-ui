@@ -1,26 +1,19 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  DialogContent,
-  DialogContentText,
-  IconButton,
-  LinearProgress,
-  Typography,
-} from "@mui/material";
+import { Box, Button, DialogContent, DialogContentText, IconButton, LinearProgress, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateTaskCommentRequest, DeleteTaskCommentRequest, UpdateTaskCommentRequest } from "generated/client";
+import { CreateTaskCommentRequest, DeleteTaskCommentRequest, UpdateTaskCommentRequest, User } from "generated/client";
 import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mention, MentionItem, MentionsInput } from "react-mentions";
-import { useListTaskCommentsQuery } from "hooks/api-queries";
+import { useListJobPositionsQuery, useListTaskCommentsQuery } from "hooks/api-queries";
 import { userProfileAtom } from "atoms/auth";
 import { useAtomValue } from "jotai";
+import { DEFAULT_USER_ICON } from "constants/index";
+import { theme } from "theme";
+import { renderMdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 
 /**
  * Component props
@@ -29,6 +22,7 @@ interface Props {
   projectId: string;
   milestoneId: string;
   taskId: string;
+  projectUsers: User[];
   projectUsersMap: Record<string, string>;
   projectKeycloakUsersMap: Record<string, string>;
 }
@@ -38,12 +32,21 @@ interface Props {
  *
  * @param props component props
  */
-const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, projectKeycloakUsersMap }: Props) => {
+const CommentsSection = ({
+  projectId,
+  milestoneId,
+  taskId,
+  projectUsers,
+  projectUsersMap,
+  projectKeycloakUsersMap,
+}: Props) => {
   const { t } = useTranslation();
   const { taskCommentsApi } = useApi();
   const queryClient = useQueryClient();
   const loggedInUser = useAtomValue(userProfileAtom);
   const listTaskCommentsQuery = useListTaskCommentsQuery({ projectId, taskId: taskId });
+  const listJobPositionsQuery = useListJobPositionsQuery();
+  const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
   const [newComment, setNewComment] = useState("");
   const [newCommentDisplay, setNewCommentDisplay] = useState("");
@@ -245,6 +248,20 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
   };
 
   /**
+   * Gets job position icon for user
+   *
+   * @param userId string
+   */
+  const getUserIcon = (userId?: string) => {
+    const userData = projectUsers.find((user) => user.keycloakId === userId);
+    const usersJobPosition = jobPositions?.find((position) => userData?.jobPositionId === position.id);
+    const usersIconName = usersJobPosition?.iconName ?? DEFAULT_USER_ICON;
+    const usersIconColor = usersJobPosition?.color ?? theme.palette.primary.main;
+
+    return renderMdiIconifyIconWithBackground(usersIconName, usersIconColor);
+  };
+
+  /**
    * Handles deleting a task comment
    *
    * @param id comment id
@@ -381,17 +398,14 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
       const commentId = comment.id;
       const editDisabled = !!isEditingId && isEditingId !== commentId;
       const editActive = !!isEditingId && isEditingId === commentId;
-      const commentCreator = comment.metadata?.creatorId && projectKeycloakUsersMap[comment.metadata.creatorId];
+      const commentCreatorName = comment.metadata?.creatorId && projectKeycloakUsersMap[comment.metadata.creatorId];
       const lastModifiedDate =
         comment.metadata?.modifiedAt && DateTime.fromJSDate(comment.metadata?.modifiedAt).toFormat("dd.MM.yyyy HH:mm");
       const hasBeenEdited = comment.metadata?.modifiedAt?.getTime() !== comment.metadata?.createdAt?.getTime();
 
       return (
         <DialogContent key={comment.id} sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-          {/* TODO: Placeholder icon until user icons ready */}
-          <Avatar sx={{ backgroundColor: "#0079BF", marginRight: "1rem" }}>
-            <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
-          </Avatar>
+          <div style={{ marginRight: "1rem" }}>{getUserIcon(comment.metadata?.creatorId)}</div>
           <Box sx={{ width: "100%" }}>
             <Box
               sx={{
@@ -403,7 +417,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
             >
               <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  {commentCreator}
+                  {commentCreatorName}
                 </Typography>
                 <Typography>-</Typography>
                 <Typography variant="subtitle1">{lastModifiedDate}</Typography>
@@ -465,10 +479,7 @@ const CommentsSection = ({ projectId, milestoneId, taskId, projectUsersMap, proj
         {t("taskComments.comments")}
       </DialogContentText>
       <DialogContent sx={{ display: "flex", flexDirection: "row", marginBottom: "1rem" }}>
-        {/* TODO: Placeholder icon until user icons ready */}
-        <Avatar sx={{ backgroundColor: "#0079BF", marginRight: "1rem" }}>
-          <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
-        </Avatar>
+        <div style={{ marginRight: "1rem" }}>{getUserIcon(loggedInUser?.id)}</div>
         {renderMentionsInput()}
         <Button onClick={persistNewComment}>{t("taskComments.addComment")}</Button>
       </DialogContent>

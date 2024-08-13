@@ -29,11 +29,7 @@ import { DateTime } from "luxon";
 import { useTranslation } from "react-i18next";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
-import {
-  TaskConnectionRelationship,
-  TaskConnectionTableData,
-  TaskFormData,
-} from "types";
+import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
 import {
   useListTasksQuery,
   useListProjectUsersQuery,
@@ -83,20 +79,9 @@ interface Props {
 /**
  * Task dialog component
  */
-const TaskDialog = ({
-  projectId,
-  milestoneId,
-  open,
-  task,
-  onClose,
-  changeProposals,
-}: Props) => {
+const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposals }: Props) => {
   const { t } = useTranslation();
-  const {
-    tasksApi,
-    taskConnectionsApi,
-    changeProposalsApi,
-  } = useApi();
+  const { tasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListProjectUsersQuery(projectId);
   const listMilestoneTasksQuery = useListTasksQuery({ projectId, milestoneId });
@@ -106,9 +91,7 @@ const TaskDialog = ({
     taskId: task?.id,
   });
   const taskConnections = listTaskConnectionsQuery.data ?? [];
-  const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(
-    TASK_ATTACHMENT_UPLOAD_PATH,
-  );
+  const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const showConfirmDialog = useConfirmDialog();
 
   // Set initial task data based on existing task or new task
@@ -138,34 +121,23 @@ const TaskDialog = ({
 
   const [taskData, setTaskData] = useState<TaskFormData>(existingOrNewTaskData);
 
-  const [createChangeProposalData, setCreateChangeProposalData] = useState<
-    ChangeProposal[]
-  >([]);
-  const [updateChangeProposalData, setUpdateChangeProposalData] = useState<
-    ChangeProposal[]
-  >(changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? []);
+  const [createChangeProposalData, setCreateChangeProposalData] = useState<ChangeProposal[]>([]);
+  const [updateChangeProposalData, setUpdateChangeProposalData] = useState<ChangeProposal[]>(
+    changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? [],
+  );
   const [attachmentDialogOpen, setAttachmentDialogOpen] = useState(false);
   const [fileUploadLoaderVisible, setFileUploadLoaderVisible] = useState(false);
-  const [newTaskConnections, setNewTaskConnections] = useState<
-    TaskConnectionTableData[]
-  >([]);
-  const [existingTaskConnections, setExistingTaskConnections] = useState<
-    TaskConnectionTableData[]
-  >([]);
-  const [availableTaskConnectionTasks, setAvailableTaskConnectionTasks] =
-    useState<Task[]>([]);
+  const [newTaskConnections, setNewTaskConnections] = useState<TaskConnectionTableData[]>([]);
+  const [existingTaskConnections, setExistingTaskConnections] = useState<TaskConnectionTableData[]>([]);
+  const [availableTaskConnectionTasks, setAvailableTaskConnectionTasks] = useState<Task[]>([]);
   const [taskConnectionsValid, setTaskConnectionsValid] = useState(true);
-  const [loadingProposalsDeletion, setLoadingProposalsDeletion] = useState<
-    Record<string, boolean>
-  >({});
+  const [loadingProposalsDeletion, setLoadingProposalsDeletion] = useState<Record<string, boolean>>({});
 
   /**
    * Use effect to update task specific change proposals on change proposals change
    */
   useEffect(() => {
-    setUpdateChangeProposalData(
-      changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? [],
-    );
+    setUpdateChangeProposalData(changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? []);
   }, [changeProposals, task?.id]);
 
   /**
@@ -179,15 +151,10 @@ const TaskDialog = ({
       connectionId: connection.id ?? "",
       type: connection.type,
       hierarchy:
-        connection.sourceTaskId === task.id
-          ? TaskConnectionRelationship.CHILD
-          : TaskConnectionRelationship.PARENT,
+        connection.sourceTaskId === task.id ? TaskConnectionRelationship.CHILD : TaskConnectionRelationship.PARENT,
       attachedTask: tasks.find(
         (taskElement) =>
-          taskElement.id ===
-          (connection.sourceTaskId === task.id
-            ? connection.targetTaskId
-            : connection.sourceTaskId),
+          taskElement.id === (connection.sourceTaskId === task.id ? connection.targetTaskId : connection.sourceTaskId),
       ),
     }));
     setExistingTaskConnections(initialConnections);
@@ -205,9 +172,7 @@ const TaskDialog = ({
           .filter((taskElement) => taskElement.id !== task.id)
           .filter(
             (taskElement) =>
-              !existingTaskConnections.some(
-                (connection) => connection.attachedTask?.id === taskElement.id,
-              ),
+              !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
           )
       : tasks;
 
@@ -233,120 +198,101 @@ const TaskDialog = ({
    */
   const projectKeycloakUsersMap = useMemo(() => {
     const users = listProjectUsersQuery.data ?? [];
-    return users.reduce<Record<string, string>>(
-      (record, user) => {
-        if (user.keycloakId) record[user.keycloakId] = `${user.firstName} ${user.lastName}`;
-        return record;
-      },
-      {},
-    );
+    return users.reduce<Record<string, string>>((record, user) => {
+      if (user.keycloakId) record[user.keycloakId] = `${user.firstName} ${user.lastName}`;
+      return record;
+    }, {});
   }, [listProjectUsersQuery.data]);
 
   /**
    * Create task mutation
    */
   const createTaskMutation = useMutation({
-    mutationFn: (params: CreateTaskRequest) =>
-      tasksApi.createTask(params),
+    mutationFn: (params: CreateTaskRequest) => tasksApi.createTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
+    onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
 
   /**
    * Update task mutation
    */
   const updateTaskMutation = useMutation({
-    mutationFn: (params: UpdateTaskRequest) =>
-      tasksApi.updateTask(params),
+    mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
+    onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
 
   /**
    * Create task mutation
    */
   const createChangeProposalMutation = useMutation({
-    mutationFn: (params: CreateChangeProposalRequest) =>
-      changeProposalsApi.createChangeProposal(params),
+    mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
       onClose();
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorCreatingChangeProposal"), error),
+    onError: (error) => console.error(t("errorHandling.errorCreatingChangeProposal"), error),
   });
 
   /**
    * Update change proposals mutation
    */
   const updateChangeProposalsMutation = useMutation({
-    mutationFn: (params: UpdateChangeProposalRequest) =>
-      changeProposalsApi.updateChangeProposal(params),
+    mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
       onClose();
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
+    onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
 
   /**
    * Delete change proposal mutation
    */
   const deleteChangeProposalMutation = useMutation({
-    mutationFn: (params: DeleteChangeProposalRequest) =>
-      changeProposalsApi.deleteChangeProposal(params),
+    mutationFn: (params: DeleteChangeProposalRequest) => changeProposalsApi.deleteChangeProposal(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorDeletingChangeProposal"), error),
+    onError: (error) => console.error(t("errorHandling.errorDeletingChangeProposal"), error),
   });
 
   /**
    * Create task connections mutation
    */
   const createTaskConnectionsMutation = useMutation({
-    mutationFn: (params: CreateTaskConnectionRequest) =>
-      taskConnectionsApi.createTaskConnection(params),
+    mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorCreatingTaskConnection"), error),
+    onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
   });
 
   /**
    * Update task connections mutation
    */
   const updateTaskConnectionsMutation = useMutation({
-    mutationFn: (params: UpdateTaskConnectionRequest) =>
-      taskConnectionsApi.updateTaskConnection(params),
+    mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
+    onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
   });
 
   /**
    * Delete task connections mutation
    */
   const deleteTaskConnectionsMutation = useMutation({
-    mutationFn: (params: DeleteTaskConnectionRequest) =>
-      taskConnectionsApi.deleteTaskConnection(params),
+    mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
     },
-    onError: (error) =>
-      console.error(t("errorHandling.errorDeletingTaskConnection"), error),
+    onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
   });
 
   /**
@@ -355,18 +301,11 @@ const TaskDialog = ({
    */
   const deleteRemovedTaskConnections = async () => {
     const connectionsToDelete = (listTaskConnectionsQuery.data ?? [])
-      .filter(
-        (connection) =>
-          !existingTaskConnections.some(
-            (c) => c.connectionId === connection.id,
-          ),
-      )
+      .filter((connection) => !existingTaskConnections.some((c) => c.connectionId === connection.id))
       .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
 
     await Promise.all([
-      ...connectionsToDelete.map((connection) =>
-        deleteTaskConnectionsMutation.mutateAsync(connection),
-      ),
+      ...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection)),
     ]);
   };
 
@@ -380,13 +319,9 @@ const TaskDialog = ({
       projectId: projectId,
       taskConnection: {
         sourceTaskId:
-          connection.hierarchy === TaskConnectionRelationship.CHILD
-            ? taskId
-            : (connection.attachedTask?.id ?? ""),
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? taskId : connection.attachedTask?.id ?? "",
         targetTaskId:
-          connection.hierarchy === TaskConnectionRelationship.CHILD
-            ? (connection.attachedTask?.id ?? "")
-            : taskId,
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? connection.attachedTask?.id ?? "" : taskId,
         type: connection.type,
       },
     }));
@@ -396,24 +331,16 @@ const TaskDialog = ({
       connectionId: connection.connectionId ?? "",
       taskConnection: {
         sourceTaskId:
-          connection.hierarchy === TaskConnectionRelationship.CHILD
-            ? taskId
-            : (connection.attachedTask?.id ?? ""),
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? taskId : connection.attachedTask?.id ?? "",
         targetTaskId:
-          connection.hierarchy === TaskConnectionRelationship.CHILD
-            ? (connection.attachedTask?.id ?? "")
-            : taskId,
+          connection.hierarchy === TaskConnectionRelationship.CHILD ? connection.attachedTask?.id ?? "" : taskId,
         type: connection.type,
       },
     }));
 
     await Promise.all([
-      ...newConnections.map((connection) =>
-        createTaskConnectionsMutation.mutateAsync(connection),
-      ),
-      ...editedConnections.map((connection) =>
-        updateTaskConnectionsMutation.mutateAsync(connection),
-      ),
+      ...newConnections.map((connection) => createTaskConnectionsMutation.mutateAsync(connection)),
+      ...editedConnections.map((connection) => updateTaskConnectionsMutation.mutateAsync(connection)),
     ]);
   };
 
@@ -439,9 +366,7 @@ const TaskDialog = ({
    * Note: only new task connections have id
    */
   const removeNewTaskConnectionRow = (id: string) => {
-    setNewTaskConnections((connections) =>
-      connections.filter((c) => c.id !== id),
-    );
+    setNewTaskConnections((connections) => connections.filter((c) => c.id !== id));
   };
 
   /**
@@ -486,9 +411,7 @@ const TaskDialog = ({
    * @param connectionId connection id
    */
   const removeExistingTaskConnectionRow = (connectionId: string) => {
-    setExistingTaskConnections((connections) =>
-      connections.filter((c) => c.connectionId !== connectionId),
-    );
+    setExistingTaskConnections((connections) => connections.filter((c) => c.connectionId !== connectionId));
   };
 
   /**
@@ -518,19 +441,14 @@ const TaskDialog = ({
   const handleUploadExistingAttachment = async (attachmentUrl: string) => {
     try {
       setFileUploadLoaderVisible(true);
-      const updatedAttachmentUrls = taskData.attachmentUrls.includes(
-        attachmentUrl,
-      )
+      const updatedAttachmentUrls = taskData.attachmentUrls.includes(attachmentUrl)
         ? taskData.attachmentUrls
         : [...taskData.attachmentUrls, attachmentUrl];
       setTaskData({ ...taskData, attachmentUrls: updatedAttachmentUrls });
       setAttachmentDialogOpen(false);
       setFileUploadLoaderVisible(false);
     } catch (error) {
-      console.error(
-        t("errorHandling.errorUploadingExistingTaskAttachment"),
-        error,
-      );
+      console.error(t("errorHandling.errorUploadingExistingTaskAttachment"), error);
     }
   };
 
@@ -541,9 +459,7 @@ const TaskDialog = ({
    */
   const handleDeleteAttachment = async (attachmentUrl: string) => {
     try {
-      const newAttachmentUrls = taskData.attachmentUrls.filter(
-        (url) => url !== attachmentUrl,
-      );
+      const newAttachmentUrls = taskData.attachmentUrls.filter((url) => url !== attachmentUrl);
       setTaskData({ ...taskData, attachmentUrls: newAttachmentUrls });
     } catch (error) {
       console.error(t("errorHandling.errorDeletingTaskAttachment"), error);
@@ -577,10 +493,9 @@ const TaskDialog = ({
    * @param field string
    * @param value date
    */
-  const handleDateFormChange =
-    (field: keyof typeof taskData) => (value: DateTime<boolean> | null) => {
-      setTaskData({ ...taskData, [field]: value });
-    };
+  const handleDateFormChange = (field: keyof typeof taskData) => (value: DateTime<boolean> | null) => {
+    setTaskData({ ...taskData, [field]: value });
+  };
 
   /**
    * Handles change proposal update form date change
@@ -590,8 +505,7 @@ const TaskDialog = ({
    * @param value date
    */
   const handleUpdateChangeProposalDateFormChange =
-    (field: keyof ChangeProposal, changeProposalId?: string) =>
-    (value: DateTime<boolean> | null) => {
+    (field: keyof ChangeProposal, changeProposalId?: string) => (value: DateTime<boolean> | null) => {
       if (!changeProposalId || !value) return;
 
       const updatedProposals = updateChangeProposalData.map((proposal) => {
@@ -612,8 +526,7 @@ const TaskDialog = ({
    * @param event ChangeEvent<HTMLInputElement>
    */
   const handleUpdateChangeProposalFormChange =
-    (field: keyof ChangeProposal, changeProposalId?: string) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
+    (field: keyof ChangeProposal, changeProposalId?: string) => (event: ChangeEvent<HTMLInputElement>) => {
       if (!changeProposalId) return;
 
       const updatedProposals = updateChangeProposalData.map((proposal) => {
@@ -634,8 +547,7 @@ const TaskDialog = ({
    * @param value date
    */
   const handleCreateChangeProposalDateFormChange =
-    (field: keyof ChangeProposal, changeProposalId: string) =>
-    (value: DateTime<boolean> | null) => {
+    (field: keyof ChangeProposal, changeProposalId: string) => (value: DateTime<boolean> | null) => {
       if (!changeProposalId || !value) return;
 
       const newProposals = createChangeProposalData.map((proposal) => {
@@ -656,8 +568,7 @@ const TaskDialog = ({
    * @param event ChangeEvent<HTMLInputElement>
    */
   const handleCreateChangeProposalFormChange =
-    (field: keyof ChangeProposal, changeProposalId: string) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
+    (field: keyof ChangeProposal, changeProposalId: string) => (event: ChangeEvent<HTMLInputElement>) => {
       if (!changeProposalId) return;
 
       const newProposals = createChangeProposalData.map((proposal) => {
@@ -689,9 +600,7 @@ const TaskDialog = ({
       });
     } finally {
       setUpdateChangeProposalData(
-        updateChangeProposalData?.filter(
-          (proposal) => proposal.id !== changeProposalId,
-        ) ?? [],
+        updateChangeProposalData?.filter((proposal) => proposal.id !== changeProposalId) ?? [],
       );
       setLoadingProposalsDeletion((prev) => ({
         ...prev,
@@ -705,14 +614,10 @@ const TaskDialog = ({
    *
    * @param changeProposalId string
    */
-  const handleDeleteUnsavedChangeProposal = async (
-    changeProposalId?: string,
-  ) => {
+  const handleDeleteUnsavedChangeProposal = async (changeProposalId?: string) => {
     if (!changeProposalId) return;
 
-    const remainingProposals = createChangeProposalData.filter(
-      (proposal) => proposal.id !== changeProposalId,
-    );
+    const remainingProposals = createChangeProposalData.filter((proposal) => proposal.id !== changeProposalId);
     setCreateChangeProposalData(remainingProposals);
   };
 
@@ -732,10 +637,7 @@ const TaskDialog = ({
       status: ChangeProposalStatus.Pending,
     };
 
-    setCreateChangeProposalData([
-      ...createChangeProposalData,
-      newChangeProposal,
-    ]);
+    setCreateChangeProposalData([...createChangeProposalData, newChangeProposal]);
   };
 
   /**
@@ -815,52 +717,41 @@ const TaskDialog = ({
   const persistChangeProposals = async () => {
     if (!changeProposals && !createChangeProposalData.length) return;
 
-    const createdChangeProposalPromises = createChangeProposalData.map(
-      async (proposal) => {
-        if (!proposal.startDate || !proposal.endDate) return;
+    const createdChangeProposalPromises = createChangeProposalData.map(async (proposal) => {
+      if (!proposal.startDate || !proposal.endDate) return;
 
-        const startDate = DateTime.fromJSDate(proposal.startDate);
-        const endDate = DateTime.fromJSDate(proposal.endDate);
+      const startDate = DateTime.fromJSDate(proposal.startDate);
+      const endDate = DateTime.fromJSDate(proposal.endDate);
 
-        if (!startDate.isValid || !endDate.isValid) return;
+      if (!startDate.isValid || !endDate.isValid) return;
 
-        proposal.startDate = new Date(startDate.toISODate());
-        proposal.endDate = new Date(endDate.toISODate());
+      proposal.startDate = new Date(startDate.toISODate());
+      proposal.endDate = new Date(endDate.toISODate());
 
-        return await createChangeProposalMutation.mutateAsync({
-          projectId: projectId,
-          changeProposal: proposal,
-        });
-      },
-    );
+      return await createChangeProposalMutation.mutateAsync({
+        projectId: projectId,
+        changeProposal: proposal,
+      });
+    });
 
     const updatedChangeProposals = changeProposals
       ? updateChangeProposalData.filter((updatedProposal) => {
-          const originalProposal = changeProposals.find(
-            (proposal) => proposal.id === updatedProposal.id,
-          );
+          const originalProposal = changeProposals.find((proposal) => proposal.id === updatedProposal.id);
 
-          return (
-            JSON.stringify(updatedProposal) !== JSON.stringify(originalProposal)
-          );
+          return JSON.stringify(updatedProposal) !== JSON.stringify(originalProposal);
         })
       : [];
 
-    const updatedChangeProposalPromises = updatedChangeProposals.map(
-      (proposal) => {
-        if (!proposal.id) throw Error("No ID in change proposal");
-        return updateChangeProposalsMutation.mutateAsync({
-          changeProposal: proposal,
-          projectId: projectId,
-          changeProposalId: proposal.id,
-        });
-      },
-    );
+    const updatedChangeProposalPromises = updatedChangeProposals.map((proposal) => {
+      if (!proposal.id) throw Error("No ID in change proposal");
+      return updateChangeProposalsMutation.mutateAsync({
+        changeProposal: proposal,
+        projectId: projectId,
+        changeProposalId: proposal.id,
+      });
+    });
 
-    await Promise.all([
-      ...createdChangeProposalPromises,
-      ...updatedChangeProposalPromises,
-    ]);
+    await Promise.all([...createdChangeProposalPromises, ...updatedChangeProposalPromises]);
   };
 
   /**
@@ -879,17 +770,13 @@ const TaskDialog = ({
    *
    * @param options string array or object
    */
-  const getDropdownRenderValue = (
-    options: string[] | Record<string, string>,
-  ) => {
+  const getDropdownRenderValue = (options: string[] | Record<string, string>) => {
     if (Array.isArray(options)) {
       return (selected: unknown) => (selected as string[]).join(", ");
     }
 
     return (selected: unknown) =>
-      (selected as string[])
-        .map((id) => (options as Record<string, string>)[id])
-        .join(", ");
+      (selected as string[]).map((id) => (options as Record<string, string>)[id]).join(", ");
   };
 
   /**
@@ -953,28 +840,13 @@ const TaskDialog = ({
             />
           </Grid>
           <Grid item xs={6}>
-            {renderDropdownPicker(
-              "status",
-              t("newMilestoneTaskDialog.status"),
-              Object.values(TaskStatus),
-              false,
-            )}
+            {renderDropdownPicker("status", t("newMilestoneTaskDialog.status"), Object.values(TaskStatus), false)}
           </Grid>
           <Grid item xs={6}>
-            {renderDropdownPicker(
-              "assigneeIds",
-              t("newMilestoneTaskDialog.assignees"),
-              projectUsersMap,
-              true,
-            )}
+            {renderDropdownPicker("assigneeIds", t("newMilestoneTaskDialog.assignees"), projectUsersMap, true)}
           </Grid>
           <Grid item xs={6}>
-            {renderDropdownPicker(
-              "userRole",
-              t("newMilestoneTaskDialog.userRole"),
-              Object.values(UserRole),
-              false,
-            )}
+            {renderDropdownPicker("userRole", t("newMilestoneTaskDialog.userRole"), Object.values(UserRole), false)}
           </Grid>
           <Grid item xs={3}>
             <TextField
@@ -1028,26 +900,16 @@ const TaskDialog = ({
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>
-                  {t("newMilestoneTaskDialog.taskAttachmentsTable.type")}
-                </TableCell>
-                <TableCell>
-                  {t("newMilestoneTaskDialog.taskAttachmentsTable.name")}
-                </TableCell>
-                <TableCell>
-                  {t("newMilestoneTaskDialog.taskAttachmentsTable.preview")}
-                </TableCell>
-                <TableCell>
-                  {t("newMilestoneTaskDialog.taskAttachmentsTable.delete")}
-                </TableCell>
+                <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.type")}</TableCell>
+                <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.name")}</TableCell>
+                <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.preview")}</TableCell>
+                <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.delete")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {taskData.attachmentUrls.map((attachment) => (
                 <TableRow key={attachment}>
-                  <TableCell>
-                    {getAttachmentTypeFromUrlCapitals(attachment)}
-                  </TableCell>
+                  <TableCell>{getAttachmentTypeFromUrlCapitals(attachment)}</TableCell>
                   <TableCell>{attachment}</TableCell>
                   <TableCell>
                     <Button
@@ -1058,9 +920,7 @@ const TaskDialog = ({
                         window.open(attachment.toString(), "_blank");
                       }}
                     >
-                      {t(
-                        "newMilestoneTaskDialog.taskAttachmentsTable.clickToPreview",
-                      )}
+                      {t("newMilestoneTaskDialog.taskAttachmentsTable.clickToPreview")}
                     </Button>
                   </TableCell>
                   <TableCell
@@ -1076,17 +936,14 @@ const TaskDialog = ({
                       sx={{ borderRadius: 25 }}
                       onClick={() =>
                         showConfirmDialog({
-                          title: t(
-                            "newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.title",
-                          ),
+                          title: t("newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.title"),
                           description: t(
                             "newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.description",
                             { attachmentName: attachment },
                           ),
                           cancelButtonEnabled: true,
                           confirmButtonText: t("generic.delete"),
-                          onConfirmClick: () =>
-                            handleDeleteAttachment(attachment),
+                          onConfirmClick: () => handleDeleteAttachment(attachment),
                         })
                       }
                     >
@@ -1121,12 +978,8 @@ const TaskDialog = ({
   const renderExistingChangeProposals = (changeProposal: ChangeProposal) => {
     if (!changeProposal?.id) return;
 
-    const formattedStartDate = changeProposal.startDate
-      ? DateTime.fromJSDate(changeProposal.startDate)
-      : null;
-    const formattedEndDate = changeProposal.endDate
-      ? DateTime.fromJSDate(changeProposal.endDate)
-      : null;
+    const formattedStartDate = changeProposal.startDate ? DateTime.fromJSDate(changeProposal.startDate) : null;
+    const formattedEndDate = changeProposal.endDate ? DateTime.fromJSDate(changeProposal.endDate) : null;
 
     const statusLabelRecord = {
       [ChangeProposalStatus.Approved]: "changeProposals.accepted",
@@ -1138,21 +991,13 @@ const TaskDialog = ({
 
     return (
       <div key={changeProposal.id}>
-        <Grid
-          container
-          spacing={1}
-          padding={2}
-          sx={{ borderBottom: "1px solid #e6e4e4" }}
-        >
+        <Grid container spacing={1} padding={2} sx={{ borderBottom: "1px solid #e6e4e4" }}>
           <Grid item xs={4} sx={{ display: "flex", flexDirection: "row" }}>
             <GenericDatePicker
               fullWidth
               label={t("changeProposals.changeStart")}
               value={formattedStartDate}
-              onChange={handleUpdateChangeProposalDateFormChange(
-                "startDate",
-                changeProposal.id,
-              )}
+              onChange={handleUpdateChangeProposalDateFormChange("startDate", changeProposal.id)}
               hasBorder
               maxDate={formattedEndDate ?? undefined}
               disabled={disabled}
@@ -1161,10 +1006,7 @@ const TaskDialog = ({
               fullWidth
               label={t("changeProposals.changeEnd")}
               value={formattedEndDate}
-              onChange={handleUpdateChangeProposalDateFormChange(
-                "endDate",
-                changeProposal.id,
-              )}
+              onChange={handleUpdateChangeProposalDateFormChange("endDate", changeProposal.id)}
               hasBorder
               minDate={formattedStartDate ?? undefined}
               disabled={disabled}
@@ -1184,10 +1026,7 @@ const TaskDialog = ({
                   WebkitTextFillColor: "#000000",
                 },
               }}
-              onChange={handleUpdateChangeProposalFormChange(
-                "reason",
-                changeProposal.id,
-              )}
+              onChange={handleUpdateChangeProposalFormChange("reason", changeProposal.id)}
               disabled={disabled}
             >
               {REASONS_FOR_CHANGE.map((reason) => (
@@ -1198,20 +1037,14 @@ const TaskDialog = ({
             </TextField>
           </Grid>
           <Grid item xs={2}>
-            {ChangeProposalUtils.renderStatusElement(
-              changeProposal.status,
-              t(statusLabel),
-            )}
+            {ChangeProposalUtils.renderStatusElement(changeProposal.status, t(statusLabel))}
           </Grid>
           <Grid item xs={8}>
             <TextField
               fullWidth
               label={t("changeProposals.comment")}
               value={changeProposal.comment}
-              onChange={handleUpdateChangeProposalFormChange(
-                "comment",
-                changeProposal.id,
-              )}
+              onChange={handleUpdateChangeProposalFormChange("comment", changeProposal.id)}
               sx={{ border: "1px solid #e6e4e4" }}
               disabled={disabled}
             />
@@ -1244,30 +1077,18 @@ const TaskDialog = ({
     return createChangeProposalData.map((newChangeProposal) => {
       if (!newChangeProposal.id) return;
 
-      const formattedStartDate = newChangeProposal.startDate
-        ? DateTime.fromJSDate(newChangeProposal.startDate)
-        : null;
-      const formattedEndDate = newChangeProposal.endDate
-        ? DateTime.fromJSDate(newChangeProposal.endDate)
-        : null;
+      const formattedStartDate = newChangeProposal.startDate ? DateTime.fromJSDate(newChangeProposal.startDate) : null;
+      const formattedEndDate = newChangeProposal.endDate ? DateTime.fromJSDate(newChangeProposal.endDate) : null;
 
       return (
         <div key={newChangeProposal.id}>
-          <Grid
-            container
-            spacing={1}
-            padding={2}
-            sx={{ borderBottom: "1px solid #e6e4e4" }}
-          >
+          <Grid container spacing={1} padding={2} sx={{ borderBottom: "1px solid #e6e4e4" }}>
             <Grid item xs={4} sx={{ display: "flex", flexDirection: "row" }}>
               <GenericDatePicker
                 fullWidth
                 label={t("changeProposals.changeStart")}
                 value={formattedStartDate}
-                onChange={handleCreateChangeProposalDateFormChange(
-                  "startDate",
-                  newChangeProposal.id,
-                )}
+                onChange={handleCreateChangeProposalDateFormChange("startDate", newChangeProposal.id)}
                 hasBorder
                 maxDate={formattedEndDate ?? undefined}
               />
@@ -1275,10 +1096,7 @@ const TaskDialog = ({
                 fullWidth
                 label={t("changeProposals.changeEnd")}
                 value={formattedEndDate}
-                onChange={handleCreateChangeProposalDateFormChange(
-                  "endDate",
-                  newChangeProposal.id,
-                )}
+                onChange={handleCreateChangeProposalDateFormChange("endDate", newChangeProposal.id)}
                 hasBorder
                 minDate={formattedStartDate ?? undefined}
               />
@@ -1294,10 +1112,7 @@ const TaskDialog = ({
                   border: "1px solid #e6e4e4",
                   padding: "1px 0px 8px",
                 }}
-                onChange={handleCreateChangeProposalFormChange(
-                  "reason",
-                  newChangeProposal.id,
-                )}
+                onChange={handleCreateChangeProposalFormChange("reason", newChangeProposal.id)}
               >
                 {REASONS_FOR_CHANGE.map((reason) => (
                   <MenuItem key={reason} value={reason}>
@@ -1317,19 +1132,14 @@ const TaskDialog = ({
                 fullWidth
                 label={t("changeProposals.comment")}
                 value={newChangeProposal.comment}
-                onChange={handleCreateChangeProposalFormChange(
-                  "comment",
-                  newChangeProposal.id,
-                )}
+                onChange={handleCreateChangeProposalFormChange("comment", newChangeProposal.id)}
                 sx={{ border: "1px solid #e6e4e4" }}
               />
             </Grid>
             <Grid item xs={2}>
               <IconButton
                 edge="start"
-                onClick={() =>
-                  handleDeleteUnsavedChangeProposal(newChangeProposal.id)
-                }
+                onClick={() => handleDeleteUnsavedChangeProposal(newChangeProposal.id)}
                 aria-label="close"
                 sx={{ color: "#0000008F", marginLeft: "1rem" }}
               >
@@ -1353,9 +1163,7 @@ const TaskDialog = ({
         <DialogContentText sx={{ padding: 2 }} variant="h5">
           {t("changeProposals.changeProposals")}
         </DialogContentText>
-        {updateChangeProposalData.map((proposal) =>
-          renderExistingChangeProposals(proposal),
-        )}
+        {updateChangeProposalData.map((proposal) => renderExistingChangeProposals(proposal))}
         {!!createChangeProposalData.length && renderCreateChangeProposals()}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
@@ -1378,14 +1186,9 @@ const TaskDialog = ({
    */
   const renderUploadTaskAttachmentDialog = () => {
     return (
-      <Dialog
-        open={attachmentDialogOpen}
-        onClose={() => setAttachmentDialogOpen(false)}
-      >
+      <Dialog open={attachmentDialogOpen} onClose={() => setAttachmentDialogOpen(false)}>
         <Box sx={{ padding: "1rem" }}>
-          <Typography variant="h5">
-            {t("newMilestoneTaskDialog.taskAttachmentsTable.uploadDialogTitle")}
-          </Typography>
+          <Typography variant="h5">{t("newMilestoneTaskDialog.taskAttachmentsTable.uploadDialogTitle")}</Typography>
         </Box>
         <Box
           sx={{
@@ -1397,15 +1200,7 @@ const TaskDialog = ({
           }}
         >
           <FileUploader
-            allowedFileTypes={[
-              ".png",
-              ".svg",
-              ".jpg",
-              ".jpeg",
-              ".pdf",
-              ".doc",
-              ".docx",
-            ]}
+            allowedFileTypes={[".png", ".svg", ".jpg", ".jpeg", ".pdf", ".doc", ".docx"]}
             uploadFile={handleUploadNewAttachment}
             existingFiles={taskData.attachmentUrls}
             allFiles={listTaskAttachmentsQuery.data ?? []}
@@ -1414,9 +1209,7 @@ const TaskDialog = ({
             loaderVisible={fileUploadLoaderVisible}
             uploadExistingFile={(file) =>
               showConfirmDialog({
-                title: t(
-                  "newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.title",
-                ),
+                title: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.title"),
                 description: t(
                   "newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.description",
                 ),
@@ -1463,15 +1256,8 @@ const TaskDialog = ({
       >
         <AppBar sx={{ position: "relative" }} elevation={0}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <DialogTitle>
-              {task ? task.name : t("newMilestoneTaskDialog.title")}
-            </DialogTitle>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={onClose}
-              aria-label="close"
-            >
+            <DialogTitle>{task ? task.name : t("newMilestoneTaskDialog.title")}</DialogTitle>
+            <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
               <CloseIcon />
             </IconButton>
           </Toolbar>
@@ -1498,6 +1284,7 @@ const TaskDialog = ({
               projectId={projectId}
               milestoneId={milestoneId}
               taskId={task.id}
+              projectUsers={listProjectUsersQuery.data ?? []}
               projectUsersMap={projectUsersMap}
               projectKeycloakUsersMap={projectKeycloakUsersMap}
             />
@@ -1513,9 +1300,7 @@ const TaskDialog = ({
             disabled={isDisabled}
           >
             {!task && <AddIcon />}
-            {task
-              ? t("newMilestoneTaskDialog.updateButton")
-              : t("newMilestoneTaskDialog.createButton")}
+            {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}
           </Button>
         </DialogContent>
       </Dialog>
