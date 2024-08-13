@@ -18,6 +18,9 @@ import {
     ChangeProposal,
     ChangeProposalFromJSON,
     ChangeProposalToJSON,
+    Task,
+    TaskFromJSON,
+    TaskToJSON,
 } from '../models';
 
 export interface CreateChangeProposalRequest {
@@ -31,6 +34,11 @@ export interface DeleteChangeProposalRequest {
 }
 
 export interface FindChangeProposalRequest {
+    projectId: string;
+    changeProposalId: string;
+}
+
+export interface ListChangeProposalTasksPreviewRequest {
     projectId: string;
     changeProposalId: string;
 }
@@ -213,6 +221,60 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
      */
     async findChangeProposalWithHeaders(requestParameters: FindChangeProposalRequest): Promise<[ ChangeProposal, Headers ]> {
         const response = await this.findChangeProposalRaw(requestParameters);
+        const value = await response.value(); 
+        return [ value, response.raw.headers ];
+    }
+
+    /**
+     * List of updated tasks that are affected by the change proposal
+     * List of updated tasks that are affected by the change proposal
+     */
+    async listChangeProposalTasksPreviewRaw(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<runtime.ApiResponse<Array<Task>>> {
+        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
+            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listChangeProposalTasksPreview.');
+        }
+
+        if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
+            throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling listChangeProposalTasksPreview.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}/tasks`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TaskFromJSON));
+    }
+
+    /**
+     * List of updated tasks that are affected by the change proposal
+     * List of updated tasks that are affected by the change proposal
+     */
+    async listChangeProposalTasksPreview(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<Array<Task>> {
+        const response = await this.listChangeProposalTasksPreviewRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * List of updated tasks that are affected by the change proposal
+     * List of updated tasks that are affected by the change proposal
+     */
+    async listChangeProposalTasksPreviewWithHeaders(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<[ Array<Task>, Headers ]> {
+        const response = await this.listChangeProposalTasksPreviewRaw(requestParameters);
         const value = await response.value(); 
         return [ value, response.raw.headers ];
     }
