@@ -15,6 +15,7 @@ import {
   ListChangeProposalsRequest,
   ListTaskConnectionsRequest,
   FindTaskRequest,
+  ListTaskCommentsRequest,
   ListJobPositionsRequest,
   JobPosition,
 } from "generated/client";
@@ -36,8 +37,7 @@ export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
       maxResults: number;
     }> => {
       try {
-        const [companies, headers] =
-          await companiesApi.listCompaniesWithHeaders(params ?? {});
+        const [companies, headers] = await companiesApi.listCompaniesWithHeaders(params ?? {});
         return {
           companies: companies,
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
@@ -63,9 +63,7 @@ export const useListUsersQuery = (params?: ListUsersRequest) => {
     queryKey: ["users", params],
     queryFn: async (): Promise<{ users: User[]; maxResults: number }> => {
       try {
-        const [users, headers] = await usersApi.listUsersWithHeaders(
-          params ?? {},
-        );
+        const [users, headers] = await usersApi.listUsersWithHeaders(params ?? {});
         return {
           users: users,
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
@@ -119,12 +117,10 @@ export const useFindUsersQuery = (userIds?: string[]) => {
       try {
         if (!userIds?.length) return null;
 
-        const userPromises = userIds.map(async (userId) => {
-          return await usersApi.findUser({ userId: userId });
-        });
+        const userPromises = userIds.map(async (userId) => usersApi.listUsers({ keycloakId: userId }));
 
-        const users = await Promise.all(userPromises);
-        return users;
+        const userLists = await Promise.all(userPromises);
+        return userLists.flat();
       } catch (error) {
         handleError("Error finding multiple users", error);
         throw Error(t("errorHandling.errorFindingMultipleUsers"), {
@@ -150,9 +146,7 @@ export const useListProjectsQuery = (params?: ListProjectsRequest) => {
     queryKey: ["projects", params],
     queryFn: async (): Promise<{ projects: Project[]; maxResults: number }> => {
       try {
-        const [projects, headers] = await projectsApi.listProjectsWithHeaders(
-          params ?? {},
-        );
+        const [projects, headers] = await projectsApi.listProjectsWithHeaders(params ?? {});
         return {
           projects: projects,
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
@@ -177,9 +171,7 @@ export const useFindProjectQuery = (projectId?: string) => {
     queryKey: ["projects", projectId],
     queryFn: () =>
       projectId
-        ? projectsApi
-            .findProject({ projectId: projectId })
-            .catch(handleErrorWithMessage("Error finding project"))
+        ? projectsApi.findProject({ projectId: projectId }).catch(handleErrorWithMessage("Error finding project"))
         : null,
     enabled: !!projectId,
     placeholderData: () => null,
@@ -227,9 +219,7 @@ export const useListProjectUsersQuery = (projectId?: string) => {
       if (!projectId) return null;
       try {
         const users = await usersApi.listUsers();
-        const projectUsers = users.filter((user) =>
-          user.projectIds?.includes(projectId),
-        );
+        const projectUsers = users.filter((user) => user.projectIds?.includes(projectId));
         return projectUsers;
       } catch (error) {
         handleError("Error listing project users", error);
@@ -250,10 +240,7 @@ export const useListProjectUsersQuery = (projectId?: string) => {
 export const useListLogosQuery = (filesPath: string) =>
   useQuery({
     queryKey: ["logos"],
-    queryFn: () =>
-      filesApi
-        .listFiles(filesPath)
-        .catch(handleErrorWithMessage("Error listing logos")),
+    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing logos")),
   });
 
 /**
@@ -262,10 +249,7 @@ export const useListLogosQuery = (filesPath: string) =>
 export const useListTaskAttachmentsQuery = (filesPath: string) =>
   useQuery({
     queryKey: ["taskAttachments"],
-    queryFn: () =>
-      filesApi
-        .listFiles(filesPath)
-        .catch(handleErrorWithMessage("Error listing task attachments")),
+    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing task attachments")),
   });
 
 /**
@@ -273,9 +257,7 @@ export const useListTaskAttachmentsQuery = (filesPath: string) =>
  *
  * @param params request params
  */
-export const useListProjectMilestonesQuery = ({
-  projectId,
-}: ListProjectMilestonesRequest) => {
+export const useListProjectMilestonesQuery = ({ projectId }: ListProjectMilestonesRequest) => {
   const { projectMilestonesApi } = useApi();
   const { t } = useTranslation();
 
@@ -299,10 +281,7 @@ export const useListProjectMilestonesQuery = ({
  *
  * @param params request params
  */
-export const useFindProjectMilestoneQuery = ({
-  projectId,
-  milestoneId,
-}: FindProjectMilestoneRequest) => {
+export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindProjectMilestoneRequest) => {
   const { projectMilestonesApi } = useApi();
   const { t } = useTranslation();
 
@@ -329,10 +308,7 @@ export const useFindProjectMilestoneQuery = ({
  *
  * @param params request params
  */
-export const useListTasksQuery = ({
-  projectId,
-  ...filters
-}: ListTasksRequest) => {
+export const useListTasksQuery = ({ projectId, ...filters }: ListTasksRequest) => {
   const { tasksApi } = useApi();
   const { t } = useTranslation();
 
@@ -354,10 +330,7 @@ export const useListTasksQuery = ({
  *
  * @param params request params
  */
-export const useListChangeProposalsQuery = ({
-  projectId,
-  ...filters
-}: ListChangeProposalsRequest) => {
+export const useListChangeProposalsQuery = ({ projectId, ...filters }: ListChangeProposalsRequest) => {
   const { changeProposalsApi } = useApi();
   const { t } = useTranslation();
 
@@ -382,7 +355,7 @@ export const useListChangeProposalsQuery = ({
 /**
  * Find task query hook
  *
- * @param params request params
+ * @param params FindTaskRequest
  */
 export const useFindTaskQuery = ({ projectId, taskId }: FindTaskRequest) => {
   const { tasksApi: milestoneTasksApi } = useApi();
@@ -406,12 +379,9 @@ export const useFindTaskQuery = ({ projectId, taskId }: FindTaskRequest) => {
 /**
  * List task connections query hook
  *
- * @param params request params
+ * @param params ListTaskConnectionsRequest
  */
-export const useListTaskConnectionsQuery = ({
-  projectId,
-  ...filters
-}: ListTaskConnectionsRequest) => {
+export const useListTaskConnectionsQuery = ({ projectId, ...filters }: ListTaskConnectionsRequest) => {
   const { taskConnectionsApi } = useApi();
   const { t } = useTranslation();
 
@@ -434,6 +404,30 @@ export const useListTaskConnectionsQuery = ({
 };
 
 /**
+ * List task comments query hook
+ *
+ * @param params ListTaskCommentsRequest
+ */
+export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
+  const { taskCommentsApi } = useApi();
+  const { t } = useTranslation();
+  const { projectId, taskId } = params;
+
+  return useQuery({
+    queryKey: ["comments", projectId, taskId],
+    queryFn: async () => {
+      try {
+        return taskCommentsApi.listTaskComments({ projectId: projectId, taskId: taskId });
+      } catch (error) {
+        handleError("Error listing task comments", error);
+        throw Error(t("errorHandling.errorListingTaskComments"), { cause: error });
+      }
+    },
+    enabled: !!projectId && !!taskId,
+  });
+};
+
+/**
  * List job positions query hook
  *
  * @param params request params
@@ -449,8 +443,7 @@ export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
       maxResults: number;
     }> => {
       try {
-        const [jobPositions, headers] =
-          await jobPositionsApi.listJobPositionsWithHeaders(params ?? {});
+        const [jobPositions, headers] = await jobPositionsApi.listJobPositionsWithHeaders(params ?? {});
         return {
           jobPositions: jobPositions,
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),

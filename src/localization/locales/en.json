@@ -111,7 +111,11 @@
     "errorListingTasks": "Error while fetching tasks list",
     "errorFindingTask": "Error while fetching a task",
     "errorUpdatingTask": "Error while updating a task",
-    "errorDeletingTask": "Error while deleting a task"
+    "errorDeletingTask": "Error while deleting a task",
+    "errorListingTaskComments": "Error while fetching task comments list",
+    "errorCreatingTaskComment": "Error while creating a new task comment",
+    "errorUpdatingTaskComment": "Error while updating a task comment",
+    "errorDeletingTaskComment": "Error while deleting a task comment"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -266,5 +270,11 @@
     "waitingForApproval": "Waiting for approval",
     "abandoned": "Abandoned",
     "accepted": "Accepted"
+  },
+  "taskComments": {
+    "comments": "Comments",
+    "addComment": "Add comment",
+    "editFlag": "(Edited)",
+    "updateComment": "Update comment"
   }
 }

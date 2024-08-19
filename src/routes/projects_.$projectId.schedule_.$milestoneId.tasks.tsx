@@ -226,7 +226,7 @@ function MilestoneTasksListRoute() {
       const difference = endDate.diff(startDate, "days").days;
       const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
-      const taskCreator = creatorUsers.find((user) => user.id === task.metadata?.creatorId);
+      const taskCreator = creatorUsers.find((user) => user.keycloakId === task.metadata?.creatorId);
 
       return (
         <TableRow

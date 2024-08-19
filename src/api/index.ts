@@ -10,6 +10,7 @@ import {
   TasksApi,
   ChangeProposalsApi,
   TaskConnectionsApi,
+  TaskCommentsApi,
   JobPositionsApi,
 } from "../generated/client";
 
@@ -36,6 +37,7 @@ export const getApiClient = (accessToken?: string) => {
     tasksApi: new TasksApi(getConfiguration()),
     changeProposalsApi: new ChangeProposalsApi(getConfiguration()),
     taskConnectionsApi: new TaskConnectionsApi(getConfiguration()),
+    taskCommentsApi: new TaskCommentsApi(getConfiguration()),
     jobPositionsApi: new JobPositionsApi(getConfiguration()),
   };
 };

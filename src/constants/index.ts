@@ -51,3 +51,5 @@ export const ICON_OPTIONS: IconOption[] = [
   { label: "BIM Coordinator", value: "monitor-dashboard", icon: monitorDashboard },
   { label: "Safety Coordinator", value: "account-hard-hat", icon: accountHardHat },
 ];
+
+export const DEFAULT_USER_ICON = "account";
