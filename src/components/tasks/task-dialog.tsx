@@ -35,6 +35,7 @@ import {
   useListProjectUsersQuery,
   useListTaskAttachmentsQuery,
   useListTaskConnectionsQuery,
+  useListJobPositionsQuery,
 } from "hooks/api-queries";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
@@ -47,7 +48,6 @@ import {
   TaskStatus,
   UpdateChangeProposalRequest,
   UpdateTaskRequest,
-  UserRole,
   CreateTaskConnectionRequest,
   DeleteTaskConnectionRequest,
   TaskConnectionType,
@@ -90,6 +90,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     taskId: task?.id,
   });
   const taskConnections = listTaskConnectionsQuery.data ?? [];
+  const listJobPositionsQuery = useListJobPositionsQuery();
+  const jobPositions = listJobPositionsQuery.data?.jobPositions ?? [];
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const showConfirmDialog = useConfirmDialog();
 
@@ -101,7 +103,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         endDate: DateTime.fromJSDate(task.endDate),
         status: task.status,
         assigneeIds: task.assigneeIds ?? [],
-        userRole: task.userRole,
+        positionId: task.jobPositionId,
         estimatedDuration: task.estimatedDuration,
         estimatedReadiness: task.estimatedReadiness,
         attachmentUrls: task.attachmentUrls ?? [],
@@ -112,7 +114,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
         endDate: null,
         status: TaskStatus.NotStarted,
         assigneeIds: [],
-        userRole: UserRole.User,
+        positionId: "",
         estimatedDuration: 0,
         estimatedReadiness: 0,
         attachmentUrls: [],
@@ -667,7 +669,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           endDate: endDateIsoConverted,
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
-          userRole: taskData.userRole,
+          jobPositionId: taskData.positionId,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
           attachmentUrls: taskData.attachmentUrls,
@@ -686,7 +688,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           endDate: endDateIsoConverted,
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
-          userRole: taskData.userRole,
+          jobPositionId: taskData.positionId,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
           attachmentUrls: taskData.attachmentUrls,
@@ -706,7 +708,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       endDate: null,
       status: TaskStatus.NotStarted,
       assigneeIds: [],
-      userRole: UserRole.User,
+      positionId: "",
       estimatedDuration: 0,
       estimatedReadiness: 0,
       attachmentUrls: [],
@@ -851,7 +853,20 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
             {renderDropdownPicker("assigneeIds", t("newMilestoneTaskDialog.assignees"), projectUsersMap, true)}
           </Grid>
           <Grid item xs={6}>
-            {renderDropdownPicker("userRole", t("newMilestoneTaskDialog.userRole"), Object.values(UserRole), false)}
+            {renderDropdownPicker(
+              "positionId",
+              t("newMilestoneTaskDialog.position"),
+              jobPositions.reduce(
+                (acc, position) => {
+                  if (position.id) {
+                    acc[position.id] = position.name;
+                  }
+                  return acc;
+                },
+                {} as Record<string, string>,
+              ),
+              false,
+            )}
           </Grid>
           <Grid item xs={3}>
             <TextField
