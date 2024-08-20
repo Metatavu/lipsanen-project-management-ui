@@ -278,7 +278,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
             field: "totalDelayPercentage",
             headerName: t("trackingScreen.delaysList.byRole.overallDelay"),
             flex: 1,
-            valueGetter: (params) => `${(params.row.totalDelayDuration / params.row.totalTasksDuration) * 100}%`,
+            valueGetter: (params) => `${((params.row.totalDelayDuration / params.row.totalTasksDuration) * 100).toFixed(2)}%`,
           },
         ]}
         autoHeight
