@@ -108,6 +108,9 @@
     "errorCreatingJobPosition": "Error while creating a new job position",
     "errorUpdatingJobPosition": "Error while updating a job position",
     "errorDeletingJobPosition": "Error while deleting a job position",
+    "errorListingNotificationEvents": "Error while fetching notification events list",
+    "errorUpdatingNotificationEvent": "Error while updating a notification event",
+    "errorDeletingNotificationEvent": "Error while deleting a notification event",
     "errorListingTasks": "Error while fetching tasks list",
     "errorFindingTask": "Error while fetching a task",
     "errorUpdatingTask": "Error while updating a task",
@@ -167,7 +170,50 @@
     "fileSuccessfullyUploaded": "File successfully uploaded"
   },
   "trackingScreen": {
-    "title": "Tracking"
+    "title": "Tracking",
+    "notificationsList": {
+      "title": "Notifications",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "markRead": "Mark as read",
+      "delete": "Delete"
+    },
+    "tasksList": {
+      "title": "Tasks",
+      "assignee": "Assignee",
+      "task": "Task",
+      "readyBy": "Ready by",
+      "status": "Status",
+      "readiness": "Readiness"
+    },
+    "delaysList": {
+      "title": "Project delays",
+      "groupBy": "Group by",
+      "scopes": {
+        "task": "Task",
+        "role": "Role",
+        "reason": "Reason"
+      },
+      "byTask": {
+        "delayedTask": "Delayed task",
+        "creator": "Creator",
+        "delayReason": "Delay reason",
+        "delayQuantity": "Delay quantity (days)"
+      },
+      "byRole": {
+        "role": "Role",
+        "tasks": "Tasks",
+        "delayedNumber": "Delayed tasks",
+        "delayPercentage": "Delay %",
+        "overallDelay": "Overall delay %"
+      },
+      "byReason": {
+        "delayReason": "Delay reason",
+        "delayedNumber": "Delayed tasks",
+        "delayQuantity": "Delay quantity (days)",
+        "overallDelay": "Overall delay %"
+      }
+    }
   },
   "tasksScreen": {
     "title": "Tasks"
@@ -212,6 +258,7 @@
     "assignees": "Assignees",
     "type": "Type",
     "userRole": "Role",
+    "position": "Position",
     "start": "Starts",
     "end": "Ends",
     "estimatedDuration": "Estimated duration",

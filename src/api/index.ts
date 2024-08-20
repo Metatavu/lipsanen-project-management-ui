@@ -12,6 +12,8 @@ import {
   TaskConnectionsApi,
   TaskCommentsApi,
   JobPositionsApi,
+  NotificationsApi,
+  NotificationEventsApi
 } from "../generated/client";
 
 type ConfigConstructor<T> = new (_params: ConfigurationParameters) => T;
@@ -39,5 +41,7 @@ export const getApiClient = (accessToken?: string) => {
     taskConnectionsApi: new TaskConnectionsApi(getConfiguration()),
     taskCommentsApi: new TaskCommentsApi(getConfiguration()),
     jobPositionsApi: new JobPositionsApi(getConfiguration()),
+    notificationsApi: new NotificationsApi(getConfiguration()),
+    NotificationEventsApi: new NotificationEventsApi(getConfiguration()),
   };
 };
