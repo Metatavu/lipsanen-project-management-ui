@@ -25,6 +25,7 @@ import {
   useListChangeProposalsQuery,
   useListTasksQuery,
   useListTaskConnectionsQuery,
+  useListJobPositionsQuery,
 } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
@@ -47,6 +48,7 @@ import * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/t
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
 import { theme } from "theme";
+import UsersUtils from "utils/users";
 
 /**
  * Milestone tasks file route
@@ -75,6 +77,8 @@ function MilestoneTasksListRoute() {
   const pendingChangeProposals = changeProposals?.filter(
     (proposal) => proposal.status === ChangeProposalStatus.Pending,
   );
+  const listJobPositionsQuery = useListJobPositionsQuery();
+  const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
   const taskCreatorUserIds = [
     ...new Set(
@@ -181,8 +185,8 @@ function MilestoneTasksListRoute() {
       <TableRow key={milestone.id}>
         <TableCell style={{ overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Avatar sx={{ backgroundColor: "#0079BF" }}>
-              <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
+            <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
+              <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
             </Avatar>
             {/* TODO: Handle overflowing name with maxWidth could be improved */}
             <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
@@ -235,9 +239,7 @@ function MilestoneTasksListRoute() {
         >
           <TableCell style={{ overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar sx={{ backgroundColor: "#0079BF" }}>
-                <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
-              </Avatar>
+              <div>{UsersUtils.getUserIcon(creatorUsers, taskCreator?.keycloakId, jobPositions)}</div>
               {/* TODO: Handle overflowing name with maxWidth could be improved */}
               <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
                 <Tooltip placement="top" title={task.name} onClick={() => onTaskSelect(task)}>

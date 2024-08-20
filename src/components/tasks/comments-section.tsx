@@ -11,9 +11,7 @@ import { Mention, MentionItem, MentionsInput } from "react-mentions";
 import { useListJobPositionsQuery, useListTaskCommentsQuery } from "hooks/api-queries";
 import { userProfileAtom } from "atoms/auth";
 import { useAtomValue } from "jotai";
-import { DEFAULT_USER_ICON } from "constants/index";
-import { theme } from "theme";
-import { renderMdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import UsersUtils from "utils/users";
 
 /**
  * Component props
@@ -248,20 +246,6 @@ const CommentsSection = ({
   };
 
   /**
-   * Gets job position icon for user
-   *
-   * @param userId string
-   */
-  const getUserIcon = (userId?: string) => {
-    const userData = projectUsers.find((user) => user.keycloakId === userId);
-    const usersJobPosition = jobPositions?.find((position) => userData?.jobPositionId === position.id);
-    const usersIconName = usersJobPosition?.iconName ?? DEFAULT_USER_ICON;
-    const usersIconColor = usersJobPosition?.color ?? theme.palette.primary.main;
-
-    return renderMdiIconifyIconWithBackground(usersIconName, usersIconColor);
-  };
-
-  /**
    * Handles deleting a task comment
    *
    * @param id comment id
@@ -405,7 +389,9 @@ const CommentsSection = ({
 
       return (
         <DialogContent key={comment.id} sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-          <div style={{ marginRight: "1rem" }}>{getUserIcon(comment.metadata?.creatorId)}</div>
+          <div style={{ marginRight: "1rem" }}>
+            {UsersUtils.getUserIcon(projectUsers, comment.metadata?.creatorId, jobPositions)}
+          </div>
           <Box sx={{ width: "100%" }}>
             <Box
               sx={{
@@ -479,7 +465,9 @@ const CommentsSection = ({
         {t("taskComments.comments")}
       </DialogContentText>
       <DialogContent sx={{ display: "flex", flexDirection: "row", marginBottom: "1rem" }}>
-        <div style={{ marginRight: "1rem" }}>{getUserIcon(loggedInUser?.id)}</div>
+        <div style={{ marginRight: "1rem" }}>
+          {UsersUtils.getUserIcon(projectUsers, loggedInUser?.id, jobPositions)}
+        </div>
         {renderMentionsInput()}
         <Button onClick={persistNewComment}>{t("taskComments.addComment")}</Button>
       </DialogContent>

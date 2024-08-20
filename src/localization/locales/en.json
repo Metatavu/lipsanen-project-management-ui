@@ -316,7 +316,12 @@
     "comment": "Comment",
     "waitingForApproval": "Waiting for approval",
     "abandoned": "Abandoned",
-    "accepted": "Accepted"
+    "accepted": "Accepted",
+    "reasons": {
+      "missingInitialData": "Missing initial data",
+      "resourceShortage": "Resource shortage",
+      "timeUsageEstimate": "Time usage estimate"
+    }
   },
   "taskComments": {
     "comments": "Comments",

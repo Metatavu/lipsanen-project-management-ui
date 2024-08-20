@@ -55,7 +55,7 @@ function ScheduleIndexRoute() {
     { value: 1, label: t("scheduleScreen.labelWeek") },
     { value: 2, label: t("scheduleScreen.labelDay") },
   ];
-  
+
   /**
    * View modes for the slider
    */
@@ -102,8 +102,8 @@ function ScheduleIndexRoute() {
               style={{ textDecoration: "none", color: "#000" }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <Avatar sx={{ backgroundColor: "#0079BF" }}>
-                  <FlagOutlinedIcon fontSize="large" sx={{ color: "#fff" }} />
+                <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
+                  <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
                 </Avatar>
                 {/* TODO: Handle overflowing name with maxWidth could be improved */}
                 <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
@@ -180,8 +180,8 @@ function ScheduleIndexRoute() {
         backgroundColor: TaskStatusColor.NOT_STARTED,
         backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
         progressColor: ChartHelpers.getMilestoneColorBasedOnReadiness(milestone),
-        progressSelectedColor: ChartHelpers.getMilestoneSelectedColorBasedOnReadiness(milestone)
-      }
+        progressSelectedColor: ChartHelpers.getMilestoneSelectedColorBasedOnReadiness(milestone),
+      },
     }));
 
     return (

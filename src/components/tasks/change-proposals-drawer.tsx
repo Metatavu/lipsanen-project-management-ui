@@ -6,8 +6,9 @@ import DoneIcon from "@mui/icons-material/Done";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
 import { DateTime } from "luxon";
-import { useFindUsersQuery } from "hooks/api-queries";
+import { useFindUsersQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
+import UsersUtils from "utils/users";
 
 /**
  * Change proposals component properties
@@ -59,6 +60,8 @@ const ChangeProposalsDrawer = ({
 
   const listProposalCreatorUsersQuery = useFindUsersQuery(proposalCreatorUsersIds);
   const creatorUsers = (listProposalCreatorUsersQuery.data ?? []).filter((user) => user);
+  const listJobPositionsQuery = useListJobPositionsQuery();
+  const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
   /**
    * UseEffect to set maximum drawer height based on drawer content
@@ -171,7 +174,6 @@ const ChangeProposalsDrawer = ({
                     </Typography>
                   </Box>
                   <Box sx={{ width: "20%" }}>
-                    {/* TODO: Put requests for the change proposal */}
                     <Button
                       variant="text"
                       sx={{
@@ -208,8 +210,11 @@ const ChangeProposalsDrawer = ({
                     backgroundColor: selectedChangeProposalId === proposalId ? "#0079BF1A" : "",
                   }}
                 >
-                  <Typography variant="caption" sx={{ width: "20%" }}>
-                    {/* TODO: Users icon is missing */}
+                  <Typography
+                    variant="caption"
+                    sx={{ width: "20%", display: "flex", flexDirection: "row", alignItems: "center", gap: 1 }}
+                  >
+                    {UsersUtils.getUserIcon(creatorUsers, proposalCreator?.keycloakId, jobPositions)}
                     {`${proposalCreator?.firstName} ${proposalCreator?.lastName}`}
                   </Typography>
                   <Typography variant="caption" sx={{ width: "40%" }}>

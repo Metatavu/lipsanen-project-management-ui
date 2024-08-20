@@ -319,7 +319,12 @@
     "comment": "Kommentti",
     "waitingForApproval": "Odottaa hyväksyntaa",
     "abandoned": "Hylätty",
-    "accepted": "Hyväksytty"
+    "accepted": "Hyväksytty",
+    "reasons": {
+      "missingInitialData": "Lähtötiedot puuttuvat",
+      "resourceShortage": "Resurssivaje",
+      "timeUsageEstimate": "Ajankäyttöarvio"
+    }
   },
   "taskComments": {
     "comments": "Kommentit",
