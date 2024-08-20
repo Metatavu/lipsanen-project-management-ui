@@ -58,7 +58,6 @@ import { filesApi } from "api/files";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import ChangeProposalUtils from "utils/change-proposals";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { REASONS_FOR_CHANGE } from "constants/index";
 import TaskConnectionsTable from "./task-connections-table";
 import CommentsSection from "./comments-section";
 
@@ -132,6 +131,12 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const [availableTaskConnectionTasks, setAvailableTaskConnectionTasks] = useState<Task[]>([]);
   const [taskConnectionsValid, setTaskConnectionsValid] = useState(true);
   const [loadingProposalsDeletion, setLoadingProposalsDeletion] = useState<Record<string, boolean>>({});
+
+  const REASONS_FOR_CHANGE = [
+    t("changeProposals.reasons.missingInitialData"),
+    t("changeProposals.reasons.resourceShortage"),
+    t("changeProposals.reasons.timeUsageEstimate"),
+  ];
 
   /**
    * Use effect to update task specific change proposals on change proposals change
