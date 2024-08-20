@@ -42,6 +42,11 @@ const TaskList = ({ user, tasks, loading }: Props) => {
     );
   }
 
+  /**
+   * Render tasks column
+   * 
+   * @returns tasks column
+   */
   const renderTasksColumn = () => (
     <>
       <Typography component="h2" variant="h6" sx={{ padding: "1rem" }}>

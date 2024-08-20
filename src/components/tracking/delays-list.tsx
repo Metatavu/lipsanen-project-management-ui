@@ -3,7 +3,7 @@ import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { User, Task, ChangeProposal, JobPosition } from "generated/client";
-import { ChangeProposalScope } from "types";
+import { ChangeProposalScope, DelaysByReason, DelaysByRole, DelaysByTask } from "types";
 import { TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES } from "../../constants";
 
 /**
@@ -30,10 +30,12 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
   /**
    * Delays by task row data
    */
-  const delaysByTaskRowData = useMemo(() => {
-    const taskMap = new Map();
-
+  const delaysByTaskRowData: DelaysByTask[] = useMemo(() => {
+    const taskMap = new Map<string, DelaysByTask>();
+  
     for (const delay of changeProposals.filter((delay) => delay.status === "PENDING")) {
+      if (!delay.id || !delay.metadata || !delay.endDate) continue;
+
       if (!taskMap.has(delay.id)) {
         taskMap.set(delay.id, {
           id: delay.id,
@@ -44,26 +46,26 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
         });
       }
     }
-
+  
     return Array.from(taskMap.values());
   }, [changeProposals]);
 
   /**
    * Delays by role row data
    */
-  const delaysByRoleRowData = useMemo(() => {
-    const positionMap = new Map();
+  const delaysByRoleRowData: DelaysByRole[] = useMemo(() => {
+    const positionMap = new Map<string, DelaysByRole>();
 
     for (const task of tasks) {
       const taskPosition = jobPositions.find((position) => position.id === task.jobPositionId);
-      if (!taskPosition) continue;
+      if (!taskPosition || !taskPosition.id || !taskPosition.name || !task.id) continue;
 
       if (!positionMap.has(taskPosition.id)) {
         positionMap.set(taskPosition.id, {
           id: taskPosition.id,
-          position: taskPosition.name,
+          positionName: taskPosition.name,
           taskIds: [],
-          delayedTasks: 0,
+          delayedTasksNumber: 0,
           delayedTasksPercentage: 0,
           totalTasksDuration: 0,
           totalDelayDuration: 0,
@@ -71,6 +73,8 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
       }
 
       const positionEntry = positionMap.get(taskPosition.id);
+      if (!positionEntry) continue;
+
       positionEntry.taskIds.push(task.id);
 
       const taskDelays = changeProposals.filter((delay) => delay.taskId === task.id);
@@ -78,7 +82,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
 
       // Increment delayedTasks count
       if (taskDelays.length > 0) {
-        positionEntry.delayedTasks += 1;
+        positionEntry.delayedTasksNumber += 1;
       }
 
       // Calculate total task duration
@@ -98,7 +102,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
 
       positionEntry.totalDelayDuration += totalDelayDuration;
 
-      positionEntry.delayedTasksPercentage = (positionEntry.delayedTasks / positionEntry.taskIds.length) * 100;
+      positionEntry.delayedTasksPercentage = (positionEntry.delayedTasksNumber / positionEntry.taskIds.length) * 100;
       positionMap.set(taskPosition.id, positionEntry);
     }
 
@@ -108,8 +112,8 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
   /**
    * Delays by reason row data
    */
-  const delaysByReasonRowData = useMemo(() => {
-    const reasonMap = new Map();
+  const delaysByReasonRowData: DelaysByReason[] = useMemo(() => {
+    const reasonMap = new Map<string, DelaysByReason>();
 
     for (const delay of changeProposals) {
       if (!reasonMap.has(delay.reason)) {
@@ -123,10 +127,11 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
       }
 
       const reasonEntry = reasonMap.get(delay.reason);
+      if (!reasonEntry) continue;
 
       if (delay.status === "PENDING" && delay.endDate) {
         const task = tasks.find((task) => task.id === delay.taskId);
-        if (task) {
+        if (task?.id) {
           // Add task id to the list if not already present
           if (!reasonEntry.taskIds.includes(task.id)) {
             reasonEntry.taskIds.push(task.id);
@@ -248,7 +253,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
         rows={delaysByRoleRowData}
         columns={[
           {
-            field: "position",
+            field: "positionName",
             headerName: t("trackingScreen.delaysList.byRole.role"),
             flex: 1,
           },
@@ -259,7 +264,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
             valueGetter: (params) => params.value.length,
           },
           {
-            field: "delayedTasks",
+            field: "delayedTasksNumber",
             headerName: t("trackingScreen.delaysList.byRole.delayedNumber"),
             flex: 1,
           },

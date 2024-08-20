@@ -134,7 +134,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
             <Typography variant="body2" fontWeight="normal">
-              {tasks.find((task) => task.id === notificationEvent.notification.taskId)?.name ?? "Perustukset / Lohko 2"}
+              {tasks.find((task) => task.id === notificationEvent.notification.taskId)?.name ?? t("trackingScreen.tasksList.task")}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
