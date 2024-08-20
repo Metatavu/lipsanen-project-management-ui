@@ -114,7 +114,14 @@
     "errorListingTasks": "Virhe haettaessa tehtäviä",
     "errorFindingTask": "Virhe haettaessa tehtävää",
     "errorUpdatingTask": "Virhe päivitettäessä tehtävää",
-    "errorDeletingTask": "Virhe poistettaessa tehtävää"
+    "errorDeletingTask": "Virhe poistettaessa tehtävää",
+    "errorCreatingTaskConnection": "Virhe luotaessa riippuvuutta tehtäville",
+    "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien riippuvuutta",
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien riippuvuutta",
+    "errorListingTaskComments": "Virhe haettaessa tehtävän kommentteja",
+    "errorCreatingTaskComment": "Virhe luotaessa uutta kommenttia tehtävään",
+    "errorUpdatingTaskComment": "Virhe päivitettäessä tehtävän kommenttia",
+    "errorDeletingTaskComment": "Virhe poistettaessa tehtävän kommenttia"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -313,5 +320,11 @@
     "waitingForApproval": "Odottaa hyväksyntaa",
     "abandoned": "Hylätty",
     "accepted": "Hyväksytty"
+  },
+  "taskComments": {
+    "comments": "Kommentit",
+    "addComment": "Lisää kommentti",
+    "editFlag": "(Muokattu)",
+    "updateComment": "Päivitä kommentti"
   }
 }

@@ -18,13 +18,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { renderMdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import { theme } from "theme";
+import { DEFAULT_USER_ICON } from "constants/index";
 
 /**
  * Users file route
  */
 export const Route = createFileRoute("/users")({ component: UsersIndexRoute });
-
-const DEFAULT_USER_ICON = "account";
 
 /**
  * Users index route component
@@ -105,7 +104,7 @@ function UsersIndexRoute() {
                 const jobPosition = jobPositions?.find((position) => user.jobPositionId === position.id);
                 const iconName = jobPosition?.iconName ?? DEFAULT_USER_ICON;
                 const iconColor = jobPosition?.color ?? theme.palette.primary.main;
-                
+
                 return (
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     {renderMdiIconifyIconWithBackground(iconName, iconColor)}

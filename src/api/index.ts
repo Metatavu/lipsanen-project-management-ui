@@ -10,6 +10,7 @@ import {
   TasksApi,
   ChangeProposalsApi,
   TaskConnectionsApi,
+  TaskCommentsApi,
   JobPositionsApi,
   NotificationsApi,
   NotificationEventsApi
@@ -38,6 +39,7 @@ export const getApiClient = (accessToken?: string) => {
     tasksApi: new TasksApi(getConfiguration()),
     changeProposalsApi: new ChangeProposalsApi(getConfiguration()),
     taskConnectionsApi: new TaskConnectionsApi(getConfiguration()),
+    taskCommentsApi: new TaskCommentsApi(getConfiguration()),
     jobPositionsApi: new JobPositionsApi(getConfiguration()),
     notificationsApi: new NotificationsApi(getConfiguration()),
     NotificationEventsApi: new NotificationEventsApi(getConfiguration()),

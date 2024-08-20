@@ -27,6 +27,7 @@
     "@tanstack/react-router": "1.16.6",
     "@tanstack/router-devtools": "1.16.6",
     "@tanstack/router-vite-plugin": "1.16.5",
+    "@types/react-mentions": "4.1.13",
     "envalid": "8.0.0",
     "i18next": "23.9.0",
     "i18next-browser-languagedetector": "7.2.0",
@@ -41,6 +42,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "7.50.1",
     "react-i18next": "14.0.5",
+    "react-mentions": "4.4.10",
     "uuid": "9.0.1"
   },
   "devDependencies": {

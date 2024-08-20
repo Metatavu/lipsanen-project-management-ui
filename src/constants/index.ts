@@ -57,3 +57,5 @@ export const TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES = [
   ChangeProposalScope.ROLE,
   ChangeProposalScope.REASON
 ];
+
+export const DEFAULT_USER_ICON = "account";
