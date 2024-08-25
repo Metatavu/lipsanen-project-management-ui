@@ -256,6 +256,7 @@
     "name": "Task name",
     "status": "Status",
     "assignees": "Assignees",
+    "dependentUser": "Dependent user",
     "type": "Type",
     "userRole": "Role",
     "position": "Position",
@@ -328,5 +329,11 @@
     "addComment": "Add comment",
     "editFlag": "(Edited)",
     "updateComment": "Update comment"
+  },
+  "lastPlannerView": {
+    "title": "Last Planner",
+    "user": "User",
+    "week": "Week",
+    "markTasks": "Mark tasks"
   }
 }

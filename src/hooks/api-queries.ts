@@ -18,9 +18,10 @@ import {
   ListTaskCommentsRequest,
   ListJobPositionsRequest,
   JobPosition,
-  ListNotificationEventsRequest
+  ListNotificationEventsRequest,
 } from "generated/client";
 import { filesApi } from "api/files";
+import { WithMaxResults } from "types";
 
 /**
  * List companies query hook
@@ -33,10 +34,7 @@ export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
 
   return useQuery({
     queryKey: ["companies", params],
-    queryFn: async (): Promise<{
-      companies: Company[];
-      maxResults: number;
-    }> => {
+    queryFn: async (): Promise<WithMaxResults<"companies", Company>> => {
       try {
         const [companies, headers] = await companiesApi.listCompaniesWithHeaders(params ?? {});
         return {
@@ -62,7 +60,7 @@ export const useListUsersQuery = (params?: ListUsersRequest) => {
 
   return useQuery({
     queryKey: ["users", params],
-    queryFn: async (): Promise<{ users: User[]; maxResults: number }> => {
+    queryFn: async (): Promise<WithMaxResults<"users", User>> => {
       try {
         const [users, headers] = await usersApi.listUsersWithHeaders(params ?? {});
         return {
@@ -145,7 +143,7 @@ export const useListProjectsQuery = (params?: ListProjectsRequest) => {
 
   return useQuery({
     queryKey: ["projects", params],
-    queryFn: async (): Promise<{ projects: Project[]; maxResults: number }> => {
+    queryFn: async (): Promise<WithMaxResults<"projects", Project>> => {
       try {
         const [projects, headers] = await projectsApi.listProjectsWithHeaders(params ?? {});
         return {
@@ -193,38 +191,10 @@ export const useListProjectThemesQuery = (projectId?: string) => {
     queryFn: async () => {
       if (!projectId) return null;
       try {
-        return projectThemesApi.listProjectThemes({ projectId: projectId });
+        return await projectThemesApi.listProjectThemes({ projectId: projectId });
       } catch (error) {
         handleError("Error listing project themes", error);
         throw Error(t("errorHandling.errorListingProjectThemes"), {
-          cause: error,
-        });
-      }
-    },
-    enabled: !!projectId,
-  });
-};
-
-/**
- * List project users query hook
- *
- * @param projectId project ID
- */
-export const useListProjectUsersQuery = (projectId?: string) => {
-  const { usersApi } = useApi();
-  const { t } = useTranslation();
-
-  return useQuery({
-    queryKey: ["projects", projectId, "users"],
-    queryFn: async () => {
-      if (!projectId) return null;
-      try {
-        const users = await usersApi.listUsers();
-        const projectUsers = users.filter((user) => user.projectIds?.includes(projectId));
-        return projectUsers;
-      } catch (error) {
-        handleError("Error listing project users", error);
-        throw Error(t("errorHandling.errorListingProjectUsers"), {
           cause: error,
         });
       }
@@ -266,7 +236,7 @@ export const useListProjectMilestonesQuery = ({ projectId }: ListProjectMileston
     queryKey: ["projects", projectId, "milestones"],
     queryFn: async () => {
       try {
-        return projectMilestonesApi.listProjectMilestones({ projectId });
+        return await projectMilestonesApi.listProjectMilestones({ projectId });
       } catch (error) {
         handleError("Error listing project milestones", error);
         throw Error(t("errorHandling.errorListingProjectMilestones"), {
@@ -290,10 +260,7 @@ export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindPro
     queryKey: ["projects", projectId, "milestones", milestoneId],
     queryFn: async () => {
       try {
-        return projectMilestonesApi.findProjectMilestone({
-          projectId,
-          milestoneId,
-        });
+        return await projectMilestonesApi.findProjectMilestone({ projectId, milestoneId });
       } catch (error) {
         handleError("Error finding project milestone", error);
         throw Error(t("errorHandling.errorFindingProjectMilestone"), {
@@ -317,7 +284,7 @@ export const useListTasksQuery = ({ projectId, ...filters }: ListTasksRequest) =
     queryKey: ["projects", projectId, "tasks", filters],
     queryFn: async () => {
       try {
-        return tasksApi.listTasks({ projectId, ...filters });
+        return await tasksApi.listTasks({ projectId, ...filters });
       } catch (error) {
         handleError("Error listing tasks", error);
         throw Error(t("errorHandling.errorListingTasks"), { cause: error });
@@ -339,10 +306,7 @@ export const useListChangeProposalsQuery = ({ projectId, ...filters }: ListChang
     queryKey: ["projects", projectId, "changeProposals", filters],
     queryFn: async () => {
       try {
-        return changeProposalsApi.listChangeProposals({
-          projectId,
-          ...filters,
-        });
+        return await changeProposalsApi.listChangeProposals({ projectId, ...filters });
       } catch (error) {
         handleError("Error listing change proposals", error);
         throw Error(t("errorHandling.errorListingChangeProposals"), {
@@ -366,7 +330,7 @@ export const useFindTaskQuery = ({ projectId, taskId }: FindTaskRequest) => {
     queryKey: ["projects", projectId, "tasks", taskId],
     queryFn: async () => {
       try {
-        return milestoneTasksApi.findTask({ projectId, taskId });
+        return await milestoneTasksApi.findTask({ projectId, taskId });
       } catch (error) {
         handleError("Error finding milestone task", error);
         throw Error(t("errorHandling.errorFindingMilestoneTask"), {
@@ -390,15 +354,10 @@ export const useListTaskConnectionsQuery = ({ projectId, ...filters }: ListTaskC
     queryKey: ["projects", projectId, "connections", filters],
     queryFn: async () => {
       try {
-        return taskConnectionsApi.listTaskConnections({
-          projectId,
-          ...filters,
-        });
+        return await taskConnectionsApi.listTaskConnections({ projectId, ...filters });
       } catch (error) {
         handleError("Error listing task connections", error);
-        throw Error(t("errorHandling.errorListingTaskConnections"), {
-          cause: error,
-        });
+        throw Error(t("errorHandling.errorListingTaskConnections"), { cause: error });
       }
     },
   });
@@ -439,10 +398,7 @@ export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
 
   return useQuery({
     queryKey: ["jobPositions", params],
-    queryFn: async (): Promise<{
-      jobPositions: JobPosition[];
-      maxResults: number;
-    }> => {
+    queryFn: async (): Promise<WithMaxResults<"jobPositions", JobPosition>> => {
       try {
         const [jobPositions, headers] = await jobPositionsApi.listJobPositionsWithHeaders(params ?? {});
         return {
@@ -451,9 +407,7 @@ export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
         };
       } catch (error) {
         handleError("Error listing job positions", error);
-        throw Error(t("errorHandling.errorListingJobPositions"), {
-          cause: error,
-        });
+        throw Error(t("errorHandling.errorListingJobPositions"), { cause: error });
       }
     },
   });
@@ -461,7 +415,7 @@ export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
 
 /**
  * List notification events query hook
- * 
+ *
  * @param params ListNotificationEventsRequest
  */
 export const useListNotificationEventsQuery = (params: ListNotificationEventsRequest) => {

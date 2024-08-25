@@ -16,9 +16,9 @@ import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { renderMdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import { theme } from "theme";
-import { DEFAULT_USER_ICON } from "constants/index";
+import { DEFAULT_USER_ICON } from "consts";
 
 /**
  * Users file route
@@ -107,7 +107,7 @@ function UsersIndexRoute() {
 
                 return (
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    {renderMdiIconifyIconWithBackground(iconName, iconColor)}
+                    <MdiIconifyIconWithBackground iconName={iconName} backgroundColor={iconColor} />
                     {user.firstName} {user.lastName}
                   </div>
                 );

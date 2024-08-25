@@ -81,6 +81,12 @@ export interface Task {
      */
     assigneeIds?: Array<string>;
     /**
+     * ID of the user who is dependent on this task
+     * @type {string}
+     * @memberof Task
+     */
+    dependentUserId?: string;
+    /**
      * 
      * @type {UserRole}
      * @memberof Task
@@ -149,6 +155,7 @@ export function TaskFromJSONTyped(json: any, ignoreDiscriminator: boolean): Task
         'milestoneId': json['milestoneId'],
         'status': TaskStatusFromJSON(json['status']),
         'assigneeIds': !exists(json, 'assigneeIds') ? undefined : json['assigneeIds'],
+        'dependentUserId': !exists(json, 'dependentUserId') ? undefined : json['dependentUserId'],
         'userRole': !exists(json, 'userRole') ? undefined : UserRoleFromJSON(json['userRole']),
         'jobPositionId': !exists(json, 'jobPositionId') ? undefined : json['jobPositionId'],
         'estimatedDuration': !exists(json, 'estimatedDuration') ? undefined : json['estimatedDuration'],
@@ -173,6 +180,7 @@ export function TaskToJSON(value?: Task | null): any {
         'milestoneId': value.milestoneId,
         'status': TaskStatusToJSON(value.status),
         'assigneeIds': value.assigneeIds,
+        'dependentUserId': value.dependentUserId,
         'userRole': UserRoleToJSON(value.userRole),
         'jobPositionId': value.jobPositionId,
         'estimatedDuration': value.estimatedDuration,

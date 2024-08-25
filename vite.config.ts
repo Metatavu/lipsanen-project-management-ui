@@ -12,7 +12,7 @@ export default defineConfig({
       atoms: "/src/atoms",
       assets: "/src/assets",
       components: "/src/components",
-      constants: "/src/constants",
+      consts: "/src/consts",
       generated: "/src/generated",
       hooks: "/src/hooks",
       localization: "/src/localization",
@@ -24,6 +24,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ['js-big-decimal']
-  }
+    exclude: ["js-big-decimal"],
+  },
 });

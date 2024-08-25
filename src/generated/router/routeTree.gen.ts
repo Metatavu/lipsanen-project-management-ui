@@ -21,6 +21,7 @@ import { Route as IndexImport } from "./../../routes/index"
 import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/projects_.$projectId.tracking"
 import { Route as ProjectsProjectIdTasksImport } from "./../../routes/projects_.$projectId.tasks"
 import { Route as ProjectsProjectIdScheduleImport } from "./../../routes/projects_.$projectId.schedule"
+import { Route as ProjectsProjectIdTasksTaskIdImport } from "./../../routes/projects_.$projectId.tasks.$taskId"
 import { Route as ProjectsProjectIdScheduleMilestoneIdTasksImport } from "./../../routes/projects_.$projectId.schedule_.$milestoneId.tasks"
 
 // Create/Update Routes
@@ -75,6 +76,12 @@ const ProjectsProjectIdScheduleRoute = ProjectsProjectIdScheduleImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ProjectsProjectIdTasksTaskIdRoute =
+  ProjectsProjectIdTasksTaskIdImport.update({
+    path: "/$taskId",
+    getParentRoute: () => ProjectsProjectIdTasksRoute,
+  } as any)
+
 const ProjectsProjectIdScheduleMilestoneIdTasksRoute =
   ProjectsProjectIdScheduleMilestoneIdTasksImport.update({
     path: "/projects/$projectId/schedule/$milestoneId/tasks",
@@ -86,46 +93,86 @@ const ProjectsProjectIdScheduleMilestoneIdTasksRoute =
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
     "/": {
+      id: "/"
+      path: "/"
+      fullPath: "/"
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
     "/monitoring": {
+      id: "/monitoring"
+      path: "/monitoring"
+      fullPath: "/monitoring"
       preLoaderRoute: typeof MonitoringImport
       parentRoute: typeof rootRoute
     }
     "/project-templates": {
+      id: "/project-templates"
+      path: "/project-templates"
+      fullPath: "/project-templates"
       preLoaderRoute: typeof ProjectTemplatesImport
       parentRoute: typeof rootRoute
     }
     "/projects": {
+      id: "/projects"
+      path: "/projects"
+      fullPath: "/projects"
       preLoaderRoute: typeof ProjectsImport
       parentRoute: typeof rootRoute
     }
     "/roles": {
+      id: "/roles"
+      path: "/roles"
+      fullPath: "/roles"
       preLoaderRoute: typeof RolesImport
       parentRoute: typeof rootRoute
     }
     "/settings": {
+      id: "/settings"
+      path: "/settings"
+      fullPath: "/settings"
       preLoaderRoute: typeof SettingsImport
       parentRoute: typeof rootRoute
     }
     "/users": {
+      id: "/users"
+      path: "/users"
+      fullPath: "/users"
       preLoaderRoute: typeof UsersImport
       parentRoute: typeof rootRoute
     }
     "/projects/$projectId/schedule": {
+      id: "/projects/$projectId/schedule"
+      path: "/projects/$projectId/schedule"
+      fullPath: "/projects/$projectId/schedule"
       preLoaderRoute: typeof ProjectsProjectIdScheduleImport
       parentRoute: typeof rootRoute
     }
     "/projects/$projectId/tasks": {
+      id: "/projects/$projectId/tasks"
+      path: "/projects/$projectId/tasks"
+      fullPath: "/projects/$projectId/tasks"
       preLoaderRoute: typeof ProjectsProjectIdTasksImport
       parentRoute: typeof rootRoute
     }
     "/projects/$projectId/tracking": {
+      id: "/projects/$projectId/tracking"
+      path: "/projects/$projectId/tracking"
+      fullPath: "/projects/$projectId/tracking"
       preLoaderRoute: typeof ProjectsProjectIdTrackingImport
       parentRoute: typeof rootRoute
     }
+    "/projects/$projectId/tasks/$taskId": {
+      id: "/projects/$projectId/tasks/$taskId"
+      path: "/$taskId"
+      fullPath: "/projects/$projectId/tasks/$taskId"
+      preLoaderRoute: typeof ProjectsProjectIdTasksTaskIdImport
+      parentRoute: typeof ProjectsProjectIdTasksImport
+    }
     "/projects/$projectId/schedule/$milestoneId/tasks": {
+      id: "/projects/$projectId/schedule/$milestoneId/tasks"
+      path: "/projects/$projectId/schedule/$milestoneId/tasks"
+      fullPath: "/projects/$projectId/schedule/$milestoneId/tasks"
       preLoaderRoute: typeof ProjectsProjectIdScheduleMilestoneIdTasksImport
       parentRoute: typeof rootRoute
     }
@@ -134,7 +181,7 @@ declare module "@tanstack/react-router" {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([
+export const routeTree = rootRoute.addChildren({
   IndexRoute,
   MonitoringRoute,
   ProjectTemplatesRoute,
@@ -143,9 +190,74 @@ export const routeTree = rootRoute.addChildren([
   SettingsRoute,
   UsersRoute,
   ProjectsProjectIdScheduleRoute,
-  ProjectsProjectIdTasksRoute,
+  ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute.addChildren({
+    ProjectsProjectIdTasksTaskIdRoute,
+  }),
   ProjectsProjectIdTrackingRoute,
   ProjectsProjectIdScheduleMilestoneIdTasksRoute,
-])
+})
 
 /* prettier-ignore-end */
+
+/* ROUTE_MANIFEST_START
+{
+  "routes": {
+    "__root__": {
+      "filePath": "__root.tsx",
+      "children": [
+        "/",
+        "/monitoring",
+        "/project-templates",
+        "/projects",
+        "/roles",
+        "/settings",
+        "/users",
+        "/projects/$projectId/schedule",
+        "/projects/$projectId/tasks",
+        "/projects/$projectId/tracking",
+        "/projects/$projectId/schedule/$milestoneId/tasks"
+      ]
+    },
+    "/": {
+      "filePath": "index.tsx"
+    },
+    "/monitoring": {
+      "filePath": "monitoring.tsx"
+    },
+    "/project-templates": {
+      "filePath": "project-templates.tsx"
+    },
+    "/projects": {
+      "filePath": "projects.tsx"
+    },
+    "/roles": {
+      "filePath": "roles.tsx"
+    },
+    "/settings": {
+      "filePath": "settings.tsx"
+    },
+    "/users": {
+      "filePath": "users.tsx"
+    },
+    "/projects/$projectId/schedule": {
+      "filePath": "projects_.$projectId.schedule.tsx"
+    },
+    "/projects/$projectId/tasks": {
+      "filePath": "projects_.$projectId.tasks.tsx",
+      "children": [
+        "/projects/$projectId/tasks/$taskId"
+      ]
+    },
+    "/projects/$projectId/tracking": {
+      "filePath": "projects_.$projectId.tracking.tsx"
+    },
+    "/projects/$projectId/tasks/$taskId": {
+      "filePath": "projects_.$projectId.tasks.$taskId.tsx",
+      "parent": "/projects/$projectId/tasks"
+    },
+    "/projects/$projectId/schedule/$milestoneId/tasks": {
+      "filePath": "projects_.$projectId.schedule_.$milestoneId.tasks.tsx"
+    }
+  }
+}
+ROUTE_MANIFEST_END */
