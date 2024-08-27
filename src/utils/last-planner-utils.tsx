@@ -70,7 +70,7 @@ export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =
  * @param timelineInterval the interval that wraps the tasks
  * @param tasksInRow the tasks in the row
  */
-export const fillGapsBetweenTasksInRow =
+export const renderTaskRows =
   (
     timelineInterval: Interval<true>,
     editMode: boolean | undefined,

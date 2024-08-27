@@ -78,7 +78,8 @@ interface Props {
 /**
  * Task dialog component
  */
-const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposals }: Props) => {
+const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, onClose, changeProposals }: Props) => {
+  const milestoneId = task?.milestoneId ?? milestoneIdFromProps;
   const { t } = useTranslation();
   const { tasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
@@ -857,10 +858,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           <Grid item xs={6}>
             {renderDropdownPicker("status", t("newMilestoneTaskDialog.status"), Object.values(TaskStatus), false)}
           </Grid>
-          <Grid item xs={6}>
-            {renderDropdownPicker("assigneeIds", t("newMilestoneTaskDialog.assignees"), projectUsersMap, true)}
+          <Grid item xs={3}>
+            {renderDropdownPicker("dependentUserId", t("newMilestoneTaskDialog.dependentUser"), projectUsersMap, false)}
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={3}>
             {renderDropdownPicker(
               "positionId",
               t("newMilestoneTaskDialog.position"),
@@ -879,12 +880,6 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           <Grid item xs={6}>
             {renderDropdownPicker("assigneeIds", t("newMilestoneTaskDialog.assignees"), projectUsersMap, true)}
           </Grid>
-          <Grid item xs={6}>
-            {renderDropdownPicker("dependentUserId", t("newMilestoneTaskDialog.dependentUser"), projectUsersMap, false)}
-          </Grid>
-          <Grid item xs={6}>
-            {renderDropdownPicker("userRole", t("newMilestoneTaskDialog.userRole"), Object.values(UserRole), false)}
-          </Grid>
           <Grid item xs={3}>
             <TextField
               fullWidth
@@ -901,7 +896,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               onChange={handleFormChange("estimatedReadiness")}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={3}>
             <GenericDatePicker
               fullWidth
               label={t("newMilestoneTaskDialog.start")}
@@ -909,7 +904,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               onChange={handleDateFormChange("startDate")}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={3}>
             <GenericDatePicker
               fullWidth
               label={t("newMilestoneTaskDialog.end")}
@@ -1319,9 +1314,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           {task?.id && (
             <CommentsSection
               projectId={projectId}
-              milestoneId={milestoneId}
+              milestoneId={task.milestoneId}
               taskId={task.id}
-              projectUsers={listProjectUsersQuery.data ?? []}
+              projectUsers={listProjectUsersQuery.data?.users ?? []}
               projectUsersMap={projectUsersMap}
               projectKeycloakUsersMap={projectKeycloakUsersMap}
             />

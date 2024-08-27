@@ -12,12 +12,12 @@ import { DateTimeUnit, Interval } from "luxon";
 export const splitIntervalByDuration = (interval: Interval, unit: DateTimeUnit) => {
   if (!interval.isValid || !interval.start || !interval.end) throw Error("Invalid interval");
 
-  const durations = interval
+  const splitIntervals = interval
     ?.set({ start: interval.start.startOf(unit), end: interval.end?.endOf(unit) })
     .splitBy({ [unit]: 1 });
-  durations[0] = durations[0].set({ start: interval.start });
-  durations[durations.length - 1] = durations[durations.length - 1].set({ end: interval.end });
-  return durations;
+  splitIntervals[0] = splitIntervals[0].set({ start: interval.start });
+  splitIntervals[splitIntervals.length - 1] = splitIntervals[splitIntervals.length - 1].set({ end: interval.end });
+  return splitIntervals;
 };
 
 export const getEarliestDate = (dates: Date[]) => {

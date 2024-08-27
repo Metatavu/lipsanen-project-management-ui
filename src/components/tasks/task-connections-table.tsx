@@ -13,10 +13,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  Task,
-  TaskConnectionType,
-} from "generated/client";
+import { Task, TaskConnectionType } from "generated/client";
 import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
 import { useEffect, useMemo } from "react";
@@ -32,7 +29,11 @@ interface Props {
   availableTaskConnectionTasks: Task[];
   handleEditConnection: (connectionId: string, field: keyof TaskConnectionTableData, value: TaskConnectionType) => void;
   addNewTaskConnectionRow: () => void;
-  handleEditNewConnection: (id: string, field: keyof TaskConnectionTableData, value: TaskConnectionTableData[keyof TaskConnectionTableData]) => void;
+  handleEditNewConnection: (
+    id: string,
+    field: keyof TaskConnectionTableData,
+    value: TaskConnectionTableData[keyof TaskConnectionTableData],
+  ) => void;
   removeNewTaskConnectionRow: (id: string) => void;
   removeExistingTaskConnectionRow: (connectionId: string) => void;
   setTaskConnectionsValid: (valid: boolean) => void;
@@ -68,7 +69,7 @@ const TaskConnectionsTable = ({
 
   /**
    * Get available task options for a dropdown select
-   * 
+   *
    * @param selectedTaskId selected task id
    */
   const getAvailableTaskOptions = (selectedTaskId?: string) => {
@@ -81,22 +82,32 @@ const TaskConnectionsTable = ({
 
   /**
    * Determine if task type is allowed
-   * 
+   *
    * @param connectedTask connected task
    * @param editedTaskFormData edited / new task form data
    * @param type task connection type
    */
-  const determineIfTaskTypeIsAllowed = (connectedTask: TaskConnectionTableData, editedTaskFormData: TaskFormData, type?: TaskConnectionType) => {
-    if (!connectedTask || !editedTaskFormData || !connectedTask.attachedTask || !editedTaskFormData.startDate || !editedTaskFormData.endDate) {
+  const determineIfTaskTypeIsAllowed = (
+    connectedTask: TaskConnectionTableData,
+    editedTaskFormData: TaskFormData,
+    type?: TaskConnectionType,
+  ) => {
+    if (
+      !connectedTask ||
+      !editedTaskFormData ||
+      !connectedTask.attachedTask ||
+      !editedTaskFormData.startDate ||
+      !editedTaskFormData.endDate
+    ) {
       return null;
     }
 
     const connectedTaskStartDate = connectedTask.attachedTask.startDate;
     const connectedTaskEndDate = connectedTask.attachedTask.endDate;
     // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const  editedTaskStartDate = new Date(editedTaskFormData.startDate.toISODate()!);
+    const editedTaskStartDate = new Date(editedTaskFormData.startDate.toISODate()!);
     // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const  editedTaskEndDate = new Date(editedTaskFormData.endDate.toISODate()!);
+    const editedTaskEndDate = new Date(editedTaskFormData.endDate.toISODate()!);
 
     const sourceTaskDates =
       connectedTask.hierarchy === TaskConnectionRelationship.PARENT
@@ -131,21 +142,21 @@ const TaskConnectionsTable = ({
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const allConnections = [...existingTaskConnections, ...newTaskConnections];
-    const validationErrors = allConnections.map(connection =>
+    const validationErrors = allConnections.map((connection) =>
       determineIfTaskTypeIsAllowed(
         { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
         taskData,
-        connection.type
-      )
+        connection.type,
+      ),
     );
-    setTaskConnectionsValid(!validationErrors.some(error => error !== null));
+    setTaskConnectionsValid(!validationErrors.some((error) => error !== null));
   }, [existingTaskConnections, newTaskConnections, milestoneTasks, taskData]);
 
   /**
    * Render existing task connection table rows
    */
   const renderExistingTaskConnectionTableRows = () => {
-    return existingTaskConnections.map(connection => (
+    return existingTaskConnections.map((connection) => (
       <TableRow key={connection.connectionId}>
         <TableCell>
           <TextField value={connection.hierarchy} disabled />
@@ -155,7 +166,9 @@ const TaskConnectionsTable = ({
             fullWidth
             select
             value={connection.type}
-            onChange={(e) => handleEditConnection(connection.connectionId, "type", e.target.value as TaskConnectionType)}
+            onChange={(e) =>
+              handleEditConnection(connection.connectionId, "type", e.target.value as TaskConnectionType)
+            }
           >
             {Object.values(TaskConnectionType).map((type) => (
               <MenuItem key={type} value={type}>
@@ -163,11 +176,11 @@ const TaskConnectionsTable = ({
               </MenuItem>
             ))}
           </TextField>
-          <div style={{ color: 'red', fontSize: '0.75rem' }}>
+          <div style={{ color: "red", fontSize: "0.75rem" }}>
             {determineIfTaskTypeIsAllowed(
               { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
               taskData,
-              connection.type
+              connection.type,
             )}
           </div>
         </TableCell>
@@ -196,14 +209,12 @@ const TaskConnectionsTable = ({
           <TextField
             select
             value={connection.hierarchy}
-            onChange={(e) => handleEditNewConnection(connection.id ?? "", "hierarchy", e.target.value as keyof TaskConnectionTableData)}
+            onChange={(e) =>
+              handleEditNewConnection(connection.id ?? "", "hierarchy", e.target.value as keyof TaskConnectionTableData)
+            }
           >
-            <MenuItem value={TaskConnectionRelationship.PARENT}>
-              {TaskConnectionRelationship.PARENT}
-            </MenuItem>
-            <MenuItem value={TaskConnectionRelationship.CHILD}>
-              {TaskConnectionRelationship.CHILD}
-            </MenuItem>
+            <MenuItem value={TaskConnectionRelationship.PARENT}>{TaskConnectionRelationship.PARENT}</MenuItem>
+            <MenuItem value={TaskConnectionRelationship.CHILD}>{TaskConnectionRelationship.CHILD}</MenuItem>
           </TextField>
         </TableCell>
         <TableCell>
@@ -211,7 +222,9 @@ const TaskConnectionsTable = ({
             fullWidth
             select
             value={connection.type}
-            onChange={(e) => handleEditNewConnection(connection.id ?? "", "type", e.target.value as keyof TaskConnectionTableData)}
+            onChange={(e) =>
+              handleEditNewConnection(connection.id ?? "", "type", e.target.value as keyof TaskConnectionTableData)
+            }
           >
             {Object.values(TaskConnectionType).map((type) => (
               <MenuItem key={type} value={type}>
@@ -219,11 +232,11 @@ const TaskConnectionsTable = ({
               </MenuItem>
             ))}
           </TextField>
-          <div style={{ color: 'red', fontSize: '0.75rem' }}>
+          <div style={{ color: "red", fontSize: "0.75rem" }}>
             {determineIfTaskTypeIsAllowed(
               { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
               taskData,
-              connection.type
+              connection.type,
             )}
           </div>
         </TableCell>

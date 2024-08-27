@@ -12,7 +12,7 @@ import { getContrastForegroundColor, hexFromString } from "utils";
 import { splitIntervalByDuration } from "utils/date-time-utils";
 import {
   distributeOverlappingTasksToRows,
-  fillGapsBetweenTasksInRow,
+  renderTaskRows,
   getTimelineIntervalByTasks,
   groupTasksByOverlap,
   mapTasksAndUsersByUserId,
@@ -141,7 +141,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       tasksInRow.sort(sortTasksByStartTime);
     }
     const filledTableRows = tasksGroupedToRows.map(
-      fillGapsBetweenTasksInRow(
+      renderTaskRows(
         timelineInterval,
         editMode,
         (taskId) => navigate({ to: "$taskId", params: { taskId: taskId } }),
