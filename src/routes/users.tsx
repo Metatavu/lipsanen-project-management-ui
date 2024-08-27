@@ -1,6 +1,5 @@
-import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, Button, Card, Toolbar, Typography } from "@mui/material";
+import { Box, Card, Toolbar, Typography } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -19,11 +18,21 @@ import { useTranslation } from "react-i18next";
 import { renderMdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import { theme } from "theme";
 import { DEFAULT_USER_ICON } from "constants/index";
+import UserFiltersDrawer from "components/users/user-filters-drawer";
 
 /**
  * Users file route
  */
-export const Route = createFileRoute("/users")({ component: UsersIndexRoute });
+export const Route = createFileRoute("/users")({
+  component: UsersIndexRoute,
+  validateSearch: (params: Record<string, unknown>) => ({
+    first: params.first as number | undefined,
+    max: params.max as number | undefined,
+    projectId: params.projectId as string | undefined,
+    companyId: params.companyId as string | undefined,
+    position: params.position as string | undefined,
+  }),
+});
 
 /**
  * Users index route component
@@ -38,7 +47,15 @@ function UsersIndexRoute() {
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
   const [selectedUser, setSelectedUser] = useState<User>();
 
-  const listUsersQuery = useListUsersQuery({ first, max });
+  const filters = Route.useSearch();
+  // TODO: No position filter in the backend currently
+  const listUsersQuery = useListUsersQuery({
+    first,
+    max,
+    projectId: filters.projectId,
+    companyId: filters.companyId,
+  });
+
   const maxResults = useCachedMaxResultsFromQuery(listUsersQuery);
   const listCompaniesQuery = useListCompaniesQuery();
   const listJobPositionsQuery = useListJobPositionsQuery();
@@ -80,10 +97,7 @@ function UsersIndexRoute() {
           {t("users")}
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
-          <Button variant="contained" color="primary" size="large">
-            <FilterListIcon />
-            {t("generic.showFilters")}
-          </Button>
+          <UserFiltersDrawer />
           <NewUserDialog />
         </Box>
       </Toolbar>
@@ -98,6 +112,7 @@ function UsersIndexRoute() {
               field: "name",
               headerName: t("users"),
               editable: true,
+              disableColumnMenu: true,
               flex: 1,
               renderCell: (params) => {
                 const user: User = params.row;
@@ -112,11 +127,13 @@ function UsersIndexRoute() {
                   </div>
                 );
               },
+              valueGetter: (params) => params.row.firstName,
             },
             {
               field: "companyId",
               headerName: t("usersScreen.company"),
               editable: true,
+              disableColumnMenu: true,
               flex: 1,
               valueFormatter: ({ value }) => companies?.find((company) => company.id === value)?.name ?? "",
             },
@@ -124,6 +141,7 @@ function UsersIndexRoute() {
               field: "jobPositionId",
               headerName: t("usersScreen.position"),
               editable: true,
+              disableColumnMenu: true,
               flex: 1,
               valueFormatter: ({ value }) => jobPositions?.find((jobPosition) => jobPosition.id === value)?.name ?? "",
             },
@@ -131,6 +149,7 @@ function UsersIndexRoute() {
               field: "lastLoggedIn",
               headerName: t("usersScreen.lastLoggedIn"),
               flex: 1,
+              disableColumnMenu: true,
               valueFormatter: ({ value }) => (value ? DateTime.fromJSDate(value).toFormat("dd.MM.yyyy - HH:mm") : ""),
             },
             {

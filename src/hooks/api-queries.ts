@@ -18,7 +18,7 @@ import {
   ListTaskCommentsRequest,
   ListJobPositionsRequest,
   JobPosition,
-  ListNotificationEventsRequest
+  ListNotificationEventsRequest,
 } from "generated/client";
 import { filesApi } from "api/files";
 
@@ -461,7 +461,7 @@ export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
 
 /**
  * List notification events query hook
- * 
+ *
  * @param params ListNotificationEventsRequest
  */
 export const useListNotificationEventsQuery = (params: ListNotificationEventsRequest) => {
