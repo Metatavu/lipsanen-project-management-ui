@@ -1,4 +1,6 @@
 import {
+  AppBar,
+  Badge,
   Box,
   Button,
   Divider,
@@ -8,6 +10,7 @@ import {
   ListItem,
   MenuItem,
   TextField,
+  Toolbar,
   Typography,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -41,7 +44,6 @@ const UserFiltersDrawer = () => {
   const companies = listCompaniesQuery.data?.companies;
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
-  // TODO: Localize & style
   /**
    * Handles user filter change
    *
@@ -90,12 +92,26 @@ const UserFiltersDrawer = () => {
   };
 
   /**
+   * Get number of applied filters
+   */
+  const getNumberOfAppliedFilters = () => {
+    let count = 0;
+
+    for (const key in searchFilters) {
+      if (searchFilters[key as keyof typeof searchFilters]) count++;
+    }
+    return count;
+  };
+
+  /**
    * Main component render
    */
   return (
     <>
       <Button onClick={() => setOpen(true)} variant="contained" color="primary" size="large">
-        <FilterListIcon />
+        <Badge badgeContent={getNumberOfAppliedFilters()} color="warning" sx={{ marginRight: "0.4rem" }}>
+          <FilterListIcon />
+        </Badge>
         {t("generic.showFilters")}
       </Button>
       <Drawer
@@ -108,64 +124,74 @@ const UserFiltersDrawer = () => {
           },
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "1rem" }}>
-          <Typography variant="h4">User filters</Typography>
-          <IconButton onClick={() => setOpen(false)}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
+        <AppBar elevation={0} sx={{ position: "relative" }}>
+          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="h5">{t("userFilters.title")}</Typography>
+            <IconButton edge="start" color="inherit" onClick={() => setOpen(false)} aria-label="close">
+              <CloseIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
         <Divider />
-        <List>
-          <ListItem>
-            <TextField
-              fullWidth
-              select
-              label="Project"
-              value={filters.projectId}
-              onChange={handleFormChange("projectId")}
-            >
-              <MenuItem value="" sx={{ height: 36 }} />
-              {projects?.map((project) => (
-                <MenuItem key={project.id} value={project.id}>
-                  {project.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </ListItem>
-          <ListItem>
-            <TextField
-              fullWidth
-              select
-              label="Company"
-              value={filters.companyId}
-              onChange={handleFormChange("companyId")}
-            >
-              <MenuItem value="" sx={{ height: 36 }} />
-              {companies?.map((company) => (
-                <MenuItem key={company.id} value={company.id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </ListItem>
-          <ListItem>
-            <TextField
-              fullWidth
-              select
-              label="Position"
-              value={filters.position}
-              onChange={handleFormChange("position")}
-            >
-              <MenuItem value="" sx={{ height: 36 }} />
-              {jobPositions?.map((position) => (
-                <MenuItem key={position.id} value={position.id}>
-                  {position.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </ListItem>
-          <Button onClick={handleClearFilters}>Clear all</Button>
-          <Button onClick={handleApplyFilters}>Apply all</Button>
+        <List sx={{ padding: 0 }}>
+          <Box sx={{ backgroundColor: "#2196F314", display: "flex", flexDirection: "column" }}>
+            <ListItem>
+              <TextField
+                fullWidth
+                select
+                label={t("userFilters.project")}
+                value={filters.projectId}
+                onChange={handleFormChange("projectId")}
+              >
+                <MenuItem value="" sx={{ height: 36 }} />
+                {projects?.map((project) => (
+                  <MenuItem key={project.id} value={project.id}>
+                    {project.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </ListItem>
+            <ListItem>
+              <TextField
+                fullWidth
+                select
+                label={t("usersScreen.company")}
+                value={filters.companyId}
+                onChange={handleFormChange("companyId")}
+              >
+                <MenuItem value="" sx={{ height: 36 }} />
+                {companies?.map((company) => (
+                  <MenuItem key={company.id} value={company.id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </ListItem>
+            <ListItem>
+              <TextField
+                fullWidth
+                select
+                label={t("usersScreen.position")}
+                value={filters.position}
+                onChange={handleFormChange("position")}
+              >
+                <MenuItem value="" sx={{ height: 36 }} />
+                {jobPositions?.map((position) => (
+                  <MenuItem key={position.id} value={position.id}>
+                    {position.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </ListItem>
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between", padding: "0.5rem" }}>
+            <Button variant="contained" color="error" onClick={handleClearFilters}>
+              {t("userFilters.clearAll")}
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleApplyFilters}>
+              {t("userFilters.applyAll")}
+            </Button>
+          </Box>
         </List>
       </Drawer>
     </>

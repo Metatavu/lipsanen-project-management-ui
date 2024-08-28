@@ -64,6 +64,12 @@
     "assignUserToProject": "Assign user to project",
     "assignUserToPosition": "Assign user to a position"
   },
+  "userFilters": {
+    "title": "User filters",
+    "clearAll": "Clear all",
+    "applyAll": "Apply all",
+    "project": "Project"
+  },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
     "errorListingProjects": "Error while fetching projects list",

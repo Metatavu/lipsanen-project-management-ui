@@ -26,8 +26,6 @@ import UserFiltersDrawer from "components/users/user-filters-drawer";
 export const Route = createFileRoute("/users")({
   component: UsersIndexRoute,
   validateSearch: (params: Record<string, unknown>) => ({
-    first: params.first as number | undefined,
-    max: params.max as number | undefined,
     projectId: params.projectId as string | undefined,
     companyId: params.companyId as string | undefined,
     position: params.position as string | undefined,
