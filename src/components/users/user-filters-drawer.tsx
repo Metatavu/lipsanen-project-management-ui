@@ -169,6 +169,8 @@ const UserFiltersDrawer = () => {
             </ListItem>
             <ListItem>
               <TextField
+                // TODO: Disabled until backend position filter implemented
+                disabled
                 fullWidth
                 select
                 label={t("usersScreen.position")}
