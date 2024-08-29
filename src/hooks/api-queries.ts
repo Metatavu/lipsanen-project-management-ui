@@ -18,7 +18,8 @@ import {
   ListTaskCommentsRequest,
   ListJobPositionsRequest,
   JobPosition,
-  ListNotificationEventsRequest
+  ListNotificationEventsRequest,
+  ListChangeProposalTasksPreviewRequest
 } from "generated/client";
 import { filesApi } from "api/files";
 
@@ -352,6 +353,34 @@ export const useListChangeProposalsQuery = ({ projectId, ...filters }: ListChang
     },
   });
 };
+
+/**
+ * List change proposal tasks preview query hook
+ * 
+ * @param params ListChangeProposalTasksPreviewRequest
+ */
+export const useListChangeProposalTasksPreviewQuery = ({ projectId, changeProposalId }: ListChangeProposalTasksPreviewRequest) => {
+  const { changeProposalsApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["projects", projectId, "changeProposals", changeProposalId],
+    queryFn: async () => {
+      try {
+        return changeProposalsApi.listChangeProposalTasksPreview({
+          projectId,
+          changeProposalId,
+        });
+      } catch (error) {
+        handleError("Error listing change proposal tasks preview", error);
+        throw Error(t("errorHandling.errorListingChangeProposalTasksPreview"), {
+          cause: error,
+        });
+      }
+    },
+  });
+}
+  
 
 /**
  * Find task query hook
