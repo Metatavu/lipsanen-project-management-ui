@@ -3,7 +3,6 @@ import {
   Avatar,
   Box,
   Card,
-  Slider,
   Table,
   TableBody,
   TableCell,
@@ -27,6 +26,7 @@ import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/compone
 import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
+import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 
 /**
  * Schedule file route
@@ -46,32 +46,6 @@ function ScheduleIndexRoute() {
   const milestones = listProjectMilestonesQuery.data;
   const viewDate = useMemo(() => new Date(), []);
   const [viewMode, setViewMode] = useState(ViewMode.Day);
-
-  /**
-   * Marks for the slider
-   */
-  const sliderMarks = [
-    { value: 0, label: t("scheduleScreen.labelMonth") },
-    { value: 1, label: t("scheduleScreen.labelWeek") },
-    { value: 2, label: t("scheduleScreen.labelDay") },
-  ];
-
-  /**
-   * View modes for the slider
-   */
-  const sliderViewModes = [ViewMode.Month, ViewMode.Week, ViewMode.Day];
-
-  /**
-   * Handles the view mode change
-   *
-   * @param event event
-   * @param newValue new value
-   */
-  const handleViewModeChange = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === "number") {
-      setViewMode(sliderViewModes[newValue]);
-    }
-  };
 
   /**
    * Renders the project milestones rows
@@ -220,18 +194,7 @@ function ScheduleIndexRoute() {
           <Typography component="h2" variant="h6" sx={{ padding: "1rem" }}>
             {t("scheduleScreen.objectives")}
           </Typography>
-          <Box sx={{ width: "120px", marginInline: "2rem", marginTop: "1rem" }}>
-            <Slider
-              defaultValue={2}
-              aria-labelledby="discrete-slider"
-              valueLabelDisplay="off"
-              step={1}
-              marks={sliderMarks}
-              min={0}
-              max={2}
-              onChange={handleViewModeChange}
-            />
-          </Box>
+          <GanttViewModesSlider viewMode={viewMode} onViewModeChange={setViewMode} />
         </Box>
         <Box sx={{ display: "flex", flexDirection: "row" }}>
           {renderProjectMilestonesTable()}
