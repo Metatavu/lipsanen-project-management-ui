@@ -133,8 +133,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
     setIsLoading(false);
     setChangesMade(false);
     handleClose();
-  }
-
+  };
 
   /**
    * Renders user info section

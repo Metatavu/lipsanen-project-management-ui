@@ -64,6 +64,12 @@
     "assignUserToProject": "Lisää käyttäjä projektiin",
     "assignUserToPosition": "Lisää käyttäjä rooliin"
   },
+  "userFilters": {
+    "title": "Suodata käyttäjiä",
+    "clearAll": "Tyhjennä kaikki",
+    "applyAll": "Käytä kaikkia",
+    "project": "Projekti"
+  },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
     "errorListingProjects": "Virhe haettaessa projekteja",
