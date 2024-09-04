@@ -7,8 +7,8 @@ import {
   useListChangeProposalsQuery,
   useListJobPositionsQuery,
   useListNotificationEventsQuery,
+  useListProjectUsersQuery,
   useListTasksQuery,
-  useListUsersQuery,
 } from "hooks/api-queries";
 import TaskList from "components/tasks/task-list";
 import { useAtom } from "jotai";
@@ -33,8 +33,8 @@ function TrackingIndexRoute() {
   const findUserQuery = useFindUserQuery(auth?.token.userId ?? "");
   const user = findUserQuery.data;
 
-  const listUsersQuery = useListUsersQuery();
-  const users = listUsersQuery.data?.users ?? [];
+  const listUsersQuery = useListProjectUsersQuery(projectId);
+  const users = listUsersQuery.data || [];
 
   const listTasksQuery = useListTasksQuery({ projectId: projectId });
   const tasks = listTasksQuery.data || [];

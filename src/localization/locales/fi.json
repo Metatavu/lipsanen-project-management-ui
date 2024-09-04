@@ -124,7 +124,8 @@
     "errorListingTaskComments": "Virhe haettaessa tehtävän kommentteja",
     "errorCreatingTaskComment": "Virhe luotaessa uutta kommenttia tehtävään",
     "errorUpdatingTaskComment": "Virhe päivitettäessä tehtävän kommenttia",
-    "errorDeletingTaskComment": "Virhe poistettaessa tehtävän kommenttia"
+    "errorDeletingTaskComment": "Virhe poistettaessa tehtävän kommenttia",
+    "errorListingChangeProposalTasksPreview": "Virhe haeessa muutosehdotuksen tehtävien esikatselua"
   },
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
@@ -274,6 +275,8 @@
     "attachments": "Liitteet",
     "createButton": "Luo uusi tehtävä",
     "updateButton": "Päivitä tehtävä",
+    "inputLabelDays": "pv",
+    "inputLabelPercent": "%",
     "taskConnectionsTable": {
       "title": "Riippuvuudet",
       "hierarchy": "Hierarkia",

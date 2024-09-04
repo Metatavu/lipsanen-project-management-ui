@@ -1,5 +1,6 @@
-import { Task, Milestone } from "generated/client";
+import { Task, Milestone, TaskConnection } from "generated/client";
 import { TaskStatusColor } from "types";
+import * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 namespace ChartHelpers {
   /**
@@ -73,6 +74,33 @@ namespace ChartHelpers {
   export const getTaskConnectionsVisibleSetting = () => {
     const savedSetting = localStorage.getItem("taskConnectionsVisible");
     return savedSetting ? JSON.parse(savedSetting) : false;
+  };
+
+  /**
+   * Convert tasks to gantt tasks
+   *
+   * @param tasks tasks to convert
+   * @param taskConnections task connections array
+   * @returns
+   */
+  export const convertTasksToGanttTasks = (tasks: Task[], taskConnections?: TaskConnection[]): GanttTypes.Task[] => {
+    return tasks.map((task) => ({
+      start: task.startDate,
+      end: task.endDate,
+      name: task.name,
+      id: task.id ?? task.name,
+      type: "task",
+      progress: task.estimatedReadiness ?? 0,
+      styles: {
+        backgroundColor: TaskStatusColor.NOT_STARTED,
+        backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
+        progressColor: ChartHelpers.getTaskColorBasedOnStatus(task),
+        progressSelectedColor: ChartHelpers.getTaskSelectedColorBasedOnStatus(task),
+      },
+      dependencies: (taskConnections ?? [])
+        .filter((connection) => connection.targetTaskId === task.id)
+        .map((connection) => connection.sourceTaskId),
+    }));
   };
 }
 
