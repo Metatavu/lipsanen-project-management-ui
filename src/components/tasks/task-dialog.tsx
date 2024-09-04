@@ -11,6 +11,7 @@ import {
   DialogTitle,
   Grid,
   IconButton,
+  InputAdornment,
   MenuItem,
   Table,
   TableBody,
@@ -874,6 +875,11 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               label={t("newMilestoneTaskDialog.estimatedDuration")}
               value={taskData.estimatedDuration}
               onChange={handleFormChange("estimatedDuration")}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">
+                  {t("newMilestoneTaskDialog.inputLabelDays")}
+                </InputAdornment>,
+              }}
             />
           </Grid>
           <Grid item xs={3}>
@@ -882,6 +888,11 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               label={t("newMilestoneTaskDialog.estimatedReadiness")}
               value={taskData.estimatedReadiness}
               onChange={handleFormChange("estimatedReadiness")}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">
+                  {t("newMilestoneTaskDialog.inputLabelPercent")}
+                </InputAdornment>,
+              }}
             />
           </Grid>
           <Grid item xs={3}>

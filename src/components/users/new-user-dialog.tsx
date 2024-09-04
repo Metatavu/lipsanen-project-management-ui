@@ -19,7 +19,12 @@ import CreatableSelect from "components/generic/creatable-select";
 import GenericSelect from "components/generic/generic-select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
-import { useListUsersQuery, useListProjectsQuery, useListCompaniesQuery, useListJobPositionsQuery } from "hooks/api-queries";
+import {
+  useListUsersQuery,
+  useListProjectsQuery,
+  useListCompaniesQuery,
+  useListJobPositionsQuery,
+} from "hooks/api-queries";
 
 /**
  * New user dialog component

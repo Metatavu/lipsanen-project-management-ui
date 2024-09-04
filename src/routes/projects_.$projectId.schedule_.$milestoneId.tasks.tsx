@@ -50,6 +50,7 @@ import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
 import { theme } from "theme";
 import UsersUtils from "utils/users";
+import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 
 /**
  * Milestone tasks file route
@@ -91,6 +92,7 @@ function MilestoneTasksListRoute() {
 
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<null | Task>(null);
+  const [viewMode, setViewMode] = useState(ViewMode.Day);
   const [taskConnectionsVisible, setTaskConnectionsVisible] = useState(ChartHelpers.getTaskConnectionsVisibleSetting);
   const [selectedChangeProposalId, setSelectedChangeProposalId] = useState("");
   const taskIdForSelectedChangeProposal = changeProposals?.find(
@@ -394,7 +396,7 @@ function MilestoneTasksListRoute() {
             tasks={tasksForGantt}
             milestone={oneMilestoneForGantt}
             todayColor={"rgba(100, 100, 300, 0.3)"}
-            viewMode={ViewMode.Day}
+            viewMode={viewMode}
             viewDate={viewDate}
             //TODO: enable if a customer wants to update tasks by dragging them in the gantt chart
             // onDateChange={onUpdateTask}
@@ -436,6 +438,7 @@ function MilestoneTasksListRoute() {
             }
             label={t("scheduleScreen.showConnections")}
           />
+          <GanttViewModesSlider viewMode={viewMode} onViewModeChange={setViewMode} />
         </Box>
       </Box>
     );

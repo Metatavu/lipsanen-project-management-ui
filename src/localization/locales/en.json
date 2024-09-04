@@ -64,6 +64,12 @@
     "assignUserToProject": "Assign user to project",
     "assignUserToPosition": "Assign user to a position"
   },
+  "userFilters": {
+    "title": "Filter users",
+    "clearAll": "Clear all",
+    "applyAll": "Apply all",
+    "project": "Project"
+  },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
     "errorListingProjects": "Error while fetching projects list",
@@ -268,6 +274,8 @@
     "attachments": "Attachments",
     "createButton": "Create new task",
     "updateButton": "Update task",
+    "inputLabelDays": "d",
+    "inputLabelPercent": "%",
     "taskConnectionsTable": {
       "title": "Task connections",
       "hierarchy": "Hierarchy",
