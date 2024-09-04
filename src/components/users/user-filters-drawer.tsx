@@ -121,6 +121,7 @@ const UserFiltersDrawer = () => {
         PaperProps={{
           sx: {
             width: "30%",
+            minWidth: "200px",
           },
         }}
       >
