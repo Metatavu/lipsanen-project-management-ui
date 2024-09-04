@@ -124,7 +124,8 @@
     "errorListingTaskComments": "Error while fetching task comments list",
     "errorCreatingTaskComment": "Error while creating a new task comment",
     "errorUpdatingTaskComment": "Error while updating a task comment",
-    "errorDeletingTaskComment": "Error while deleting a task comment"
+    "errorDeletingTaskComment": "Error while deleting a task comment",
+    "errorListingChangeProposalTasksPreview": "Error while fetching change proposal tasks preview list"
   },
   "userInfoDialog": {
     "title": "User information",

@@ -26,6 +26,7 @@ import {
   useListTasksQuery,
   useListTaskConnectionsQuery,
   useListJobPositionsQuery,
+  useListChangeProposalTasksPreviewQuery,
 } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
@@ -98,6 +99,12 @@ function MilestoneTasksListRoute() {
     (proposal) => proposal.id === selectedChangeProposalId,
   )?.taskId;
 
+  const changeProposalTasksPreviewListQuery = useListChangeProposalTasksPreviewQuery({ projectId: projectId, changeProposalId: selectedChangeProposalId });
+  const changeProposalTasksPreviewList = changeProposalTasksPreviewListQuery.data;
+
+  /**
+   * View date for the gantt chart
+   */
   const viewDate = useMemo(() => new Date(), []);
 
   /**
@@ -106,6 +113,28 @@ function MilestoneTasksListRoute() {
   useEffect(() => {
     ChartHelpers.saveTaskConnectionsVisibleSetting(taskConnectionsVisible);
   }, [taskConnectionsVisible]);
+
+  /**
+   * Tasks for gantt chart with change proposal preview dates
+   */
+  const tasksForGantt = useMemo(() => {
+    const tasksInitial = ChartHelpers.convertTasksToGanttTasks(tasks ?? [], taskConnections);
+    const changeProposalTasksMap = new Map(changeProposalTasksPreviewList?.map(task => [task.id, task]));
+  
+    return tasksInitial.map(task => {
+      const changeProposalTask = changeProposalTasksMap.get(task.id);
+      if (changeProposalTask && selectedChangeProposalId) {
+        return {
+          ...task,
+          changePreviewDates: {
+            start: changeProposalTask.startDate ?? task.start,
+            end: changeProposalTask.endDate ?? task.end,
+          }
+        };
+      }
+      return task;
+    });
+  }, [tasks, taskConnections, changeProposalTasksPreviewList, selectedChangeProposalId]);
 
   /**
    * Handles task select
@@ -123,6 +152,15 @@ function MilestoneTasksListRoute() {
   const onTaskClose = () => {
     setTask(null);
     setOpen(false);
+  };
+
+  /**
+   * Handles change proposal select
+   *
+   * @param changeProposalId change proposal id
+   */
+  const onChangeProposalSelect = (changeProposalId: string) => {
+    setSelectedChangeProposalId((prevId) => (prevId === changeProposalId ? "" : changeProposalId));
   };
 
   /**
@@ -334,23 +372,6 @@ function MilestoneTasksListRoute() {
       );
     }
 
-    const tasksForGantt = (tasks ?? []).map<GanttTypes.Task>((task, index) => ({
-      start: task.startDate,
-      end: task.endDate,
-      name: task.name,
-      id: task.id ?? index.toString(),
-      type: "task",
-      progress: task.estimatedReadiness ?? 0,
-      styles: {
-        backgroundColor: TaskStatusColor.NOT_STARTED,
-        backgroundSelectedColor: TaskStatusColor.NOT_STARTED_SELECTED,
-        progressColor: ChartHelpers.getTaskColorBasedOnStatus(task),
-        progressSelectedColor: ChartHelpers.getTaskSelectedColorBasedOnStatus(task),
-      },
-      // biome-ignore lint/style/noNonNullAssertion: Entities from API must have IDs
-      dependencies: getTaskChildren(task.id!).map((connection) => connection.sourceTaskId),
-    }));
-
     const oneMilestoneForGantt =
       milestone &&
       ({
@@ -438,7 +459,7 @@ function MilestoneTasksListRoute() {
               changeProposals={pendingChangeProposals}
               tasks={tasks}
               selectedChangeProposalId={selectedChangeProposalId}
-              setSelectedChangeProposalId={setSelectedChangeProposalId}
+              setSelectedChangeProposalId={onChangeProposalSelect}
               loading={listChangeProposalsQuery.isPending}
               updateChangeProposalStatus={handleUpdateChangeProposalStatus}
             />
