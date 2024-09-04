@@ -65,7 +65,7 @@
     "assignUserToPosition": "Lisää käyttäjä rooliin"
   },
   "userFilters": {
-    "title": "Käyttäjäsuodattimet",
+    "title": "Suodata käyttäjiä",
     "clearAll": "Tyhjennä kaikki",
     "applyAll": "Käytä kaikkia",
     "project": "Projekti"
