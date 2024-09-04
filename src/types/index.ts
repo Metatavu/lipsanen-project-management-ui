@@ -138,14 +138,25 @@ export interface DelaysByReason {
   totalDelayDuration: number;
 }
 
+/**
+ * Helper type for combining a user and their tasks
+ */
 export type UserWithTasks = {
   user: User;
   tasks: TaskWithInterval[];
 };
 
+/**
+ * Helper type for combining a task and its interval
+ */
 export type TaskWithInterval = {
   task: Task;
   interval: Interval<true>;
 };
 
+/**
+ * Generic type for combining list query result items with max results
+ * @param Name - name of the property containing the listed items
+ * @param T - type of the listed items
+ */
 export type WithMaxResults<Name extends string, T> = { [N in Name]: T[] } & { maxResults: number };

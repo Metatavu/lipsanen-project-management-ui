@@ -8,8 +8,14 @@ import LastPlannerView from "components/last-planner/last-planner-view";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+/**
+ * Tasks index route
+ */
 export const Route = createFileRoute("/projects/$projectId/tasks")({ component: TasksIndexRoute });
 
+/**
+ * Tasks index route component
+ */
 function TasksIndexRoute() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
@@ -17,6 +23,9 @@ function TasksIndexRoute() {
 
   const [editMode, setEditMode] = useState(false);
 
+  /**
+   * Main component render
+   */
   return (
     <FlexColumnLayout>
       <Toolbar disableGutters sx={{ gap: 2 }}>

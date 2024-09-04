@@ -20,6 +20,9 @@ import {
 } from "utils/last-planner-utils";
 import { TaskRowCell } from "./task-row-cell";
 
+/**
+ * Styled wrapper element for the last planner table
+ */
 const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   position: "relative",
   paddingBottom: theme.spacing(2),
@@ -42,8 +45,14 @@ const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
+/**
+ * Styled table row with fixed height
+ */
 const FixedHeightTableRow = styled("tr")({ height: 50 });
 
+/**
+ * Props for the sticky table cell
+ */
 type StickyTableCellProps = {
   top?: number;
   left?: number;
@@ -51,6 +60,9 @@ type StickyTableCellProps = {
   constrainWidth?: boolean;
 };
 
+/**
+ * Styled sticky table cell element
+ */
 const StickyTableCell = styled("td", {
   shouldForwardProp: (prop) =>
     prop !== "top" && prop !== "left" && prop !== "noLeftBorder" && prop !== "constrainWidth",
@@ -67,11 +79,19 @@ const StickyTableCell = styled("td", {
   zIndex: 1,
 }));
 
+/**
+ * Last planner view component properties
+ */
 type Props = {
   projectId: string;
   editMode?: boolean;
 };
 
+/**
+ * Last planner view component
+ *
+ * @param props component properties
+ */
 const LastPlannerView = ({ projectId, editMode }: Props) => {
   const navigate = useNavigate({ from: "/projects/$projectId/tasks" });
   const { t } = useTranslation();
@@ -96,7 +116,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       return { previousTasks };
     },
     onError: (error, _, context) => {
-      console.error("Updating task failed", error);
+      console.error(t("errorHandling.errorUpdatingTask"), error);
       queryClient.setQueryData(["projects", projectId, "tasks", {}], context?.previousTasks);
     },
     onSettled: () => {
@@ -111,6 +131,13 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
   const days = useMemo(() => splitIntervalByDuration(timelineInterval, "day"), [timelineInterval]);
   const tasksByAssigneeIdMap = useMemo(() => mapTasksAndUsersByUserId(tasks, users), [tasks, users]);
 
+  /**
+   * Render user cell
+   *
+   * @param user user
+   * @param rowSpan rowSpan for the cell
+   * @returns rendered cell for the user
+   */
   const renderUserCell = (user: User, rowSpan?: number) => {
     if (!user.id) return null;
 
@@ -134,6 +161,13 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
     );
   };
 
+  /**
+   * Render table rows for user
+   *
+   * @param user user
+   * @param tasksWithIntervals tasks and their intervals
+   * @returns rendered table rows with tasks for the user
+   */
   const renderTableRowsForUser = (user: User, tasksWithIntervals: TaskWithInterval[]) => {
     const tasksGroupedByOverlap = groupTasksByOverlap(tasksWithIntervals);
     const tasksGroupedToRows = distributeOverlappingTasksToRows(tasksGroupedByOverlap);
@@ -181,6 +215,9 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
     );
   };
 
+  /**
+   * Render year cells
+   */
   const renderYears = () =>
     years?.map((year, i) => (
       <StickyTableCell key={i.toString()} colSpan={year.count("days")} top={0} align="center" constrainWidth>
@@ -188,6 +225,9 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       </StickyTableCell>
     ));
 
+    /**
+     * Render month cells
+     */
   const renderMonths = () =>
     months?.map((month, i) => (
       <StickyTableCell
@@ -202,6 +242,9 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       </StickyTableCell>
     ));
 
+    /**
+     * Render week cells
+     */
   const renderWeeks = () =>
     weeks?.map((week, i) => (
       <StickyTableCell
@@ -218,6 +261,9 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       </StickyTableCell>
     ));
 
+  /**
+   * Render day cells
+   */
   const renderDays = () =>
     days?.map((day, i) => (
       <StickyTableCell key={i.toString()} constrainWidth align="center" top={90}>
@@ -229,6 +275,9 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
     return <LinearProgress sx={{ height: 2 }} />;
   }
 
+  /**
+   * Component render
+   */
   return (
     <LastPlannerTableWrapper>
       <table style={{ borderCollapse: "separate" }}>

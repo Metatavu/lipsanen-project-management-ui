@@ -3,8 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import TaskDialog from "components/tasks/task-dialog";
 import { useFindTaskQuery } from "hooks/api-queries";
 
+/**
+ * Task details route
+ */
 export const Route = createFileRoute("/projects/$projectId/tasks/$taskId")({ component: TaskDetailsRoute });
 
+/**
+ * Task details route component
+ */
 function TaskDetailsRoute() {
   const { projectId, taskId } = Route.useParams();
   const navigate = Route.useNavigate();
@@ -12,7 +18,7 @@ function TaskDetailsRoute() {
   const taskQuery = useFindTaskQuery({ projectId, taskId });
   const task = taskQuery.data;
 
-  if (!task) {
+  if (!taskQuery.data) {
     return (
       <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <CircularProgress color="inherit" />
@@ -20,6 +26,11 @@ function TaskDetailsRoute() {
     );
   }
 
+  if (!task) return null;
+
+  /**
+   * Main component render
+   */
   return (
     <TaskDialog
       open

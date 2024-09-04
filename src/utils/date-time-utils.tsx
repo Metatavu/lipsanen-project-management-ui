@@ -20,6 +20,11 @@ export const splitIntervalByDuration = (interval: Interval, unit: DateTimeUnit) 
   return splitIntervals;
 };
 
+/**
+ * Get earliest date from a list of dates
+ *
+ * @param dates dates
+ */
 export const getEarliestDate = (dates: Date[]) => {
   return dates.reduce((earliest, date) => (date < earliest ? date : earliest), dates[0]);
 };

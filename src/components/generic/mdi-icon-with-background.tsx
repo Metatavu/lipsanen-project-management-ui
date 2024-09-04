@@ -1,5 +1,8 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 
+/**
+ * Component properties
+ */
 type Props = {
   iconName?: string;
   backgroundColor?: string;

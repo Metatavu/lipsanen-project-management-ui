@@ -30,6 +30,11 @@ export const getTimelineIntervalByTasks = (tasks: Task[]) => {
   ) as Interval<true>;
 };
 
+/**
+ * Group tasks by overlap. Each group will contain tasks that overlap with each other.
+ *
+ * @param tasksWithIntervals list of tasks with their intervals
+ */
 export const groupTasksByOverlap = (tasksWithIntervals: TaskWithInterval[]) =>
   tasksWithIntervals.reduce<TaskWithInterval[][]>((groupedTasksWithIntervals, taskWithInterval) => {
     for (let i = 0; i < groupedTasksWithIntervals.length; i++) {
@@ -51,6 +56,8 @@ export const groupTasksByOverlap = (tasksWithIntervals: TaskWithInterval[]) =>
 
 /**
  * Distribute overlapping tasks to rows. Each row will only contain tasks that do not overlap with each other.
+ *
+ * @param tasksByOverlap the tasks grouped by overlap
  */
 export const distributeOverlappingTasksToRows = (tasksByOverlap: TaskWithInterval[][]) =>
   tasksByOverlap.reduce<TaskWithInterval[][]>((rows, tasksWithInterval) => {
@@ -61,6 +68,12 @@ export const distributeOverlappingTasksToRows = (tasksByOverlap: TaskWithInterva
     return rows;
   }, []);
 
+/**
+ * Sort tasks by start time
+ *
+ * @param a task A
+ * @param b task B
+ */
 export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =>
   a.interval.start.toMillis() - b.interval.start.toMillis();
 
@@ -68,7 +81,9 @@ export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =
  * Fill the gaps between tasks in a row with empty cells. This is necessary to render the tasks in a row properly.
  *
  * @param timelineInterval the interval that wraps the tasks
- * @param tasksInRow the tasks in the row
+ * @param editMode whether the tasks are in edit mode
+ * @param onTaskClick the task click handler
+ * @param onSwitchTaskStatus the task status switch handler
  */
 export const renderTaskRows =
   (
@@ -118,6 +133,12 @@ export const renderTaskRows =
     return filledRow;
   };
 
+/**
+ * Map users to user with tasks
+ *
+ * @param users the users
+ * @returns the users with empty task lists
+ */
 const mapUsersToUserWithTasks = (users: User[]) => {
   const usersWithTasks = new Map<string, UserWithTasks>();
   for (const user of users) {
@@ -127,6 +148,13 @@ const mapUsersToUserWithTasks = (users: User[]) => {
   return usersWithTasks;
 };
 
+/**
+ * Map tasks and users by user ID
+ *
+ * @param tasks the tasks
+ * @param users the users
+ * @returns the users with their tasks
+ */
 export const mapTasksAndUsersByUserId = (tasks: Task[], users: User[]) =>
   tasks?.reduce((acc, task) => {
     for (const userId of task.assigneeIds || []) {

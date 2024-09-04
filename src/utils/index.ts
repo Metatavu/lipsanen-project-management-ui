@@ -23,10 +23,26 @@ export const mustHaveId = <T extends { id?: string }>(withPossibleId: T): WithRe
   return withPossibleId as WithRequired<T, "id">;
 };
 
+/**
+ * Get a pseudo-random multiplier between 0 and 1 from given number
+ *
+ * @param num number
+ */
 const getMultiplierFromNumber = (num: number) => parseFloat(`0.${Math.sin(num).toString().substring(6)}`);
 
+/**
+ * Get a hex value between 00 and FF from given number
+ *
+ * @param num number
+ */
 const getHexFromNumber = (num: number) => (~~(getMultiplierFromNumber(num) * 256)).toString(16);
 
+/**
+ * Get a pseudo-random hex color from any string
+ *
+ * @param str string
+ * @returns hex color
+ */
 export const hexFromString = (str: string) => {
   const splitStr = str.split("");
   const charCodes = splitStr.map((char) => char.charCodeAt(0));
@@ -39,4 +55,10 @@ export const hexFromString = (str: string) => {
   return `#${r}${g}${b}`.toUpperCase();
 };
 
-export const getContrastForegroundColor = (color: string) => (getContrastRatio("#FFF", color) > 3 ? "#FFF" : "#000");
+/**
+ * Get foreground color with good contrast to given background color
+ *
+ * @param backgroundColor background color
+ * @returns either white or black color hex
+ */
+export const getContrastForegroundColor = (backgroundColor: string) => (getContrastRatio("#FFF", backgroundColor) > 3 ? "#FFF" : "#000");

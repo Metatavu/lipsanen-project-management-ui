@@ -9,6 +9,9 @@ import { getContrastForegroundColor, hexFromString } from "utils";
 const HORIZONTAL_PADDING = 16;
 const COLUMN_MIN_WIDTH = 40;
 
+/**
+ * Component properties
+ */
 type Props = {
   task?: Task;
   colSpan?: number;
@@ -18,6 +21,11 @@ type Props = {
   cellStyle?: CSSProperties;
 };
 
+/**
+ * Task row cell component
+ *
+ * @param props component properties
+ */
 export const TaskRowCell = ({
   task,
   colSpan = 1,
@@ -36,8 +44,21 @@ export const TaskRowCell = ({
   const taskBackgroundColor = dependentUserId ? hexFromString(dependentUserId) : "#666666";
   const taskForegroundColor = taskBackgroundColor ? getContrastForegroundColor(taskBackgroundColor) : undefined;
 
+  /**
+   * Returns the length of a task in days
+   *
+   * @param task task
+   * @returns task length in days
+   */
   const getTaskLengthInDays = (task: Task) => Interval.fromDateTimes(task.startDate, task.endDate).count("days");
 
+  /**
+   * Render status line
+   *
+   * @param rotation rotation in degrees
+   * @param color color string
+   * @returns rendered status line element
+   */
   const renderStatusLine = (rotation: number, color: string | undefined = "#fff") => {
     return (
       <div
@@ -55,6 +76,12 @@ export const TaskRowCell = ({
     );
   };
 
+  /**
+   * Render task status indicator
+   *
+   * @param status task status
+   * @returns task status indicator element with either one or two status lines
+   */
   const renderTaskStatusIndicator = (status: TaskStatus) =>
     ({
       [TaskStatus.NotStarted]: null,
@@ -67,6 +94,9 @@ export const TaskRowCell = ({
       ),
     })[status];
 
+  /**
+   * Component render
+   */
   return (
     <td
       align="center"

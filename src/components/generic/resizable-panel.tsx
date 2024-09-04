@@ -5,6 +5,9 @@ import { ReactNode, useEffect, useMemo } from "react";
 import { atomWithStorage } from "jotai/utils";
 import { useAtom } from "jotai";
 
+/**
+ *  Component properties
+ */
 type Props = {
   containerRef?: React.RefObject<HTMLElement>;
   children?: ReactNode;
@@ -20,6 +23,9 @@ type Props = {
     }
 );
 
+/**
+ * Hook for storing the height of a resizable panel in local storage
+ */
 const useStoredHeightWithId = (storeLastPosition?: boolean, id?: string) => {
   if (!storeLastPosition || !id) return [undefined, undefined];
   const storedHeightAtom = useMemo(
@@ -29,6 +35,16 @@ const useStoredHeightWithId = (storeLastPosition?: boolean, id?: string) => {
   return useAtom(storedHeightAtom);
 };
 
+/**
+ * Resizable panel component
+ *
+ * @param props component properties
+ * @param props.id unique identifier for the resizable panel
+ * @param props.children panel content
+ * @param props.containerRef reference to the container element
+ * @param props.storeLastPosition whether to store the last position in local storage
+ * @param props.toolbar optional toolbar component
+ */
 const ResizablePanel = ({ id, children, containerRef, storeLastPosition, toolbar = null }: Props) => {
   const [storedHeight, setStoredHeight] = useStoredHeightWithId(storeLastPosition, id);
 
@@ -42,6 +58,9 @@ const ResizablePanel = ({ id, children, containerRef, storeLastPosition, toolbar
     setStoredHeight?.(height);
   }, [height, setStoredHeight]);
 
+  /**
+   * Main component render
+   */
   return (
     <>
       <Box
