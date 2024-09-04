@@ -65,7 +65,7 @@
     "assignUserToPosition": "Assign user to a position"
   },
   "userFilters": {
-    "title": "User filters",
+    "title": "Filter users",
     "clearAll": "Clear all",
     "applyAll": "Apply all",
     "project": "Project"
