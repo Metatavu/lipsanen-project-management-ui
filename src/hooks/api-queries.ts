@@ -364,7 +364,7 @@ export const useListChangeProposalTasksPreviewQuery = ({ projectId, changePropos
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["projects", projectId, "changeProposals", changeProposalId],
+    queryKey: ["projects", projectId, "changeProposals", changeProposalId, "tasks"],
     queryFn: async () => {
       try {
         return changeProposalsApi.listChangeProposalTasksPreview({
