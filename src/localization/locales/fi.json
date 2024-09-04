@@ -276,6 +276,8 @@
     "attachments": "Liitteet",
     "createButton": "Luo uusi tehtävä",
     "updateButton": "Päivitä tehtävä",
+    "inputLabelDays": "pv",
+    "inputLabelPercent": "%",
     "taskConnectionsTable": {
       "title": "Riippuvuudet",
       "hierarchy": "Hierarkia",

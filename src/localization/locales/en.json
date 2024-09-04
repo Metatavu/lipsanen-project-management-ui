@@ -273,6 +273,8 @@
     "attachments": "Attachments",
     "createButton": "Create new task",
     "updateButton": "Update task",
+    "inputLabelDays": "d",
+    "inputLabelPercent": "%",
     "taskConnectionsTable": {
       "title": "Task connections",
       "hierarchy": "Hierarchy",
