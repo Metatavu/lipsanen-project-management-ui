@@ -25,6 +25,9 @@ type Props = {
 
 /**
  * Hook for storing the height of a resizable panel in local storage
+ *
+ * @param storeLastPosition whether to store the last position to localstorage or not
+ * @param id ID to store the last position to localstorage with
  */
 const useStoredHeightWithId = (storeLastPosition?: boolean, id?: string) => {
   if (!storeLastPosition || !id) return [undefined, undefined];
