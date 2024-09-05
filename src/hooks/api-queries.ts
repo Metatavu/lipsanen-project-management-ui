@@ -1,28 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
-import { handleError, handleErrorWithMessage } from "utils";
-import { useApi } from "./use-api";
+import { filesApi } from "api/files";
 import {
   Company,
   FindProjectMilestoneRequest,
+  FindTaskRequest,
+  JobPosition,
+  ListChangeProposalTasksPreviewRequest,
+  ListChangeProposalsRequest,
   ListCompaniesRequest,
-  ListTasksRequest,
+  ListJobPositionsRequest,
+  ListNotificationEventsRequest,
   ListProjectMilestonesRequest,
   ListProjectsRequest,
+  ListTaskCommentsRequest,
+  ListTaskConnectionsRequest,
+  ListTasksRequest,
   ListUsersRequest,
   Project,
-  User,
-  ListChangeProposalsRequest,
-  ListTaskConnectionsRequest,
-  FindTaskRequest,
-  ListTaskCommentsRequest,
-  ListJobPositionsRequest,
-  JobPosition,
-  ListNotificationEventsRequest,
-  ListChangeProposalTasksPreviewRequest
+  User
 } from "generated/client";
-import { filesApi } from "api/files";
+import { useTranslation } from "react-i18next";
 import { WithMaxResults } from "types";
+import { handleError, handleErrorWithMessage } from "utils";
+import { useApi } from "./use-api";
 
 /**
  * List companies query hook
@@ -367,6 +367,7 @@ export const useFindTaskQuery = ({ projectId, taskId }: FindTaskRequest) => {
         });
       }
     },
+    staleTime: 1000 * 60 * 1,
   });
 };
 
