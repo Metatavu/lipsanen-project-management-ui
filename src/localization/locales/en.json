@@ -343,6 +343,7 @@
     "title": "Last Planner",
     "user": "User",
     "week": "Week",
-    "markTasks": "Mark tasks"
+    "markTasks": "Mark tasks",
+    "noDependentUser": "No dependent user"
   }
 }

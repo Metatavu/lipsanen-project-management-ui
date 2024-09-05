@@ -16,9 +16,8 @@ function TaskDetailsRoute() {
   const navigate = Route.useNavigate();
 
   const taskQuery = useFindTaskQuery({ projectId, taskId });
-  const task = taskQuery.data;
 
-  if (!taskQuery.data) {
+  if (taskQuery.isFetching) {
     return (
       <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <CircularProgress color="inherit" />
@@ -26,6 +25,7 @@ function TaskDetailsRoute() {
     );
   }
 
+  const task = taskQuery.data;
   if (!task) return null;
 
   /**

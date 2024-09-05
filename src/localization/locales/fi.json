@@ -343,6 +343,7 @@
     "title": "Last Planner",
     "user": "Käyttäjä",
     "week": "Viikko",
-    "markTasks": "Merkitse tehtäviä"
+    "markTasks": "Merkitse tehtäviä",
+    "noDependentUser": "Ei riippuvaista käyttäjää"
   }
 }
