@@ -14,6 +14,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ConfirmDialogProvider from "providers/confirm-dialog-provider";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
+import { Settings } from "luxon";
+import i18n from "localization/i18n";
+
+// Luxon locale
+Settings.defaultLocale = i18n.language;
 
 const router = createRouter({ routeTree });
 

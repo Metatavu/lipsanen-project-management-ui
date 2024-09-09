@@ -94,11 +94,13 @@ const NewJobPositionDialog = () => {
     return (
       <div style={{ backgroundColor: "#fff", padding: "10px", borderRadius: "5px" }}>
         <div style={{ fontSize: "14px", fontWeight: 500, marginBottom: "10px" }}>{label}</div>
-        <ColorSelector color={jobPositionData.color} onChange={(color) => setJobPositionData({ ...jobPositionData, color })} />
+        <ColorSelector
+          color={jobPositionData.color}
+          onChange={(color) => setJobPositionData({ ...jobPositionData, color })}
+        />
       </div>
     );
   };
-    
 
   /**
    * Main component render

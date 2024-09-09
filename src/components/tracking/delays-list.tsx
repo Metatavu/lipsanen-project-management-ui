@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { User, Task, ChangeProposal, JobPosition } from "generated/client";
 import { ChangeProposalScope, DelaysByReason, DelaysByRole, DelaysByTask } from "types";
-import { TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES } from "../../constants";
+import { TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES } from "consts";
 
 /**
  * Component props
@@ -32,7 +32,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
    */
   const delaysByTaskRowData: DelaysByTask[] = useMemo(() => {
     const taskMap = new Map<string, DelaysByTask>();
-  
+
     for (const delay of changeProposals.filter((delay) => delay.status === "PENDING")) {
       if (!delay.id || !delay.metadata || !delay.endDate) continue;
 
@@ -46,7 +46,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
         });
       }
     }
-  
+
     return Array.from(taskMap.values());
   }, [changeProposals]);
 
@@ -278,7 +278,8 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
             field: "totalDelayPercentage",
             headerName: t("trackingScreen.delaysList.byRole.overallDelay"),
             flex: 1,
-            valueGetter: (params) => `${((params.row.totalDelayDuration / params.row.totalTasksDuration) * 100).toFixed(2)}%`,
+            valueGetter: (params) =>
+              `${((params.row.totalDelayDuration / params.row.totalTasksDuration) * 100).toFixed(2)}%`,
           },
         ]}
         autoHeight

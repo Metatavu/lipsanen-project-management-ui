@@ -107,9 +107,6 @@
     "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
     "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
     "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
-    "errorCreatingTaskConnection": "Virhe luotaessa tehtävien yhteyttä",
-    "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien yhteyttä",
-    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien yhteyttä",
     "errorListingJobPositions": "Virhe haettaessa rooleja",
     "errorCreatingJobPosition": "Virhe luotaessa uutta roolia",
     "errorUpdatingJobPosition": "Virhe päivitettäessä roolia",
@@ -266,6 +263,7 @@
     "name": "Tehtävän nimi",
     "status": "Tila",
     "assignees": "Tekijät",
+    "dependentUser": "Riippuvainen käyttäjä",
     "type": "Tyyppi",
     "userRole": "Rooli",
     "position": "Rooli",
@@ -340,5 +338,12 @@
     "addComment": "Lisää kommentti",
     "editFlag": "(Muokattu)",
     "updateComment": "Päivitä kommentti"
+  },
+  "lastPlannerView": {
+    "title": "Last Planner",
+    "user": "Käyttäjä",
+    "week": "Viikko",
+    "markTasks": "Merkitse tehtäviä",
+    "noDependentUser": "Ei riippuvaista käyttäjää"
   }
 }

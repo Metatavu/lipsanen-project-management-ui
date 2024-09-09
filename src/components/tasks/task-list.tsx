@@ -1,6 +1,6 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { renderMdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import ProgressBadge from "components/generic/progress-badge";
 import { useListJobPositionsQuery } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
@@ -44,7 +44,7 @@ const TaskList = ({ user, tasks, loading }: Props) => {
 
   /**
    * Render tasks column
-   * 
+   *
    * @returns tasks column
    */
   const renderTasksColumn = () => (
@@ -64,11 +64,14 @@ const TaskList = ({ user, tasks, loading }: Props) => {
               renderCell: () => {
                 // All the tasks in this list are assigned to the test user, so no need to check if the user is assigned to the task
                 const jobPosition = jobPositions?.find((position) => user.jobPositionId === position.id);
-                const iconName = jobPosition?.iconName ?? DEFAULT_USER_ICON;
-                const iconColor = jobPosition?.color ?? theme.palette.primary.main;
                 return (
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    {renderMdiIconifyIconWithBackground(iconName, iconColor)}
+                    {
+                      <MdiIconifyIconWithBackground
+                        iconName={jobPosition?.iconName ?? DEFAULT_USER_ICON}
+                        color={jobPosition?.color ?? theme.palette.primary.main}
+                      />
+                    }
                     {user.firstName} {user.lastName}
                   </div>
                 );

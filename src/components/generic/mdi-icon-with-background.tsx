@@ -1,15 +1,22 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 /**
+ * Component properties
+ */
+type Props = {
+  iconName?: string;
+  backgroundColor?: string;
+  color?: string;
+};
+
+/**
  * Render MDI Iconify icon with background
  *
  * @param iconName icon name
  * @param backgroundColor background color
  */
-export const renderMdiIconifyIconWithBackground = (iconName?: string, backgroundColor?: string) => {
-  if (!iconName || !backgroundColor) {
-    return null;
-  }
+export const MdiIconifyIconWithBackground = ({ iconName, backgroundColor, color }: Props) => {
+  if (!iconName || !backgroundColor) return null;
 
   return (
     <div
@@ -23,7 +30,7 @@ export const renderMdiIconifyIconWithBackground = (iconName?: string, background
         display: "flex",
       }}
     >
-      <Icon icon={`mdi:${iconName}`} height={20} width={20} color="#fff" />
+      <Icon icon={`mdi:${iconName}`} height={20} width={20} color={color ?? "#fff"} />
     </div>
   );
 };

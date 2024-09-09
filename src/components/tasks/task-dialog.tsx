@@ -33,10 +33,10 @@ import { useApi } from "hooks/use-api";
 import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
 import {
   useListTasksQuery,
-  useListProjectUsersQuery,
   useListTaskAttachmentsQuery,
   useListTaskConnectionsQuery,
   useListJobPositionsQuery,
+  useListUsersQuery,
 } from "hooks/api-queries";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
@@ -69,7 +69,7 @@ const TASK_ATTACHMENT_UPLOAD_PATH = "task-attachments";
  */
 interface Props {
   projectId: string;
-  milestoneId: string;
+  milestoneId?: string;
   open: boolean;
   task?: Task; // Existing task to edit
   onClose: () => void;
@@ -79,17 +79,15 @@ interface Props {
 /**
  * Task dialog component
  */
-const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposals }: Props) => {
+const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, onClose, changeProposals }: Props) => {
+  const milestoneId = task?.milestoneId ?? milestoneIdFromProps;
   const { t } = useTranslation();
   const { tasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
-  const listProjectUsersQuery = useListProjectUsersQuery(projectId);
+  const listProjectUsersQuery = useListUsersQuery({ projectId });
   const listMilestoneTasksQuery = useListTasksQuery({ projectId, milestoneId });
   const tasks = listMilestoneTasksQuery.data ?? [];
-  const listTaskConnectionsQuery = useListTaskConnectionsQuery({
-    projectId,
-    taskId: task?.id,
-  });
+  const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
   const taskConnections = listTaskConnectionsQuery.data ?? [];
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = listJobPositionsQuery.data?.jobPositions ?? [];
@@ -100,11 +98,14 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
   const existingOrNewTaskData = task
     ? {
         name: task.name,
+        milestoneId: task.milestoneId,
         startDate: DateTime.fromJSDate(task.startDate),
         endDate: DateTime.fromJSDate(task.endDate),
         status: task.status,
         assigneeIds: task.assigneeIds ?? [],
         positionId: task.jobPositionId,
+        dependentUserId: task.dependentUserId,
+        userRole: task.userRole,
         estimatedDuration: task.estimatedDuration,
         estimatedReadiness: task.estimatedReadiness,
         attachmentUrls: task.attachmentUrls ?? [],
@@ -191,7 +192,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
    * Project users map
    */
   const projectUsersMap = useMemo(() => {
-    const users = listProjectUsersQuery.data ?? [];
+    const users = listProjectUsersQuery.data?.users ?? [];
     return users.reduce(
       (acc, user) => {
         if (user.id) acc[user.id] = `${user.firstName} ${user.lastName}`;
@@ -205,7 +206,7 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
    * Project keycloak users map
    */
   const projectKeycloakUsersMap = useMemo(() => {
-    const users = listProjectUsersQuery.data ?? [];
+    const users = listProjectUsersQuery.data?.users ?? [];
     return users.reduce<Record<string, string>>((record, user) => {
       if (user.keycloakId) record[user.keycloakId] = `${user.firstName} ${user.lastName}`;
       return record;
@@ -660,17 +661,21 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
     const endDateIsoConverted = new Date(taskData.endDate.toISODate());
 
     if (task?.id) {
+      if (!task.milestoneId) return;
+
       await updateTaskMutation.mutateAsync({
         projectId: projectId,
         taskId: task.id,
         task: {
-          milestoneId: milestoneId,
+          milestoneId: task.milestoneId,
           name: taskData.name,
           startDate: startDateIsoConverted,
           endDate: endDateIsoConverted,
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
           jobPositionId: taskData.positionId,
+          dependentUserId: taskData.dependentUserId,
+          userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
           attachmentUrls: taskData.attachmentUrls,
@@ -680,6 +685,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
       await deleteRemovedTaskConnections();
       await persistNewAndEditedTaskConnections(task.id);
     } else {
+      if (!milestoneId) return;
+
       const createdTask = await createTaskMutation.mutateAsync({
         projectId: projectId,
         task: {
@@ -690,6 +697,8 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
           jobPositionId: taskData.positionId,
+          dependentUserId: taskData.dependentUserId,
+          userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
           attachmentUrls: taskData.attachmentUrls,
@@ -850,10 +859,10 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           <Grid item xs={6}>
             {renderDropdownPicker("status", t("newMilestoneTaskDialog.status"), Object.values(TaskStatus), false)}
           </Grid>
-          <Grid item xs={6}>
-            {renderDropdownPicker("assigneeIds", t("newMilestoneTaskDialog.assignees"), projectUsersMap, true)}
+          <Grid item xs={3}>
+            {renderDropdownPicker("dependentUserId", t("newMilestoneTaskDialog.dependentUser"), projectUsersMap, false)}
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={3}>
             {renderDropdownPicker(
               "positionId",
               t("newMilestoneTaskDialog.position"),
@@ -868,6 +877,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
               ),
               false,
             )}
+          </Grid>
+          <Grid item xs={6}>
+            {renderDropdownPicker("assigneeIds", t("newMilestoneTaskDialog.assignees"), projectUsersMap, true)}
           </Grid>
           <Grid item xs={3}>
             <TextField
@@ -1313,9 +1325,9 @@ const TaskDialog = ({ projectId, milestoneId, open, task, onClose, changeProposa
           {task?.id && (
             <CommentsSection
               projectId={projectId}
-              milestoneId={milestoneId}
+              milestoneId={task.milestoneId}
               taskId={task.id}
-              projectUsers={listProjectUsersQuery.data ?? []}
+              projectUsers={listProjectUsersQuery.data?.users ?? []}
               projectUsersMap={projectUsersMap}
               projectKeycloakUsersMap={projectKeycloakUsersMap}
             />

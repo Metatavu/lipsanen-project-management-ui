@@ -52,7 +52,7 @@ export const ICON_OPTIONS: IconOption[] = [
 export const TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES = [
   ChangeProposalScope.TASK,
   ChangeProposalScope.ROLE,
-  ChangeProposalScope.REASON
+  ChangeProposalScope.REASON,
 ];
 
 export const DEFAULT_USER_ICON = "account";

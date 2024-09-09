@@ -1,7 +1,7 @@
 import { Select, MenuItem, ListItemIcon, ListItemText, SelectChangeEvent } from "@mui/material";
 import { Icon, IconifyIcon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
-import { ICON_OPTIONS } from "../../constants";
+import { ICON_OPTIONS } from "consts";
 
 /**
  * Component Props
@@ -13,13 +13,13 @@ interface Props {
 
 /**
  * Render an icon
- * 
+ *
  * @param icon icon to render
  */
 const renderSelectedIcon = (icon: string) => {
-  const selectedItem = ICON_OPTIONS.find(option => option.value === icon);
+  const selectedItem = ICON_OPTIONS.find((option) => option.value === icon);
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div style={{ display: "flex", alignItems: "center" }}>
       {selectedItem && (
         <>
           <Icon icon={selectedItem.icon as IconifyIcon} />
@@ -28,16 +28,16 @@ const renderSelectedIcon = (icon: string) => {
       )}
     </div>
   );
-}
+};
 
 /**
  * Icon selector component
- * 
+ *
  * @param props Props
  */
 const IconSelector = ({ icon, onChange }: Props) => {
   const { t } = useTranslation();
-  
+
   return (
     <Select
       fullWidth
@@ -48,7 +48,7 @@ const IconSelector = ({ icon, onChange }: Props) => {
         if (!selected) {
           return t("iconSelector.selectIcon");
         }
-        const selectedItem = ICON_OPTIONS.find(option => option.value === selected);
+        const selectedItem = ICON_OPTIONS.find((option) => option.value === selected);
         return renderSelectedIcon(selectedItem?.value ?? "");
       }}
       required
@@ -56,7 +56,7 @@ const IconSelector = ({ icon, onChange }: Props) => {
       <MenuItem value="" disabled>
         {t("iconSelector.selectIcon")}
       </MenuItem>
-      {ICON_OPTIONS.map(option => (
+      {ICON_OPTIONS.map((option) => (
         <MenuItem key={option.value} value={option.value}>
           <ListItemIcon>
             <Icon icon={option.icon as IconifyIcon} />

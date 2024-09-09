@@ -1,5 +1,5 @@
-import { renderMdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
-import { DEFAULT_USER_ICON } from "constants/index";
+import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import { DEFAULT_USER_ICON } from "consts";
 import { JobPosition, User } from "generated/client";
 import { theme } from "theme";
 
@@ -20,7 +20,7 @@ namespace UsersUtils {
     const usersIconName = usersJobPosition?.iconName ?? DEFAULT_USER_ICON;
     const usersIconColor = usersJobPosition?.color ?? theme.palette.primary.main;
 
-    return renderMdiIconifyIconWithBackground(usersIconName, usersIconColor);
+    return <MdiIconifyIconWithBackground iconName={usersIconName} color={usersIconColor} />;
   };
 }
 

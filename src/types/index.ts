@@ -2,8 +2,9 @@ import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
 import { Metadata, ProjectStatus, Task, TaskConnectionType, TaskStatus, UserRole } from "generated/client";
+import { User } from "generated/client";
 import { DefaultNamespace, ParseKeys } from "i18next";
-import { DateTime } from "luxon";
+import { DateTime, Interval } from "luxon";
 
 export enum TaskConnectionRelationship {
   PARENT = "PARENT",
@@ -75,6 +76,7 @@ export interface TaskFormData {
   status: TaskStatus;
   assigneeIds: string[];
   positionId?: string;
+  dependentUserId?: string;
   userRole?: UserRole;
   estimatedDuration?: number;
   estimatedReadiness?: number;
@@ -110,7 +112,7 @@ export interface DelaysByTask {
   metadata: Metadata;
   reason: string;
   endDate: Date;
-};
+}
 
 /**
  * Interface delays by role view
@@ -123,7 +125,7 @@ export interface DelaysByRole {
   delayedTasksPercentage: number;
   totalTasksDuration: number;
   totalDelayDuration: number;
-};
+}
 
 /**
  * Interface delays by reason view
@@ -134,4 +136,27 @@ export interface DelaysByReason {
   taskIds: string[];
   totalTasksDuration: number;
   totalDelayDuration: number;
+}
+
+/**
+ * Helper type for combining a user and their tasks
+ */
+export type UserWithTasks = {
+  user: User;
+  tasks: TaskWithInterval[];
 };
+
+/**
+ * Helper type for combining a task and its interval
+ */
+export type TaskWithInterval = {
+  task: Task;
+  interval: Interval<true>;
+};
+
+/**
+ * Generic type for combining list query result items with max results
+ * @param Name - name of the property containing the listed items
+ * @param T - type of the listed items
+ */
+export type WithMaxResults<Name extends string, T> = { [N in Name]: T[] } & { maxResults: number };

@@ -17,7 +17,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import FileUploader from "components/generic/file-upload";
-import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "constants";
+import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "consts";
 import { MuiColorInput } from "mui-color-input";
 import { useApi } from "hooks/use-api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -49,7 +49,7 @@ function SettingsIndexRoute() {
   const [selectedColorInput, setSelectedColor] = useState("");
   const [selectedLogoInput, setSelectedLogo] = useState("");
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const debounceTimeoutRef = useRef<number | null>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const savedProjectId = localStorage.getItem("selectedProjectId");
