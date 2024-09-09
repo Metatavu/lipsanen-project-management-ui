@@ -5,6 +5,7 @@ import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import ResizablePanel from "components/generic/resizable-panel";
 import LastPlannerView from "components/last-planner/last-planner-view";
+import TaskList from "components/tasks/task-list";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/projects/$projectId/tasks")({ component: 
 function TasksIndexRoute() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
+  const navigate = Route.useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
 
   const [editMode, setEditMode] = useState(false);
@@ -35,11 +37,17 @@ function TasksIndexRoute() {
         <Button startIcon={<FilterListIcon />} variant="contained" size="large">
           {t("generic.showFilters")}
         </Button>
-        <Button startIcon={<AddIcon />} variant="contained" size="large">
+        <Button startIcon={<AddIcon />} variant="contained" size="large" onClick={() => navigate({ to: "new" })}>
           {t("scheduleScreen.addANewTask")}
         </Button>
       </Toolbar>
-      <Card ref={cardRef} sx={{ flex: 1, minWidth: 0, position: "relative" }}>
+      <Card ref={cardRef} sx={{ flex: 1, position: "relative", display: "flex", flexDirection: "column" }}>
+        <Stack flex={1} minHeight={0}>
+          <TaskList
+            projectId={projectId}
+            onTaskClick={(task) => navigate({ to: "$taskId", params: { taskId: task.id as string } })}
+          />
+        </Stack>
         <ResizablePanel
           containerRef={cardRef}
           storeLastPosition

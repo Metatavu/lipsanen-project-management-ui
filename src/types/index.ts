@@ -71,6 +71,7 @@ export interface MilestoneFormData {
  */
 export interface TaskFormData {
   name: string;
+  milestoneId?: string;
   startDate: DateTime<true> | DateTime<false> | null;
   endDate: DateTime<true> | DateTime<false> | null;
   status: TaskStatus;

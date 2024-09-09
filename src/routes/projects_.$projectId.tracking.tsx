@@ -1,6 +1,10 @@
-import { Box, Card, Typography } from "@mui/material";
-import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import { Box, Card, Stack, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
+import { authAtom } from "atoms/auth";
+import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import TaskList from "components/tasks/task-list";
+import DelaysList from "components/tracking/delays-list";
+import NotificationsList from "components/tracking/notifications-list";
 import {
   useFindProjectQuery,
   useFindUserQuery,
@@ -10,11 +14,8 @@ import {
   useListTasksQuery,
   useListUsersQuery,
 } from "hooks/api-queries";
-import TaskList from "components/tasks/task-list";
 import { useAtom } from "jotai";
-import { authAtom } from "atoms/auth";
-import DelaysList from "components/tracking/delays-list";
-import NotificationsList from "components/tracking/notifications-list";
+import { useTranslation } from "react-i18next";
 
 /**
  * Tracking file route
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/projects/$projectId/tracking")({
 function TrackingIndexRoute() {
   const [auth] = useAtom(authAtom);
   const { projectId } = Route.useParams();
+  const { t } = useTranslation();
 
   const findUserQuery = useFindUserQuery(auth?.token.userId ?? "");
   const user = findUserQuery.data;
@@ -38,7 +40,6 @@ function TrackingIndexRoute() {
 
   const listTasksQuery = useListTasksQuery({ projectId: projectId });
   const tasks = listTasksQuery.data || [];
-  const userTasks = tasks.filter((task) => (task.assigneeIds ?? []).includes(user?.id ?? ""));
 
   const listChangeProposalsQuery = useListChangeProposalsQuery({ projectId: projectId });
   const changeProposals = listChangeProposalsQuery.data || [];
@@ -84,7 +85,12 @@ function TrackingIndexRoute() {
         >
           {/* Tasks Column */}
           <Card sx={{ flex: 1, minWidth: 0, overflow: "auto", boxShadow: "none" }}>
-            <TaskList user={user} tasks={userTasks} loading={listTasksQuery.isLoading} />
+            <Stack height="100%" p={2} minHeight={0}>
+              <Typography component="h2" variant="h6" mb={2}>
+                {t("trackingScreen.tasksList.title")}
+              </Typography>
+              <TaskList projectId={projectId} user={user} />
+            </Stack>
           </Card>
           {/* Delays Column */}
           <Card sx={{ flex: 1, minWidth: 0, overflow: "auto", boxShadow: "none" }}>

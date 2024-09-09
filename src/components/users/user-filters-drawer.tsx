@@ -1,3 +1,5 @@
+import CloseIcon from "@mui/icons-material/Close";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import {
   AppBar,
   Badge,
@@ -13,12 +15,10 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import CloseIcon from "@mui/icons-material/Close";
+import { useNavigate } from "@tanstack/react-router";
+import { useListCompaniesQuery, useListJobPositionsQuery, useListProjectsQuery } from "hooks/api-queries";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useListProjectsQuery, useListCompaniesQuery, useListJobPositionsQuery } from "hooks/api-queries";
-import { useNavigate } from "@tanstack/react-router";
 import { Route as UserRoute } from "routes/users";
 
 /**

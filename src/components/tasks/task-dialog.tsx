@@ -1,5 +1,7 @@
-import { useState, useMemo, ChangeEvent, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
   AppBar,
   Box,
@@ -8,11 +10,11 @@ import {
   Dialog,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   Grid,
   IconButton,
   InputAdornment,
   MenuItem,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -20,47 +22,48 @@ import {
   TableHead,
   TableRow,
   TextField,
+  ThemeProvider,
   Toolbar,
   Typography,
+  createTheme,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
-import { DateTime } from "luxon";
-import { useTranslation } from "react-i18next";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { useApi } from "hooks/use-api";
-import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
-import {
-  useListTasksQuery,
-  useListTaskAttachmentsQuery,
-  useListTaskConnectionsQuery,
-  useListJobPositionsQuery,
-  useListUsersQuery,
-} from "hooks/api-queries";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { filesApi } from "api/files";
+import FileUploader from "components/generic/file-upload";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
   ChangeProposal,
   ChangeProposalStatus,
   CreateChangeProposalRequest,
+  CreateTaskConnectionRequest,
   CreateTaskRequest,
   DeleteChangeProposalRequest,
+  DeleteTaskConnectionRequest,
   Task,
+  TaskConnectionType,
   TaskStatus,
   UpdateChangeProposalRequest,
-  UpdateTaskRequest,
-  CreateTaskConnectionRequest,
-  DeleteTaskConnectionRequest,
-  TaskConnectionType,
   UpdateTaskConnectionRequest,
+  UpdateTaskRequest,
 } from "generated/client";
-import FileUploader from "components/generic/file-upload";
-import { filesApi } from "api/files";
+import {
+  useListJobPositionsQuery,
+  useListProjectMilestonesQuery,
+  useListTaskAttachmentsQuery,
+  useListTaskConnectionsQuery,
+  useListTasksQuery,
+  useListUsersQuery,
+} from "hooks/api-queries";
+import { useApi } from "hooks/use-api";
+import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
 import ChangeProposalUtils from "utils/change-proposals";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import TaskConnectionsTable from "./task-connections-table";
+import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
+import TaskConnectionsTable from "./task-connections-table";
 
 const TASK_ATTACHMENT_UPLOAD_PATH = "task-attachments";
 
@@ -85,6 +88,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const { tasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListUsersQuery({ projectId });
+  const listMilestonesQuery = useListProjectMilestonesQuery({ projectId });
+  const milestones = listMilestonesQuery.data ?? [];
   const listMilestoneTasksQuery = useListTasksQuery({ projectId, milestoneId });
   const tasks = listMilestoneTasksQuery.data ?? [];
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
@@ -98,7 +103,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const existingOrNewTaskData = task
     ? {
         name: task.name,
-        milestoneId: task.milestoneId,
+        milestoneId: milestoneId,
         startDate: DateTime.fromJSDate(task.startDate),
         endDate: DateTime.fromJSDate(task.endDate),
         status: task.status,
@@ -112,6 +117,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       }
     : {
         name: "",
+        milestoneId: milestoneId,
         startDate: null,
         endDate: null,
         status: TaskStatus.NotStarted,
@@ -123,6 +129,10 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       };
 
   const [taskData, setTaskData] = useState<TaskFormData>(existingOrNewTaskData);
+  const selectedMilestone = useMemo(
+    () => milestones.find((m) => m.id === taskData.milestoneId),
+    [milestones, taskData.milestoneId],
+  );
 
   const [createChangeProposalData, setCreateChangeProposalData] = useState<ChangeProposal[]>([]);
   const [updateChangeProposalData, setUpdateChangeProposalData] = useState<ChangeProposal[]>(
@@ -685,12 +695,12 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       await deleteRemovedTaskConnections();
       await persistNewAndEditedTaskConnections(task.id);
     } else {
-      if (!milestoneId) return;
+      if (!taskData?.milestoneId) return;
 
       const createdTask = await createTaskMutation.mutateAsync({
         projectId: projectId,
         task: {
-          milestoneId: milestoneId,
+          milestoneId: taskData.milestoneId,
           name: taskData.name,
           startDate: startDateIsoConverted,
           endDate: endDateIsoConverted,
@@ -797,6 +807,36 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   };
 
   /**
+   * Returns min date for startDate input
+   */
+  const getStartDateMin = () => {
+    return selectedMilestone ? DateTime.fromJSDate(selectedMilestone.startDate) : undefined;
+  };
+
+  const getStartDateMax = () => {
+    if (!selectedMilestone) return taskData.endDate ?? undefined;
+
+    return taskData.endDate
+      ? [DateTime.fromJSDate(selectedMilestone.endDate), taskData.endDate].toSorted().at(0)
+      : DateTime.fromJSDate(selectedMilestone.endDate);
+  };
+
+  /**
+   * Returns min date for startDate input
+   */
+  const getEndDateMin = () => {
+    if (!selectedMilestone) return taskData.startDate ?? undefined;
+
+    return taskData.startDate
+      ? [DateTime.fromJSDate(selectedMilestone.startDate), taskData.startDate].toSorted().at(1)
+      : DateTime.fromJSDate(selectedMilestone.startDate);
+  };
+
+  const getEndDateMax = () => {
+    return selectedMilestone ? DateTime.fromJSDate(selectedMilestone.endDate) : undefined;
+  };
+
+  /**
    * Renders a dropdown picker with multiple select option
    *
    * @param field field
@@ -888,9 +928,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               value={taskData.estimatedDuration}
               onChange={handleFormChange("estimatedDuration")}
               InputProps={{
-                endAdornment: <InputAdornment position="end">
-                  {t("newMilestoneTaskDialog.inputLabelDays")}
-                </InputAdornment>,
+                endAdornment: (
+                  <InputAdornment position="end">{t("newMilestoneTaskDialog.inputLabelDays")}</InputAdornment>
+                ),
               }}
             />
           </Grid>
@@ -901,9 +941,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               value={taskData.estimatedReadiness}
               onChange={handleFormChange("estimatedReadiness")}
               InputProps={{
-                endAdornment: <InputAdornment position="end">
-                  {t("newMilestoneTaskDialog.inputLabelPercent")}
-                </InputAdornment>,
+                endAdornment: (
+                  <InputAdornment position="end">{t("newMilestoneTaskDialog.inputLabelPercent")}</InputAdornment>
+                ),
               }}
             />
           </Grid>
@@ -912,6 +952,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               fullWidth
               label={t("newMilestoneTaskDialog.start")}
               value={taskData.startDate}
+              minDate={getStartDateMin()}
+              maxDate={getStartDateMax()}
               onChange={handleDateFormChange("startDate")}
             />
           </Grid>
@@ -920,6 +962,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               fullWidth
               label={t("newMilestoneTaskDialog.end")}
               value={taskData.endDate}
+              minDate={getEndDateMin()}
+              maxDate={getEndDateMax()}
               onChange={handleDateFormChange("endDate")}
             />
           </Grid>
@@ -1269,15 +1313,40 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     );
   };
 
+  const renderMilestone = () => {
+    if (milestoneId) return milestones.find((milestone) => milestone.id === milestoneId)?.name;
+
+    return (
+      <ThemeProvider theme={createTheme({ palette: { mode: "dark" } })}>
+        <TextField
+          value={taskData?.milestoneId ?? ""}
+          label={t("newMilestoneTaskDialog.milestone")}
+          select
+          size="small"
+          variant="outlined"
+          onChange={handleFormChange("milestoneId")}
+          sx={{ width: 200 }}
+        >
+          {milestones.map((milestone) => (
+            <MenuItem key={milestone.id} value={milestone.id}>
+              {milestone.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </ThemeProvider>
+    );
+  };
+
   /**
    * Disables form submit based on required form fields
    */
   const isDisabled = !(
-    !!taskData.name &&
-    !!taskData.startDate &&
-    !!taskData.endDate &&
-    !!taskData.status &&
-    !!taskConnectionsValid
+    taskData.milestoneId &&
+    taskData.name &&
+    taskData.startDate &&
+    taskData.endDate &&
+    taskData.status &&
+    taskConnectionsValid
   );
 
   /**
@@ -1299,7 +1368,11 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       >
         <AppBar sx={{ position: "relative" }} elevation={0}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <DialogTitle>{task ? task.name : t("newMilestoneTaskDialog.title")}</DialogTitle>
+            <Stack gap={2} direction="row" alignItems="center">
+              {renderMilestone()}
+              <span>/</span>
+              {task ? task.name : t("newMilestoneTaskDialog.title")}
+            </Stack>
             <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
               <CloseIcon />
             </IconButton>
