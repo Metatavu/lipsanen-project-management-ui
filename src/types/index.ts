@@ -1,16 +1,24 @@
 import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
-import { RegisteredRouter, RoutePaths } from "@tanstack/react-router";
+import { ParseRoute, RouteById } from "@tanstack/react-router";
 import { Metadata, ProjectStatus, Task, TaskConnectionType, TaskStatus, UserRole } from "generated/client";
 import { User } from "generated/client";
+import { routeTree } from "generated/router/routeTree.gen";
 import { DefaultNamespace, ParseKeys } from "i18next";
 import { DateTime, Interval } from "luxon";
+import { ReactNode } from "react";
 
+/**
+ * Task connection relationships
+ */
 export enum TaskConnectionRelationship {
   PARENT = "PARENT",
   CHILD = "CHILD",
 }
 
+/**
+ * Task status colors
+ */
 export enum TaskStatusColor {
   NOT_STARTED = "#37474F",
   NOT_STARTED_SELECTED = "#546E7A",
@@ -22,14 +30,40 @@ export enum TaskStatusColor {
   OVERDUE_SELECTED = "#F44336",
 }
 
+/**
+ * Task proposal scopes
+ */
 export enum ChangeProposalScope {
   TASK = "TASK",
   ROLE = "ROLE",
   REASON = "REASON",
 }
 
+/**
+ * Type for the app router
+ */
+export type AppRouter = typeof routeTree;
+
+/**
+ * Type for all route options in the app
+ */
+export type AppRouteOptions = ParseRoute<AppRouter>["fullPath"];
+
+/**
+ * Type for search schema for given route in the app
+ *
+ * @typeParam RoutePath route path
+ */
+export type AppRouteSearchSchema<RoutePath extends AppRouteOptions> = RouteById<
+  AppRouter,
+  RoutePath
+>["types"]["fullSearchSchema"];
+
+/**
+ * Navigation link type
+ */
 export type NavigationLink = {
-  route: RoutePaths<RegisteredRouter["routeTree"]>;
+  route: AppRouteOptions;
   labelKey: ParseKeys<DefaultNamespace>;
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">> & {
@@ -37,16 +71,25 @@ export type NavigationLink = {
   };
 };
 
+/**
+ * Type for project status label with color
+ */
 export type ProjectStatusLabel = {
   status: ProjectStatus;
   color: string;
 };
 
+/**
+ * Type for upload message structure
+ */
 export type UploadMessage = {
   message: string;
   severity: "error" | "success" | "info" | "warning";
 };
 
+/**
+ * Removes the optionality of properties specified to type K in the given type T
+ */
 export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 /**
@@ -161,3 +204,32 @@ export type TaskWithInterval = {
  * @param T - type of the listed items
  */
 export type WithMaxResults<Name extends string, T> = { [N in Name]: T[] } & { maxResults: number };
+
+/**
+ * Form field type
+ *
+ * @typeParam FormValues form values type
+ */
+// biome-ignore lint/complexity/noBannedTypes: empty object needs to be narrowed out
+export type FormField<FormValues> = FormValues extends {}
+  ? keyof FormValues extends never
+    ? never
+    : keyof FormValues
+  : never;
+
+/**
+ * Form field change handler type
+ *
+ * @typeParam T form values type
+ */
+export type FormFieldChangeHandler<FormValues> = (
+  field: FormField<FormValues>,
+) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+
+/**
+ * Render filter form function type
+ */
+export type RenderFilterFormFn<FormValues> = (props: {
+  formValues: FormValues;
+  onChange: FormFieldChangeHandler<FormValues>;
+}) => ReactNode;

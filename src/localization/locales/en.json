@@ -11,7 +11,10 @@
     "delete": "Delete",
     "cancel": "Cancel",
     "confirm": "OK",
-    "showFilters": "Show filters"
+    "showFilters": "Show filters",
+    "clear": "Clear",
+    "apply": "Apply",
+    "noSelection": "No selection"
   },
   "project": {
     "status": "Status",
@@ -22,10 +25,13 @@
     "confirmProjectDeleteDescription": "Are you sure you want to delete project: {{projectName}}?"
   },
   "projectStatuses": {
-    "ongoing": "Ongoing",
-    "tenderPreparation": "Tender preparation",
-    "tender": "Tender",
-    "done": "Done"
+    "INITIATION": "Initiation",
+    "PLANNING": "Planning",
+    "DESIGN": "Design",
+    "PROCUREMENT": "Procurement",
+    "CONSTRUCTION": "Construction",
+    "INSPECTION": "Inspection",
+    "COMPLETION": "Completed"
   },
   "newProjectDialog": {
     "addNewProject": "Add new project",
@@ -66,9 +72,17 @@
   },
   "userFilters": {
     "title": "Filter users",
-    "clearAll": "Clear all",
-    "applyAll": "Apply all",
-    "project": "Project"
+    "project": "Project",
+    "company": "Company",
+    "position": "Position"
+  },
+  "taskFilters": {
+    "title": "Filter tasks",
+    "milestone": "Milestone"
+  },
+  "projectFilters": {
+    "title": "Filter projects",
+    "status": "Status"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",

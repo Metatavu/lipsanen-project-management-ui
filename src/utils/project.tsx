@@ -1,5 +1,6 @@
 import { Chip } from "@mui/material";
 import { ProjectStatus } from "generated/client";
+import { useTranslation } from "react-i18next";
 
 /**
  * Project helper functions
@@ -17,27 +18,23 @@ namespace ProjectUtils {
   };
 
   /**
-   * Formats status text to start with a capital letter and the rest in lowercase
-   *
-   * @param status project status
-   */
-  export const formatStatusText = (status: ProjectStatus) =>
-    status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-
-  /**
    * Renders project status element
    *
    * TODO: Once Project status is implemented in the API - add the status logic support
    *
    * @param status project status
    */
-  export const renderStatusElement = (status: ProjectStatus) => (
-    <Chip
-      size="small"
-      sx={{ backgroundColor: projectStatusColors[status], color: "white" }}
-      label={formatStatusText(status)}
-    />
-  );
+  export const renderStatusElement = (status: ProjectStatus) => {
+    const { t } = useTranslation();
+
+    return (
+      <Chip
+        size="small"
+        sx={{ backgroundColor: projectStatusColors[status], color: "white" }}
+        label={t(`projectStatuses.${status}`)}
+      />
+    );
+  };
 }
 
 export default ProjectUtils;

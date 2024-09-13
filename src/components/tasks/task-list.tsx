@@ -7,6 +7,7 @@ import { JobPosition, Task, User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { DateTime } from "luxon";
 import { useTranslation } from "react-i18next";
+import { TasksSearchSchema } from "schemas/search";
 import { theme } from "theme";
 import TaskUtils from "utils/task";
 
@@ -15,6 +16,7 @@ import TaskUtils from "utils/task";
  */
 interface Props {
   projectId: string;
+  filters?: TasksSearchSchema;
   user?: User | null;
   onTaskClick?: (task: Task) => void;
 }
@@ -27,10 +29,10 @@ const DEFAULT_USER_ICON = "account";
  *
  * @param props component props
  */
-const TaskList = ({ user, projectId, onTaskClick }: Props) => {
+const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
   const { t } = useTranslation();
 
-  const listTasksQuery = useListTasksQuery({ projectId });
+  const listTasksQuery = useListTasksQuery({ projectId, milestoneId: filters?.milestoneId });
   const allTasks = listTasksQuery.data || [];
   const tasks = user ? allTasks.filter((task) => task.assigneeIds?.includes(user.id as string)) : allTasks;
 

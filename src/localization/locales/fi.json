@@ -11,7 +11,10 @@
     "delete": "Poistaa",
     "cancel": "Peruuttaa",
     "confirm": "Vahvistaa",
-    "showFilters": "Näytä suotimet"
+    "showFilters": "Näytä suotimet",
+    "clear": "Tyhjennä",
+    "apply": "Käytä",
+    "noSelection": "Ei valintaa"
   },
   "project": {
     "status": "Tila",
@@ -22,10 +25,13 @@
     "confirmProjectDeleteDescription": "Haluatko varmasti poistaa projektin: {{projectName}}?"
   },
   "projectStatuses": {
-    "ongoing": "Käynnissä",
-    "tenderPreparation": "Tarjousvalmistelu",
-    "tender": "Tarjous",
-    "done": "Valmis"
+    "INITIATION": "Aloitus",
+    "PLANNING": "Suunnittelu",
+    "DESIGN": "Design",
+    "PROCUREMENT": "Hankinta",
+    "CONSTRUCTION": "Rakentaminen",
+    "INSPECTION": "Tarkastus",
+    "COMPLETION": "Valmis"
   },
   "newProjectDialog": {
     "addNewProject": "Lisää uusi projekti",
@@ -66,9 +72,17 @@
   },
   "userFilters": {
     "title": "Suodata käyttäjiä",
-    "clearAll": "Tyhjennä kaikki",
-    "applyAll": "Käytä kaikkia",
-    "project": "Projekti"
+    "project": "Projekti",
+    "company": "Yritys",
+    "position": "Rooli"
+  },
+  "taskFilters": {
+    "title": "Suodata tehtäviä",
+    "milestone": "Tavoite"
+  },
+  "projectFilters": {
+    "title": "Suodata projekteja",
+    "status": "Tila"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
