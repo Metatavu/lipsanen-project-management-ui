@@ -31,13 +31,18 @@ export enum TaskStatusColor {
 }
 
 /**
- * Task proposal scopes
+ * Change proposal scopes
  */
-export enum ChangeProposalScope {
-  TASK = "TASK",
-  ROLE = "ROLE",
-  REASON = "REASON",
-}
+export const ChangeProposalScope = {
+  TASK: "TASK",
+  ROLE: "ROLE",
+  REASON: "REASON",
+} as const;
+
+/**
+ * Type for the change proposal scope
+ */
+export type ChangeProposalScope = (typeof ChangeProposalScope)[keyof typeof ChangeProposalScope];
 
 /**
  * Type for the app router
@@ -105,8 +110,8 @@ export interface CompanyOptionType {
  */
 export interface MilestoneFormData {
   name: string;
-  startDate: DateTime<true> | DateTime<false> | null;
-  endDate: DateTime<true> | DateTime<false> | null;
+  startDate: DateTime<true> | null;
+  endDate: DateTime<true> | null;
 }
 
 /**
@@ -115,8 +120,8 @@ export interface MilestoneFormData {
 export interface TaskFormData {
   name: string;
   milestoneId?: string;
-  startDate: DateTime<true> | DateTime<false> | null;
-  endDate: DateTime<true> | DateTime<false> | null;
+  startDate?: DateTime<true>;
+  endDate?: DateTime<true>;
   status: TaskStatus;
   assigneeIds: string[];
   positionId?: string;

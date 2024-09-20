@@ -1,18 +1,34 @@
-import { ReactNode, useCallback, useEffect } from "react";
-import Keycloak from "keycloak-js";
-import { useAtom, useSetAtom } from "jotai";
-import { authAtom, userProfileAtom } from "atoms/auth";
 import config from "app/config";
+import { apiUserAtom, authAtom, userProfileAtom } from "atoms/auth";
+import { useFindUserQuery } from "hooks/api-queries";
+import { useAtom, useSetAtom } from "jotai";
+import Keycloak from "keycloak-js";
+import { ReactNode, useCallback, useEffect } from "react";
 
+/**
+ * Component properties
+ */
 type Props = {
   children: ReactNode;
 };
 
 const keycloak = new Keycloak(config.auth);
 
+/**
+ * Authentication provider component
+ *
+ * @param props component properties
+ */
 const AuthenticationProvider = ({ children }: Props) => {
   const [auth, setAuth] = useAtom(authAtom);
   const setUserProfile = useSetAtom(userProfileAtom);
+  const setApiUser = useSetAtom(apiUserAtom);
+
+  const findApiUserQuery = useFindUserQuery({ userId: auth?.token.userId });
+
+  useEffect(() => {
+    if (findApiUserQuery.data) setApiUser(findApiUserQuery.data);
+  }, [findApiUserQuery.data, setApiUser]);
 
   const updateAuthData = useCallback(() => {
     if (!(keycloak.tokenParsed && keycloak.token)) return;
@@ -21,7 +37,7 @@ const AuthenticationProvider = ({ children }: Props) => {
       token: keycloak.tokenParsed,
       tokenRaw: keycloak.token,
       logout: () => keycloak.logout({ redirectUri: `${window.location.origin}` }),
-      roles: keycloak.realmAccess?.roles ?? []
+      roles: keycloak.realmAccess?.roles ?? [],
     });
 
     setUserProfile(keycloak.profile);

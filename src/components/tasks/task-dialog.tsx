@@ -6,10 +6,10 @@ import {
   AppBar,
   Box,
   Button,
+  Chip,
   CircularProgress,
   Dialog,
   DialogContent,
-  DialogContentText,
   Grid,
   IconButton,
   InputAdornment,
@@ -26,6 +26,8 @@ import {
   Toolbar,
   Typography,
   createTheme,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { filesApi } from "api/files";
@@ -59,8 +61,8 @@ import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
-import ChangeProposalUtils from "utils/change-proposals";
+import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
+import { getValidDateTimeOrThrow } from "utils/date-time-utils";
 import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
 import TaskConnectionsTable from "./task-connections-table";
@@ -81,21 +83,25 @@ interface Props {
 
 /**
  * Task dialog component
+ *
+ * @param props component properties
  */
 const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, onClose, changeProposals }: Props) => {
   const milestoneId = task?.milestoneId ?? milestoneIdFromProps;
+  const theme = useTheme();
+  const isSmallerScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const { t } = useTranslation();
   const { tasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
   const listProjectUsersQuery = useListUsersQuery({ projectId });
   const listMilestonesQuery = useListProjectMilestonesQuery({ projectId });
-  const milestones = listMilestonesQuery.data ?? [];
+  const milestones = useMemo(() => listMilestonesQuery.data ?? [], [listMilestonesQuery.data]);
   const listMilestoneTasksQuery = useListTasksQuery({ projectId, milestoneId });
-  const tasks = listMilestoneTasksQuery.data ?? [];
+  const tasks = useMemo(() => listMilestoneTasksQuery.data ?? [], [listMilestoneTasksQuery.data]);
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
-  const taskConnections = listTaskConnectionsQuery.data ?? [];
+  const taskConnections = useMemo(() => listTaskConnectionsQuery.data ?? [], [listTaskConnectionsQuery.data]);
   const listJobPositionsQuery = useListJobPositionsQuery();
-  const jobPositions = listJobPositionsQuery.data?.jobPositions ?? [];
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const showConfirmDialog = useConfirmDialog();
 
@@ -104,8 +110,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     ? {
         name: task.name,
         milestoneId: milestoneId,
-        startDate: DateTime.fromJSDate(task.startDate),
-        endDate: DateTime.fromJSDate(task.endDate),
+        startDate: getValidDateTimeOrThrow(task.startDate),
+        endDate: getValidDateTimeOrThrow(task.endDate),
         status: task.status,
         assigneeIds: task.assigneeIds ?? [],
         positionId: task.jobPositionId,
@@ -118,8 +124,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     : {
         name: "",
         milestoneId: milestoneId,
-        startDate: null,
-        endDate: null,
+        startDate: undefined,
+        endDate: undefined,
         status: TaskStatus.NotStarted,
         assigneeIds: [],
         positionId: "",
@@ -163,9 +169,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Set existing task connections
    */
   useEffect(() => {
-    if (!task) {
-      return;
-    }
+    if (!task) return;
+
     const initialConnections = taskConnections.map((connection) => ({
       connectionId: connection.id ?? "",
       type: connection.type,
@@ -176,6 +181,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           taskElement.id === (connection.sourceTaskId === task.id ? connection.targetTaskId : connection.sourceTaskId),
       ),
     }));
+
     setExistingTaskConnections(initialConnections);
   }, [task, taskConnections, tasks]);
 
@@ -183,16 +189,14 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Set available tasks for task connections
    */
   useEffect(() => {
-    if (!tasks) {
-      return;
-    }
+    if (!tasks) return;
+
     const availableTasks = task
-      ? tasks
-          .filter((taskElement) => taskElement.id !== task.id)
-          .filter(
-            (taskElement) =>
-              !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
-          )
+      ? tasks.filter(
+          (taskElement) =>
+            taskElement.id !== task.id &&
+            !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
+        )
       : tasks;
 
     setAvailableTaskConnectionTasks(availableTasks);
@@ -724,8 +728,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
     setTaskData({
       name: "",
-      startDate: null,
-      endDate: null,
+      startDate: undefined,
+      endDate: undefined,
       status: TaskStatus.NotStarted,
       assigneeIds: [],
       positionId: "",
@@ -789,7 +793,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const getAttachmentTypeFromUrlCapitals = (url: string) => {
     const urlParts = url.split(".");
-    return urlParts[urlParts.length - 1].toUpperCase();
+    return urlParts[urlParts.length - 1]?.toUpperCase();
   };
 
   /**
@@ -810,15 +814,15 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Returns min date for startDate input
    */
   const getStartDateMin = () => {
-    return selectedMilestone ? DateTime.fromJSDate(selectedMilestone.startDate) : undefined;
+    return selectedMilestone ? getValidDateTimeOrThrow(selectedMilestone.startDate) : undefined;
   };
 
   const getStartDateMax = () => {
     if (!selectedMilestone) return taskData.endDate ?? undefined;
 
     return taskData.endDate
-      ? [DateTime.fromJSDate(selectedMilestone.endDate), taskData.endDate].toSorted().at(0)
-      : DateTime.fromJSDate(selectedMilestone.endDate);
+      ? [getValidDateTimeOrThrow(selectedMilestone.endDate), taskData.endDate].toSorted().at(0)
+      : getValidDateTimeOrThrow(selectedMilestone.endDate);
   };
 
   /**
@@ -828,12 +832,12 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     if (!selectedMilestone) return taskData.startDate ?? undefined;
 
     return taskData.startDate
-      ? [DateTime.fromJSDate(selectedMilestone.startDate), taskData.startDate].toSorted().at(1)
-      : DateTime.fromJSDate(selectedMilestone.startDate);
+      ? [getValidDateTimeOrThrow(selectedMilestone.startDate), taskData.startDate].toSorted().at(1)
+      : getValidDateTimeOrThrow(selectedMilestone.startDate);
   };
 
   const getEndDateMax = () => {
-    return selectedMilestone ? DateTime.fromJSDate(selectedMilestone.endDate) : undefined;
+    return selectedMilestone ? getValidDateTimeOrThrow(selectedMilestone.endDate) : undefined;
   };
 
   /**
@@ -897,7 +901,12 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             />
           </Grid>
           <Grid item xs={6}>
-            {renderDropdownPicker("status", t("newMilestoneTaskDialog.status"), Object.values(TaskStatus), false)}
+            {renderDropdownPicker(
+              "status",
+              t("newMilestoneTaskDialog.status"),
+              Object.fromEntries(Object.values(TaskStatus).map((status) => [status, t(`taskStatuses.${status}`)])),
+              false,
+            )}
           </Grid>
           <Grid item xs={3}>
             {renderDropdownPicker("dependentUserId", t("newMilestoneTaskDialog.dependentUser"), projectUsersMap, false)}
@@ -951,7 +960,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             <GenericDatePicker
               fullWidth
               label={t("newMilestoneTaskDialog.start")}
-              value={taskData.startDate}
+              value={taskData.startDate ?? null}
               minDate={getStartDateMin()}
               maxDate={getStartDateMax()}
               onChange={handleDateFormChange("startDate")}
@@ -961,7 +970,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             <GenericDatePicker
               fullWidth
               label={t("newMilestoneTaskDialog.end")}
-              value={taskData.endDate}
+              value={taskData.endDate ?? null}
               minDate={getEndDateMin()}
               maxDate={getEndDateMax()}
               onChange={handleDateFormChange("endDate")}
@@ -980,22 +989,22 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const renderTaskAttachmentsTable = () => {
     return (
       <>
-        <DialogContentText sx={{ padding: 2 }} variant="h5">
+        <Typography component="h2" variant="h6" px={2} pb={1}>
           {t("newMilestoneTaskDialog.taskAttachmentsTable.title")}
-        </DialogContentText>
+        </Typography>
         <TableContainer>
-          <Table>
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.type")}</TableCell>
                 <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.name")}</TableCell>
                 <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.preview")}</TableCell>
-                <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.delete")}</TableCell>
+                <TableCell sx={{ width: 50 }}>{t("newMilestoneTaskDialog.taskAttachmentsTable.delete")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {taskData.attachmentUrls.map((attachment) => (
-                <TableRow key={attachment}>
+                <TableRow key={attachment} sx={{ "& > .MuiTableCell-root": { py: 0, px: 1 } }}>
                   <TableCell>{getAttachmentTypeFromUrlCapitals(attachment)}</TableCell>
                   <TableCell>{attachment}</TableCell>
                   <TableCell>
@@ -1010,15 +1019,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
                       {t("newMilestoneTaskDialog.taskAttachmentsTable.clickToPreview")}
                     </Button>
                   </TableCell>
-                  <TableCell
-                    style={{
-                      maxWidth: 50,
-                      textDecorationColor: "red",
-                      textAlign: "center",
-                    }}
-                  >
-                    <Button
-                      variant="text"
+                  <TableCell style={{ width: 50, textDecorationColor: "red", textAlign: "center" }}>
+                    <IconButton
                       color="primary"
                       sx={{ borderRadius: 25 }}
                       onClick={() =>
@@ -1035,14 +1037,14 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
                       }
                     >
                       <DeleteIcon color="error" />
-                    </Button>
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Stack direction="row" justifyContent="flex-end" p={2}>
           <Button
             variant="text"
             color="primary"
@@ -1052,7 +1054,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             <AddIcon />
             {t("newMilestoneTaskDialog.taskAttachmentsTable.addButton")}
           </Button>
-        </div>
+        </Stack>
       </>
     );
   };
@@ -1065,41 +1067,34 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const renderExistingChangeProposals = (changeProposal: ChangeProposal) => {
     if (!changeProposal?.id) return;
 
-    const formattedStartDate = changeProposal.startDate ? DateTime.fromJSDate(changeProposal.startDate) : null;
-    const formattedEndDate = changeProposal.endDate ? DateTime.fromJSDate(changeProposal.endDate) : null;
-
-    const statusLabelRecord = {
-      [ChangeProposalStatus.Approved]: "changeProposals.accepted",
-      [ChangeProposalStatus.Pending]: "changeProposals.waitingForApproval",
-      [ChangeProposalStatus.Rejected]: "changeProposals.abandoned",
-    } as const;
-    const statusLabel = statusLabelRecord[changeProposal.status];
+    const startDate = changeProposal.startDate ? getValidDateTimeOrThrow(changeProposal.startDate) : undefined;
+    const endDate = changeProposal.endDate ? getValidDateTimeOrThrow(changeProposal.endDate) : undefined;
     const disabled = changeProposal.status !== ChangeProposalStatus.Pending;
 
     return (
-      <div key={changeProposal.id}>
-        <Grid container spacing={1} padding={2} sx={{ borderBottom: "1px solid #e6e4e4" }}>
-          <Grid item xs={4} sx={{ display: "flex", flexDirection: "row" }}>
+      <Stack key={changeProposal.id} direction="row" gap={1} p={2} sx={{ borderBottom: "1px solid #e6e4e4" }}>
+        <Grid container spacing={1} flex={1}>
+          <Grid item xs={6} sx={{ display: "flex", flexDirection: "row" }}>
             <GenericDatePicker
               fullWidth
               label={t("changeProposals.changeStart")}
-              value={formattedStartDate}
+              value={startDate ?? null}
               onChange={handleUpdateChangeProposalDateFormChange("startDate", changeProposal.id)}
               hasBorder
-              maxDate={formattedEndDate ?? undefined}
+              maxDate={endDate}
               disabled={disabled}
             />
             <GenericDatePicker
               fullWidth
               label={t("changeProposals.changeEnd")}
-              value={formattedEndDate}
+              value={endDate ?? null}
               onChange={handleUpdateChangeProposalDateFormChange("endDate", changeProposal.id)}
               hasBorder
-              minDate={formattedStartDate ?? undefined}
+              minDate={startDate}
               disabled={disabled}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               value={changeProposal.reason}
               label={t("changeProposals.reasonForChange")}
@@ -1123,10 +1118,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={2}>
-            {ChangeProposalUtils.renderStatusElement(changeProposal.status, t(statusLabel))}
-          </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12}>
             <TextField
               fullWidth
               label={t("changeProposals.comment")}
@@ -1136,24 +1128,29 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               disabled={disabled}
             />
           </Grid>
-          {changeProposal.status === ChangeProposalStatus.Pending && (
-            <Grid item xs={2}>
-              {loadingProposalsDeletion[changeProposal.id] ? (
-                <CircularProgress size={24} sx={{ marginLeft: "1rem" }} />
-              ) : (
-                <IconButton
-                  edge="start"
-                  onClick={() => handleDeleteChangeProposal(changeProposal.id)}
-                  aria-label="close"
-                  sx={{ color: "#0000008F", marginLeft: "1rem" }}
-                >
-                  <DeleteOutlineIcon />
-                </IconButton>
-              )}
-            </Grid>
-          )}
         </Grid>
-      </div>
+        <Stack width={150} gap={1} pt={1} alignItems="flex-start">
+          <Chip
+            size="small"
+            label={t("changeProposalStatuses.PENDING")}
+            sx={{
+              bgcolor: (theme) => theme.palette.changeProposalStatus[changeProposal.status],
+              color: "white",
+            }}
+          />
+          {loadingProposalsDeletion[changeProposal.id] ? (
+            <CircularProgress size={24} sx={{ marginLeft: "1rem" }} />
+          ) : (
+            <IconButton
+              onClick={() => handleDeleteChangeProposal(changeProposal.id)}
+              aria-label="close"
+              sx={{ color: "#0000008F" }}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+          )}
+        </Stack>
+      </Stack>
     );
   };
 
@@ -1164,8 +1161,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     return createChangeProposalData.map((newChangeProposal) => {
       if (!newChangeProposal.id) return;
 
-      const formattedStartDate = newChangeProposal.startDate ? DateTime.fromJSDate(newChangeProposal.startDate) : null;
-      const formattedEndDate = newChangeProposal.endDate ? DateTime.fromJSDate(newChangeProposal.endDate) : null;
+      const startDate = newChangeProposal.startDate ? getValidDateTimeOrThrow(newChangeProposal.startDate) : null;
+      const endDate = newChangeProposal.endDate ? getValidDateTimeOrThrow(newChangeProposal.endDate) : null;
 
       return (
         <div key={newChangeProposal.id}>
@@ -1174,18 +1171,18 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               <GenericDatePicker
                 fullWidth
                 label={t("changeProposals.changeStart")}
-                value={formattedStartDate}
+                value={startDate}
                 onChange={handleCreateChangeProposalDateFormChange("startDate", newChangeProposal.id)}
                 hasBorder
-                maxDate={formattedEndDate ?? undefined}
+                maxDate={endDate}
               />
               <GenericDatePicker
                 fullWidth
                 label={t("changeProposals.changeEnd")}
-                value={formattedEndDate}
+                value={endDate}
                 onChange={handleCreateChangeProposalDateFormChange("endDate", newChangeProposal.id)}
                 hasBorder
-                minDate={formattedStartDate ?? undefined}
+                minDate={startDate}
               />
             </Grid>
             <Grid item xs={4}>
@@ -1209,10 +1206,14 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               </TextField>
             </Grid>
             <Grid item xs={2}>
-              {ChangeProposalUtils.renderStatusElement(
-                newChangeProposal.status,
-                t("changeProposals.waitingForApproval"),
-              )}
+              <Chip
+                size="small"
+                label={t("changeProposalStatuses.PENDING")}
+                sx={{
+                  bgcolor: (theme) => theme.palette.changeProposalStatus.PENDING,
+                  color: "white",
+                }}
+              />
             </Grid>
             <Grid item xs={8}>
               <TextField
@@ -1246,13 +1247,13 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     if (!task?.id) return;
 
     return (
-      <div>
-        <DialogContentText sx={{ padding: 2 }} variant="h5">
+      <>
+        <Typography component="h2" variant="h6" px={2}>
           {t("changeProposals.changeProposals")}
-        </DialogContentText>
+        </Typography>
         {updateChangeProposalData.map((proposal) => renderExistingChangeProposals(proposal))}
         {!!createChangeProposalData.length && renderCreateChangeProposals()}
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Stack direction="row" justifyContent="flex-end" p={2}>
           <Button
             variant="text"
             color="primary"
@@ -1263,8 +1264,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             <AddIcon />
             {t("changeProposals.addButton")}
           </Button>
-        </div>
-      </div>
+        </Stack>
+      </>
     );
   };
 
@@ -1355,31 +1356,35 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   return (
     <>
       <Dialog
-        PaperProps={{
-          sx: {
-            minHeight: "90vh",
-            maxHeight: "90vh",
-            minWidth: 1200,
-            maxWidth: 1200,
-          },
-        }}
+        fullScreen={isSmallerScreen}
+        PaperProps={{ sx: { minHeight: "90vh", maxWidth: 1200 } }}
         open={open}
         onClose={onClose}
       >
         <AppBar sx={{ position: "relative" }} elevation={0}>
-          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Stack gap={2} direction="row" alignItems="center">
-              {renderMilestone()}
-              <span>/</span>
-              {task ? task.name : t("newMilestoneTaskDialog.title")}
-            </Stack>
-            <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
+          <Toolbar sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            {renderMilestone()}
+            <span>/</span>
+            {task ? task.name : t("newMilestoneTaskDialog.title")}
+            <Button
+              onClick={handleTaskFormSubmit}
+              variant="outlined"
+              color="inherit"
+              size="large"
+              //TODO: reconsider disabling the button @daniil
+              disabled={isDisabled}
+              sx={{ ml: "auto" }}
+            >
+              {!task && <AddIcon />}
+              {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}
+            </Button>
+            <IconButton color="inherit" onClick={onClose}>
               <CloseIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
-        {renderNewTaskInfoSection()}
         <DialogContent style={{ padding: 0 }}>
+          {renderNewTaskInfoSection()}
           <TaskConnectionsTable
             existingTaskConnections={existingTaskConnections}
             newTaskConnections={newTaskConnections}
@@ -1405,19 +1410,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               projectKeycloakUsersMap={projectKeycloakUsersMap}
             />
           )}
-          <Button
-            fullWidth
-            onClick={handleTaskFormSubmit}
-            variant="contained"
-            color="primary"
-            size="large"
-            sx={{ minHeight: 50, marginTop: 2, marginBottom: 2 }}
-            //TODO: reconsider disabling the button @daniil
-            disabled={isDisabled}
-          >
-            {!task && <AddIcon />}
-            {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}
-          </Button>
         </DialogContent>
       </Dialog>
       {renderUploadTaskAttachmentDialog()}

@@ -1,20 +1,39 @@
 import { createTheme } from "@mui/material";
+import { ChangeProposalStatus, ProjectStatus } from "generated/client";
 
 /**
  * Extend theme with custom variables in here
  */
 declare module "@mui/material/styles" {
-  // interface Theme {
-  //   status: {
-  //     danger: string;
-  //   };
-  // }
-  // allow configuration using `createTheme`
-  // interface ThemeOptions {
-  //   status?: {
-  //     danger?: string;
-  //   };
-  // }
+  interface Palette {
+    companyDefault: {
+      lipsanenLipsaBetoniOy: string;
+      rakennusAhola: string;
+      moduls: string;
+      hbPorras: string;
+    };
+    projectStatus: {
+      [Status in ProjectStatus]: string;
+    };
+    changeProposalStatus: {
+      [Status in ChangeProposalStatus]: string;
+    };
+  }
+
+  interface PaletteOptions {
+    companyDefault?: {
+      lipsanenLipsaBetoniOy?: string;
+      rakennusAhola?: string;
+      moduls?: string;
+      hbPorras?: string;
+    };
+    projectStatus?: {
+      [Status in ProjectStatus]+?: string;
+    };
+    changeProposalStatus?: {
+      [Status in ChangeProposalStatus]+?: string;
+    };
+  }
 }
 
 const theme = createTheme({
@@ -26,6 +45,26 @@ const theme = createTheme({
     primary: {
       main: "#0079BF",
       dark: "#00599D",
+    },
+    companyDefault: {
+      lipsanenLipsaBetoniOy: "rgba(0, 121, 191, 1)",
+      rakennusAhola: "rgba(25, 85, 158, 0.35)",
+      moduls: "rgba(0, 23, 58, 1)",
+      hbPorras: "rgba(0, 122, 191, 1)",
+    },
+    projectStatus: {
+      INITIATION: "#293d96",
+      PLANNING: "#742996",
+      DESIGN: "#849629",
+      PROCUREMENT: "#966e29",
+      CONSTRUCTION: "#299646",
+      INSPECTION: "#29967d",
+      COMPLETION: "#5c5651",
+    },
+    changeProposalStatus: {
+      APPROVED: "#0079BF",
+      PENDING: "#757575",
+      REJECTED: "#d32f2f",
     },
   },
   components: {
@@ -69,7 +108,7 @@ const theme = createTheme({
             "&.Mui-focused": {
               backgroundColor: "#fff",
             },
-            "&:hover": {
+            "&:hover:not(.Mui-disabled)": {
               backgroundColor: "#f7f7f7",
             },
           },

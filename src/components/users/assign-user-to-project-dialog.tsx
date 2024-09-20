@@ -1,22 +1,22 @@
+import AddIcon from "@mui/icons-material/Add";
+import { LoadingButton } from "@mui/lab";
 import {
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  TextField,
-  DialogActions,
-  Button,
+  DialogTitle,
   MenuItem,
   Skeleton,
+  TextField,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import AddIcon from "@mui/icons-material/Add";
-import { useApi } from "../../hooks/use-api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { UpdateUserRequest } from "generated/client";
+import { useFindUserQuery, useListProjectsQuery } from "hooks/api-queries";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useFindUserQuery, useListProjectsQuery } from "hooks/api-queries";
-import { UpdateUserRequest } from "generated/client";
+import { useApi } from "../../hooks/use-api";
 
 /**
  * Component Props
@@ -34,7 +34,7 @@ const AssignUserToProjectDialog = ({ userId }: Props) => {
   const { t } = useTranslation();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
-  const findUserQuery = useFindUserQuery(userId);
+  const findUserQuery = useFindUserQuery({ userId });
   const listProjectsQuery = useListProjectsQuery();
   const projects = listProjectsQuery.data?.projects;
 

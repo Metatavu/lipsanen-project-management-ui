@@ -1,20 +1,30 @@
-import { Box, Button, DialogContent, DialogContentText, IconButton, LinearProgress, Typography } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import SendIcon from "@mui/icons-material/Send";
+import { Box, CircularProgress, IconButton, LinearProgress, Stack, Typography, useTheme } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateTaskCommentRequest, DeleteTaskCommentRequest, UpdateTaskCommentRequest, User } from "generated/client";
+import { apiUserAtom } from "atoms/auth";
+import JobPositionAvatar from "components/generic/job-position-avatar";
+import {
+  CreateTaskCommentRequest,
+  DeleteTaskCommentRequest,
+  TaskComment,
+  UpdateTaskCommentRequest,
+  User,
+} from "generated/client";
+import { useListJobPositionsQuery, useListTaskCommentsQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
+import { useAtomValue } from "jotai";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mention, MentionItem, MentionsInput } from "react-mentions";
-import { useListJobPositionsQuery, useListTaskCommentsQuery } from "hooks/api-queries";
-import { userProfileAtom } from "atoms/auth";
-import { useAtomValue } from "jotai";
-import UsersUtils from "utils/users";
+import UserUtils from "utils/users";
 
 /**
- * Component props
+ * Component properties
  */
 interface Props {
   projectId: string;
@@ -26,9 +36,9 @@ interface Props {
 }
 
 /**
- * Comments section component for the  task dialog
+ * Comments section component for the task dialog
  *
- * @param props component props
+ * @param props component properties
  */
 const CommentsSection = ({
   projectId,
@@ -39,9 +49,10 @@ const CommentsSection = ({
   projectKeycloakUsersMap,
 }: Props) => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { taskCommentsApi } = useApi();
   const queryClient = useQueryClient();
-  const loggedInUser = useAtomValue(userProfileAtom);
+  const loggedInUser = useAtomValue(apiUserAtom);
   const listTaskCommentsQuery = useListTaskCommentsQuery({ projectId, taskId: taskId });
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
@@ -62,7 +73,9 @@ const CommentsSection = ({
   const createTaskCommentMutation = useMutation({
     mutationFn: (params: CreateTaskCommentRequest) => taskCommentsApi.createTaskComment(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", projectId, milestoneId, { taskId: taskId }] });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", projectId, "milestones", milestoneId, "comments", { taskId }],
+      });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingTaskComment"), error),
   });
@@ -73,7 +86,9 @@ const CommentsSection = ({
   const updateTaskCommentMutation = useMutation({
     mutationFn: (params: UpdateTaskCommentRequest) => taskCommentsApi.updateTaskComment(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", projectId, milestoneId, { taskId: taskId }] });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", projectId, "milestones", milestoneId, "comments", { taskId }],
+      });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingTaskComment"), error),
   });
@@ -84,7 +99,9 @@ const CommentsSection = ({
   const deleteTaskCommentMutation = useMutation({
     mutationFn: (params: DeleteTaskCommentRequest) => taskCommentsApi.deleteTaskComment(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", projectId, milestoneId, { taskId: taskId }] });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", projectId, "milestones", milestoneId, "comments", { taskId }],
+      });
     },
     onError: (error) => console.error(t("errorHandling.errorDeletingTaskComment"), error),
   });
@@ -314,61 +331,119 @@ const CommentsSection = ({
    *
    * @param editingValue editing value
    */
-  const renderMentionsInput = (editingValue?: string) => {
+  const renderMentionsInput = (existingComment?: TaskComment) => {
+    const existingCommentId = existingComment?.id;
+    const existingReferencedUsers = existingComment ? editingReferencedUsers : commentReferencedUsers;
     const projectUsers = Object.keys(projectUsersMap)
-      .filter((userId) =>
-        editingValue ? !editingReferencedUsers.includes(userId) : !commentReferencedUsers.includes(userId),
-      )
-      .map((userId) => ({
-        id: userId,
-        display: projectUsersMap[userId],
-      }));
+      .filter((userId) => !existingReferencedUsers.includes(userId))
+      .map((userId) => ({ id: userId, display: projectUsersMap[userId] }));
 
     return (
-      <MentionsInput
-        value={editingValue ? editingCommentDisplay : newCommentDisplay}
-        onChange={editingValue ? handleUpdateMentionChange : handleMentionChange}
-        style={{
-          width: "100%",
-          height: "auto",
-          backgroundColor: "white",
-          highlighter: {
-            boxSizing: "border-box",
-            height: 100,
-          },
-          input: {
-            border: "1px solid #0000001A",
-          },
-          suggestions: {
-            list: {
-              backgroundColor: "white",
-              border: "1px solid rgba(0,0,0,0.15)",
-              fontSize: 14,
-              // Styles to ensure mention list visibility- could be improved
-              maxHeight: 100,
-              overflowY: "auto",
+      <Box position="relative" width="100%">
+        <MentionsInput
+          value={existingComment ? editingCommentDisplay : newCommentDisplay}
+          onChange={existingComment ? handleUpdateMentionChange : handleMentionChange}
+          onKeyDown={(event) => {
+            if (event.code !== "Enter" || !event.shiftKey) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const noContent = existingComment ? !editingCommentDisplay : !newCommentDisplay;
+            if (noContent) return;
+            persistNewComment();
+          }}
+          style={{
+            width: "100%",
+            height: "auto",
+            highlighter: {
+              boxSizing: "border-box",
+              height: 100,
             },
-            item: {
-              padding: "5px 15px",
-              borderBottom: "1px solid rgba(0,0,0,0.15)",
-              "&focused": {
-                backgroundColor: "#2196F314",
+            input: {
+              backgroundColor: "#fff",
+              borderRadius: 4,
+              border: "1px solid #0000001A",
+              padding: 8,
+              paddingRight: 90,
+            },
+            suggestions: {
+              list: {
+                backgroundColor: "white",
+                border: "1px solid rgba(0,0,0,0.15)",
+                fontSize: 14,
+                // Styles to ensure mention list visibility- could be improved
+                maxHeight: 100,
+                overflowY: "auto",
+              },
+              item: {
+                padding: "5px 15px",
+                borderBottom: "1px solid rgba(0,0,0,0.15)",
+                "&focused": {
+                  backgroundColor: "#2196F314",
+                },
               },
             },
-          },
-        }}
-        placeholder={t("taskComments.addComment")}
-      >
-        <Mention
-          trigger="@"
-          data={projectUsers}
-          displayTransform={(_, display) => `@${display}`}
-          style={{
-            textDecoration: "underline",
-            textDecorationColor: "#2196F3",
           }}
-        />
-      </MentionsInput>
+          placeholder={t("taskComments.addComment")}
+        >
+          <Mention
+            trigger="@"
+            data={projectUsers}
+            displayTransform={(_, display) => `@${display}`}
+            style={{
+              textDecoration: "underline",
+              textDecorationColor: "#2196F3",
+            }}
+          />
+        </MentionsInput>
+        <Box
+          position="absolute"
+          top={theme.spacing(2)}
+          right={theme.spacing(2)}
+          width={theme.spacing(2)}
+          height={theme.spacing(2)}
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="center"
+          gap={1}
+        >
+          {existingComment && (
+            <IconButton
+              size="small"
+              title={t("generic.cancel")}
+              onClick={() => {
+                setIsEditingId("");
+                setEditingComment("");
+              }}
+            >
+              <CancelIcon fontSize="small" />
+            </IconButton>
+          )}
+          {existingCommentId && (
+            <IconButton
+              title={t("generic.save")}
+              size="small"
+              color="primary"
+              disabled={!editingCommentDisplay}
+              onClick={() => updateComment(existingCommentId)}
+            >
+              {updateTaskCommentMutation.isPending ? (
+                <CircularProgress thickness={5} size={20} />
+              ) : (
+                <SaveIcon fontSize="small" />
+              )}
+            </IconButton>
+          )}
+          {!existingCommentId && (
+            <IconButton size="small" color="primary" disabled={!newCommentDisplay} onClick={persistNewComment}>
+              {createTaskCommentMutation.isPending ? (
+                <CircularProgress thickness={5} size={20} />
+              ) : (
+                <SendIcon fontSize="small" />
+              )}
+            </IconButton>
+          )}
+        </Box>
+      </Box>
     );
   };
 
@@ -386,72 +461,49 @@ const CommentsSection = ({
       const lastModifiedDate =
         comment.metadata?.modifiedAt && DateTime.fromJSDate(comment.metadata?.modifiedAt).toFormat("dd.MM.yyyy HH:mm");
       const hasBeenEdited = comment.metadata?.modifiedAt?.getTime() !== comment.metadata?.createdAt?.getTime();
+      const isOwnComment = loggedInUser?.id === comment.metadata?.creatorId;
 
       return (
-        <DialogContent key={comment.id} sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-          <div style={{ marginRight: "1rem" }}>
-            {UsersUtils.getUserIcon(projectUsers, comment.metadata?.creatorId, jobPositions)}
-          </div>
-          <Box sx={{ width: "100%" }}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  {commentCreatorName}
-                </Typography>
-                <Typography>-</Typography>
-                <Typography variant="subtitle1">{lastModifiedDate}</Typography>
-                {hasBeenEdited && (
-                  <Typography variant="subtitle1" color="#0000008F">
-                    {t("taskComments.editFlag")}
-                  </Typography>
-                )}
-              </Box>
-              <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-                {loggedInUser?.id === comment.metadata?.creatorId && (
-                  <IconButton
-                    edge="start"
-                    onClick={() => handleEditClick(commentId, comment.comment)}
-                    disabled={editDisabled}
-                    sx={{ color: "#0000008F" }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                )}
-                {loggedInUser?.id === comment.metadata?.creatorId && (
-                  <IconButton edge="start" onClick={() => handleDeleteComment(commentId)} sx={{ color: "#0000008F" }}>
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                )}
-              </Box>
-            </Box>
-            {editActive ? (
-              <>
-                {renderMentionsInput(comment.comment)}
-                <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-                  <Button onClick={() => updateComment(commentId)}>{t("taskComments.updateComment")}</Button>
-                  <Button
-                    onClick={() => {
-                      setIsEditingId("");
-                      setEditingComment("");
-                    }}
-                    sx={{ color: "#0000008F" }}
-                  >
-                    {t("generic.cancel")}
-                  </Button>
-                </Box>
-              </>
-            ) : (
-              <Typography>{parseAndStyleMentions(comment.comment)}</Typography>
+        <Stack key={commentId} direction="row" alignItems="center" mb={1} gap={1}>
+          <JobPositionAvatar
+            jobPosition={UserUtils.getUserJobPosition(
+              jobPositions,
+              projectUsers.find((user) => comment.metadata?.creatorId === user.id),
             )}
-          </Box>
-        </DialogContent>
+          />
+          <Stack flex={1}>
+            {!editActive && (
+              <>
+                <Stack direction="row" alignItems="center" gap={1}>
+                  <Typography variant="subtitle1">
+                    <b>{commentCreatorName}</b> - {lastModifiedDate}
+                  </Typography>
+                  {hasBeenEdited && (
+                    <Typography variant="subtitle1" color="#0000008F">
+                      {t("taskComments.editFlag")}
+                    </Typography>
+                  )}
+                </Stack>
+                <Typography>{parseAndStyleMentions(comment.comment)}</Typography>
+              </>
+            )}
+            {editActive && renderMentionsInput(comment)}
+          </Stack>
+          {isOwnComment && !editActive && (
+            <Stack display="inline-flex" direction="row" gap={1}>
+              <IconButton
+                onClick={() => handleEditClick(commentId, comment.comment)}
+                disabled={editDisabled}
+                sx={{ color: "#0000008F" }}
+              >
+                <EditIcon />
+              </IconButton>
+              <IconButton onClick={() => handleDeleteComment(commentId)} sx={{ color: "#0000008F" }}>
+                <DeleteOutlineIcon />
+              </IconButton>
+            </Stack>
+          )}
+        </Stack>
       );
     });
   };
@@ -460,17 +512,14 @@ const CommentsSection = ({
    * Main component render
    */
   return (
-    <Box sx={{ backgroundColor: "#F3F3F3" }}>
-      <DialogContentText sx={{ padding: 2 }} variant="h5">
+    <Box bgcolor="#F3F3F3" p={2}>
+      <Typography component="h2" variant="h6" py={1}>
         {t("taskComments.comments")}
-      </DialogContentText>
-      <DialogContent sx={{ display: "flex", flexDirection: "row", marginBottom: "1rem" }}>
-        <div style={{ marginRight: "1rem" }}>
-          {UsersUtils.getUserIcon(projectUsers, loggedInUser?.id, jobPositions)}
-        </div>
+      </Typography>
+      <Stack direction="row" mb={3} gap={1}>
+        <JobPositionAvatar jobPosition={UserUtils.getUserJobPosition(jobPositions, loggedInUser)} />
         {renderMentionsInput()}
-        <Button onClick={persistNewComment}>{t("taskComments.addComment")}</Button>
-      </DialogContent>
+      </Stack>
       {commentsLoading ? <LinearProgress /> : renderComments()}
     </Box>
   );

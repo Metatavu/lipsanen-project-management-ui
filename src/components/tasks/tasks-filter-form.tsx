@@ -1,6 +1,7 @@
 import { MenuItem, TextField } from "@mui/material";
 import { NO_SELECTION } from "consts";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TasksSearchSchema } from "schemas/search";
 import { FormFieldChangeHandler } from "types";
@@ -26,7 +27,7 @@ type Props = {
 const TasksFilterForm = ({ projectId, formValues, onChange }: Props) => {
   const { t } = useTranslation();
   const listMilestonesQuery = useListProjectMilestonesQuery({ projectId });
-  const milestones = listMilestonesQuery.data ?? [];
+  const milestones = useMemo(() => listMilestonesQuery.data ?? [], [listMilestonesQuery.data]);
 
   return (
     <TextField

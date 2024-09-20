@@ -8,9 +8,10 @@
   "logout": "Kirjaudu ulos",
   "search": "Haku",
   "generic": {
-    "delete": "Poistaa",
-    "cancel": "Peruuttaa",
-    "confirm": "Vahvistaa",
+    "save": "Tallenna",
+    "delete": "Poista",
+    "cancel": "Peruuta",
+    "confirm": "Vahvista",
     "showFilters": "Näytä suotimet",
     "clear": "Tyhjennä",
     "apply": "Käytä",
@@ -211,9 +212,9 @@
       "title": "Projektien myoöhästymiset",
       "groupBy": "Ryhmittele",
       "scopes": {
-        "task": "Tehtävä",
-        "role": "Rooli",
-        "reason": "Syy"
+        "TASK": "Tehtävä",
+        "ROLE": "Rooli",
+        "REASON": "Syy"
       },
       "byTask": {
         "delayedTask": "Myöhästynyt tehtävä",
@@ -272,6 +273,16 @@
     "enterEndDate": "Anna lopetuspäivä",
     "create": "Luo uusi tavoite"
   },
+  "taskConnectionRoles": {
+    "CHILD": "Seuraaja",
+    "PARENT": "Edeltäjä"
+  },
+  "taskConnectionTypes": {
+    "START_TO_START": "Aloitus-Aloitus",
+    "FINISH_TO_FINISH": "Lopetus-Lopetus",
+    "START_TO_FINISH": "Aloitus-Lopetus",
+    "FINISH_TO_START": "Lopetus-Aloitus"
+  },
   "newMilestoneTaskDialog": {
     "title": "Luo uusi tehtävä",
     "milestone": "Tavoite",
@@ -289,7 +300,7 @@
     "dependencies": "Riippuvuudet",
     "attachments": "Liitteet",
     "createButton": "Luo uusi tehtävä",
-    "updateButton": "Päivitä tehtävä",
+    "updateButton": "Tallenna tehtävä",
     "inputLabelDays": "pv",
     "inputLabelPercent": "%",
     "taskConnectionsTable": {
@@ -339,14 +350,16 @@
     "changeEnd": "Muuta loppua",
     "reasonForChange": "Muutoksen syy",
     "comment": "Kommentti",
-    "waitingForApproval": "Odottaa hyväksyntaa",
-    "abandoned": "Hylätty",
-    "accepted": "Hyväksytty",
     "reasons": {
       "missingInitialData": "Lähtötiedot puuttuvat",
       "resourceShortage": "Resurssivaje",
       "timeUsageEstimate": "Ajankäyttöarvio"
     }
+  },
+  "changeProposalStatuses": {
+    "PENDING": "Odottaa hyväksyntää",
+    "APPROVED": "Hyväksytty",
+    "REJECTED": "Hylätty"
   },
   "taskComments": {
     "comments": "Kommentit",

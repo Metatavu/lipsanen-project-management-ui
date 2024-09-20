@@ -8,6 +8,7 @@
   "logout": "Logout",
   "search": "Search",
   "generic": {
+    "save": "Save",
     "delete": "Delete",
     "cancel": "Cancel",
     "confirm": "OK",
@@ -211,9 +212,9 @@
       "title": "Project delays",
       "groupBy": "Group by",
       "scopes": {
-        "task": "Task",
-        "role": "Role",
-        "reason": "Reason"
+        "TASK": "Task",
+        "ROLE": "Role",
+        "REASON": "Reason"
       },
       "byTask": {
         "delayedTask": "Delayed task",
@@ -262,6 +263,16 @@
   "iconSelector": {
     "selectIcon": "Select icon"
   },
+  "taskConnectionRoles": {
+    "CHILD": "Successor",
+    "PARENT": "Predecessor"
+  },
+  "taskConnectionTypes": {
+    "START_TO_START": "Start to start",
+    "FINISH_TO_FINISH": "Finish to finish",
+    "START_TO_FINISH": "Start to finish",
+    "FINISH_TO_START": "Finish to start"
+  },
   "newProjectMilestoneDialog": {
     "title": "Create a new milestone",
     "name": "Milestone name",
@@ -289,7 +300,7 @@
     "dependencies": "Dependencies",
     "attachments": "Attachments",
     "createButton": "Create new task",
-    "updateButton": "Update task",
+    "updateButton": "Save task",
     "inputLabelDays": "d",
     "inputLabelPercent": "%",
     "taskConnectionsTable": {
@@ -339,14 +350,16 @@
     "changeEnd": "Change end",
     "reasonForChange": "Reason for the change",
     "comment": "Comment",
-    "waitingForApproval": "Waiting for approval",
-    "abandoned": "Abandoned",
-    "accepted": "Accepted",
     "reasons": {
       "missingInitialData": "Missing initial data",
       "resourceShortage": "Resource shortage",
       "timeUsageEstimate": "Time usage estimate"
     }
+  },
+  "changeProposalStatuses": {
+    "PENDING": "Waiting for approval",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected"
   },
   "taskComments": {
     "comments": "Comments",

@@ -1,14 +1,15 @@
-import { Box, Button, Drawer, LinearProgress, List, ListItem, Typography } from "@mui/material";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
-import DoneIcon from "@mui/icons-material/Done";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DoneIcon from "@mui/icons-material/Done";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import { Box, Button, LinearProgress, List, ListItem, Stack, Typography } from "@mui/material";
+import JobPositionAvatar from "components/generic/job-position-avatar";
+import ResizablePanel from "components/generic/resizable-panel";
 import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
-import { DateTime } from "luxon";
 import { useFindUsersQuery, useListJobPositionsQuery } from "hooks/api-queries";
-import DragHandleIcon from "@mui/icons-material/DragHandle";
-import UsersUtils from "utils/users";
+import { DateTime } from "luxon";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import UserUtils from "utils/users";
 
 /**
  * Change proposals component properties
@@ -16,7 +17,7 @@ import UsersUtils from "utils/users";
 interface Props {
   changeProposals?: ChangeProposal[];
   tasks?: Task[];
-  selectedChangeProposalId: string;
+  selectedChangeProposalId?: string;
   setSelectedChangeProposalId: (selectedChangeProposalId: string) => void;
   loading: boolean;
   updateChangeProposalStatus: (
@@ -41,11 +42,6 @@ const ChangeProposalsDrawer = ({
 }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [height, setHeight] = useState(150);
-  const [maxHeight, setMaxHeight] = useState<number | null>(null);
-  const startY = useRef(0);
-  const startHeight = useRef(height);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const proposalCreatorUsersIds = useMemo(
     () => [
@@ -62,48 +58,6 @@ const ChangeProposalsDrawer = ({
   const creatorUsers = (listProposalCreatorUsersQuery.data ?? []).filter((user) => user);
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
-
-  /**
-   * UseEffect to set maximum drawer height based on drawer content
-   */
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Max height needs to update also when changeProposals are updated
-  useEffect(() => {
-    if (contentRef.current) {
-      setMaxHeight(contentRef.current.scrollHeight);
-    }
-  }, [contentRef, changeProposals]);
-
-  /**
-   * Handler for mouse down click event
-   *
-   * @param e MouseEvent
-   */
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    startY.current = e.clientY;
-    startHeight.current = height;
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
-
-  /**
-   * Handler for mouse move event
-   *
-   * @param e MouseEvent
-   */
-  const handleMouseMove = (e: MouseEvent) => {
-    const newHeight = startHeight.current + (startY.current - e.clientY);
-    if (newHeight >= 100 && (maxHeight === null || newHeight <= maxHeight)) {
-      setHeight(newHeight);
-    }
-  };
-
-  /**
-   * Handler for mouse up event
-   */
-  const handleMouseUp = () => {
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUp);
-  };
 
   /**
    *  Handler for change proposal status change
@@ -214,7 +168,7 @@ const ChangeProposalsDrawer = ({
                     variant="caption"
                     sx={{ width: "20%", display: "flex", flexDirection: "row", alignItems: "center", gap: 1 }}
                   >
-                    {UsersUtils.getUserIcon(creatorUsers, proposalCreator?.keycloakId, jobPositions)}
+                    <JobPositionAvatar jobPosition={UserUtils.getUserJobPosition(jobPositions, proposalCreator)} />
                     {`${proposalCreator?.firstName} ${proposalCreator?.lastName}`}
                   </Typography>
                   <Typography variant="caption" sx={{ width: "40%" }}>
@@ -249,22 +203,21 @@ const ChangeProposalsDrawer = ({
           ? t("changeProposals.viewChangeProposals")
           : t("changeProposals.viewChangeProposalsWithValue", { value: changeProposals?.length ?? 0 })}
       </Button>
-      <Drawer open={open && !!changeProposals?.length} anchor="bottom" variant="persistent">
-        <Box sx={{ display: "flex", justifyContent: "center" }} onMouseDown={handleMouseDown}>
-          <DragHandleIcon />
-        </Box>
-        <Box ref={contentRef} sx={{ padding: "0 1rem 1rem 1rem", height: `${height}px` }}>
-          <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-            <Typography component="h2" variant="h6" fontWeight={700}>
-              {t("changeProposals.changeProposals")}
-            </Typography>
-            <Typography component="h2" variant="h6" fontWeight={700}>
-              {t("changeProposals.numberOfChangeProposals", { value: changeProposals?.length })}
-            </Typography>
+      {open && (
+        <ResizablePanel initialHeight={200}>
+          <Box p={2} pb={4}>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography component="h2" variant="h6" fontWeight={700}>
+                {t("changeProposals.changeProposals")}
+              </Typography>
+              <Typography component="h2" variant="h6" fontWeight={700}>
+                {t("changeProposals.numberOfChangeProposals", { value: changeProposals?.length })}
+              </Typography>
+            </Stack>
+            {listProposalCreatorUsersQuery.isPending ? <LinearProgress /> : renderChangeProposalsList(changeProposals)}
           </Box>
-          {listProposalCreatorUsersQuery.isPending ? <LinearProgress /> : renderChangeProposalsList(changeProposals)}
-        </Box>
-      </Drawer>
+        </ResizablePanel>
+      )}
     </>
   );
 };

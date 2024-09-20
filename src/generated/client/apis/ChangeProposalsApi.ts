@@ -44,7 +44,7 @@ export interface ListChangeProposalTasksPreviewRequest {
 }
 
 export interface ListChangeProposalsRequest {
-    projectId: string;
+    projectId?: string;
     milestoneId?: string;
     taskId?: string;
     first?: number;
@@ -284,11 +284,11 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
      * List change proposals within a milestone
      */
     async listChangeProposalsRaw(requestParameters: ListChangeProposalsRequest): Promise<runtime.ApiResponse<Array<ChangeProposal>>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listChangeProposals.');
-        }
-
         const queryParameters: any = {};
+
+        if (requestParameters.projectId !== undefined) {
+            queryParameters['projectId'] = requestParameters.projectId;
+        }
 
         if (requestParameters.milestoneId !== undefined) {
             queryParameters['milestoneId'] = requestParameters.milestoneId;
@@ -317,7 +317,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/changeProposals`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))),
+            path: `/v1/changeProposals`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -330,7 +330,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
      * Lists change proposals within a milestone. Proposals are sorted from earliest to latest created.
      * List change proposals within a milestone
      */
-    async listChangeProposals(requestParameters: ListChangeProposalsRequest): Promise<Array<ChangeProposal>> {
+    async listChangeProposals(requestParameters: ListChangeProposalsRequest = {}): Promise<Array<ChangeProposal>> {
         const response = await this.listChangeProposalsRaw(requestParameters);
         return await response.value();
     }

@@ -2,28 +2,28 @@ import {
   AccountCircle as AccountCircleIcon,
   NotificationsNoneOutlined as NotificationsNoneOutlinedIcon,
 } from "@mui/icons-material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   AppBar,
-  Toolbar,
-  Typography,
+  Badge,
   IconButton,
   Menu,
   MenuItem,
   Stack,
-  Tabs,
   Tab,
-  Badge,
+  Tabs,
+  Toolbar,
+  Typography,
   styled,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
-import { authAtom } from "../../atoms/auth";
 import { useAtom } from "jotai";
 import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
+import { authAtom } from "../../atoms/auth";
 
 const ADMIN_ROLE = "admin";
 const PROJECT_OWNER_ROLE = "project-owner";
@@ -60,6 +60,7 @@ const TopNavigation = () => {
     { route: "/projects", labelKey: "back", icon: ArrowBackIcon },
     { route: "/projects/$projectId/tracking", labelKey: "trackingScreen.title" },
     { route: "/projects/$projectId/schedule", labelKey: "scheduleScreen.title" },
+    { route: "/projects/$projectId/users", labelKey: "users" },
     { route: "/projects/$projectId/tasks", labelKey: "tasksScreen.title" },
   ];
 

@@ -1,3 +1,5 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   AppBar,
   Button,
@@ -9,15 +11,13 @@ import {
   TextField,
   Toolbar,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import GenericDatePicker from "components/generic/generic-date-picker";
+import { CreateProjectMilestoneRequest } from "generated/client";
+import { useApi } from "hooks/use-api";
+import { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CreateProjectMilestoneRequest } from "generated/client";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { useApi } from "hooks/use-api";
-import GenericDatePicker from "components/generic/generic-date-picker";
-import { DateTime } from "luxon";
 import { Route } from "routes/projects_.$projectId.schedule";
 import { MilestoneFormData } from "types";
 
@@ -132,12 +132,13 @@ const NewMilestoneDialog = () => {
             title={t("newProjectMilestoneDialog.startDate")}
             value={milestoneData.startDate}
             onChange={handleDateFormChange("startDate")}
+            maxDate={milestoneData.endDate}
           />
           <GenericDatePicker
             title={t("newProjectMilestoneDialog.endDate")}
             value={milestoneData.endDate}
             onChange={handleDateFormChange("endDate")}
-            minDate={milestoneData.startDate ?? undefined}
+            minDate={milestoneData.startDate}
           />
           <Button
             fullWidth

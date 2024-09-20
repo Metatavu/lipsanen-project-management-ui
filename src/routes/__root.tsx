@@ -11,7 +11,7 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <>
-      <Box sx={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
+      <Box sx={{ width: "100dvw", height: "100dvh", display: "flex", flexDirection: "column" }}>
         <TopNavigation />
         <main style={{ flex: 1, overflow: "hidden" }}>
           <Outlet />

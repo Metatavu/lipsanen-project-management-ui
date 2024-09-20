@@ -24,7 +24,7 @@ export const Route = createFileRoute("/projects/$projectId/tasks")({
  */
 function TasksIndexRoute() {
   const { t } = useTranslation();
-  const { milestoneId } = Route.useSearch();
+  const filters = Route.useSearch();
   const { projectId } = Route.useParams();
   const navigate = Route.useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ function TasksIndexRoute() {
         <Stack flex={1} minHeight={0}>
           <TaskList
             projectId={projectId}
-            filters={{ milestoneId }}
+            filters={filters}
             onTaskClick={(task) => navigate({ to: "$taskId", params: { taskId: task.id as string } })}
           />
         </Stack>

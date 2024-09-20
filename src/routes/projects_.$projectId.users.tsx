@@ -7,7 +7,7 @@ import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import NewUserDialog from "components/users/new-user-dialog";
-import UsersFiltersForm from "components/users/user-filters-form";
+import ProjectUsersFiltersForm from "components/users/project-user-filters-form";
 import UserInfoDialog from "components/users/user-info-dialog";
 import { DEFAULT_USER_ICON } from "consts";
 import { DeleteUserRequest, User } from "generated/client";
@@ -24,21 +24,22 @@ import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { UsersSearchSchema, usersSearchSchema } from "schemas/search";
+import { projectUsersSearchSchema } from "schemas/search";
 import { theme } from "theme";
 
 /**
- * Users file route
+ * Tasks index route
  */
-export const Route = createFileRoute("/users")({
-  component: UsersIndexRoute,
-  validateSearch: (search): UsersSearchSchema => usersSearchSchema.parse(search),
+export const Route = createFileRoute("/projects/$projectId/users")({
+  component: ProjectUsersIndexRoute,
+  validateSearch: (search) => projectUsersSearchSchema.parse(search),
 });
 
 /**
- * Users index route component
+ * Tasks index route component
  */
-function UsersIndexRoute() {
+function ProjectUsersIndexRoute() {
+  const { projectId } = Route.useParams();
   const search = Route.useSearch();
   const { t } = useTranslation();
   const { usersApi } = useApi();
@@ -53,7 +54,7 @@ function UsersIndexRoute() {
   const listUsersQuery = useListUsersQuery({
     first,
     max,
-    projectId: search.projectId,
+    projectId: projectId,
     companyId: search.companyId,
   });
 
@@ -104,9 +105,9 @@ function UsersIndexRoute() {
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
           <FilterDrawerButton route={Route.fullPath} title={t("userFilters.title")}>
-            {(props) => <UsersFiltersForm {...props} />}
+            {(props) => <ProjectUsersFiltersForm {...props} />}
           </FilterDrawerButton>
-          <NewUserDialog />
+          <NewUserDialog projectId={projectId} />
         </Box>
       </Toolbar>
       <Card sx={{ flex: 1, minWidth: 0 }}>

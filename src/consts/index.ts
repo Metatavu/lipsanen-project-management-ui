@@ -17,14 +17,7 @@ import sunSnowflakeVariant from "@iconify-icons/mdi/sun-snowflake-variant";
 import terrain from "@iconify-icons/mdi/terrain";
 import water from "@iconify-icons/mdi/water";
 import config from "app/config";
-import { ChangeProposalScope, IconOption } from "types";
-
-export const DEFAULT_THEME_COLORS = [
-  { name: "Lipsanen Lipa-Betoni Oy", value: "rgba(0, 121, 191, 1)" },
-  { name: "Rakennus Ahola", value: "rgba(25, 85, 158, 0.35)" },
-  { name: "Moduls", value: "rgba(0, 23, 58, 1)" },
-  { name: "HB-Porras", value: "rgba(0, 122, 191, 1)" },
-];
+import { IconOption } from "types";
 
 export const DEFAULT_LOGO = `${config.cdnBaseUrl}/Lipsanen logo.png`;
 
@@ -47,12 +40,6 @@ export const ICON_OPTIONS: IconOption[] = [
   { label: "Moisture Control Coordinator", value: "water", icon: water },
   { label: "BIM Coordinator", value: "monitor-dashboard", icon: monitorDashboard },
   { label: "Safety Coordinator", value: "account-hard-hat", icon: accountHardHat },
-];
-
-export const TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES = [
-  ChangeProposalScope.TASK,
-  ChangeProposalScope.ROLE,
-  ChangeProposalScope.REASON,
 ];
 
 export const DEFAULT_USER_ICON = "account";

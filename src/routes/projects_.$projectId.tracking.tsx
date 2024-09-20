@@ -15,6 +15,7 @@ import {
   useListUsersQuery,
 } from "hooks/api-queries";
 import { useAtom } from "jotai";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -32,26 +33,26 @@ function TrackingIndexRoute() {
   const { projectId } = Route.useParams();
   const { t } = useTranslation();
 
-  const findUserQuery = useFindUserQuery(auth?.token.userId ?? "");
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.userId });
   const user = findUserQuery.data;
 
   const listUsersQuery = useListUsersQuery({ projectId });
-  const users = listUsersQuery.data?.users || [];
+  const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
 
   const listTasksQuery = useListTasksQuery({ projectId: projectId });
-  const tasks = listTasksQuery.data || [];
+  const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
 
   const listChangeProposalsQuery = useListChangeProposalsQuery({ projectId: projectId });
-  const changeProposals = listChangeProposalsQuery.data || [];
+  const changeProposals = useMemo(() => listChangeProposalsQuery.data ?? [], [listChangeProposalsQuery.data]);
 
   const listJobPositionsQuery = useListJobPositionsQuery();
-  const jobPositions = listJobPositionsQuery.data?.jobPositions || [];
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
-  const listNotificationEventsQuery = useListNotificationEventsQuery({ userId: user?.id ?? "", projectId: projectId });
-  const notificationEvents = listNotificationEventsQuery.data || [];
+  const listNotificationEventsQuery = useListNotificationEventsQuery({ userId: user?.id, projectId: projectId });
+  const notificationEvents = useMemo(() => listNotificationEventsQuery.data ?? [], [listNotificationEventsQuery.data]);
 
   const findProjectQuery = useFindProjectQuery(projectId);
-  const project = findProjectQuery.data;
+  const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
 
   return (
     <FlexColumnLayout>
