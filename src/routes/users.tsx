@@ -3,11 +3,20 @@ import { Box, Card, Toolbar, Typography } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import NewUserDialog from "components/users/new-user-dialog";
+import UsersFiltersForm from "components/users/user-filters-form";
 import UserInfoDialog from "components/users/user-info-dialog";
+import { DEFAULT_USER_ICON } from "consts";
 import { DeleteUserRequest, User } from "generated/client";
-import { useListCompaniesQuery, useListJobPositionsQuery, useListUsersQuery } from "hooks/api-queries";
+import {
+  useListCompaniesQuery,
+  useListJobPositionsQuery,
+  useListProjectsQuery,
+  useListUsersQuery,
+} from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
@@ -15,27 +24,22 @@ import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import { UsersSearchSchema, usersSearchSchema } from "schemas/search";
 import { theme } from "theme";
-import { DEFAULT_USER_ICON } from "consts";
-import UserFiltersDrawer from "components/users/user-filters-drawer";
 
 /**
  * Users file route
  */
 export const Route = createFileRoute("/users")({
   component: UsersIndexRoute,
-  validateSearch: (params: Record<string, unknown>) => ({
-    projectId: params.projectId as string | undefined,
-    companyId: params.companyId as string | undefined,
-    position: params.position as string | undefined,
-  }),
+  validateSearch: (search): UsersSearchSchema => usersSearchSchema.parse(search),
 });
 
 /**
  * Users index route component
  */
 function UsersIndexRoute() {
+  const search = Route.useSearch();
   const { t } = useTranslation();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
@@ -45,20 +49,24 @@ function UsersIndexRoute() {
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
   const [selectedUser, setSelectedUser] = useState<User>();
 
-  const filters = Route.useSearch();
   // TODO: No position filter in the backend currently
   const listUsersQuery = useListUsersQuery({
     first,
     max,
-    projectId: filters.projectId,
-    companyId: filters.companyId,
+    projectId: search.projectId,
+    companyId: search.companyId,
   });
 
   const maxResults = useCachedMaxResultsFromQuery(listUsersQuery);
+  const listProjectsQuery = useListProjectsQuery();
   const listCompaniesQuery = useListCompaniesQuery();
   const listJobPositionsQuery = useListJobPositionsQuery();
 
-  const loading = listUsersQuery.isFetching || listCompaniesQuery.isFetching;
+  const loading =
+    listUsersQuery.isFetching ||
+    listCompaniesQuery.isFetching ||
+    listJobPositionsQuery.isFetching ||
+    listProjectsQuery.isFetching;
 
   const users = listUsersQuery.data?.users;
   const companies = listCompaniesQuery.data?.companies;
@@ -95,7 +103,9 @@ function UsersIndexRoute() {
           {t("users")}
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
-          <UserFiltersDrawer />
+          <FilterDrawerButton route={Route.fullPath} title={t("userFilters.title")}>
+            {(props) => <UsersFiltersForm {...props} />}
+          </FilterDrawerButton>
           <NewUserDialog />
         </Box>
       </Toolbar>

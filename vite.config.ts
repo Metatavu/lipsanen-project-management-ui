@@ -18,6 +18,7 @@ export default defineConfig({
       localization: "/src/localization",
       providers: "/src/providers",
       routes: "/src/routes",
+      schemas: "/src/schemas",
       theme: "/src/theme",
       types: "/src/types",
       utils: "/src/utils",

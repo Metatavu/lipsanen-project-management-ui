@@ -1,22 +1,22 @@
-import config from "app/config";
-import rulerSquareCompass from "@iconify-icons/mdi/ruler-square-compass";
-import greenhouse from "@iconify-icons/mdi/greenhouse";
-import sunSnowflakeVariant from "@iconify-icons/mdi/sun-snowflake-variant";
-import lightningBolt from "@iconify-icons/mdi/lightning-bolt";
-import homeAutomation from "@iconify-icons/mdi/home-automation";
-import terrain from "@iconify-icons/mdi/terrain";
-import flowerTulip from "@iconify-icons/mdi/flower-tulip";
+import account from "@iconify-icons/mdi/account";
+import accountHardHat from "@iconify-icons/mdi/account-hard-hat";
+import accountTie from "@iconify-icons/mdi/account-tie";
+import clipboardTextOutline from "@iconify-icons/mdi/clipboard-text-outline";
+import faceManShimmer from "@iconify-icons/mdi/face-man-shimmer";
 import fire from "@iconify-icons/mdi/fire";
+import flowerTulip from "@iconify-icons/mdi/flower-tulip";
+import greenhouse from "@iconify-icons/mdi/greenhouse";
+import hammerWrench from "@iconify-icons/mdi/hammer-wrench";
+import homeAutomation from "@iconify-icons/mdi/home-automation";
+import lightningBolt from "@iconify-icons/mdi/lightning-bolt";
+import monitorDashboard from "@iconify-icons/mdi/monitor-dashboard";
+import rulerSquareCompass from "@iconify-icons/mdi/ruler-square-compass";
 import sofaSingle from "@iconify-icons/mdi/sofa-single";
 import store from "@iconify-icons/mdi/store";
-import clipboardTextOutline from "@iconify-icons/mdi/clipboard-text-outline";
-import hammerWrench from "@iconify-icons/mdi/hammer-wrench";
-import faceManShimmer from "@iconify-icons/mdi/face-man-shimmer";
-import account from "@iconify-icons/mdi/account";
-import accountTie from "@iconify-icons/mdi/account-tie";
+import sunSnowflakeVariant from "@iconify-icons/mdi/sun-snowflake-variant";
+import terrain from "@iconify-icons/mdi/terrain";
 import water from "@iconify-icons/mdi/water";
-import monitorDashboard from "@iconify-icons/mdi/monitor-dashboard";
-import accountHardHat from "@iconify-icons/mdi/account-hard-hat";
+import config from "app/config";
 import { ChangeProposalScope, IconOption } from "types";
 
 export const DEFAULT_THEME_COLORS = [
@@ -56,3 +56,5 @@ export const TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES = [
 ];
 
 export const DEFAULT_USER_ICON = "account";
+
+export const NO_SELECTION = "NO_SELECTION";

@@ -1,27 +1,32 @@
 import ConstructionIcon from "@mui/icons-material/Construction";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Button, Card, Toolbar, Typography } from "@mui/material";
+import { Card, Toolbar, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
-import ProjectUtils from "utils/project";
 import NewProjectDialog from "components/projects/new-project-dialog";
+import ProjectsFilterForm from "components/projects/projects-filter-form";
+import { DeleteProjectRequest } from "generated/client";
 import { useListProjectsQuery } from "hooks/api-queries";
+import { useApi } from "hooks/use-api";
+import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
+import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
-import { DeleteProjectRequest } from "generated/client";
-import { useApi } from "hooks/use-api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useConfirmDialog } from "providers/confirm-dialog-provider";
+import { projectsSearchSchema } from "schemas/search";
+import ProjectUtils from "utils/project";
 
 /**
  * Projects file route
  */
-export const Route = createFileRoute("/projects")({ component: ProjectsIndexRoute });
+export const Route = createFileRoute("/projects")({
+  component: ProjectsIndexRoute,
+  validateSearch: (search) => projectsSearchSchema.parse(search),
+});
 
 /**
  * Projects index route component
@@ -31,12 +36,18 @@ function ProjectsIndexRoute() {
   const { projectsApi } = useApi();
   const queryClient = useQueryClient();
   const showConfirmDialog = useConfirmDialog();
+  const search = Route.useSearch();
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 10 });
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
   const listProjectsQuery = useListProjectsQuery({ first, max });
   const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
-  const projects = listProjectsQuery.data?.projects;
+  const allProjects = listProjectsQuery.data?.projects ?? [];
+  // TODO: Change to API based filtering
+  const projects = allProjects.filter((project) => {
+    if (search.status && project.status !== search.status) return false;
+    return true;
+  });
 
   /**
    * Delete project mutation
@@ -68,10 +79,9 @@ function ProjectsIndexRoute() {
           {t("projects")}
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
-          <Button variant="contained" color="primary" size="large">
-            <FilterListIcon />
-            {t("generic.showFilters")}
-          </Button>
+          <FilterDrawerButton route={Route.fullPath} title={t("projectFilters.title")}>
+            {(props) => <ProjectsFilterForm {...props} />}
+          </FilterDrawerButton>
           <NewProjectDialog />
         </Box>
       </Toolbar>
@@ -79,7 +89,7 @@ function ProjectsIndexRoute() {
         <DataGrid
           loading={listProjectsQuery.isLoading}
           sx={{ height: "100%", width: "100%" }}
-          rows={projects ?? []}
+          rows={projects}
           rowCount={maxResults}
           columns={[
             {
