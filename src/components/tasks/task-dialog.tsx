@@ -817,6 +817,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     return selectedMilestone ? getValidDateTimeOrThrow(selectedMilestone.startDate) : undefined;
   };
 
+  /**
+   * Returns max date for startDate input
+   */
   const getStartDateMax = () => {
     if (!selectedMilestone) return taskData.endDate ?? undefined;
 
@@ -826,7 +829,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   };
 
   /**
-   * Returns min date for startDate input
+   * Returns min date for endDate input
    */
   const getEndDateMin = () => {
     if (!selectedMilestone) return taskData.startDate ?? undefined;
@@ -836,6 +839,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       : getValidDateTimeOrThrow(selectedMilestone.startDate);
   };
 
+  /**
+   * Returns max date for endDate input
+   */
   const getEndDateMax = () => {
     return selectedMilestone ? getValidDateTimeOrThrow(selectedMilestone.endDate) : undefined;
   };
@@ -1314,7 +1320,10 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     );
   };
 
-  const renderMilestone = () => {
+  /**
+   * Renders milestone name or select input if milestone is not yet defined
+   */
+  const renderMilestoneName = () => {
     if (milestoneId) return milestones.find((milestone) => milestone.id === milestoneId)?.name;
 
     return (
@@ -1363,7 +1372,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       >
         <AppBar sx={{ position: "relative" }} elevation={0}>
           <Toolbar sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            {renderMilestone()}
+            {renderMilestoneName()}
             <span>/</span>
             {task ? task.name : t("newMilestoneTaskDialog.title")}
             <Button
