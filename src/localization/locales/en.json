@@ -260,6 +260,7 @@
   },
   "newMilestoneTaskDialog": {
     "title": "Create a new task",
+    "milestone": "Milestone",
     "name": "Task name",
     "status": "Status",
     "assignees": "Assignees",

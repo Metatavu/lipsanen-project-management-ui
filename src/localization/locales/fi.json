@@ -229,7 +229,7 @@
     "title": "Aikataulu",
     "objectives": "Tavoitteet",
     "breadcrumbSeparator": " > ",
-    "addANewMilestone": "Lisää uusi virstanpylväs",
+    "addANewMilestone": "Lisää uusi tavoite",
     "addANewTask": "Lisää uusi tehtävä",
     "objective": "Tavoite",
     "duration": "kesto",
@@ -249,17 +249,18 @@
     "selectIcon": "Valitse ikoni"
   },
   "newProjectMilestoneDialog": {
-    "title": "Luo uusi virstanpylväs",
-    "name": "Virstanpylväs nimi",
-    "enterName": "Anna virstanpylvään nimi",
+    "title": "Luo uusi tavoite",
+    "name": "Tavoitteen nimi",
+    "enterName": "Anna tavoitteen nimi",
     "startDate": "Aloituspäivämäärä",
     "enterStartDate": "Anna aloituspäivä",
     "endDate": "Päättymispäivä",
     "enterEndDate": "Anna lopetuspäivä",
-    "create": "Luo uusi virstanpylväs"
+    "create": "Luo uusi tavoite"
   },
   "newMilestoneTaskDialog": {
     "title": "Luo uusi tehtävä",
+    "milestone": "Tavoite",
     "name": "Tehtävän nimi",
     "status": "Tila",
     "assignees": "Tekijät",
@@ -345,5 +346,10 @@
     "week": "Viikko",
     "markTasks": "Merkitse tehtäviä",
     "noDependentUser": "Ei riippuvaista käyttäjää"
+  },
+  "taskStatuses": {
+    "NOT_STARTED": "Ei aloitettu",
+    "IN_PROGRESS": "Käynnissä",
+    "DONE": "Valmis"
   }
 }

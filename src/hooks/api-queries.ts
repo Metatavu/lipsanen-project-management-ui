@@ -47,6 +47,7 @@ export const useListCompaniesQuery = (params?: ListCompaniesRequest) => {
         throw Error(t("errorHandling.errorListingCompanies"), { cause: error });
       }
     },
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -156,6 +157,7 @@ export const useListProjectsQuery = (params?: ListProjectsRequest) => {
         throw Error(t("errorHandling.errorListingProjects"), { cause: error });
       }
     },
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -201,6 +203,7 @@ export const useListProjectThemesQuery = (projectId?: string) => {
       }
     },
     enabled: !!projectId,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -245,6 +248,7 @@ export const useListProjectMilestonesQuery = ({ projectId }: ListProjectMileston
         });
       }
     },
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -320,7 +324,7 @@ export const useListChangeProposalsQuery = ({ projectId, ...filters }: ListChang
 
 /**
  * List change proposal tasks preview query hook
- * 
+ *
  * @param params ListChangeProposalTasksPreviewRequest
  */
 export const useListChangeProposalTasksPreviewQuery = ({ projectId, changeProposalId }: ListChangeProposalTasksPreviewRequest) => {
@@ -344,7 +348,6 @@ export const useListChangeProposalTasksPreviewQuery = ({ projectId, changePropos
     },
   });
 }
-  
 
 /**
  * Find task query hook
@@ -440,6 +443,7 @@ export const useListJobPositionsQuery = (params?: ListJobPositionsRequest) => {
         throw Error(t("errorHandling.errorListingJobPositions"), { cause: error });
       }
     },
+    staleTime: 1000 * 60 * 5,
   });
 };
 

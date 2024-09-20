@@ -21,6 +21,7 @@ import { Route as IndexImport } from "./../../routes/index"
 import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/projects_.$projectId.tracking"
 import { Route as ProjectsProjectIdTasksImport } from "./../../routes/projects_.$projectId.tasks"
 import { Route as ProjectsProjectIdScheduleImport } from "./../../routes/projects_.$projectId.schedule"
+import { Route as ProjectsProjectIdTasksNewImport } from "./../../routes/projects_.$projectId.tasks.new"
 import { Route as ProjectsProjectIdTasksTaskIdImport } from "./../../routes/projects_.$projectId.tasks.$taskId"
 import { Route as ProjectsProjectIdScheduleMilestoneIdTasksImport } from "./../../routes/projects_.$projectId.schedule_.$milestoneId.tasks"
 
@@ -74,6 +75,11 @@ const ProjectsProjectIdTasksRoute = ProjectsProjectIdTasksImport.update({
 const ProjectsProjectIdScheduleRoute = ProjectsProjectIdScheduleImport.update({
   path: "/projects/$projectId/schedule",
   getParentRoute: () => rootRoute,
+} as any)
+
+const ProjectsProjectIdTasksNewRoute = ProjectsProjectIdTasksNewImport.update({
+  path: "/new",
+  getParentRoute: () => ProjectsProjectIdTasksRoute,
 } as any)
 
 const ProjectsProjectIdTasksTaskIdRoute =
@@ -169,6 +175,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ProjectsProjectIdTasksTaskIdImport
       parentRoute: typeof ProjectsProjectIdTasksImport
     }
+    "/projects/$projectId/tasks/new": {
+      id: "/projects/$projectId/tasks/new"
+      path: "/new"
+      fullPath: "/projects/$projectId/tasks/new"
+      preLoaderRoute: typeof ProjectsProjectIdTasksNewImport
+      parentRoute: typeof ProjectsProjectIdTasksImport
+    }
     "/projects/$projectId/schedule/$milestoneId/tasks": {
       id: "/projects/$projectId/schedule/$milestoneId/tasks"
       path: "/projects/$projectId/schedule/$milestoneId/tasks"
@@ -192,6 +205,7 @@ export const routeTree = rootRoute.addChildren({
   ProjectsProjectIdScheduleRoute,
   ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute.addChildren({
     ProjectsProjectIdTasksTaskIdRoute,
+    ProjectsProjectIdTasksNewRoute,
   }),
   ProjectsProjectIdTrackingRoute,
   ProjectsProjectIdScheduleMilestoneIdTasksRoute,
@@ -245,7 +259,8 @@ export const routeTree = rootRoute.addChildren({
     "/projects/$projectId/tasks": {
       "filePath": "projects_.$projectId.tasks.tsx",
       "children": [
-        "/projects/$projectId/tasks/$taskId"
+        "/projects/$projectId/tasks/$taskId",
+        "/projects/$projectId/tasks/new"
       ]
     },
     "/projects/$projectId/tracking": {
@@ -253,6 +268,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/projects/$projectId/tasks/$taskId": {
       "filePath": "projects_.$projectId.tasks.$taskId.tsx",
+      "parent": "/projects/$projectId/tasks"
+    },
+    "/projects/$projectId/tasks/new": {
+      "filePath": "projects_.$projectId.tasks.new.tsx",
       "parent": "/projects/$projectId/tasks"
     },
     "/projects/$projectId/schedule/$milestoneId/tasks": {

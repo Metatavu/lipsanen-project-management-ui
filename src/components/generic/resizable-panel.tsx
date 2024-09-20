@@ -1,9 +1,9 @@
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import { Box, Divider } from "@mui/material";
 import { useResizableHeight } from "hooks/use-resize-element";
-import { ReactNode, useEffect, useMemo } from "react";
-import { atomWithStorage } from "jotai/utils";
 import { useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
+import { ReactNode, useEffect, useMemo } from "react";
 
 /**
  *  Component properties
@@ -66,6 +66,7 @@ const ResizablePanel = ({ id, children, containerRef, storeLastPosition, toolbar
    */
   return (
     <>
+      <Box height={20} />
       <Box
         position="absolute"
         bottom={0}
