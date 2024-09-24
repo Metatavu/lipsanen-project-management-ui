@@ -118,7 +118,7 @@ const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
           headerName: t("trackingScreen.tasksList.readiness"),
           flex: 1,
           sortable: false,
-          renderCell: (params) => <ProgressBadge progress={params.value ?? 0} customWidth="120px" />,
+          renderCell: (params) => <ProgressBadge progress={params.value ?? 0} width="120px" />,
         },
       ]}
       disableRowSelectionOnClick

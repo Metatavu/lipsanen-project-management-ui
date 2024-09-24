@@ -243,6 +243,7 @@
   "scheduleScreen": {
     "title": "Aikataulu",
     "objectives": "Tavoitteet",
+    "noAssignee": "Ei tekijää",
     "breadcrumbSeparator": " > ",
     "addANewMilestone": "Lisää uusi tavoite",
     "addANewTask": "Lisää uusi tehtävä",

@@ -243,6 +243,7 @@
   "scheduleScreen": {
     "title": "Schedule",
     "objectives": "Objectives",
+    "noAssignee": "No assignee",
     "breadcrumbSeparator": " > ",
     "addANewMilestone": "Add a new milestone",
     "addANewTask": "Add a new task",

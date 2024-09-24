@@ -105,36 +105,19 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
   const showConfirmDialog = useConfirmDialog();
 
-  // Set initial task data based on existing task or new task
-  const existingOrNewTaskData = task
-    ? {
-        name: task.name,
-        milestoneId: milestoneId,
-        startDate: getValidDateTimeOrThrow(task.startDate),
-        endDate: getValidDateTimeOrThrow(task.endDate),
-        status: task.status,
-        assigneeIds: task.assigneeIds ?? [],
-        positionId: task.jobPositionId,
-        dependentUserId: task.dependentUserId,
-        userRole: task.userRole,
-        estimatedDuration: task.estimatedDuration,
-        estimatedReadiness: task.estimatedReadiness,
-        attachmentUrls: task.attachmentUrls ?? [],
-      }
-    : {
-        name: "",
-        milestoneId: milestoneId,
-        startDate: undefined,
-        endDate: undefined,
-        status: TaskStatus.NotStarted,
-        assigneeIds: [],
-        positionId: "",
-        estimatedDuration: 0,
-        estimatedReadiness: 0,
-        attachmentUrls: [],
-      };
+  const [taskData, setTaskData] = useState<TaskFormData>({
+    name: "",
+    milestoneId: milestoneId,
+    startDate: undefined,
+    endDate: undefined,
+    status: TaskStatus.NotStarted,
+    assigneeIds: [],
+    positionId: "",
+    estimatedDuration: 0,
+    estimatedReadiness: 0,
+    attachmentUrls: [],
+  });
 
-  const [taskData, setTaskData] = useState<TaskFormData>(existingOrNewTaskData);
   const selectedMilestone = useMemo(
     () => milestones.find((m) => m.id === taskData.milestoneId),
     [milestones, taskData.milestoneId],
@@ -164,6 +147,38 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   useEffect(() => {
     setUpdateChangeProposalData(changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? []);
   }, [changeProposals, task?.id]);
+
+  useEffect(() => {
+    if (task) {
+      setTaskData({
+        name: task.name,
+        milestoneId: milestoneId,
+        startDate: getValidDateTimeOrThrow(task.startDate),
+        endDate: getValidDateTimeOrThrow(task.endDate),
+        status: task.status,
+        assigneeIds: task.assigneeIds ?? [],
+        positionId: task.jobPositionId,
+        dependentUserId: task.dependentUserId,
+        userRole: task.userRole,
+        estimatedDuration: task.estimatedDuration,
+        estimatedReadiness: task.estimatedReadiness,
+        attachmentUrls: task.attachmentUrls ?? [],
+      });
+    } else {
+      setTaskData({
+        name: "",
+        milestoneId: milestoneId,
+        startDate: undefined,
+        endDate: undefined,
+        status: TaskStatus.NotStarted,
+        assigneeIds: [],
+        positionId: "",
+        estimatedDuration: 0,
+        estimatedReadiness: 0,
+        attachmentUrls: [],
+      });
+    }
+  }, [task, milestoneId]);
 
   /**
    * Set existing task connections

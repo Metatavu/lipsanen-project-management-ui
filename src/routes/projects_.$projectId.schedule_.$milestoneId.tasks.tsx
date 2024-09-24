@@ -4,6 +4,7 @@ import {
   Box,
   Card,
   FormControlLabel,
+  Stack,
   Switch,
   Table,
   TableBody,
@@ -31,6 +32,7 @@ import {
   Task,
   UpdateChangeProposalRequest,
   UpdateTaskRequest,
+  User,
 } from "generated/client";
 import {
   useFindProjectMilestoneQuery,
@@ -40,6 +42,7 @@ import {
   useListJobPositionsQuery,
   useListTaskConnectionsQuery,
   useListTasksQuery,
+  useListUsersQuery,
 } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
@@ -83,15 +86,8 @@ function MilestoneTasksListRoute() {
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
-  const taskCreatorUserIds = useMemo(() => {
-    const creatorIds = tasks
-      ?.flatMap((task) => task.metadata?.creatorId)
-      .filter((userId): userId is string => userId !== undefined);
-    return [...new Set(creatorIds)];
-  }, [tasks]);
-
-  const listCreatorUsersQuery = useFindUsersQuery(taskCreatorUserIds);
-  const creatorUsers = (listCreatorUsersQuery.data ?? []).filter((user) => user);
+  const listProjectUsersQuery = useListUsersQuery({ projectId, max: 1000 });
+  const projectUsers = useMemo(() => listProjectUsersQuery.data?.users ?? [], [listProjectUsersQuery.data]);
 
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<null | Task>(null);
@@ -214,6 +210,16 @@ function MilestoneTasksListRoute() {
   };
 
   /**
+   * Returns either user display name or given placeholder text
+   *
+   * @param user user
+   * @param placeholder placeholder text
+   */
+  const getUserDisplayName = (user: User | undefined, placeholder: string) => {
+    return user ? `${user.firstName} ${user.lastName}` : placeholder;
+  };
+
+  /**
    * Renders the milestone row above the tasks
    */
   const renderMilestoneRow = () => {
@@ -230,20 +236,19 @@ function MilestoneTasksListRoute() {
     return (
       <TableRow key={milestone.id}>
         <TableCell style={{ overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Stack direction="row" alignItems="center" gap={1}>
             <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
               <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
             </Avatar>
-            {/* TODO: Handle overflowing name with maxWidth could be improved */}
-            <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
+            <Box mx={1}>
               <Tooltip placement="top" title={milestone.name}>
-                <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <Typography maxWidth={300} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
                   {milestone.name}
                 </Typography>
               </Tooltip>
               <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
             </Box>
-          </div>
+          </Stack>
         </TableCell>
         <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
         <TableCell>{formattedStartDate}</TableCell>
@@ -276,28 +281,27 @@ function MilestoneTasksListRoute() {
       const difference = endDate.diff(startDate, "days").days;
       const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
-      const taskCreator = creatorUsers.find((user) => user.keycloakId === task.metadata?.creatorId);
+      const taskAssignee = projectUsers.find((user) => user.id === task.assigneeIds?.at(0));
 
       return (
         <TableRow
           key={task.id}
-          sx={{ backgroundColor: taskIdForSelectedChangeProposal === task.id ? "#0079BF1A" : "" }}
+          sx={{ backgroundColor: taskIdForSelectedChangeProposal === task.id ? "#0079BF1A" : undefined }}
         >
-          <TableCell style={{ overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div>
-                <JobPositionAvatar jobPosition={UserUtils.getUserJobPosition(jobPositions, taskCreator)} />
-              </div>
-              {/* TODO: Handle overflowing name with maxWidth could be improved */}
-              <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
-                <Tooltip placement="top" title={task.name} onClick={() => onTaskSelect(task)}>
-                  <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <TableCell sx={{ overflow: "hidden", cursor: "pointer" }} onClick={() => onTaskSelect(task)}>
+            <Stack direction="row" alignItems="center" gap={1}>
+              <JobPositionAvatar jobPosition={UserUtils.getUserJobPosition(jobPositions, taskAssignee)} />
+              <Box mx={1}>
+                <Tooltip placement="top" title={task.name}>
+                  <Typography maxWidth={300} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
                     {task.name}
                   </Typography>
                 </Tooltip>
-                <Typography variant="body2">{`${taskCreator?.firstName} ${taskCreator?.lastName}`}</Typography>
+                <Typography variant="body2">
+                  {getUserDisplayName(taskAssignee, t("scheduleScreen.noAssignee"))}
+                </Typography>
               </Box>
-            </div>
+            </Stack>
           </TableCell>
           <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
           <TableCell>{formattedStartDate}</TableCell>
