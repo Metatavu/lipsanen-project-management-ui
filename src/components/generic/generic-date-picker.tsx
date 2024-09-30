@@ -1,17 +1,17 @@
 import { CalendarTodayOutlined } from "@mui/icons-material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Typography } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTime } from "luxon";
 
 /**
  * Component Props
  */
 interface Props {
-  onChange: (value: DateTime<true> | DateTime<false> | null) => void;
-  value: DateTime<true> | DateTime<false> | null | undefined;
+  onChange: (value: DateTime<true> | null) => void;
+  value: DateTime<true> | null;
   title?: string;
-  minDate?: DateTime<true> | DateTime<false>;
-  maxDate?: DateTime<true> | DateTime<false>;
+  minDate?: DateTime<true> | null;
+  maxDate?: DateTime<true> | null;
   fullWidth?: boolean;
   label?: string;
   hasBorder?: boolean;
@@ -40,11 +40,9 @@ const GenericDatePicker = ({
       value={value}
       onChange={onChange}
       format="dd.MM.yyyy"
-      minDate={minDate}
-      maxDate={maxDate}
-      slots={{
-        openPickerIcon: CalendarTodayOutlined,
-      }}
+      minDate={minDate ?? undefined}
+      maxDate={maxDate ?? undefined}
+      slots={{ openPickerIcon: CalendarTodayOutlined }}
       slotProps={{
         textField: {
           placeholder: "",

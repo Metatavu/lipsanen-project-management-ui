@@ -1,20 +1,20 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Toolbar, Typography, Box, Card } from "@mui/material";
-import { GridPaginationModel, DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { Box, Card, Toolbar, Typography } from "@mui/material";
+import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import NewJobPositionDialog from "components/positions/new-job-position-dialog";
 import UserInfoDialog from "components/users/user-info-dialog";
-import { JobPosition, DeleteJobPositionRequest } from "generated/client";
-import { useListUsersQuery, useListJobPositionsQuery } from "hooks/api-queries";
+import { DeleteJobPositionRequest, JobPosition } from "generated/client";
+import { useListJobPositionsQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 
 export const Route = createFileRoute("/roles")({ component: RolesIndexRoute });
 
@@ -34,8 +34,8 @@ function RolesIndexRoute() {
 
   const loading = listPositionsQuery.isFetching || listAllUsersQuery.isFetching;
 
-  const users = listAllUsersQuery.data?.users ?? [];
-  const positions = listPositionsQuery.data?.jobPositions ?? [];
+  const users = useMemo(() => listAllUsersQuery.data?.users ?? [], [listAllUsersQuery.data]);
+  const positions = useMemo(() => listPositionsQuery.data?.jobPositions ?? [], [listPositionsQuery.data]);
 
   /**
    * Returns number of users in a position

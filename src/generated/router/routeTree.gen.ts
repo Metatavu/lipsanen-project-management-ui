@@ -18,6 +18,7 @@ import { Route as ProjectsImport } from "./../../routes/projects"
 import { Route as ProjectTemplatesImport } from "./../../routes/project-templates"
 import { Route as MonitoringImport } from "./../../routes/monitoring"
 import { Route as IndexImport } from "./../../routes/index"
+import { Route as ProjectsProjectIdUsersImport } from "./../../routes/projects_.$projectId.users"
 import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/projects_.$projectId.tracking"
 import { Route as ProjectsProjectIdTasksImport } from "./../../routes/projects_.$projectId.tasks"
 import { Route as ProjectsProjectIdScheduleImport } from "./../../routes/projects_.$projectId.schedule"
@@ -59,6 +60,11 @@ const MonitoringRoute = MonitoringImport.update({
 
 const IndexRoute = IndexImport.update({
   path: "/",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProjectsProjectIdUsersRoute = ProjectsProjectIdUsersImport.update({
+  path: "/projects/$projectId/users",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -168,6 +174,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ProjectsProjectIdTrackingImport
       parentRoute: typeof rootRoute
     }
+    "/projects/$projectId/users": {
+      id: "/projects/$projectId/users"
+      path: "/projects/$projectId/users"
+      fullPath: "/projects/$projectId/users"
+      preLoaderRoute: typeof ProjectsProjectIdUsersImport
+      parentRoute: typeof rootRoute
+    }
     "/projects/$projectId/tasks/$taskId": {
       id: "/projects/$projectId/tasks/$taskId"
       path: "/$taskId"
@@ -208,6 +221,7 @@ export const routeTree = rootRoute.addChildren({
     ProjectsProjectIdTasksNewRoute,
   }),
   ProjectsProjectIdTrackingRoute,
+  ProjectsProjectIdUsersRoute,
   ProjectsProjectIdScheduleMilestoneIdTasksRoute,
 })
 
@@ -229,6 +243,7 @@ export const routeTree = rootRoute.addChildren({
         "/projects/$projectId/schedule",
         "/projects/$projectId/tasks",
         "/projects/$projectId/tracking",
+        "/projects/$projectId/users",
         "/projects/$projectId/schedule/$milestoneId/tasks"
       ]
     },
@@ -265,6 +280,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/projects/$projectId/tracking": {
       "filePath": "projects_.$projectId.tracking.tsx"
+    },
+    "/projects/$projectId/users": {
+      "filePath": "projects_.$projectId.users.tsx"
     },
     "/projects/$projectId/tasks/$taskId": {
       "filePath": "projects_.$projectId.tasks.$taskId.tsx",

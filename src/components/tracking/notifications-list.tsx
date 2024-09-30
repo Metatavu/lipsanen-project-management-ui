@@ -1,9 +1,9 @@
-import { Card, Box, Typography, Tooltip, LinearProgress } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import { Box, Card, LinearProgress, Tooltip, Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { NotificationEvent, Task, UpdateNotificationEventRequest } from "generated/client";
 import { useApi } from "hooks/use-api";
+import { useTranslation } from "react-i18next";
 
 /**
  * Component props
@@ -59,7 +59,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
 
   /**
    * Helper function to group notifications by date
-   * 
+   *
    * @param notificationEvents notification events
    */
   const groupNotificationsByDate = (notificationEvents: NotificationEvent[]) => {
@@ -93,7 +93,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
 
   /**
    * Handle notification event read
-   * 
+   *
    * @param notificationEvent notification event
    */
   const onNotificationEventRead = (notificationEvent: NotificationEvent) => {
@@ -110,12 +110,13 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
 
   /**
    * Render notification card
-   * 
+   *
    * @param notificationEvent notification event
    */
   const renderNotificationCard = (notificationEvent: NotificationEvent) => {
     return (
       <Card
+        key={notificationEvent.id}
         sx={{
           width: "100%",
           marginBottom: "1rem",
@@ -134,12 +135,16 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
             <Typography variant="body2" fontWeight="normal">
-              {tasks.find((task) => task.id === notificationEvent.notification.taskId)?.name ?? t("trackingScreen.tasksList.task")}
+              {tasks.find((task) => task.id === notificationEvent.notification.taskId)?.name ??
+                t("trackingScreen.tasksList.task")}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             {!notificationEvent.read && (
-              <Tooltip title={t("trackingScreen.notificationsList.markRead")} onClick={() => onNotificationEventRead(notificationEvent)}>
+              <Tooltip
+                title={t("trackingScreen.notificationsList.markRead")}
+                onClick={() => onNotificationEventRead(notificationEvent)}
+              >
                 <Box
                   sx={{
                     width: "10px",
@@ -195,7 +200,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
       </Typography>
       <Box>
         {Object.keys(groupedNotifications).map((date) => (
-          <Box sx={{ position: "relative", marginBottom: "2rem" }}>
+          <Box key={date} sx={{ position: "relative", marginBottom: "2rem" }}>
             {/* Vertical line */}
             <Box
               sx={{

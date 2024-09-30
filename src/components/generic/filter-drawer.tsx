@@ -49,7 +49,10 @@ const FilterDrawerButton = <Route extends AppRouteOptions>({ route, children, ti
    * @param event event
    */
   const onChange: FormFieldChangeHandler<typeof formValues> = (field) => (event) => {
-    setFormValues({ ...formValues, [field]: event.target.value === "" ? undefined : event.target.value });
+    setFormValues({
+      ...formValues,
+      [field]: !event.target.value || event.target.value === "NO_SELECTION" ? undefined : event.target.value,
+    });
   };
 
   /**

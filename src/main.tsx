@@ -1,21 +1,21 @@
-import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
-import { routeTree } from "generated/router/routeTree.gen";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { theme } from "./theme";
-import "localization/i18n";
-import AuthenticationProvider from "providers/authentication-provider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import ConfirmDialogProvider from "providers/confirm-dialog-provider";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
-import { Settings } from "luxon";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { routeTree } from "generated/router/routeTree.gen";
+import "localization/i18n";
 import i18n from "localization/i18n";
+import { Settings } from "luxon";
+import AuthenticationProvider from "providers/authentication-provider";
+import ConfirmDialogProvider from "providers/confirm-dialog-provider";
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import { theme } from "./theme";
 
 // Luxon locale
 Settings.defaultLocale = i18n.language;
@@ -47,15 +47,15 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AuthenticationProvider>
-          <LocalizationProvider dateAdapter={AdapterLuxon}>
-            <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <AuthenticationProvider>
+            <LocalizationProvider dateAdapter={AdapterLuxon}>
               <ConfirmDialogProvider>
                 <RouterProvider router={router} />
               </ConfirmDialogProvider>
-            </QueryClientProvider>
-          </LocalizationProvider>
-        </AuthenticationProvider>
+            </LocalizationProvider>
+          </AuthenticationProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </StrictMode>,
   );

@@ -1,3 +1,5 @@
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
   Button,
@@ -10,21 +12,20 @@ import {
   TextField,
   Toolbar,
   Typography,
+  useTheme,
 } from "@mui/material";
-import { createFileRoute } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CheckIcon from "@mui/icons-material/Check";
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
-import FileUploader from "components/generic/file-upload";
-import { DEFAULT_LOGO, DEFAULT_THEME_COLORS } from "consts";
-import { MuiColorInput } from "mui-color-input";
-import { useApi } from "hooks/use-api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
+import { createFileRoute } from "@tanstack/react-router";
 import { filesApi } from "api/files";
+import FileUploader from "components/generic/file-upload";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import { DEFAULT_LOGO } from "consts";
+import { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
 import { useListLogosQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
+import { useApi } from "hooks/use-api";
+import { MuiColorInput } from "mui-color-input";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const LOGOS_UPLOAD_PATH = "logos";
 
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/settings")({ component: SettingsIndexRout
  */
 function SettingsIndexRoute() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const queryClient = useQueryClient();
   const { projectThemesApi } = useApi();
   const listProjectsQuery = useListProjectsQuery();
@@ -49,7 +51,17 @@ function SettingsIndexRoute() {
   const [selectedColorInput, setSelectedColor] = useState("");
   const [selectedLogoInput, setSelectedLogo] = useState("");
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const themeColorDefaultOptions = useMemo(
+    () => [
+      { name: "Lipsanen Lipa-Betoni Oy", value: theme.palette.companyDefault.lipsanenLipsaBetoniOy },
+      { name: "Rakennus Ahola", value: theme.palette.companyDefault.rakennusAhola },
+      { name: "Moduls", value: theme.palette.companyDefault.moduls },
+      { name: "HB-Porras", value: theme.palette.companyDefault.hbPorras },
+    ],
+    [theme],
+  );
 
   useEffect(() => {
     const savedProjectId = localStorage.getItem("selectedProjectId");
@@ -61,9 +73,9 @@ function SettingsIndexRoute() {
   const projectTheme = useMemo(
     () =>
       listProjectThemesQuery.data
-        ? listProjectThemesQuery.data.at(0) ?? { themeColor: DEFAULT_THEME_COLORS[0].value, logoUrl: DEFAULT_LOGO }
+        ? listProjectThemesQuery.data.at(0) ?? { themeColor: themeColorDefaultOptions[0].value, logoUrl: DEFAULT_LOGO }
         : null,
-    [listProjectThemesQuery.data],
+    [themeColorDefaultOptions[0].value, listProjectThemesQuery.data],
   );
 
   useEffect(() => {
@@ -108,7 +120,7 @@ function SettingsIndexRoute() {
     setSelectedColor(theme.themeColor);
     setSelectedLogo(theme.logoUrl);
 
-    const isCustomColor = DEFAULT_THEME_COLORS.every((color) => color.value !== theme.themeColor);
+    const isCustomColor = themeColorDefaultOptions.every((color) => color.value !== theme.themeColor);
     setColorPickerOpen(isCustomColor);
   };
 
@@ -117,7 +129,7 @@ function SettingsIndexRoute() {
    */
   const disableProjectThemeHandler = () =>
     handleProjectThemeChange({
-      themeColor: DEFAULT_THEME_COLORS[0].value,
+      themeColor: themeColorDefaultOptions[0].value,
       logoUrl: DEFAULT_LOGO,
     });
 
@@ -193,7 +205,7 @@ function SettingsIndexRoute() {
    * Renders color buttons
    */
   const renderColorsButtons = () =>
-    DEFAULT_THEME_COLORS.map((color) => (
+    themeColorDefaultOptions.map((color) => (
       <Box
         key={color.name}
         sx={{

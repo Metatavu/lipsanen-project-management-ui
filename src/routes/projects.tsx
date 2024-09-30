@@ -1,6 +1,6 @@
 import ConstructionIcon from "@mui/icons-material/Construction";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Card, Toolbar, Typography } from "@mui/material";
+import { Card, Chip, Toolbar, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,10 +15,9 @@ import { useApi } from "hooks/use-api";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { projectsSearchSchema } from "schemas/search";
-import ProjectUtils from "utils/project";
 
 /**
  * Projects file route
@@ -42,7 +41,7 @@ function ProjectsIndexRoute() {
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
   const listProjectsQuery = useListProjectsQuery({ first, max });
   const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
-  const allProjects = listProjectsQuery.data?.projects ?? [];
+  const allProjects = useMemo(() => listProjectsQuery.data?.projects ?? [], [listProjectsQuery.data]);
   // TODO: Change to API based filtering
   const projects = allProjects.filter((project) => {
     if (search.status && project.status !== search.status) return false;
@@ -128,7 +127,13 @@ function ProjectsIndexRoute() {
               field: "status",
               headerName: t("project.status"),
               flex: 1,
-              renderCell: (params) => ProjectUtils.renderStatusElement(params.value),
+              renderCell: (params) => (
+                <Chip
+                  size="small"
+                  sx={{ bgcolor: (theme) => theme.palette.projectStatus[params.row.status], color: "white" }}
+                  label={t(`projectStatuses.${params.row.status}`)}
+                />
+              ),
             },
             {
               field: "actions",

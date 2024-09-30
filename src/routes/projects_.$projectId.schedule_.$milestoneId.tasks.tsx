@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import {
   Avatar,
   Box,
   Card,
+  FormControlLabel,
+  Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -12,26 +15,16 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  Switch,
-  FormControlLabel,
 } from "@mui/material";
-import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
+import JobPositionAvatar from "components/generic/job-position-avatar";
 import LoadingTableCell from "components/generic/loading-table-cell";
-import {
-  useFindProjectMilestoneQuery,
-  useFindUsersQuery,
-  useListChangeProposalsQuery,
-  useListTasksQuery,
-  useListTaskConnectionsQuery,
-  useListJobPositionsQuery,
-  useListChangeProposalTasksPreviewQuery,
-} from "hooks/api-queries";
-import { useTranslation } from "react-i18next";
-import { DateTime } from "luxon";
 import ProgressBadge from "components/generic/progress-badge";
-import TaskButton from "components/tasks/new-task-button";
+import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
+import NewTaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
 import {
   ChangeProposal,
@@ -39,18 +32,29 @@ import {
   Task,
   UpdateChangeProposalRequest,
   UpdateTaskRequest,
+  User,
 } from "generated/client";
-import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useFindProjectMilestoneQuery,
+  useFindUsersQuery,
+  useListChangeProposalTasksPreviewQuery,
+  useListChangeProposalsQuery,
+  useListJobPositionsQuery,
+  useListTaskConnectionsQuery,
+  useListTasksQuery,
+  useListUsersQuery,
+} from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
+import { DateTime } from "luxon";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { theme } from "theme";
+import { TaskStatusColor } from "types";
+import ChartHelpers from "utils/chart-helpers";
+import UserUtils from "utils/users";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 import * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
-import { TaskStatusColor } from "types";
-import ChartHelpers from "utils/chart-helpers";
-import { theme } from "theme";
-import UsersUtils from "utils/users";
-import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 
 /**
  * Milestone tasks file route
@@ -82,24 +86,22 @@ function MilestoneTasksListRoute() {
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
-  const taskCreatorUserIds = [
-    ...new Set(
-      tasks?.flatMap((task) => task.metadata?.creatorId).filter((userId): userId is string => userId !== undefined),
-    ),
-  ];
-  const listCreatorUsersQuery = useFindUsersQuery(taskCreatorUserIds);
-  const creatorUsers = (listCreatorUsersQuery.data ?? []).filter((user) => user);
+  const listProjectUsersQuery = useListUsersQuery({ projectId, max: 1000 });
+  const projectUsers = useMemo(() => listProjectUsersQuery.data?.users ?? [], [listProjectUsersQuery.data]);
 
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<null | Task>(null);
   const [viewMode, setViewMode] = useState(ViewMode.Day);
   const [taskConnectionsVisible, setTaskConnectionsVisible] = useState(ChartHelpers.getTaskConnectionsVisibleSetting);
-  const [selectedChangeProposalId, setSelectedChangeProposalId] = useState("");
+  const [selectedChangeProposalId, setSelectedChangeProposalId] = useState<string>();
   const taskIdForSelectedChangeProposal = changeProposals?.find(
     (proposal) => proposal.id === selectedChangeProposalId,
   )?.taskId;
 
-  const changeProposalTasksPreviewListQuery = useListChangeProposalTasksPreviewQuery({ projectId: projectId, changeProposalId: selectedChangeProposalId });
+  const changeProposalTasksPreviewListQuery = useListChangeProposalTasksPreviewQuery({
+    projectId: projectId,
+    changeProposalId: selectedChangeProposalId,
+  });
   const changeProposalTasksPreviewList = changeProposalTasksPreviewListQuery.data;
 
   /**
@@ -119,9 +121,9 @@ function MilestoneTasksListRoute() {
    */
   const tasksForGantt = useMemo(() => {
     const tasksInitial = ChartHelpers.convertTasksToGanttTasks(tasks ?? [], taskConnections);
-    const changeProposalTasksMap = new Map(changeProposalTasksPreviewList?.map(task => [task.id, task]));
-  
-    return tasksInitial.map(task => {
+    const changeProposalTasksMap = new Map(changeProposalTasksPreviewList?.map((task) => [task.id, task]));
+
+    return tasksInitial.map((task) => {
       const changeProposalTask = changeProposalTasksMap.get(task.id);
       if (changeProposalTask && selectedChangeProposalId) {
         return {
@@ -129,7 +131,7 @@ function MilestoneTasksListRoute() {
           changePreviewDates: {
             start: changeProposalTask.startDate ?? task.start,
             end: changeProposalTask.endDate ?? task.end,
-          }
+          },
         };
       }
       return task;
@@ -208,6 +210,16 @@ function MilestoneTasksListRoute() {
   };
 
   /**
+   * Returns either user display name or given placeholder text
+   *
+   * @param user user
+   * @param placeholder placeholder text
+   */
+  const getUserDisplayName = (user: User | undefined, placeholder: string) => {
+    return user ? `${user.firstName} ${user.lastName}` : placeholder;
+  };
+
+  /**
    * Renders the milestone row above the tasks
    */
   const renderMilestoneRow = () => {
@@ -224,20 +236,19 @@ function MilestoneTasksListRoute() {
     return (
       <TableRow key={milestone.id}>
         <TableCell style={{ overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Stack direction="row" alignItems="center" gap={1}>
             <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
               <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
             </Avatar>
-            {/* TODO: Handle overflowing name with maxWidth could be improved */}
-            <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
+            <Box mx={1}>
               <Tooltip placement="top" title={milestone.name}>
-                <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <Typography maxWidth={300} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
                   {milestone.name}
                 </Typography>
               </Tooltip>
               <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
             </Box>
-          </div>
+          </Stack>
         </TableCell>
         <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
         <TableCell>{formattedStartDate}</TableCell>
@@ -270,26 +281,27 @@ function MilestoneTasksListRoute() {
       const difference = endDate.diff(startDate, "days").days;
       const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
-      const taskCreator = creatorUsers.find((user) => user.keycloakId === task.metadata?.creatorId);
+      const taskAssignee = projectUsers.find((user) => user.id === task.assigneeIds?.at(0));
 
       return (
         <TableRow
           key={task.id}
-          sx={{ backgroundColor: taskIdForSelectedChangeProposal === task.id ? "#0079BF1A" : "" }}
+          sx={{ backgroundColor: taskIdForSelectedChangeProposal === task.id ? "#0079BF1A" : undefined }}
         >
-          <TableCell style={{ overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div>{UsersUtils.getUserIcon(creatorUsers, taskCreator?.keycloakId, jobPositions)}</div>
-              {/* TODO: Handle overflowing name with maxWidth could be improved */}
-              <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
-                <Tooltip placement="top" title={task.name} onClick={() => onTaskSelect(task)}>
-                  <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <TableCell sx={{ overflow: "hidden", cursor: "pointer" }} onClick={() => onTaskSelect(task)}>
+            <Stack direction="row" alignItems="center" gap={1}>
+              <JobPositionAvatar jobPosition={UserUtils.getUserJobPosition(jobPositions, taskAssignee)} />
+              <Box mx={1}>
+                <Tooltip placement="top" title={task.name}>
+                  <Typography maxWidth={300} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
                     {task.name}
                   </Typography>
                 </Tooltip>
-                <Typography variant="body2">{`${taskCreator?.firstName} ${taskCreator?.lastName}`}</Typography>
+                <Typography variant="body2">
+                  {getUserDisplayName(taskAssignee, t("scheduleScreen.noAssignee"))}
+                </Typography>
               </Box>
-            </div>
+            </Stack>
           </TableCell>
           <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
           <TableCell>{formattedStartDate}</TableCell>
@@ -366,9 +378,15 @@ function MilestoneTasksListRoute() {
   const renderGanttChart = () => {
     if (listMilestoneTasksQuery.isFetching || listTaskConnectionsQuery.isFetching) {
       return (
-        <TableRow>
-          <LoadingTableCell loading />
-        </TableRow>
+        <TableContainer>
+          <Table style={{ width: "100%" }}>
+            <TableHead>
+              <TableRow>
+                <LoadingTableCell loading />
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
       );
     }
 
@@ -420,7 +438,7 @@ function MilestoneTasksListRoute() {
     return (
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, padding: "1rem" }}>
-          <Link to={`/projects/${projectId}/schedule` as string} style={{ textDecoration: "none", color: "#0079BF" }}>
+          <Link to={`/projects/${projectId}/schedule`} style={{ textDecoration: "none", color: "#0079BF" }}>
             <Typography variant="h5">{t("scheduleScreen.objectives")}</Typography>
           </Link>
           <Typography variant="h5">{t("scheduleScreen.breadcrumbSeparator")}</Typography>
@@ -463,7 +481,7 @@ function MilestoneTasksListRoute() {
               loading={listChangeProposalsQuery.isPending}
               updateChangeProposalStatus={handleUpdateChangeProposalStatus}
             />
-            <TaskButton projectId={projectId} milestoneId={milestoneId} />
+            <NewTaskButton projectId={projectId} milestoneId={milestoneId} />
           </Box>
         </Toolbar>
         <Card sx={{ flex: 1, minWidth: 0, overflow: "auto" }}>
@@ -474,16 +492,14 @@ function MilestoneTasksListRoute() {
           </Box>
         </Card>
       </FlexColumnLayout>
-      {task && !listChangeProposalsQuery.isPending && (
-        <TaskDialog
-          projectId={projectId}
-          milestoneId={milestoneId}
-          open={open}
-          task={task}
-          onClose={onTaskClose}
-          changeProposals={changeProposals}
-        />
-      )}
+      <TaskDialog
+        projectId={projectId}
+        milestoneId={milestoneId}
+        open={open}
+        task={task ?? undefined}
+        onClose={onTaskClose}
+        changeProposals={changeProposals}
+      />
     </>
   );
 }

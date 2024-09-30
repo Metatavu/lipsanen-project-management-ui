@@ -1,18 +1,18 @@
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, Stack } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import JobPositionAvatar from "components/generic/job-position-avatar";
 import ProgressBadge from "components/generic/progress-badge";
 import { JobPosition, Task, User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { DateTime } from "luxon";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TasksSearchSchema } from "schemas/search";
-import { theme } from "theme";
 import TaskUtils from "utils/task";
 
 /**
- * Component props
+ * Component properties
  */
 interface Props {
   projectId: string;
@@ -21,26 +21,24 @@ interface Props {
   onTaskClick?: (task: Task) => void;
 }
 
-const DEFAULT_USER_ICON = "account";
-
 /**
  * Task list component
  * renders a list of tasks
  *
- * @param props component props
+ * @param props component properties
  */
 const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
   const { t } = useTranslation();
 
   const listTasksQuery = useListTasksQuery({ projectId, milestoneId: filters?.milestoneId });
-  const allTasks = listTasksQuery.data || [];
+  const allTasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
   const tasks = user ? allTasks.filter((task) => task.assigneeIds?.includes(user.id as string)) : allTasks;
 
   const listUsersQuery = useListUsersQuery({ projectId });
-  const users = listUsersQuery.data?.users ?? [];
+  const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
 
   const listJobPositionsQuery = useListJobPositionsQuery();
-  const jobPositions = listJobPositionsQuery.data?.jobPositions ?? [];
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
   if (listTasksQuery.isFetching || listUsersQuery.isFetching || listJobPositionsQuery.isFetching) {
     return <LinearProgress />;
@@ -80,16 +78,12 @@ const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
           sortable: false,
           renderCell: (params) => {
             const [taskAssignee, jobPosition] = params.value as [User | undefined, JobPosition | undefined];
+
             return (
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {
-                  <MdiIconifyIconWithBackground
-                    iconName={jobPosition?.iconName ?? DEFAULT_USER_ICON}
-                    color={jobPosition?.color ?? theme.palette.primary.main}
-                  />
-                }
+              <Stack direction="row" alignItems="center" gap={1}>
+                <JobPositionAvatar jobPosition={jobPosition} />
                 {taskAssignee?.firstName ?? ""} {taskAssignee?.lastName ?? ""}
-              </div>
+              </Stack>
             );
           },
         },
@@ -124,7 +118,7 @@ const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
           headerName: t("trackingScreen.tasksList.readiness"),
           flex: 1,
           sortable: false,
-          renderCell: (params) => <ProgressBadge progress={params.value ?? 0} customWidth="120px" />,
+          renderCell: (params) => <ProgressBadge progress={params.value ?? 0} width="120px" />,
         },
       ]}
       disableRowSelectionOnClick

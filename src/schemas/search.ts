@@ -16,6 +16,16 @@ export const usersSearchSchema = z.object({
 export type UsersSearchSchema = z.infer<typeof usersSearchSchema>;
 
 /**
+ * Zod schema for project users search schema
+ */
+export const projectUsersSearchSchema = usersSearchSchema.omit({ projectId: true });
+
+/**
+ * Project users search schema
+ */
+export type ProjectUsersSearchSchema = z.infer<typeof usersSearchSchema>;
+
+/**
  * Zod schema for tasks search values
  */
 export const tasksSearchSchema = z.object({

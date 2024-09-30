@@ -1,10 +1,9 @@
 import { Box, Grid, LinearProgress, MenuItem, TextField, Typography } from "@mui/material";
 import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
+import { ChangeProposal, JobPosition, Task, User } from "generated/client";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { User, Task, ChangeProposal, JobPosition } from "generated/client";
 import { ChangeProposalScope, DelaysByReason, DelaysByRole, DelaysByTask } from "types";
-import { TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES } from "consts";
 
 /**
  * Component props
@@ -25,7 +24,7 @@ interface Props {
  */
 const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Props) => {
   const { t } = useTranslation();
-  const [changeProposalScope, setChangeProposalScope] = useState(TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES[0]);
+  const [changeProposalScope, setChangeProposalScope] = useState<ChangeProposalScope>(ChangeProposalScope.TASK);
 
   /**
    * Delays by task row data
@@ -162,24 +161,6 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
       </Box>
     );
   }
-
-  /**
-   * Get localized scope label
-   *
-   * @param key scope key
-   */
-  const getLocalizedScopeLabel = (key: ChangeProposalScope) => {
-    switch (key) {
-      case ChangeProposalScope.TASK:
-        return t("trackingScreen.delaysList.scopes.task");
-      case ChangeProposalScope.ROLE:
-        return t("trackingScreen.delaysList.scopes.role");
-      case ChangeProposalScope.REASON:
-        return t("trackingScreen.delaysList.scopes.reason");
-      default:
-        return t("trackingScreen.delaysList.scopes.task");
-    }
-  };
 
   /**
    * Renders delays by task column
@@ -335,18 +316,12 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
   /**
    * Renders delays column depending on the scope selected
    */
-  const renderDelaysColumnWithDataGrid = () => {
-    switch (changeProposalScope) {
-      case ChangeProposalScope.TASK:
-        return renderDelaysByTaskColumn();
-      case ChangeProposalScope.ROLE:
-        return renderDelaysByRoleColumn();
-      case ChangeProposalScope.REASON:
-        return renderDelaysByReasonColumn();
-      default:
-        return renderDelaysByTaskColumn();
-    }
-  };
+  const renderDelaysColumnWithDataGrid = (scope: ChangeProposalScope) =>
+    ({
+      [ChangeProposalScope.TASK]: renderDelaysByTaskColumn(),
+      [ChangeProposalScope.ROLE]: renderDelaysByRoleColumn(),
+      [ChangeProposalScope.REASON]: renderDelaysByReasonColumn(),
+    })[scope];
 
   /**
    * Renders dropdown picker
@@ -361,9 +336,9 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
       value={changeProposalScope}
       onChange={(event) => setChangeProposalScope(event.target.value as ChangeProposalScope)}
     >
-      {TRACKING_SCREEN_CHANGE_PROPOSAL_SCOPES.map((option: ChangeProposalScope) => (
+      {Object.values(ChangeProposalScope).map((option) => (
         <MenuItem key={option} value={option}>
-          {getLocalizedScopeLabel(option)}
+          {t(`trackingScreen.delaysList.scopes.${option}`)}
         </MenuItem>
       ))}
     </TextField>
@@ -385,7 +360,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
         </Grid>
       </Grid>
       {/* Render delays data grid */}
-      {renderDelaysColumnWithDataGrid()}
+      {renderDelaysColumnWithDataGrid(changeProposalScope)}
     </>
   );
 };

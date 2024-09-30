@@ -12,10 +12,10 @@ import { getContrastForegroundColor, hexFromString } from "utils";
 import { splitIntervalByDuration } from "utils/date-time-utils";
 import {
   distributeOverlappingTasksToRows,
-  renderTaskRows,
   getTimelineIntervalByTasks,
   groupTasksByOverlap,
   mapTasksAndUsersByUserId,
+  renderTaskRows,
   sortTasksByStartTime,
 } from "utils/last-planner-utils";
 import { TaskRowCell } from "./task-row-cell";
@@ -99,11 +99,11 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
   const queryClient = useQueryClient();
 
   const listTasksQuery = useListTasksQuery({ projectId });
-  const tasks = listTasksQuery.data ?? [];
+  const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
   const listProjectUsersQuery = useListUsersQuery({ projectId });
-  const users = listProjectUsersQuery.data?.users ?? [];
+  const users = useMemo(() => listProjectUsersQuery.data?.users ?? [], [listProjectUsersQuery.data]);
   const jobPositionsQuery = useListJobPositionsQuery({ max: 9999 });
-  const jobPositions = jobPositionsQuery.data?.jobPositions ?? [];
+  const jobPositions = useMemo(() => jobPositionsQuery.data?.jobPositions ?? [], [jobPositionsQuery.data]);
 
   const updateTaskMutation = useMutation({
     mutationFn: (task: Task) => tasksApi.updateTask({ projectId: projectId, taskId: task.id as string, task: task }),
@@ -225,9 +225,9 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       </StickyTableCell>
     ));
 
-    /**
-     * Render month cells
-     */
+  /**
+   * Render month cells
+   */
   const renderMonths = () =>
     months?.map((month, i) => (
       <StickyTableCell
@@ -242,9 +242,9 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       </StickyTableCell>
     ));
 
-    /**
-     * Render week cells
-     */
+  /**
+   * Render week cells
+   */
   const renderWeeks = () =>
     weeks?.map((week, i) => (
       <StickyTableCell

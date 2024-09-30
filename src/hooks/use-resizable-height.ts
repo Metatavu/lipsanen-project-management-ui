@@ -36,9 +36,8 @@ export const useResizableHeight = ({
   );
 
   useEffect(() => {
-    if (!containerRef?.current) return;
     setHeight(constrainHeight(height));
-  }, [containerRef?.current, constrainHeight, height]);
+  }, [constrainHeight, height]);
 
   /**
    * Mouse down event handler

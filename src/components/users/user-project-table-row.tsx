@@ -1,20 +1,24 @@
-import { TableRow } from "@mui/material";
 import ConstructionIcon from "@mui/icons-material/Construction";
-import ProjectUtils from "utils/project";
-import { useFindProjectQuery } from "hooks/api-queries";
-import { mustHaveId } from "utils";
+import { Chip, TableRow } from "@mui/material";
 import LoadingTableCell from "components/generic/loading-table-cell";
+import { useFindProjectQuery } from "hooks/api-queries";
+import { useTranslation } from "react-i18next";
+import { mustHaveId } from "utils";
 
-type UserProjectTableRowProps = {
+/**
+ * Component properties
+ */
+type Props = {
   projectId: string;
 };
 
 /**
  * User project table row component
  *
- * @param projectId string
+ * @param props component properties
  */
-const UserProjectTableRow = ({ projectId }: UserProjectTableRowProps) => {
+const UserProjectTableRow = ({ projectId }: Props) => {
+  const { t } = useTranslation();
   const findProjectQuery = useFindProjectQuery(projectId);
 
   const project = findProjectQuery.data ? mustHaveId(findProjectQuery.data) : undefined;
@@ -32,7 +36,13 @@ const UserProjectTableRow = ({ projectId }: UserProjectTableRowProps) => {
       </LoadingTableCell>
       <LoadingTableCell loading={findProjectQuery.isFetching}>80%</LoadingTableCell>
       <LoadingTableCell loading={findProjectQuery.isFetching}>
-        {project?.status && ProjectUtils.renderStatusElement(project.status)}
+        {project?.status && (
+          <Chip
+            size="small"
+            sx={{ bgcolor: (theme) => theme.palette.projectStatus[project.status], color: "white" }}
+            label={t(`projectStatuses.${project.status}`)}
+          />
+        )}
       </LoadingTableCell>
     </TableRow>
   );
