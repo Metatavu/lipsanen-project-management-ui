@@ -1,11 +1,11 @@
-import Badge from "@mui/material/Badge";
+import { Box, Typography } from "@mui/material";
 
 /**
- * Component Props
+ * Component properties
  */
 interface Props {
   progress: number;
-  customWidth?: string;
+  width?: string;
 }
 
 /**
@@ -13,39 +13,28 @@ interface Props {
  *
  * @param props component properties
  */
-const ProgressBadge = ({ progress, customWidth }: Props) => {
-  const backgroundClipPath = `inset(0 ${100 - progress}% 0 0)`;
-
-  return (
-    <Badge
-      color="default"
-      overlap="circular"
-      style={{
-        position: "relative",
-        borderRadius: "999px",
-        width: customWidth || "80px",
-        height: "36px",
-        border: "1px solid #0000001A",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          borderRadius: "999px",
-          backgroundColor: "#0079BF80",
-          clipPath: backgroundClipPath,
-        }}
-      />
-      <div style={{ zIndex: 1, fontWeight: 700 }}>{`${progress}%`}</div>
-    </Badge>
-  );
-};
+const ProgressBadge = ({ progress, width = "80px" }: Props) => (
+  <Box
+    width={width}
+    height="36px"
+    overflow="hidden"
+    border="1px solid #0000001A"
+    borderRadius="999px"
+    position="relative"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+  >
+    <Box
+      position="absolute"
+      top={0}
+      left={0}
+      width={`${Math.max(0, Math.min(100, progress))}%`}
+      height="100%"
+      bgcolor="#0079BF33"
+    />
+    <Typography fontSize={14} fontWeight="bold">{`${progress}%`}</Typography>
+  </Box>
+);
 
 export default ProgressBadge;

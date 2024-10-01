@@ -8,10 +8,14 @@
   "logout": "Logout",
   "search": "Search",
   "generic": {
+    "save": "Save",
     "delete": "Delete",
     "cancel": "Cancel",
     "confirm": "OK",
-    "showFilters": "Show filters"
+    "showFilters": "Show filters",
+    "clear": "Clear",
+    "apply": "Apply",
+    "noSelection": "No selection"
   },
   "project": {
     "status": "Status",
@@ -22,10 +26,13 @@
     "confirmProjectDeleteDescription": "Are you sure you want to delete project: {{projectName}}?"
   },
   "projectStatuses": {
-    "ongoing": "Ongoing",
-    "tenderPreparation": "Tender preparation",
-    "tender": "Tender",
-    "done": "Done"
+    "INITIATION": "Initiation",
+    "PLANNING": "Planning",
+    "DESIGN": "Design",
+    "PROCUREMENT": "Procurement",
+    "CONSTRUCTION": "Construction",
+    "INSPECTION": "Inspection",
+    "COMPLETION": "Completed"
   },
   "newProjectDialog": {
     "addNewProject": "Add new project",
@@ -66,9 +73,17 @@
   },
   "userFilters": {
     "title": "Filter users",
-    "clearAll": "Clear all",
-    "applyAll": "Apply all",
-    "project": "Project"
+    "project": "Project",
+    "company": "Company",
+    "position": "Position"
+  },
+  "taskFilters": {
+    "title": "Filter tasks",
+    "milestone": "Milestone"
+  },
+  "projectFilters": {
+    "title": "Filter projects",
+    "status": "Status"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Error while creating a new project",
@@ -200,9 +215,9 @@
       "groupBy": "Group by",
       "selectProject": "Please select a project",
       "scopes": {
-        "task": "Task",
-        "role": "Role",
-        "reason": "Reason"
+        "TASK": "Task",
+        "ROLE": "Role",
+        "REASON": "Reason"
       },
       "byTask": {
         "delayedTask": "Delayed task",
@@ -231,6 +246,7 @@
   "scheduleScreen": {
     "title": "Schedule",
     "objectives": "Objectives",
+    "noAssignee": "No assignee",
     "breadcrumbSeparator": " > ",
     "addANewMilestone": "Add a new milestone",
     "addANewTask": "Add a new task",
@@ -251,6 +267,16 @@
   "iconSelector": {
     "selectIcon": "Select icon"
   },
+  "taskConnectionRoles": {
+    "CHILD": "Successor",
+    "PARENT": "Predecessor"
+  },
+  "taskConnectionTypes": {
+    "START_TO_START": "Start to start",
+    "FINISH_TO_FINISH": "Finish to finish",
+    "START_TO_FINISH": "Start to finish",
+    "FINISH_TO_START": "Finish to start"
+  },
   "newProjectMilestoneDialog": {
     "title": "Create a new milestone",
     "name": "Milestone name",
@@ -263,6 +289,7 @@
   },
   "newMilestoneTaskDialog": {
     "title": "Create a new task",
+    "milestone": "Milestone",
     "name": "Task name",
     "status": "Status",
     "assignees": "Assignees",
@@ -277,7 +304,7 @@
     "dependencies": "Dependencies",
     "attachments": "Attachments",
     "createButton": "Create new task",
-    "updateButton": "Update task",
+    "updateButton": "Save task",
     "inputLabelDays": "d",
     "inputLabelPercent": "%",
     "taskConnectionsTable": {
@@ -327,14 +354,16 @@
     "changeEnd": "Change end",
     "reasonForChange": "Reason for the change",
     "comment": "Comment",
-    "waitingForApproval": "Waiting for approval",
-    "abandoned": "Abandoned",
-    "accepted": "Accepted",
     "reasons": {
       "missingInitialData": "Missing initial data",
       "resourceShortage": "Resource shortage",
       "timeUsageEstimate": "Time usage estimate"
     }
+  },
+  "changeProposalStatuses": {
+    "PENDING": "Waiting for approval",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected"
   },
   "taskComments": {
     "comments": "Comments",

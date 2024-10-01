@@ -1,24 +1,32 @@
 import AddIcon from "@mui/icons-material/Add";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import { Button, Card, FormControlLabel, Stack, Switch, Toolbar, Typography } from "@mui/material";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
+import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import ResizablePanel from "components/generic/resizable-panel";
 import LastPlannerView from "components/last-planner/last-planner-view";
+import TaskList from "components/tasks/task-list";
+import TasksFilterForm from "components/tasks/tasks-filter-form";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { tasksSearchSchema } from "schemas/search";
 
 /**
  * Tasks index route
  */
-export const Route = createFileRoute("/projects/$projectId/tasks")({ component: TasksIndexRoute });
+export const Route = createFileRoute("/projects/$projectId/tasks")({
+  component: TasksIndexRoute,
+  validateSearch: (search) => tasksSearchSchema.parse(search),
+});
 
 /**
  * Tasks index route component
  */
 function TasksIndexRoute() {
   const { t } = useTranslation();
+  const filters = Route.useSearch();
   const { projectId } = Route.useParams();
+  const navigate = Route.useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
 
   const [editMode, setEditMode] = useState(false);
@@ -32,14 +40,21 @@ function TasksIndexRoute() {
         <Typography component="h1" variant="h5" sx={{ mr: "auto" }}>
           {t("tasksScreen.title")}
         </Typography>
-        <Button startIcon={<FilterListIcon />} variant="contained" size="large">
-          {t("generic.showFilters")}
-        </Button>
-        <Button startIcon={<AddIcon />} variant="contained" size="large">
+        <FilterDrawerButton route={Route.fullPath} title={t("taskFilters.title")}>
+          {(props) => <TasksFilterForm projectId={projectId} {...props} />}
+        </FilterDrawerButton>
+        <Button startIcon={<AddIcon />} variant="contained" size="large" onClick={() => navigate({ to: "new" })}>
           {t("scheduleScreen.addANewTask")}
         </Button>
       </Toolbar>
-      <Card ref={cardRef} sx={{ flex: 1, minWidth: 0, position: "relative" }}>
+      <Card ref={cardRef} sx={{ flex: 1, position: "relative", display: "flex", flexDirection: "column" }}>
+        <Stack flex={1} minHeight={0}>
+          <TaskList
+            projectId={projectId}
+            filters={filters}
+            onTaskClick={(task) => navigate({ to: "$taskId", params: { taskId: task.id as string } })}
+          />
+        </Stack>
         <ResizablePanel
           containerRef={cardRef}
           storeLastPosition

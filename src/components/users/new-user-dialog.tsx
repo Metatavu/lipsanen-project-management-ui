@@ -1,3 +1,5 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   AppBar,
   Button,
@@ -10,28 +12,30 @@ import {
   TextField,
   Toolbar,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
-import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Company, CreateCompanyRequest, CreateUserRequest, JobPosition, Project } from "generated/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CreatableSelect from "components/generic/creatable-select";
 import GenericSelect from "components/generic/generic-select";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useApi } from "hooks/use-api";
+import { Company, CreateCompanyRequest, CreateUserRequest, JobPosition, Project } from "generated/client";
 import {
-  useListUsersQuery,
-  useListProjectsQuery,
   useListCompaniesQuery,
   useListJobPositionsQuery,
+  useListProjectsQuery,
+  useListUsersQuery,
 } from "hooks/api-queries";
+import { useApi } from "hooks/use-api";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+type Props = {
+  projectId?: string;
+};
 
 /**
  * New user dialog component
  *
  * @param props component properties
  */
-const NewUserDialog = () => {
+const NewUserDialog = ({ projectId }: Props) => {
   const { t } = useTranslation();
   const { usersApi, companiesApi } = useApi();
   const queryClient = useQueryClient();
@@ -51,6 +55,10 @@ const NewUserDialog = () => {
   const users = listUsersQuery.data?.users;
   const projects = listProjectsQuery.data?.projects;
   const companies = listCompaniesQuery.data?.companies;
+
+  useEffect(() => {
+    if (projectId) setSelectedProject(projects?.find((project) => project.id === projectId));
+  }, [projectId, projects]);
 
   /**
    * Create user mutation
@@ -181,6 +189,7 @@ const NewUserDialog = () => {
           <GenericSelect
             options={projects ?? []}
             label={t("newUserDialog.assignUserToProject")}
+            disabled={!!projectId}
             selectedOption={selectedProject}
             setSelectedOption={setSelectedProject}
             getOptionLabel={(option) => option?.name || ""}

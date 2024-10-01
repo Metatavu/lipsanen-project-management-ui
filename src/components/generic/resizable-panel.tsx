@@ -1,15 +1,17 @@
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import { Box, Divider } from "@mui/material";
-import { useResizableHeight } from "hooks/use-resize-element";
-import { ReactNode, useEffect, useMemo } from "react";
-import { atomWithStorage } from "jotai/utils";
+import { useResizableHeight } from "hooks/use-resizable-height";
 import { useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
+import { ReactNode, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 
 /**
  *  Component properties
  */
 type Props = {
   containerRef?: React.RefObject<HTMLElement>;
+  initialHeight?: number;
   children?: ReactNode;
   toolbar?: ReactNode;
 } & (
@@ -29,11 +31,11 @@ type Props = {
  * @param storeLastPosition whether to store the last position to localstorage or not
  * @param id ID to store the last position to localstorage with
  */
-const useStoredHeightWithId = (storeLastPosition?: boolean, id?: string) => {
+const useStoredHeightWithId = (initialHeight: number, storeLastPosition?: boolean, id?: string) => {
   if (!storeLastPosition || !id) return [undefined, undefined];
   const storedHeightAtom = useMemo(
-    () => atomWithStorage(`resizable-panel-${id}`, 20, undefined, { getOnInit: true }),
-    [id],
+    () => atomWithStorage(`resizable-panel-${id}`, initialHeight, undefined, { getOnInit: true }),
+    [id, initialHeight],
   );
   return useAtom(storedHeightAtom);
 };
@@ -44,16 +46,24 @@ const useStoredHeightWithId = (storeLastPosition?: boolean, id?: string) => {
  * @param props component properties
  * @param props.id unique identifier for the resizable panel
  * @param props.children panel content
+ * @param props.initialHeight initial height of the panel
  * @param props.containerRef reference to the container element
  * @param props.storeLastPosition whether to store the last position in local storage
  * @param props.toolbar optional toolbar component
  */
-const ResizablePanel = ({ id, children, containerRef, storeLastPosition, toolbar = null }: Props) => {
-  const [storedHeight, setStoredHeight] = useStoredHeightWithId(storeLastPosition, id);
+const ResizablePanel = ({
+  id,
+  children,
+  initialHeight = 20,
+  containerRef,
+  storeLastPosition,
+  toolbar = null,
+}: Props) => {
+  const [storedHeight, setStoredHeight] = useStoredHeightWithId(initialHeight, storeLastPosition, id);
 
   const { height, onMouseDown } = useResizableHeight({
     containerRef,
-    initialHeight: storedHeight ?? 20,
+    initialHeight: storedHeight ?? initialHeight,
     handleOffset: 10,
   });
 
@@ -64,16 +74,18 @@ const ResizablePanel = ({ id, children, containerRef, storeLastPosition, toolbar
   /**
    * Main component render
    */
-  return (
+  return createPortal(
     <>
+      {containerRef?.current && <Box height={20} />}
       <Box
-        position="absolute"
+        position={containerRef?.current ? "absolute" : "fixed"}
         bottom={0}
         left={0}
         right={0}
         height={height}
         bgcolor="background.paper"
         borderTop="2px solid rgba(0, 0, 0, .1)"
+        zIndex={(theme) => theme.zIndex.drawer}
       >
         <Box
           display="flex"
@@ -98,7 +110,8 @@ const ResizablePanel = ({ id, children, containerRef, storeLastPosition, toolbar
           {children}
         </Box>
       </Box>
-    </>
+    </>,
+    containerRef?.current ?? document.body,
   );
 };
 

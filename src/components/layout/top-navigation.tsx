@@ -1,32 +1,32 @@
-import { useMemo } from "react";
 import {
   AccountCircle as AccountCircleIcon,
   NotificationsNoneOutlined as NotificationsNoneOutlinedIcon,
 } from "@mui/icons-material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   AppBar,
-  Toolbar,
-  Typography,
+  Badge,
+  CircularProgress,
   IconButton,
   Menu,
   MenuItem,
   Stack,
-  Tabs,
   Tab,
-  Badge,
+  Tabs,
+  Toolbar,
+  Typography,
   styled,
-  CircularProgress,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
-import { authAtom } from "../../atoms/auth";
+import { useFindUserQuery, useListNotificationEventsQuery } from "hooks/api-queries";
 import { useAtom } from "jotai";
 import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
-import { useFindUserQuery, useListNotificationEventsQuery } from "hooks/api-queries";
+import { authAtom } from "../../atoms/auth";
 
 const ADMIN_ROLE = "admin";
 const PROJECT_OWNER_ROLE = "project-owner";
@@ -46,7 +46,7 @@ const TopNavigation = () => {
   useMatches();
   const pathParams = useParams({ strict: false });
 
-  const findUserQuery = useFindUserQuery(auth?.token.userId ?? "");
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.userId });
   const listNotificationEventsQuery = useListNotificationEventsQuery({
     userId: findUserQuery.data?.id ?? "",
   });
@@ -73,6 +73,7 @@ const TopNavigation = () => {
     { route: "/projects", labelKey: "back", icon: ArrowBackIcon },
     { route: "/projects/$projectId/tracking", labelKey: "trackingScreen.title" },
     { route: "/projects/$projectId/schedule", labelKey: "scheduleScreen.title" },
+    { route: "/projects/$projectId/users", labelKey: "users" },
     { route: "/projects/$projectId/tasks", labelKey: "tasksScreen.title" },
   ];
 
@@ -109,7 +110,11 @@ const TopNavigation = () => {
         <Stack direction="row" gap={1} sx={{ flexGrow: 0 }}>
           <IconButton color="inherit">
             <NotificationBadge badgeContent={unreadNotificationEventsCount} color="warning">
-              { listNotificationEventsQuery.isLoading ? <CircularProgress size={20} /> : <NotificationsNoneOutlinedIcon /> }
+              {listNotificationEventsQuery.isLoading ? (
+                <CircularProgress size={20} />
+              ) : (
+                <NotificationsNoneOutlinedIcon />
+              )}
             </NotificationBadge>
           </IconButton>
           <IconButton color="inherit" {...bindTrigger(accountMenuState)}>

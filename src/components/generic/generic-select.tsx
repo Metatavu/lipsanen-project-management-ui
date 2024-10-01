@@ -1,14 +1,15 @@
-import { SyntheticEvent, HTMLAttributes, ReactNode } from "react";
-import TextField from "@mui/material/TextField";
 import Autocomplete, { AutocompleteRenderOptionState } from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import { HTMLAttributes, ReactNode, SyntheticEvent } from "react";
 /**
  * Component Props
  */
 interface Props<T> {
   options: T[];
-  selectedOption: T | null;
+  selectedOption: T | undefined;
   label: string;
-  setSelectedOption: (option: any) => void;
+  disabled?: boolean;
+  setSelectedOption: (option: T | undefined) => void;
   getOptionLabel: (option: T) => string;
   renderOption?: (props: HTMLAttributes<HTMLLIElement>, option: T, state: AutocompleteRenderOptionState) => ReactNode;
 }
@@ -18,8 +19,15 @@ interface Props<T> {
  *
  * @param props component properties
  */
-const GenericSelect = <T,>({ options, selectedOption, label, setSelectedOption, getOptionLabel, renderOption }: Props<T>) => {
-
+const GenericSelect = <T,>({
+  options,
+  selectedOption,
+  label,
+  disabled = false,
+  setSelectedOption,
+  getOptionLabel,
+  renderOption,
+}: Props<T>) => {
   /**
    * Change event handler
    *
@@ -27,7 +35,7 @@ const GenericSelect = <T,>({ options, selectedOption, label, setSelectedOption, 
    * @param newValue user selection
    */
   const handleChange = (_event: SyntheticEvent<Element, Event>, newValue: T | null) => {
-    setSelectedOption(newValue);
+    setSelectedOption(newValue ?? undefined);
   };
 
   /**
@@ -35,13 +43,14 @@ const GenericSelect = <T,>({ options, selectedOption, label, setSelectedOption, 
    */
   return (
     <Autocomplete
-      value={selectedOption}
+      value={selectedOption ?? null}
       onChange={handleChange}
       options={options}
+      disabled={disabled}
       getOptionLabel={getOptionLabel}
       renderOption={renderOption || ((props, option) => <li {...props}>{getOptionLabel(option)}</li>)}
       fullWidth
-      renderInput={(params) => <TextField {...params} label={label}/>}
+      renderInput={(params) => <TextField {...params} label={label} />}
     />
   );
 };

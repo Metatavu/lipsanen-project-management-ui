@@ -1,32 +1,34 @@
+import CloseIcon from "@mui/icons-material/Close";
 import {
   AppBar,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
-  Toolbar,
   Grid,
+  IconButton,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  DialogActions,
-  MenuItem,
+  Toolbar,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import LoadingTableCell from "components/generic/loading-table-cell";
+import LoadingTextField, { LoadingTextFieldProps } from "components/generic/loading-text-field";
+import { UpdateUserRequest, UserRole } from "generated/client";
+import { useFindUserQuery, useListCompaniesQuery, useListJobPositionsQuery } from "hooks/api-queries";
+import { useApi } from "hooks/use-api";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AssignUserToProjectDialog from "./assign-user-to-project-dialog";
-import { useFindUserQuery, useListCompaniesQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import UserProjectTableRow from "./user-project-table-row";
-import LoadingTextField, { LoadingTextFieldProps } from "components/generic/loading-text-field";
-import LoadingTableCell from "components/generic/loading-table-cell";
-import { UpdateUserRequest, UserRole } from "generated/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useApi } from "hooks/use-api";
 
 /**
  * Component Props
@@ -45,6 +47,9 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   const { t } = useTranslation();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
+  const theme = useTheme();
+  const isSmallerScreen = useMediaQuery(theme.breakpoints.down("lg"));
+
   const [name, setName] = useState("");
   const [organization, setOrganization] = useState("");
   const [role, setRole] = useState("");
@@ -54,7 +59,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const listCompaniesQuery = useListCompaniesQuery();
-  const findUserQuery = useFindUserQuery(userId);
+  const findUserQuery = useFindUserQuery({ userId });
   const listJobPositionsQuery = useListJobPositionsQuery();
 
   const companies = listCompaniesQuery.data?.companies;
@@ -270,7 +275,8 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
    */
   return (
     <Dialog
-      PaperProps={{ sx: { minHeight: "90vh", maxHeight: "90vh", minWidth: 1200, maxWidth: 1200 } }}
+      fullScreen={isSmallerScreen}
+      PaperProps={{ sx: { minHeight: "90vh", maxWidth: 1200 } }}
       open={!!userId}
       onClose={handleDialogClose}
     >

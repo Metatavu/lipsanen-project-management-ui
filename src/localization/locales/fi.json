@@ -8,10 +8,14 @@
   "logout": "Kirjaudu ulos",
   "search": "Haku",
   "generic": {
-    "delete": "Poistaa",
-    "cancel": "Peruuttaa",
-    "confirm": "Vahvistaa",
-    "showFilters": "Näytä suotimet"
+    "save": "Tallenna",
+    "delete": "Poista",
+    "cancel": "Peruuta",
+    "confirm": "Vahvista",
+    "showFilters": "Näytä suotimet",
+    "clear": "Tyhjennä",
+    "apply": "Käytä",
+    "noSelection": "Ei valintaa"
   },
   "project": {
     "status": "Tila",
@@ -22,10 +26,13 @@
     "confirmProjectDeleteDescription": "Haluatko varmasti poistaa projektin: {{projectName}}?"
   },
   "projectStatuses": {
-    "ongoing": "Käynnissä",
-    "tenderPreparation": "Tarjousvalmistelu",
-    "tender": "Tarjous",
-    "done": "Valmis"
+    "INITIATION": "Aloitus",
+    "PLANNING": "Suunnittelu",
+    "DESIGN": "Design",
+    "PROCUREMENT": "Hankinta",
+    "CONSTRUCTION": "Rakentaminen",
+    "INSPECTION": "Tarkastus",
+    "COMPLETION": "Valmis"
   },
   "newProjectDialog": {
     "addNewProject": "Lisää uusi projekti",
@@ -66,9 +73,17 @@
   },
   "userFilters": {
     "title": "Suodata käyttäjiä",
-    "clearAll": "Tyhjennä kaikki",
-    "applyAll": "Käytä kaikkia",
-    "project": "Projekti"
+    "project": "Projekti",
+    "company": "Yritys",
+    "position": "Rooli"
+  },
+  "taskFilters": {
+    "title": "Suodata tehtäviä",
+    "milestone": "Tavoite"
+  },
+  "projectFilters": {
+    "title": "Suodata projekteja",
+    "status": "Tila"
   },
   "errorHandling": {
     "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
@@ -200,9 +215,9 @@
       "groupBy": "Ryhmittele",
       "selectProject": "Valitse projekti",
       "scopes": {
-        "task": "Tehtävä",
-        "role": "Rooli",
-        "reason": "Syy"
+        "TASK": "Tehtävä",
+        "ROLE": "Rooli",
+        "REASON": "Syy"
       },
       "byTask": {
         "delayedTask": "Myöhästynyt tehtävä",
@@ -231,8 +246,9 @@
   "scheduleScreen": {
     "title": "Aikataulu",
     "objectives": "Tavoitteet",
+    "noAssignee": "Ei tekijää",
     "breadcrumbSeparator": " > ",
-    "addANewMilestone": "Lisää uusi virstanpylväs",
+    "addANewMilestone": "Lisää uusi tavoite",
     "addANewTask": "Lisää uusi tehtävä",
     "objective": "Tavoite",
     "duration": "kesto",
@@ -252,17 +268,28 @@
     "selectIcon": "Valitse ikoni"
   },
   "newProjectMilestoneDialog": {
-    "title": "Luo uusi virstanpylväs",
-    "name": "Virstanpylväs nimi",
-    "enterName": "Anna virstanpylvään nimi",
+    "title": "Luo uusi tavoite",
+    "name": "Tavoitteen nimi",
+    "enterName": "Anna tavoitteen nimi",
     "startDate": "Aloituspäivämäärä",
     "enterStartDate": "Anna aloituspäivä",
     "endDate": "Päättymispäivä",
     "enterEndDate": "Anna lopetuspäivä",
-    "create": "Luo uusi virstanpylväs"
+    "create": "Luo uusi tavoite"
+  },
+  "taskConnectionRoles": {
+    "CHILD": "Seuraaja",
+    "PARENT": "Edeltäjä"
+  },
+  "taskConnectionTypes": {
+    "START_TO_START": "Aloitus-Aloitus",
+    "FINISH_TO_FINISH": "Lopetus-Lopetus",
+    "START_TO_FINISH": "Aloitus-Lopetus",
+    "FINISH_TO_START": "Lopetus-Aloitus"
   },
   "newMilestoneTaskDialog": {
     "title": "Luo uusi tehtävä",
+    "milestone": "Tavoite",
     "name": "Tehtävän nimi",
     "status": "Tila",
     "assignees": "Tekijät",
@@ -277,7 +304,7 @@
     "dependencies": "Riippuvuudet",
     "attachments": "Liitteet",
     "createButton": "Luo uusi tehtävä",
-    "updateButton": "Päivitä tehtävä",
+    "updateButton": "Tallenna tehtävä",
     "inputLabelDays": "pv",
     "inputLabelPercent": "%",
     "taskConnectionsTable": {
@@ -327,14 +354,16 @@
     "changeEnd": "Muuta loppua",
     "reasonForChange": "Muutoksen syy",
     "comment": "Kommentti",
-    "waitingForApproval": "Odottaa hyväksyntaa",
-    "abandoned": "Hylätty",
-    "accepted": "Hyväksytty",
     "reasons": {
       "missingInitialData": "Lähtötiedot puuttuvat",
       "resourceShortage": "Resurssivaje",
       "timeUsageEstimate": "Ajankäyttöarvio"
     }
+  },
+  "changeProposalStatuses": {
+    "PENDING": "Odottaa hyväksyntää",
+    "APPROVED": "Hyväksytty",
+    "REJECTED": "Hylätty"
   },
   "taskComments": {
     "comments": "Kommentit",
@@ -348,5 +377,10 @@
     "week": "Viikko",
     "markTasks": "Merkitse tehtäviä",
     "noDependentUser": "Ei riippuvaista käyttäjää"
+  },
+  "taskStatuses": {
+    "NOT_STARTED": "Ei aloitettu",
+    "IN_PROGRESS": "Käynnissä",
+    "DONE": "Valmis"
   }
 }

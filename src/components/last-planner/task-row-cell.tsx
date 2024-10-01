@@ -3,7 +3,7 @@ import { Box, Tooltip, Typography, darken } from "@mui/material";
 import { JobPosition, Task, TaskStatus } from "generated/client";
 import { useFindUserQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { Interval } from "luxon";
-import { CSSProperties } from "react";
+import { CSSProperties, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { getContrastForegroundColor, hexFromString } from "utils";
 
@@ -46,8 +46,8 @@ export const TaskRowCell = ({
   const { t } = useTranslation();
   const { dependentUserId } = task ?? {};
   const jobPositionsQuery = useListJobPositionsQuery();
-  const jobPositions = jobPositionsQuery.data?.jobPositions ?? [];
-  const findDependentUserQuery = useFindUserQuery(dependentUserId);
+  const jobPositions = useMemo(() => jobPositionsQuery.data?.jobPositions ?? [], [jobPositionsQuery.data]);
+  const findDependentUserQuery = useFindUserQuery({ userId: dependentUserId });
   const dependentUser = findDependentUserQuery.data;
 
   const jobPosition =

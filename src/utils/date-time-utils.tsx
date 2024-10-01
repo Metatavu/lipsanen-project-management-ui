@@ -1,4 +1,4 @@
-import { DateTimeUnit, Interval } from "luxon";
+import { DateTime, DateTimeUnit, Interval } from "luxon";
 
 /**
  * Splits an interval into a list of durations of the given unit.
@@ -27,4 +27,17 @@ export const splitIntervalByDuration = (interval: Interval, unit: DateTimeUnit) 
  */
 export const getEarliestDate = (dates: Date[]) => {
   return dates.reduce((earliest, date) => (date < earliest ? date : earliest), dates[0]);
+};
+
+/**
+ * Returns valid datetime from given date or throws an error
+ *
+ * @param date date
+ * @returns valid datetime
+ * @throws Error if date is invalid
+ */
+export const getValidDateTimeOrThrow = (date: Date) => {
+  const dateTime = DateTime.fromJSDate(date);
+  if (!dateTime.isValid) throw Error(`Invalid date ${date}`);
+  return dateTime;
 };

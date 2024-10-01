@@ -1,22 +1,24 @@
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
-  TableRow,
-  TableCell,
-  TextField,
-  MenuItem,
-  IconButton,
   Button,
-  DialogContentText,
+  IconButton,
+  MenuItem,
+  Stack,
   Table,
   TableBody,
+  TableCell,
   TableContainer,
   TableHead,
+  TableRow,
+  TextField,
+  TextFieldProps,
+  Typography,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 import { Task, TaskConnectionType } from "generated/client";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
-import { useEffect, useMemo } from "react";
 
 /**
  * Component properties
@@ -38,6 +40,21 @@ interface Props {
   removeExistingTaskConnectionRow: (connectionId: string) => void;
   setTaskConnectionsValid: (valid: boolean) => void;
 }
+
+/**
+ * Styled table cell text field component
+ *
+ * @param props component properties
+ */
+const TableCellTextField = (props: TextFieldProps) => (
+  <TextField
+    variant="outlined"
+    fullWidth
+    size="small"
+    sx={{ ".MuiOutlinedInput-notchedOutline": { border: "none" } }}
+    {...props}
+  />
+);
 
 /**
  * Task connections table component
@@ -104,10 +121,8 @@ const TaskConnectionsTable = ({
 
     const connectedTaskStartDate = connectedTask.attachedTask.startDate;
     const connectedTaskEndDate = connectedTask.attachedTask.endDate;
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const editedTaskStartDate = new Date(editedTaskFormData.startDate.toISODate()!);
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const editedTaskEndDate = new Date(editedTaskFormData.endDate.toISODate()!);
+    const editedTaskStartDate = new Date(editedTaskFormData.startDate.toISODate());
+    const editedTaskEndDate = new Date(editedTaskFormData.endDate.toISODate());
 
     const sourceTaskDates =
       connectedTask.hierarchy === TaskConnectionRelationship.PARENT
@@ -139,7 +154,6 @@ const TaskConnectionsTable = ({
   /**
    * Recalculate overall validity
    */
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const allConnections = [...existingTaskConnections, ...newTaskConnections];
     const validationErrors = allConnections.map((connection) =>
@@ -150,20 +164,29 @@ const TaskConnectionsTable = ({
       ),
     );
     setTaskConnectionsValid(!validationErrors.some((error) => error !== null));
-  }, [existingTaskConnections, newTaskConnections, milestoneTasks, taskData]);
+  }, [
+    existingTaskConnections,
+    newTaskConnections,
+    milestoneTasks,
+    taskData,
+    setTaskConnectionsValid,
+    determineIfTaskTypeIsAllowed,
+  ]);
 
   /**
    * Render existing task connection table rows
    */
   const renderExistingTaskConnectionTableRows = () => {
     return existingTaskConnections.map((connection) => (
-      <TableRow key={connection.connectionId}>
+      <TableRow key={connection.connectionId} sx={{ "& > .MuiTableCell-root": { p: 0 } }}>
         <TableCell>
-          <TextField value={connection.hierarchy} disabled />
+          <TableCellTextField
+            value={t(`taskConnectionRoles.${connection.hierarchy}`)}
+            InputProps={{ readOnly: true }}
+          />
         </TableCell>
         <TableCell>
-          <TextField
-            fullWidth
+          <TableCellTextField
             select
             value={connection.type}
             onChange={(e) =>
@@ -172,10 +195,10 @@ const TaskConnectionsTable = ({
           >
             {Object.values(TaskConnectionType).map((type) => (
               <MenuItem key={type} value={type}>
-                {type}
+                {t(`taskConnectionTypes.${type}`)}
               </MenuItem>
             ))}
-          </TextField>
+          </TableCellTextField>
           <div style={{ color: "red", fontSize: "0.75rem" }}>
             {determineIfTaskTypeIsAllowed(
               { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
@@ -185,12 +208,17 @@ const TaskConnectionsTable = ({
           </div>
         </TableCell>
         <TableCell>
-          <TextField fullWidth value={connection.attachedTask?.name ?? ""} disabled />
+          <TableCellTextField value={connection.attachedTask?.name ?? ""} />
         </TableCell>
         <TableCell>
-          <TextField fullWidth value={connection.attachedTask?.status ?? ""} disabled />
+          {connection.attachedTask && (
+            <TableCellTextField
+              value={t(`taskStatuses.${connection.attachedTask.status}`)}
+              InputProps={{ readOnly: true }}
+            />
+          )}
         </TableCell>
-        <TableCell>
+        <TableCell sx={{ textAlign: "center" }}>
           <IconButton onClick={() => removeExistingTaskConnectionRow(connection.connectionId)}>
             <DeleteIcon />
           </IconButton>
@@ -204,21 +232,21 @@ const TaskConnectionsTable = ({
    */
   const renderNewTaskConnectionTableRows = () => {
     return newTaskConnections.map((connection) => (
-      <TableRow key={connection.id}>
+      <TableRow key={connection.id} sx={{ "& > .MuiTableCell-root": { p: 0 } }}>
         <TableCell>
-          <TextField
+          <TableCellTextField
             select
             value={connection.hierarchy}
             onChange={(e) =>
               handleEditNewConnection(connection.id ?? "", "hierarchy", e.target.value as keyof TaskConnectionTableData)
             }
           >
-            <MenuItem value={TaskConnectionRelationship.PARENT}>{TaskConnectionRelationship.PARENT}</MenuItem>
-            <MenuItem value={TaskConnectionRelationship.CHILD}>{TaskConnectionRelationship.CHILD}</MenuItem>
-          </TextField>
+            <MenuItem value={TaskConnectionRelationship.PARENT}>{t("taskConnectionRoles.PARENT")}</MenuItem>
+            <MenuItem value={TaskConnectionRelationship.CHILD}>{t("taskConnectionRoles.CHILD")}</MenuItem>
+          </TableCellTextField>
         </TableCell>
         <TableCell>
-          <TextField
+          <TableCellTextField
             fullWidth
             select
             value={connection.type}
@@ -228,10 +256,10 @@ const TaskConnectionsTable = ({
           >
             {Object.values(TaskConnectionType).map((type) => (
               <MenuItem key={type} value={type}>
-                {type}
+                {t(`taskConnectionTypes.${type}`)}
               </MenuItem>
             ))}
-          </TextField>
+          </TableCellTextField>
           <div style={{ color: "red", fontSize: "0.75rem" }}>
             {determineIfTaskTypeIsAllowed(
               { ...connection, attachedTask: milestoneTasks.find((task) => task.id === connection.attachedTask?.id) },
@@ -241,7 +269,7 @@ const TaskConnectionsTable = ({
           </div>
         </TableCell>
         <TableCell>
-          <TextField
+          <TableCellTextField
             fullWidth
             select
             value={connection.attachedTask?.id ?? ""}
@@ -257,12 +285,16 @@ const TaskConnectionsTable = ({
                 {taskElement.name}
               </MenuItem>
             ))}
-          </TextField>
+          </TableCellTextField>
         </TableCell>
         <TableCell>
-          <TextField fullWidth value={connection.attachedTask?.status ?? ""} disabled />
+          <TableCellTextField
+            fullWidth
+            value={connection.attachedTask ? t(`taskStatuses.${connection.attachedTask.status}`) : ""}
+            InputProps={{ readOnly: true }}
+          />
         </TableCell>
-        <TableCell>
+        <TableCell sx={{ textAlign: "center" }}>
           <IconButton onClick={() => removeNewTaskConnectionRow(connection.id ?? "")}>
             <DeleteIcon />
           </IconButton>
@@ -276,20 +308,18 @@ const TaskConnectionsTable = ({
    */
   return (
     <>
-      <DialogContentText sx={{ padding: 2 }} variant="h5">
+      <Typography component="h2" variant="h6" p={2} pb={1}>
         {t("newMilestoneTaskDialog.taskConnectionsTable.title")}
-      </DialogContentText>
+      </Typography>
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell style={{ width: "15%" }}>
-                {t("newMilestoneTaskDialog.taskConnectionsTable.hierarchy")}
-              </TableCell>
-              <TableCell style={{ width: "15%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.type")}</TableCell>
-              <TableCell style={{ width: "40%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.task")}</TableCell>
-              <TableCell style={{ width: "25%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.status")}</TableCell>
-              <TableCell style={{ width: "5%" }}>{t("newMilestoneTaskDialog.taskConnectionsTable.delete")}</TableCell>
+              <TableCell style={{ width: 150 }}>{t("newMilestoneTaskDialog.taskConnectionsTable.hierarchy")}</TableCell>
+              <TableCell style={{ width: 200 }}>{t("newMilestoneTaskDialog.taskConnectionsTable.type")}</TableCell>
+              <TableCell>{t("newMilestoneTaskDialog.taskConnectionsTable.task")}</TableCell>
+              <TableCell style={{ width: 150 }}>{t("newMilestoneTaskDialog.taskConnectionsTable.status")}</TableCell>
+              <TableCell style={{ width: 50 }}>{t("newMilestoneTaskDialog.taskConnectionsTable.delete")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -297,6 +327,8 @@ const TaskConnectionsTable = ({
             {renderNewTaskConnectionTableRows()}
           </TableBody>
         </Table>
+      </TableContainer>
+      <Stack direction="row" justifyContent="flex-end" p={2}>
         <Button
           onClick={addNewTaskConnectionRow}
           startIcon={<AddIcon />}
@@ -304,7 +336,7 @@ const TaskConnectionsTable = ({
         >
           {t("newMilestoneTaskDialog.taskConnectionsTable.addButton")}
         </Button>
-      </TableContainer>
+      </Stack>
     </>
   );
 };
