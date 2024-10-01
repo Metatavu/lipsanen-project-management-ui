@@ -311,7 +311,6 @@ export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTa
         throw Error(t("errorHandling.errorListingTasks"), { cause: error });
       }
     },
-    enabled: !!projectId,
     staleTime: ONE_MINUTE,
   });
 };
