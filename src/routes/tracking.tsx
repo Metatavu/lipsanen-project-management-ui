@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
 import { Box, Card, MenuItem, TextField, Typography } from "@mui/material";
+import { createFileRoute } from "@tanstack/react-router";
+import { authAtom } from "atoms/auth";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import DelaysList from "components/tracking/delays-list";
+import NotificationsList from "components/tracking/notifications-list";
 import {
   useFindUserQuery,
   useListChangeProposalsQuery,
@@ -12,9 +14,7 @@ import {
   useListUsersQuery,
 } from "hooks/api-queries";
 import { useAtom } from "jotai";
-import { authAtom } from "atoms/auth";
-import DelaysList from "components/tracking/delays-list";
-import NotificationsList from "components/tracking/notifications-list";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -31,25 +31,30 @@ function TrackingIndexRoute() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
 
   const listProjectsQuery = useListProjectsQuery();
-  const projects = listProjectsQuery.data?.projects || [];
+  const projects = useMemo(() => listProjectsQuery.data?.projects ?? [], [listProjectsQuery.data]);
 
-  const findUserQuery = useFindUserQuery(auth?.token.userId ?? "");
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.userId });
   const user = findUserQuery.data;
 
   const listUsersQuery = useListUsersQuery();
-  const users = listUsersQuery.data?.users || [];
+  const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
 
   const listTasksQuery = useListTasksQuery({ projectId: selectedProjectId });
   const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
 
-  const listChangeProposalsQuery = useListChangeProposalsQuery(selectedProjectId ? { projectId: selectedProjectId } : {});
+  const listChangeProposalsQuery = useListChangeProposalsQuery(
+    selectedProjectId ? { projectId: selectedProjectId } : {},
+  );
   const changeProposals = useMemo(() => listChangeProposalsQuery.data ?? [], [listChangeProposalsQuery.data]);
 
   const listJobPositionsQuery = useListJobPositionsQuery();
-  const jobPositions = listJobPositionsQuery.data?.jobPositions || [];
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
-  const listNotificationEventsQuery = useListNotificationEventsQuery({ userId: user?.id ?? "", projectId: selectedProjectId });
-  const notificationEvents = listNotificationEventsQuery.data || [];
+  const listNotificationEventsQuery = useListNotificationEventsQuery({
+    userId: user?.id ?? "",
+    projectId: selectedProjectId,
+  });
+  const notificationEvents = useMemo(() => listNotificationEventsQuery.data ?? [], [listNotificationEventsQuery.data]);
 
   /**
    * Renders dropdown picker
@@ -69,7 +74,7 @@ function TrackingIndexRoute() {
         onChange={(event) => setSelectedProjectId(event.target.value === "all" ? undefined : event.target.value)}
       >
         <MenuItem key="all" value="all">
-        {t("trackingScreen.allProjects")}
+          {t("trackingScreen.allProjects")}
         </MenuItem>
         {projects.map((project) => (
           <MenuItem key={project.id} value={project.id}>
@@ -95,7 +100,7 @@ function TrackingIndexRoute() {
         {/* Notifications Column */}
         <Card sx={{ width: "30%", height: "100%", overflow: "auto", boxShadow: "none", padding: "1rem" }}>
           <NotificationsList
-            tasks={ tasks }
+            tasks={tasks}
             notificationEvents={notificationEvents}
             loading={listTasksQuery.isLoading || listNotificationEventsQuery.isLoading}
           />
@@ -105,7 +110,7 @@ function TrackingIndexRoute() {
           <Card sx={{ minWidth: 0, overflow: "auto", boxShadow: "none" }}>
             <DelaysList
               users={users}
-              tasks={ tasks }
+              tasks={tasks}
               changeProposals={changeProposals}
               jobPositions={jobPositions}
               loading={listChangeProposalsQuery.isLoading || listJobPositionsQuery.isLoading}
@@ -115,4 +120,4 @@ function TrackingIndexRoute() {
       </Box>
     </FlexColumnLayout>
   );
-};
+}
