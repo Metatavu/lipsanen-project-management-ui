@@ -18,33 +18,22 @@ import {
     ChangeProposal,
     ChangeProposalFromJSON,
     ChangeProposalToJSON,
-    Task,
-    TaskFromJSON,
-    TaskToJSON,
 } from '../models';
 
 export interface CreateChangeProposalRequest {
     changeProposal: ChangeProposal;
-    projectId: string;
 }
 
 export interface DeleteChangeProposalRequest {
-    projectId: string;
     changeProposalId: string;
 }
 
 export interface FindChangeProposalRequest {
-    projectId: string;
-    changeProposalId: string;
-}
-
-export interface ListChangeProposalTasksPreviewRequest {
-    projectId: string;
     changeProposalId: string;
 }
 
 export interface ListChangeProposalsRequest {
-    projectId: string;
+    projectId?: string;
     milestoneId?: string;
     taskId?: string;
     first?: number;
@@ -53,7 +42,6 @@ export interface ListChangeProposalsRequest {
 
 export interface UpdateChangeProposalRequest {
     changeProposal: ChangeProposal;
-    projectId: string;
     changeProposalId: string;
 }
 
@@ -63,16 +51,12 @@ export interface UpdateChangeProposalRequest {
 export class ChangeProposalsApi extends runtime.BaseAPI {
 
     /**
-     * Create a new change proposal within a milestone
-     * Create a new change proposal within a milestone
+     * Create a new change proposal
+     * Create a new change proposal
      */
     async createChangeProposalRaw(requestParameters: CreateChangeProposalRequest): Promise<runtime.ApiResponse<ChangeProposal>> {
         if (requestParameters.changeProposal === null || requestParameters.changeProposal === undefined) {
             throw new runtime.RequiredError('changeProposal','Required parameter requestParameters.changeProposal was null or undefined when calling createChangeProposal.');
-        }
-
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling createChangeProposal.');
         }
 
         const queryParameters: any = {};
@@ -90,7 +74,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/changeProposals`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))),
+            path: `/v1/changeProposals`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -101,8 +85,8 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Create a new change proposal within a milestone
-     * Create a new change proposal within a milestone
+     * Create a new change proposal
+     * Create a new change proposal
      */
     async createChangeProposal(requestParameters: CreateChangeProposalRequest): Promise<ChangeProposal> {
         const response = await this.createChangeProposalRaw(requestParameters);
@@ -110,8 +94,8 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Create a new change proposal within a milestone
-     * Create a new change proposal within a milestone
+     * Create a new change proposal
+     * Create a new change proposal
      */
     async createChangeProposalWithHeaders(requestParameters: CreateChangeProposalRequest): Promise<[ ChangeProposal, Headers ]> {
         const response = await this.createChangeProposalRaw(requestParameters);
@@ -120,14 +104,10 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Deletes a specific change proposal within a milestone
-     * Delete a specific change proposal within a milestone
+     * Deletes a specific change proposal
+     * Delete a specific change proposal
      */
     async deleteChangeProposalRaw(requestParameters: DeleteChangeProposalRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling deleteChangeProposal.');
-        }
-
         if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
             throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling deleteChangeProposal.');
         }
@@ -145,7 +125,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            path: `/v1/changeProposals/{changeProposalId}`.replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -155,16 +135,16 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Deletes a specific change proposal within a milestone
-     * Delete a specific change proposal within a milestone
+     * Deletes a specific change proposal
+     * Delete a specific change proposal
      */
     async deleteChangeProposal(requestParameters: DeleteChangeProposalRequest): Promise<void> {
         await this.deleteChangeProposalRaw(requestParameters);
     }
 
     /**
-     * Deletes a specific change proposal within a milestone
-     * Delete a specific change proposal within a milestone
+     * Deletes a specific change proposal
+     * Delete a specific change proposal
      */
     async deleteChangeProposalWithHeaders(requestParameters: DeleteChangeProposalRequest): Promise<Headers> {
         const response = await this.deleteChangeProposalRaw(requestParameters);
@@ -172,14 +152,10 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Find a specific change proposal within a milestone
-     * Find a specific change proposal within a milestone
+     * Find a specific change proposal
+     * Find a specific change proposal
      */
     async findChangeProposalRaw(requestParameters: FindChangeProposalRequest): Promise<runtime.ApiResponse<ChangeProposal>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling findChangeProposal.');
-        }
-
         if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
             throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling findChangeProposal.');
         }
@@ -197,7 +173,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            path: `/v1/changeProposals/{changeProposalId}`.replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -207,8 +183,8 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Find a specific change proposal within a milestone
-     * Find a specific change proposal within a milestone
+     * Find a specific change proposal
+     * Find a specific change proposal
      */
     async findChangeProposal(requestParameters: FindChangeProposalRequest): Promise<ChangeProposal> {
         const response = await this.findChangeProposalRaw(requestParameters);
@@ -216,8 +192,8 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Find a specific change proposal within a milestone
-     * Find a specific change proposal within a milestone
+     * Find a specific change proposal
+     * Find a specific change proposal
      */
     async findChangeProposalWithHeaders(requestParameters: FindChangeProposalRequest): Promise<[ ChangeProposal, Headers ]> {
         const response = await this.findChangeProposalRaw(requestParameters);
@@ -226,69 +202,15 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * List of updated tasks that are affected by the change proposal
-     * List of updated tasks that are affected by the change proposal
-     */
-    async listChangeProposalTasksPreviewRaw(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<runtime.ApiResponse<Array<Task>>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listChangeProposalTasksPreview.');
-        }
-
-        if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
-            throw new runtime.RequiredError('changeProposalId','Required parameter requestParameters.changeProposalId was null or undefined when calling listChangeProposalTasksPreview.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}/tasks`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        });
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TaskFromJSON));
-    }
-
-    /**
-     * List of updated tasks that are affected by the change proposal
-     * List of updated tasks that are affected by the change proposal
-     */
-    async listChangeProposalTasksPreview(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<Array<Task>> {
-        const response = await this.listChangeProposalTasksPreviewRaw(requestParameters);
-        return await response.value();
-    }
-
-    /**
-     * List of updated tasks that are affected by the change proposal
-     * List of updated tasks that are affected by the change proposal
-     */
-    async listChangeProposalTasksPreviewWithHeaders(requestParameters: ListChangeProposalTasksPreviewRequest): Promise<[ Array<Task>, Headers ]> {
-        const response = await this.listChangeProposalTasksPreviewRaw(requestParameters);
-        const value = await response.value(); 
-        return [ value, response.raw.headers ];
-    }
-
-    /**
-     * Lists change proposals within a milestone. Proposals are sorted from earliest to latest created.
-     * List change proposals within a milestone
+     * Lists change proposals. Proposals are sorted from earliest to latest created.
+     * List change proposals
      */
     async listChangeProposalsRaw(requestParameters: ListChangeProposalsRequest): Promise<runtime.ApiResponse<Array<ChangeProposal>>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listChangeProposals.');
-        }
-
         const queryParameters: any = {};
+
+        if (requestParameters.projectId !== undefined) {
+            queryParameters['projectId'] = requestParameters.projectId;
+        }
 
         if (requestParameters.milestoneId !== undefined) {
             queryParameters['milestoneId'] = requestParameters.milestoneId;
@@ -317,7 +239,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/changeProposals`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))),
+            path: `/v1/changeProposals`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -327,17 +249,17 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Lists change proposals within a milestone. Proposals are sorted from earliest to latest created.
-     * List change proposals within a milestone
+     * Lists change proposals. Proposals are sorted from earliest to latest created.
+     * List change proposals
      */
-    async listChangeProposals(requestParameters: ListChangeProposalsRequest): Promise<Array<ChangeProposal>> {
+    async listChangeProposals(requestParameters: ListChangeProposalsRequest = {}): Promise<Array<ChangeProposal>> {
         const response = await this.listChangeProposalsRaw(requestParameters);
         return await response.value();
     }
 
     /**
-     * Lists change proposals within a milestone. Proposals are sorted from earliest to latest created.
-     * List change proposals within a milestone
+     * Lists change proposals. Proposals are sorted from earliest to latest created.
+     * List change proposals
      */
     async listChangeProposalsWithHeaders(requestParameters: ListChangeProposalsRequest): Promise<[ Array<ChangeProposal>, Headers ]> {
         const response = await this.listChangeProposalsRaw(requestParameters);
@@ -346,16 +268,12 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Update a specific change proposal within a milestone
-     * Update a specific change proposal within a milestone
+     * Update a specific change proposal
+     * Update a specific change proposal
      */
     async updateChangeProposalRaw(requestParameters: UpdateChangeProposalRequest): Promise<runtime.ApiResponse<ChangeProposal>> {
         if (requestParameters.changeProposal === null || requestParameters.changeProposal === undefined) {
             throw new runtime.RequiredError('changeProposal','Required parameter requestParameters.changeProposal was null or undefined when calling updateChangeProposal.');
-        }
-
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling updateChangeProposal.');
         }
 
         if (requestParameters.changeProposalId === null || requestParameters.changeProposalId === undefined) {
@@ -377,7 +295,7 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/changeProposals/{changeProposalId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
+            path: `/v1/changeProposals/{changeProposalId}`.replace(`{${"changeProposalId"}}`, encodeURIComponent(String(requestParameters.changeProposalId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -388,8 +306,8 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Update a specific change proposal within a milestone
-     * Update a specific change proposal within a milestone
+     * Update a specific change proposal
+     * Update a specific change proposal
      */
     async updateChangeProposal(requestParameters: UpdateChangeProposalRequest): Promise<ChangeProposal> {
         const response = await this.updateChangeProposalRaw(requestParameters);
@@ -397,8 +315,8 @@ export class ChangeProposalsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Update a specific change proposal within a milestone
-     * Update a specific change proposal within a milestone
+     * Update a specific change proposal
+     * Update a specific change proposal
      */
     async updateChangeProposalWithHeaders(requestParameters: UpdateChangeProposalRequest): Promise<[ ChangeProposal, Headers ]> {
         const response = await this.updateChangeProposalRaw(requestParameters);

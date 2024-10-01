@@ -22,24 +22,20 @@ import {
 
 export interface CreateTaskCommentRequest {
     taskComment: TaskComment;
-    projectId: string;
     taskId: string;
 }
 
 export interface DeleteTaskCommentRequest {
-    projectId: string;
     taskId: string;
     commentId: string;
 }
 
 export interface FindTaskCommentRequest {
-    projectId: string;
     taskId: string;
     commentId: string;
 }
 
 export interface ListTaskCommentsRequest {
-    projectId: string;
     taskId: string;
     first?: number;
     max?: number;
@@ -47,7 +43,6 @@ export interface ListTaskCommentsRequest {
 
 export interface UpdateTaskCommentRequest {
     taskComment: TaskComment;
-    projectId: string;
     taskId: string;
     commentId: string;
 }
@@ -64,10 +59,6 @@ export class TaskCommentsApi extends runtime.BaseAPI {
     async createTaskCommentRaw(requestParameters: CreateTaskCommentRequest): Promise<runtime.ApiResponse<TaskComment>> {
         if (requestParameters.taskComment === null || requestParameters.taskComment === undefined) {
             throw new runtime.RequiredError('taskComment','Required parameter requestParameters.taskComment was null or undefined when calling createTaskComment.');
-        }
-
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling createTaskComment.');
         }
 
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
@@ -89,7 +80,7 @@ export class TaskCommentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/tasks/{taskId}/comments`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
+            path: `/v1/tasks/{taskId}/comments`.replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -123,10 +114,6 @@ export class TaskCommentsApi extends runtime.BaseAPI {
      * Delete a specific comment within a task
      */
     async deleteTaskCommentRaw(requestParameters: DeleteTaskCommentRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling deleteTaskComment.');
-        }
-
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
             throw new runtime.RequiredError('taskId','Required parameter requestParameters.taskId was null or undefined when calling deleteTaskComment.');
         }
@@ -148,7 +135,7 @@ export class TaskCommentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/tasks/{taskId}/comments/{commentId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))).replace(`{${"commentId"}}`, encodeURIComponent(String(requestParameters.commentId))),
+            path: `/v1/tasks/{taskId}/comments/{commentId}`.replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))).replace(`{${"commentId"}}`, encodeURIComponent(String(requestParameters.commentId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -179,10 +166,6 @@ export class TaskCommentsApi extends runtime.BaseAPI {
      * Find a specific comment within a task
      */
     async findTaskCommentRaw(requestParameters: FindTaskCommentRequest): Promise<runtime.ApiResponse<TaskComment>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling findTaskComment.');
-        }
-
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
             throw new runtime.RequiredError('taskId','Required parameter requestParameters.taskId was null or undefined when calling findTaskComment.');
         }
@@ -204,7 +187,7 @@ export class TaskCommentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/tasks/{taskId}/comments/{commentId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))).replace(`{${"commentId"}}`, encodeURIComponent(String(requestParameters.commentId))),
+            path: `/v1/tasks/{taskId}/comments/{commentId}`.replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))).replace(`{${"commentId"}}`, encodeURIComponent(String(requestParameters.commentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -237,10 +220,6 @@ export class TaskCommentsApi extends runtime.BaseAPI {
      * List comments within a task
      */
     async listTaskCommentsRaw(requestParameters: ListTaskCommentsRequest): Promise<runtime.ApiResponse<Array<TaskComment>>> {
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling listTaskComments.');
-        }
-
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
             throw new runtime.RequiredError('taskId','Required parameter requestParameters.taskId was null or undefined when calling listTaskComments.');
         }
@@ -266,7 +245,7 @@ export class TaskCommentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/tasks/{taskId}/comments`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
+            path: `/v1/tasks/{taskId}/comments`.replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -303,10 +282,6 @@ export class TaskCommentsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('taskComment','Required parameter requestParameters.taskComment was null or undefined when calling updateTaskComment.');
         }
 
-        if (requestParameters.projectId === null || requestParameters.projectId === undefined) {
-            throw new runtime.RequiredError('projectId','Required parameter requestParameters.projectId was null or undefined when calling updateTaskComment.');
-        }
-
         if (requestParameters.taskId === null || requestParameters.taskId === undefined) {
             throw new runtime.RequiredError('taskId','Required parameter requestParameters.taskId was null or undefined when calling updateTaskComment.');
         }
@@ -330,7 +305,7 @@ export class TaskCommentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/v1/projects/{projectId}/tasks/{taskId}/comments/{commentId}`.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters.projectId))).replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))).replace(`{${"commentId"}}`, encodeURIComponent(String(requestParameters.commentId))),
+            path: `/v1/tasks/{taskId}/comments/{commentId}`.replace(`{${"taskId"}}`, encodeURIComponent(String(requestParameters.taskId))).replace(`{${"commentId"}}`, encodeURIComponent(String(requestParameters.commentId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
