@@ -67,7 +67,7 @@ export interface Milestone {
      * @type {number}
      * @memberof Milestone
      */
-    estimatedReadiness?: number;
+    readonly estimatedReadiness?: number;
     /**
      * 
      * @type {Metadata}
@@ -125,7 +125,6 @@ export function MilestoneToJSON(value?: Milestone | null): any {
         'endDate': (value.endDate.toISOString().substring(0,10)),
         'originalStartDate': (value.originalStartDate.toISOString().substring(0,10)),
         'originalEndDate': (value.originalEndDate.toISOString().substring(0,10)),
-        'estimatedReadiness': value.estimatedReadiness,
         'metadata': MetadataToJSON(value.metadata),
     };
 }
