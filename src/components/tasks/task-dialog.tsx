@@ -272,7 +272,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
-      onClose();
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingChangeProposal"), error),
   });
@@ -284,7 +283,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
-      onClose();
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
@@ -334,6 +332,27 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   });
 
   /**
+   * Closes the dialog and clears the form
+   */
+  const closeAndClear = () => {
+    setTaskData({
+      name: "",
+      startDate: undefined,
+      endDate: undefined,
+      status: TaskStatus.NotStarted,
+      assigneeIds: [],
+      positionId: "",
+      estimatedDuration: 0,
+      estimatedReadiness: 0,
+      attachmentUrls: [],
+    });
+
+    setNewTaskConnections([]);
+    setExistingTaskConnections([]);
+    onClose();
+  };
+
+  /**
    * Deletes removed task connections
    * Note: to be used only when editing existing task
    */
@@ -342,9 +361,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       .filter((connection) => !existingTaskConnections.some((c) => c.connectionId === connection.id))
       .map((connection) => ({ projectId, connectionId: connection.id ?? "" }));
 
-    await Promise.all([
-      ...connectionsToDelete.map((connection) => deleteTaskConnectionsMutation.mutateAsync(connection)),
-    ]);
+    for (const connection of connectionsToDelete) {
+      await deleteTaskConnectionsMutation.mutateAsync(connection);
+    }
   };
 
   /**
@@ -353,16 +372,18 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * @param taskId task id
    */
   const persistNewAndEditedTaskConnections = async (taskId: string) => {
-    const newConnections = newTaskConnections.map((connection) => ({
-      projectId: projectId,
-      taskConnection: {
-        sourceTaskId:
-          connection.hierarchy === TaskConnectionRelationship.CHILD ? taskId : connection.attachedTask?.id ?? "",
-        targetTaskId:
-          connection.hierarchy === TaskConnectionRelationship.CHILD ? connection.attachedTask?.id ?? "" : taskId,
-        type: connection.type,
-      },
-    }));
+    const newConnections = newTaskConnections
+      .filter((connection) => connection.attachedTask) // Filter out empty connections
+      .map((connection) => ({
+        projectId: projectId,
+        taskConnection: {
+          sourceTaskId:
+            connection.hierarchy === TaskConnectionRelationship.CHILD ? taskId : connection.attachedTask?.id ?? "",
+          targetTaskId:
+            connection.hierarchy === TaskConnectionRelationship.CHILD ? connection.attachedTask?.id ?? "" : taskId,
+          type: connection.type,
+        },
+      }));
 
     const editedConnections = existingTaskConnections.map((connection) => ({
       projectId: projectId,
@@ -633,7 +654,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     }));
     try {
       await deleteChangeProposalMutation.mutateAsync({
-        projectId: projectId,
         changeProposalId: changeProposalId,
       });
     } finally {
@@ -693,7 +713,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       if (!task.milestoneId) return;
 
       await updateTaskMutation.mutateAsync({
-        projectId: projectId,
         taskId: task.id,
         task: {
           milestoneId: task.milestoneId,
@@ -717,7 +736,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       if (!taskData?.milestoneId) return;
 
       const createdTask = await createTaskMutation.mutateAsync({
-        projectId: projectId,
         task: {
           milestoneId: taskData.milestoneId,
           name: taskData.name,
@@ -741,20 +759,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
     persistChangeProposals();
 
-    setTaskData({
-      name: "",
-      startDate: undefined,
-      endDate: undefined,
-      status: TaskStatus.NotStarted,
-      assigneeIds: [],
-      positionId: "",
-      estimatedDuration: 0,
-      estimatedReadiness: 0,
-      attachmentUrls: [],
-    });
-    setNewTaskConnections([]);
-    setExistingTaskConnections([]);
-    onClose();
+    closeAndClear();
   };
 
   /**
@@ -775,7 +780,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       proposal.endDate = new Date(endDate.toISODate());
 
       return await createChangeProposalMutation.mutateAsync({
-        projectId: projectId,
         changeProposal: proposal,
       });
     });
@@ -792,7 +796,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       if (!proposal.id) throw Error("No ID in change proposal");
       return updateChangeProposalsMutation.mutateAsync({
         changeProposal: proposal,
-        projectId: projectId,
         changeProposalId: proposal.id,
       });
     });
@@ -1383,7 +1386,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         fullScreen={isSmallerScreen}
         PaperProps={{ sx: { minHeight: "90vh", maxWidth: 1200 } }}
         open={open}
-        onClose={onClose}
+        onClose={closeAndClear}
       >
         <AppBar sx={{ position: "relative" }} elevation={0}>
           <Toolbar sx={{ display: "flex", gap: 2, alignItems: "center" }}>
@@ -1395,14 +1398,13 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               variant="outlined"
               color="inherit"
               size="large"
-              //TODO: reconsider disabling the button @daniil
               disabled={isDisabled}
               sx={{ ml: "auto" }}
             >
               {!task && <AddIcon />}
               {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}
             </Button>
-            <IconButton color="inherit" onClick={onClose}>
+            <IconButton color="inherit" onClick={closeAndClear}>
               <CloseIcon />
             </IconButton>
           </Toolbar>
