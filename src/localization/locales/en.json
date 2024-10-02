@@ -1,7 +1,7 @@
 {
   "back": "Back",
   "projects": "Projects",
-  "monitoring": "Monitoring",
+  "tracking": "Tracking",
   "projectTemplates": "Project templates",
   "users": "Users",
   "roles": "Roles",
@@ -193,6 +193,8 @@
   },
   "trackingScreen": {
     "title": "Tracking",
+    "selectProject": "Select a project",
+    "allProjects": "All projects",
     "notificationsList": {
       "title": "Notifications",
       "today": "Today",
@@ -211,6 +213,7 @@
     "delaysList": {
       "title": "Project delays",
       "groupBy": "Group by",
+      "selectProject": "Please select a project",
       "scopes": {
         "TASK": "Task",
         "ROLE": "Role",

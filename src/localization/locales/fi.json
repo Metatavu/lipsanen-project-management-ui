@@ -1,7 +1,7 @@
 {
   "back": "Takaisin",
   "projects": "Projektit",
-  "monitoring": "Seuranta",
+  "tracking": "Seuranta",
   "projectTemplates": "Projektimallit",
   "users": "Käyttäjät",
   "roles": "Roolit",
@@ -193,6 +193,8 @@
   },
   "trackingScreen": {
     "title": "Seuranta",
+    "selectProject": "Valitse projekti",
+    "allProjects": "Kaikki projektit",
     "notificationsList": {
       "title": "Notifikaatiot",
       "today": "Tänään",
@@ -211,6 +213,7 @@
     "delaysList": {
       "title": "Projektien myoöhästymiset",
       "groupBy": "Ryhmittele",
+      "selectProject": "Valitse projekti",
       "scopes": {
         "TASK": "Tehtävä",
         "ROLE": "Rooli",

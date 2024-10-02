@@ -6,6 +6,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   AppBar,
   Badge,
+  CircularProgress,
   IconButton,
   Menu,
   MenuItem,
@@ -18,8 +19,10 @@ import {
 } from "@mui/material";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
+import { useFindUserQuery, useListNotificationEventsQuery } from "hooks/api-queries";
 import { useAtom } from "jotai";
 import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
@@ -43,11 +46,21 @@ const TopNavigation = () => {
   useMatches();
   const pathParams = useParams({ strict: false });
 
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.userId });
+  const listNotificationEventsQuery = useListNotificationEventsQuery({
+    userId: findUserQuery.data?.id ?? "",
+  });
+
+  const unreadNotificationEventsCount = useMemo(() => {
+    const notificationEvents = listNotificationEventsQuery.data || [];
+    return notificationEvents.filter((event) => !event.read).length;
+  }, [listNotificationEventsQuery.data]);
+
   const accountMenuState = usePopupState({ variant: "popover", popupId: "accountMenu" });
 
   const routeLinks: NavigationLink[] = [
     { route: "/projects", labelKey: "projects" },
-    { route: "/monitoring", labelKey: "monitoring" },
+    { route: "/tracking", labelKey: "tracking" },
     { route: "/project-templates", labelKey: "projectTemplates" },
     { route: "/users", labelKey: "users" },
     ...(auth?.roles.includes(ADMIN_ROLE) || auth?.roles.includes(PROJECT_OWNER_ROLE)
@@ -96,8 +109,12 @@ const TopNavigation = () => {
 
         <Stack direction="row" gap={1} sx={{ flexGrow: 0 }}>
           <IconButton color="inherit">
-            <NotificationBadge badgeContent={1} color="warning">
-              <NotificationsNoneOutlinedIcon />
+            <NotificationBadge badgeContent={unreadNotificationEventsCount} color="warning">
+              {listNotificationEventsQuery.isLoading ? (
+                <CircularProgress size={20} />
+              ) : (
+                <NotificationsNoneOutlinedIcon />
+              )}
             </NotificationBadge>
           </IconButton>
           <IconButton color="inherit" {...bindTrigger(accountMenuState)}>
