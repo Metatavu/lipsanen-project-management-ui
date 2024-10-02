@@ -31,13 +31,7 @@ export interface User {
      * @type {string}
      * @memberof User
      */
-    id?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof User
-     */
-    readonly keycloakId?: string;
+    readonly id?: string;
     /**
      * 
      * @type {string}
@@ -79,7 +73,7 @@ export interface User {
      * @type {Array<UserRole>}
      * @memberof User
      */
-    readonly roles?: Array<UserRole>;
+    roles?: Array<UserRole>;
     /**
      * Job position that the user has
      * @type {string}
@@ -111,7 +105,6 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
-        'keycloakId': !exists(json, 'keycloakId') ? undefined : json['keycloakId'],
         'firstName': json['firstName'],
         'lastName': json['lastName'],
         'email': json['email'],
@@ -132,13 +125,13 @@ export function UserToJSON(value?: User | null): any {
     }
     return {
         
-        'id': value.id,
         'firstName': value.firstName,
         'lastName': value.lastName,
         'email': value.email,
         'companyId': value.companyId,
         'lastLoggedIn': value.lastLoggedIn === undefined ? undefined : (value.lastLoggedIn.toISOString()),
         'projectIds': value.projectIds,
+        'roles': value.roles === undefined ? undefined : ((value.roles as Array<any>).map(UserRoleToJSON)),
         'jobPositionId': value.jobPositionId,
     };
 }

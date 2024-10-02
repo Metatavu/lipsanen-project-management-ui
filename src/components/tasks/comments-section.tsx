@@ -461,7 +461,7 @@ const CommentsSection = ({
       const lastModifiedDate =
         comment.metadata?.modifiedAt && DateTime.fromJSDate(comment.metadata?.modifiedAt).toFormat("dd.MM.yyyy HH:mm");
       const hasBeenEdited = comment.metadata?.modifiedAt?.getTime() !== comment.metadata?.createdAt?.getTime();
-      const isOwnComment = loggedInUser?.keycloakId === comment.metadata?.creatorId;
+      const isOwnComment = loggedInUser?.id === comment.metadata?.creatorId;
 
       return (
         <Stack key={commentId} direction="row" alignItems="center" mb={1} gap={1}>

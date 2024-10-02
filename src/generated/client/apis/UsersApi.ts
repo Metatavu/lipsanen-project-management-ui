@@ -35,7 +35,6 @@ export interface FindUserRequest {
 
 export interface ListUsersRequest {
     companyId?: string;
-    keycloakId?: string;
     projectId?: string;
     jobPositionId?: string;
     first?: number;
@@ -217,10 +216,6 @@ export class UsersApi extends runtime.BaseAPI {
 
         if (requestParameters.companyId !== undefined) {
             queryParameters['companyId'] = requestParameters.companyId;
-        }
-
-        if (requestParameters.keycloakId !== undefined) {
-            queryParameters['keycloakId'] = requestParameters.keycloakId;
         }
 
         if (requestParameters.projectId !== undefined) {

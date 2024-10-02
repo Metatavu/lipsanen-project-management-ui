@@ -187,7 +187,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
               headerName: t("trackingScreen.delaysList.byTask.creator"),
               flex: 1,
               renderCell: (params: GridRenderCellParams) => {
-                const user = users.find((user) => user.keycloakId === params.value?.creatorId);
+                const user = users.find((user) => user.id === params.value?.creatorId);
 
                 return (
                   <Box sx={{ display: "flex", alignItems: "center" }}>

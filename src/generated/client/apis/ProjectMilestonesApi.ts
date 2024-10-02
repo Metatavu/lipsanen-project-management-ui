@@ -108,7 +108,7 @@ export class ProjectMilestonesApi extends runtime.BaseAPI {
     }
 
     /**
-     * Delete a project milestone
+     * Delete a project milestone, cannot be deleted unless its tasks and dependencies are deleted first.
      * Delete a project milestone
      */
     async deleteProjectMilestoneRaw(requestParameters: DeleteProjectMilestoneRequest): Promise<runtime.ApiResponse<void>> {
@@ -143,7 +143,7 @@ export class ProjectMilestonesApi extends runtime.BaseAPI {
     }
 
     /**
-     * Delete a project milestone
+     * Delete a project milestone, cannot be deleted unless its tasks and dependencies are deleted first.
      * Delete a project milestone
      */
     async deleteProjectMilestone(requestParameters: DeleteProjectMilestoneRequest): Promise<void> {
@@ -151,7 +151,7 @@ export class ProjectMilestonesApi extends runtime.BaseAPI {
     }
 
     /**
-     * Delete a project milestone
+     * Delete a project milestone, cannot be deleted unless its tasks and dependencies are deleted first.
      * Delete a project milestone
      */
     async deleteProjectMilestoneWithHeaders(requestParameters: DeleteProjectMilestoneRequest): Promise<Headers> {
