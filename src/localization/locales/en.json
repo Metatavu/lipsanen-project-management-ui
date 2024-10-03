@@ -90,6 +90,7 @@
     "errorListingProjects": "Error while fetching projects list",
     "errorListingUserProjects": "Error while fetching user's projects list",
     "errorFindingProject": "Error while finding a project",
+    "errorUpdatingProject": "Error while updating a project",
     "errorDeletingProject": "Error while deleting a project",
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user",
@@ -190,6 +191,12 @@
     "uploadWarningDuplicateFileName": "Invalid file: File names must be unique.",
     "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
     "fileSuccessfullyUploaded": "File successfully uploaded"
+  },
+  "projectSettingsScreen": {
+    "title": "Settings",
+    "baseInfo": "General project information",
+    "projectName": "Project name",
+    "projectStatus": "Project status"
   },
   "trackingScreen": {
     "title": "Tracking",

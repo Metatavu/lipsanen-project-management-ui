@@ -90,6 +90,7 @@
     "errorListingProjects": "Virhe haettaessa projekteja",
     "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
     "errorFindingProject": "Virhe haettaessa projektia",
+    "errorUpdatingProject": "Virhe päivitettäessä projektia",
     "errorDeletingProject": "Virhe poistettaessa projektia",
     "errorListingUsers": "Virhe haettaessa käyttäjiä",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
@@ -190,6 +191,12 @@
     "uploadWarningDuplicateFileName": "Virheellinen tiedosto: Tiedostonimien on oltava yksilöllisiä.",
     "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
     "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
+  },
+  "projectSettingsScreen": {
+    "title": "Asetukset",
+    "baseInfo": "Projektin perustiedot",
+    "projectName": "Projektin nimi",
+    "projectStatus": "Projektin tila"
   },
   "trackingScreen": {
     "title": "Seuranta",
