@@ -196,7 +196,9 @@
     "title": "Asetukset",
     "baseInfo": "Projektin perustiedot",
     "projectName": "Projektin nimi",
-    "projectStatus": "Projektin tila"
+    "projectStatus": "Projektin tila",
+    "estimatedStart": "Arvioitu aloitus",
+    "estimatedEnd": "Arvioitu päättyminen"
   },
   "trackingScreen": {
     "title": "Seuranta",

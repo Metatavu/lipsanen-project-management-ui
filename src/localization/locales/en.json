@@ -196,7 +196,9 @@
     "title": "Settings",
     "baseInfo": "General project information",
     "projectName": "Project name",
-    "projectStatus": "Project status"
+    "projectStatus": "Project status",
+    "estimatedStart": "Estimated start date",
+    "estimatedEnd": "Estimated end date"
   },
   "trackingScreen": {
     "title": "Tracking",

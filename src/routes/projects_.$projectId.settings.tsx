@@ -2,6 +2,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { LoadingButton } from "@mui/lab";
 import { Card, LinearProgress, MenuItem, Stack, TextField, Toolbar, Typography } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
@@ -11,6 +12,7 @@ import { useApi } from "hooks/use-api";
 import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { getValidDateTimeOrThrow } from "utils/date-time-utils";
 
 /**
  * Project form
@@ -18,6 +20,8 @@ import { useTranslation } from "react-i18next";
 type ProjectForm = {
   name: string;
   status: ProjectStatus;
+  estimatedStartDate?: Date;
+  estimatedEndDate?: Date;
 };
 
 /**
@@ -56,8 +60,13 @@ function ProjectSettingsScreen() {
     values: {
       name: project?.name ?? "",
       status: project?.status ?? ProjectStatus.Initiation,
+      estimatedStartDate: project?.estimatedStartDate ?? undefined,
+      estimatedEndDate: project?.estimatedEndDate ?? undefined,
     },
   });
+
+  console.log(getValidDateTimeOrThrow(project?.estimatedStartDate ?? new Date()));
+  console.log(getValidDateTimeOrThrow(project?.estimatedEndDate ?? new Date()));
 
   /**
    * Renders project settings form
@@ -78,6 +87,34 @@ function ProjectSettingsScreen() {
               <TextField {...field} variant="outlined" label={t("projectSettingsScreen.projectName")} />
             )}
           />
+          <Stack direction="row" gap={2}>
+            <Controller
+              name="estimatedStartDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  label={t("projectSettingsScreen.estimatedStart")}
+                  value={field.value ? getValidDateTimeOrThrow(field.value) : null}
+                  inputRef={field.ref}
+                  onChange={(date) => field.onChange(date?.setZone("utc").toJSDate())}
+                  slotProps={{ textField: { variant: "outlined", fullWidth: true } }}
+                />
+              )}
+            />
+            <Controller
+              name="estimatedEndDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  label={t("projectSettingsScreen.estimatedEnd")}
+                  value={field.value ? getValidDateTimeOrThrow(field.value) : null}
+                  inputRef={field.ref}
+                  onChange={(date) => field.onChange(date?.setZone("utc").toJSDate())}
+                  slotProps={{ textField: { variant: "outlined", fullWidth: true } }}
+                />
+              )}
+            />
+          </Stack>
           <Controller
             name="status"
             control={control}
@@ -98,6 +135,7 @@ function ProjectSettingsScreen() {
               variant="contained"
               color="primary"
               loading={updateProject.isPending}
+              disabled={!formState.isDirty}
               sx={{ alignSelf: "flex-start" }}
             >
               {t("generic.save")}

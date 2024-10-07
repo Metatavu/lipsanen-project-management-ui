@@ -2,6 +2,7 @@ import { CalendarTodayOutlined } from "@mui/icons-material";
 import { Typography } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTime } from "luxon";
+import { Ref } from "react";
 
 /**
  * Component Props
@@ -16,6 +17,7 @@ interface Props {
   label?: string;
   hasBorder?: boolean;
   disabled?: boolean;
+  inputRef?: Ref<HTMLInputElement> | undefined;
 }
 
 /**
@@ -33,6 +35,7 @@ const GenericDatePicker = ({
   hasBorder,
   maxDate,
   disabled,
+  inputRef,
 }: Props) => (
   <>
     <Typography variant="subtitle1">{title}</Typography>
@@ -43,6 +46,7 @@ const GenericDatePicker = ({
       minDate={minDate ?? undefined}
       maxDate={maxDate ?? undefined}
       slots={{ openPickerIcon: CalendarTodayOutlined }}
+      inputRef={inputRef}
       slotProps={{
         textField: {
           placeholder: "",

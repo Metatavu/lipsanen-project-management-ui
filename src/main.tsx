@@ -49,7 +49,7 @@ if (!rootElement.innerHTML) {
         <CssBaseline />
         <QueryClientProvider client={queryClient}>
           <AuthenticationProvider>
-            <LocalizationProvider dateAdapter={AdapterLuxon}>
+            <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale={i18n.language}>
               <ConfirmDialogProvider>
                 <RouterProvider router={router} />
               </ConfirmDialogProvider>
