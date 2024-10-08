@@ -36,8 +36,6 @@ import {
 } from "generated/client";
 import {
   useFindProjectMilestoneQuery,
-  useFindUsersQuery,
-  useListChangeProposalTasksPreviewQuery,
   useListChangeProposalsQuery,
   useListJobPositionsQuery,
   useListTaskConnectionsQuery,
@@ -98,8 +96,7 @@ function MilestoneTasksListRoute() {
     (proposal) => proposal.id === selectedChangeProposalId,
   )?.taskId;
 
-  const changeProposalTasksPreviewListQuery = useListChangeProposalTasksPreviewQuery({
-    projectId: projectId,
+  const changeProposalTasksPreviewListQuery = useListTasksQuery({
     changeProposalId: selectedChangeProposalId,
   });
   const changeProposalTasksPreviewList = changeProposalTasksPreviewListQuery.data;
@@ -204,7 +201,6 @@ function MilestoneTasksListRoute() {
         ...changeProposal,
         status: status,
       },
-      projectId: projectId,
       changeProposalId: changeProposalId,
     });
   };
@@ -364,7 +360,6 @@ function MilestoneTasksListRoute() {
     };
 
     await updateTaskMutation.mutateAsync({
-      projectId: projectId,
       taskId: task.id,
       task: updatedTask,
     });

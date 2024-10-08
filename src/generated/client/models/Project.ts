@@ -57,6 +57,18 @@ export interface Project {
      */
     status: ProjectStatus;
     /**
+     * Estimated start date of the project
+     * @type {Date}
+     * @memberof Project
+     */
+    estimatedStartDate?: Date;
+    /**
+     * Estimated end date of the project
+     * @type {Date}
+     * @memberof Project
+     */
+    estimatedEndDate?: Date;
+    /**
      * 
      * @type {Metadata}
      * @memberof Project
@@ -89,6 +101,8 @@ export function ProjectFromJSONTyped(json: any, ignoreDiscriminator: boolean): P
         'name': json['name'],
         'tocomanId': !exists(json, 'tocomanId') ? undefined : json['tocomanId'],
         'status': ProjectStatusFromJSON(json['status']),
+        'estimatedStartDate': !exists(json, 'estimatedStartDate') ? undefined : (new Date(json['estimatedStartDate'])),
+        'estimatedEndDate': !exists(json, 'estimatedEndDate') ? undefined : (new Date(json['estimatedEndDate'])),
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
 }
@@ -106,6 +120,8 @@ export function ProjectToJSON(value?: Project | null): any {
         'name': value.name,
         'tocomanId': value.tocomanId,
         'status': ProjectStatusToJSON(value.status),
+        'estimatedStartDate': value.estimatedStartDate === undefined ? undefined : (value.estimatedStartDate.toISOString().substring(0,10)),
+        'estimatedEndDate': value.estimatedEndDate === undefined ? undefined : (value.estimatedEndDate.toISOString().substring(0,10)),
         'metadata': MetadataToJSON(value.metadata),
     };
 }

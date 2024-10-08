@@ -46,7 +46,7 @@ const TopNavigation = () => {
   useMatches();
   const pathParams = useParams({ strict: false });
 
-  const findUserQuery = useFindUserQuery({ userId: auth?.token.userId });
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
   const listNotificationEventsQuery = useListNotificationEventsQuery({
     userId: findUserQuery.data?.id ?? "",
   });
@@ -75,6 +75,7 @@ const TopNavigation = () => {
     { route: "/projects/$projectId/schedule", labelKey: "scheduleScreen.title" },
     { route: "/projects/$projectId/users", labelKey: "users" },
     { route: "/projects/$projectId/tasks", labelKey: "tasksScreen.title" },
+    { route: "/projects/$projectId/settings", labelKey: "settingsScreen.title" },
   ];
 
   const isProjectRoute = location.pathname.includes("projects/") && location.pathname.split("projects/")[1] !== "";
