@@ -65,9 +65,6 @@ function ProjectSettingsScreen() {
     },
   });
 
-  console.log(getValidDateTimeOrThrow(project?.estimatedStartDate ?? new Date()));
-  console.log(getValidDateTimeOrThrow(project?.estimatedEndDate ?? new Date()));
-
   /**
    * Renders project settings form
    */
