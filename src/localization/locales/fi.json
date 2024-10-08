@@ -1,7 +1,7 @@
 {
   "back": "Takaisin",
   "projects": "Projektit",
-  "monitoring": "Seuranta",
+  "tracking": "Seuranta",
   "projectTemplates": "Projektimallit",
   "users": "Käyttäjät",
   "roles": "Roolit",
@@ -90,6 +90,7 @@
     "errorListingProjects": "Virhe haettaessa projekteja",
     "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
     "errorFindingProject": "Virhe haettaessa projektia",
+    "errorUpdatingProject": "Virhe päivitettäessä projektia",
     "errorDeletingProject": "Virhe poistettaessa projektia",
     "errorListingUsers": "Virhe haettaessa käyttäjiä",
     "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
@@ -191,8 +192,18 @@
     "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
     "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
   },
+  "projectSettingsScreen": {
+    "title": "Asetukset",
+    "baseInfo": "Projektin perustiedot",
+    "projectName": "Projektin nimi",
+    "projectStatus": "Projektin tila",
+    "estimatedStart": "Arvioitu aloitus",
+    "estimatedEnd": "Arvioitu päättyminen"
+  },
   "trackingScreen": {
     "title": "Seuranta",
+    "selectProject": "Valitse projekti",
+    "allProjects": "Kaikki projektit",
     "notificationsList": {
       "title": "Notifikaatiot",
       "today": "Tänään",
@@ -211,6 +222,7 @@
     "delaysList": {
       "title": "Projektien myoöhästymiset",
       "groupBy": "Ryhmittele",
+      "selectProject": "Valitse projekti",
       "scopes": {
         "TASK": "Tehtävä",
         "ROLE": "Rooli",

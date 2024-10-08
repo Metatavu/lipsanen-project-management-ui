@@ -86,7 +86,7 @@ const ChangeProposalsDrawer = ({
           if (!changeProposal.id) return null;
 
           const proposalId = changeProposal.id;
-          const proposalCreator = creatorUsers.find((user) => user.keycloakId === changeProposal.metadata?.creatorId);
+          const proposalCreator = creatorUsers.find((user) => user.id === changeProposal.metadata?.creatorId);
           const proposalTask = tasks?.find((task) => task.id === changeProposal.taskId);
 
           return (

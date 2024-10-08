@@ -1,7 +1,7 @@
 {
   "back": "Back",
   "projects": "Projects",
-  "monitoring": "Monitoring",
+  "tracking": "Tracking",
   "projectTemplates": "Project templates",
   "users": "Users",
   "roles": "Roles",
@@ -90,6 +90,7 @@
     "errorListingProjects": "Error while fetching projects list",
     "errorListingUserProjects": "Error while fetching user's projects list",
     "errorFindingProject": "Error while finding a project",
+    "errorUpdatingProject": "Error while updating a project",
     "errorDeletingProject": "Error while deleting a project",
     "errorListingUsers": "Error while fetching users list",
     "errorCreatingUser": "Error while creating a new user",
@@ -191,8 +192,18 @@
     "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
     "fileSuccessfullyUploaded": "File successfully uploaded"
   },
+  "projectSettingsScreen": {
+    "title": "Settings",
+    "baseInfo": "General project information",
+    "projectName": "Project name",
+    "projectStatus": "Project status",
+    "estimatedStart": "Estimated start date",
+    "estimatedEnd": "Estimated end date"
+  },
   "trackingScreen": {
     "title": "Tracking",
+    "selectProject": "Select a project",
+    "allProjects": "All projects",
     "notificationsList": {
       "title": "Notifications",
       "today": "Today",
@@ -211,6 +222,7 @@
     "delaysList": {
       "title": "Project delays",
       "groupBy": "Group by",
+      "selectProject": "Please select a project",
       "scopes": {
         "TASK": "Task",
         "ROLE": "Role",

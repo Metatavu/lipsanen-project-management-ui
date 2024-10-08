@@ -12,16 +12,17 @@
 
 import { Route as rootRoute } from "./../../routes/__root"
 import { Route as UsersImport } from "./../../routes/users"
+import { Route as TrackingImport } from "./../../routes/tracking"
 import { Route as SettingsImport } from "./../../routes/settings"
 import { Route as RolesImport } from "./../../routes/roles"
 import { Route as ProjectsImport } from "./../../routes/projects"
 import { Route as ProjectTemplatesImport } from "./../../routes/project-templates"
-import { Route as MonitoringImport } from "./../../routes/monitoring"
 import { Route as IndexImport } from "./../../routes/index"
 import { Route as ProjectsProjectIdImport } from "./../../routes/projects_.$projectId"
 import { Route as ProjectsProjectIdUsersImport } from "./../../routes/projects_.$projectId.users"
 import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/projects_.$projectId.tracking"
 import { Route as ProjectsProjectIdTasksImport } from "./../../routes/projects_.$projectId.tasks"
+import { Route as ProjectsProjectIdSettingsImport } from "./../../routes/projects_.$projectId.settings"
 import { Route as ProjectsProjectIdScheduleImport } from "./../../routes/projects_.$projectId.schedule"
 import { Route as ProjectsProjectIdTasksNewImport } from "./../../routes/projects_.$projectId.tasks.new"
 import { Route as ProjectsProjectIdTasksTaskIdImport } from "./../../routes/projects_.$projectId.tasks.$taskId"
@@ -31,6 +32,11 @@ import { Route as ProjectsProjectIdScheduleMilestoneIdTasksImport } from "./../.
 
 const UsersRoute = UsersImport.update({
   path: "/users",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TrackingRoute = TrackingImport.update({
+  path: "/tracking",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -51,11 +57,6 @@ const ProjectsRoute = ProjectsImport.update({
 
 const ProjectTemplatesRoute = ProjectTemplatesImport.update({
   path: "/project-templates",
-  getParentRoute: () => rootRoute,
-} as any)
-
-const MonitoringRoute = MonitoringImport.update({
-  path: "/monitoring",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -81,6 +82,11 @@ const ProjectsProjectIdTrackingRoute = ProjectsProjectIdTrackingImport.update({
 
 const ProjectsProjectIdTasksRoute = ProjectsProjectIdTasksImport.update({
   path: "/tasks",
+  getParentRoute: () => ProjectsProjectIdRoute,
+} as any)
+
+const ProjectsProjectIdSettingsRoute = ProjectsProjectIdSettingsImport.update({
+  path: "/settings",
   getParentRoute: () => ProjectsProjectIdRoute,
 } as any)
 
@@ -117,13 +123,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    "/monitoring": {
-      id: "/monitoring"
-      path: "/monitoring"
-      fullPath: "/monitoring"
-      preLoaderRoute: typeof MonitoringImport
-      parentRoute: typeof rootRoute
-    }
     "/project-templates": {
       id: "/project-templates"
       path: "/project-templates"
@@ -152,6 +151,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof SettingsImport
       parentRoute: typeof rootRoute
     }
+    "/tracking": {
+      id: "/tracking"
+      path: "/tracking"
+      fullPath: "/tracking"
+      preLoaderRoute: typeof TrackingImport
+      parentRoute: typeof rootRoute
+    }
     "/users": {
       id: "/users"
       path: "/users"
@@ -171,6 +177,13 @@ declare module "@tanstack/react-router" {
       path: "/schedule"
       fullPath: "/projects/$projectId/schedule"
       preLoaderRoute: typeof ProjectsProjectIdScheduleImport
+      parentRoute: typeof ProjectsProjectIdImport
+    }
+    "/projects/$projectId/settings": {
+      id: "/projects/$projectId/settings"
+      path: "/settings"
+      fullPath: "/projects/$projectId/settings"
+      preLoaderRoute: typeof ProjectsProjectIdSettingsImport
       parentRoute: typeof ProjectsProjectIdImport
     }
     "/projects/$projectId/tasks": {
@@ -222,14 +235,15 @@ declare module "@tanstack/react-router" {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
-  MonitoringRoute,
   ProjectTemplatesRoute,
   ProjectsRoute,
   RolesRoute,
   SettingsRoute,
+  TrackingRoute,
   UsersRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute.addChildren({
     ProjectsProjectIdScheduleRoute,
+    ProjectsProjectIdSettingsRoute,
     ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute.addChildren({
       ProjectsProjectIdTasksTaskIdRoute,
       ProjectsProjectIdTasksNewRoute,
@@ -249,20 +263,17 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/monitoring",
         "/project-templates",
         "/projects",
         "/roles",
         "/settings",
+        "/tracking",
         "/users",
         "/projects/$projectId"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/monitoring": {
-      "filePath": "monitoring.tsx"
     },
     "/project-templates": {
       "filePath": "project-templates.tsx"
@@ -276,6 +287,9 @@ export const routeTree = rootRoute.addChildren({
     "/settings": {
       "filePath": "settings.tsx"
     },
+    "/tracking": {
+      "filePath": "tracking.tsx"
+    },
     "/users": {
       "filePath": "users.tsx"
     },
@@ -283,6 +297,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "projects_.$projectId.tsx",
       "children": [
         "/projects/$projectId/schedule",
+        "/projects/$projectId/settings",
         "/projects/$projectId/tasks",
         "/projects/$projectId/tracking",
         "/projects/$projectId/users",
@@ -291,6 +306,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/projects/$projectId/schedule": {
       "filePath": "projects_.$projectId.schedule.tsx",
+      "parent": "/projects/$projectId"
+    },
+    "/projects/$projectId/settings": {
+      "filePath": "projects_.$projectId.settings.tsx",
       "parent": "/projects/$projectId"
     },
     "/projects/$projectId/tasks": {

@@ -6,7 +6,6 @@ import {
   FindTaskRequest,
   FindUserRequest,
   JobPosition,
-  ListChangeProposalTasksPreviewRequest,
   ListChangeProposalsRequest,
   ListCompaniesRequest,
   ListJobPositionsRequest,
@@ -125,7 +124,7 @@ export const useFindUsersQuery = (userIds?: string[]) => {
       try {
         if (!userIds?.length) return null;
 
-        const userPromises = userIds.map((userId) => usersApi.listUsers({ keycloakId: userId }));
+        const userPromises = userIds.map((userId) => usersApi.findUser({ userId: userId }));
 
         const userLists = await Promise.all(userPromises);
         return userLists.flat();
@@ -178,13 +177,20 @@ export const useListProjectsQuery = (params: ListProjectsRequest = {}) => {
  */
 export const useFindProjectQuery = (projectId?: string) => {
   const { projectsApi } = useApi();
+  const { t } = useTranslation();
 
   return useQuery({
     queryKey: ["projects", projectId],
-    queryFn: () =>
-      projectId
-        ? projectsApi.findProject({ projectId: projectId }).catch(handleErrorWithMessage("Error finding project"))
-        : null,
+    queryFn: async () => {
+      if (!projectId) return null;
+
+      try {
+        return projectsApi.findProject({ projectId: projectId });
+      } catch (error) {
+        handleErrorWithMessage("Error finding project")(error);
+        throw Error(t("errorHandling.errorFindingProject"), { cause: error });
+      }
+    },
     enabled: !!projectId,
     placeholderData: () => null,
     staleTime: FIVE_MINUTES,
@@ -311,7 +317,6 @@ export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTa
         throw Error(t("errorHandling.errorListingTasks"), { cause: error });
       }
     },
-    enabled: !!projectId,
     staleTime: ONE_MINUTE,
   });
 };
@@ -343,54 +348,27 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
 };
 
 /**
- * List change proposal tasks preview query hook
- *
- * @param params ListChangeProposalTasksPreviewRequest
- */
-export const useListChangeProposalTasksPreviewQuery = (params: Partial<ListChangeProposalTasksPreviewRequest>) => {
-  const { projectId, changeProposalId } = params;
-  const { changeProposalsApi } = useApi();
-  const { t } = useTranslation();
-
-  return useQuery({
-    queryKey: ["projects", projectId, "changeProposals", changeProposalId, "tasks"],
-    queryFn: async () => {
-      try {
-        return changeProposalsApi.listChangeProposalTasksPreview(params as ListChangeProposalTasksPreviewRequest);
-      } catch (error) {
-        handleError("Error listing change proposal tasks preview", error);
-        throw Error(t("errorHandling.errorListingChangeProposalTasksPreview"), {
-          cause: error,
-        });
-      }
-    },
-    enabled: !!projectId && !!changeProposalId,
-    staleTime: ONE_MINUTE,
-  });
-};
-
-/**
  * Find task query hook
  *
  * @param params FindTaskRequest
  */
-export const useFindTaskQuery = ({ projectId, taskId }: FindTaskRequest) => {
+export const useFindTaskQuery = ({ taskId }: FindTaskRequest) => {
   const { tasksApi } = useApi();
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["projects", projectId, "tasks", taskId],
+    queryKey: ["tasks", taskId],
     queryFn: async () => {
       try {
-        return await tasksApi.findTask({ projectId, taskId });
+        return await tasksApi.findTask({ taskId });
       } catch (error) {
-        handleError("Error finding milestone task", error);
-        throw Error(t("errorHandling.errorFindingMilestoneTask"), {
+        handleError("Error finding task", error);
+        throw Error(t("errorHandling.errorFindingTask"), {
           cause: error,
         });
       }
     },
-    enabled: !!projectId && !!taskId,
+    enabled: !!taskId,
     staleTime: ONE_MINUTE,
   });
 };
@@ -426,12 +404,12 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
  * @param params ListTaskCommentsRequest
  */
 export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
-  const { projectId, taskId } = params;
+  const { taskId } = params;
   const { taskCommentsApi } = useApi();
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["projects", projectId, "tasks", taskId, "comments"],
+    queryKey: ["tasks", taskId, "comments"],
     queryFn: async () => {
       try {
         return taskCommentsApi.listTaskComments(params);
@@ -440,7 +418,7 @@ export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
         throw Error(t("errorHandling.errorListingTaskComments"), { cause: error });
       }
     },
-    enabled: !!projectId && !!taskId,
+    enabled: !!taskId,
     staleTime: ONE_MINUTE,
   });
 };

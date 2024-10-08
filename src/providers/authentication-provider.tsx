@@ -24,7 +24,7 @@ const AuthenticationProvider = ({ children }: Props) => {
   const setUserProfile = useSetAtom(userProfileAtom);
   const setApiUser = useSetAtom(apiUserAtom);
 
-  const findApiUserQuery = useFindUserQuery({ userId: auth?.token.userId });
+  const findApiUserQuery = useFindUserQuery({ userId: auth?.token.sub });
 
   useEffect(() => {
     if (findApiUserQuery.data) setApiUser(findApiUserQuery.data);
