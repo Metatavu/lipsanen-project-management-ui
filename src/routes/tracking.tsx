@@ -33,7 +33,7 @@ function TrackingIndexRoute() {
   const listProjectsQuery = useListProjectsQuery();
   const projects = useMemo(() => listProjectsQuery.data?.projects ?? [], [listProjectsQuery.data]);
 
-  const findUserQuery = useFindUserQuery({ userId: auth?.token.userId });
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
   const user = findUserQuery.data;
 
   const listUsersQuery = useListUsersQuery();

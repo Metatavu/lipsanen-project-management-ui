@@ -27,7 +27,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
-import ThemeUtils from "utils/theme-utils";
 import { authAtom } from "../../atoms/auth";
 import { theme } from "../../theme";
 
@@ -95,16 +94,16 @@ const TopNavigation = () => {
   const updatedTheme = useMemo(() => {
     if (customProjectTheme) {
       const primaryColor = customProjectTheme.themeColor;
-      const darkPrimaryColor = ThemeUtils.darkenColor(primaryColor);
 
       return createTheme({
         ...theme,
         palette: {
           ...theme.palette,
-          primary: {
-            main: primaryColor,
-            dark: darkPrimaryColor,
-          },
+          primary: theme.palette.augmentColor({
+            color: {
+              main: primaryColor,
+            },
+          }),
         },
       });
     }

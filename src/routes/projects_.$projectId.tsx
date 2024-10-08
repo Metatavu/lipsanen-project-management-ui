@@ -2,7 +2,6 @@ import { ThemeProvider, createTheme } from "@mui/material";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useListProjectThemesQuery } from "hooks/api-queries";
 import { useMemo } from "react";
-import ThemeUtils from "utils/theme-utils";
 import { theme } from "../theme";
 
 /**
@@ -27,16 +26,16 @@ function ProjectsLayoutComponent() {
   const updatedTheme = useMemo(() => {
     if (projectTheme) {
       const primaryColor = projectTheme.themeColor;
-      const darkPrimaryColor = ThemeUtils.darkenColor(primaryColor);
 
       return createTheme({
         ...theme,
         palette: {
           ...theme.palette,
-          primary: {
-            main: primaryColor,
-            dark: darkPrimaryColor,
-          },
+          primary: theme.palette.augmentColor({
+            color: {
+              main: primaryColor,
+            },
+          }),
         },
       });
     }
