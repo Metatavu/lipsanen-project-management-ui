@@ -15,7 +15,7 @@ function TaskDetailsRoute() {
   const { projectId, taskId } = Route.useParams();
   const navigate = Route.useNavigate();
 
-  const taskQuery = useFindTaskQuery({ projectId, taskId });
+  const taskQuery = useFindTaskQuery({ taskId });
 
   if (taskQuery.isFetching) {
     return (
