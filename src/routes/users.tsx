@@ -57,6 +57,7 @@ function UsersIndexRoute() {
     jobPositionId: search.jobPositionId,
   });
 
+  // TODO: Users shows incorrect number of results- 13  when there is only 11.
   const maxResults = useCachedMaxResultsFromQuery(listUsersQuery);
   const listProjectsQuery = useListProjectsQuery();
   const listCompaniesQuery = useListCompaniesQuery();
@@ -71,6 +72,10 @@ function UsersIndexRoute() {
   const users = listUsersQuery.data?.users;
   const companies = listCompaniesQuery.data?.companies;
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
+
+  console.log("first:", first, "max:", max, "total results:", maxResults);
+  console.log("listUsersQuery data:", listUsersQuery.data);
+  console.log("filtered users for this page:", users);
 
   /**
    * Delete user mutation
@@ -111,6 +116,7 @@ function UsersIndexRoute() {
       </Toolbar>
       <Card sx={{ flex: 1, minWidth: 0 }}>
         <DataGrid
+          paginationMode="server"
           onRowClick={(params) => setSelectedUser(params.row as User)}
           sx={{ width: "100%", height: "100%" }}
           rows={users ?? []}

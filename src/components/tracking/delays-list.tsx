@@ -177,6 +177,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
               field: "taskId",
               headerName: t("trackingScreen.delaysList.byTask.delayedTask"),
               flex: 1,
+              disableColumnMenu: true,
               valueGetter: (params: GridRenderCellParams) => {
                 const task = tasks.find((task) => task.id === params.value);
                 return task?.name;
@@ -186,6 +187,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
               field: "metadata",
               headerName: t("trackingScreen.delaysList.byTask.creator"),
               flex: 1,
+              disableColumnMenu: true,
               renderCell: (params: GridRenderCellParams) => {
                 const user = users.find((user) => user.id === params.value?.creatorId);
 
@@ -200,11 +202,13 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
               field: "reason",
               headerName: t("trackingScreen.delaysList.byTask.delayReason"),
               flex: 1,
+              disableColumnMenu: true,
             },
             {
               field: "endDate",
               headerName: t("trackingScreen.delaysList.byTask.delayQuantity"),
               flex: 1,
+              disableColumnMenu: true,
               renderCell: (params: GridRenderCellParams) => {
                 const task = tasks.find((task) => task.id === params.row.taskId);
                 const daysDelayed = task?.endDate
@@ -237,28 +241,33 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
             field: "positionName",
             headerName: t("trackingScreen.delaysList.byRole.role"),
             flex: 1,
+            disableColumnMenu: true,
           },
           {
             field: "taskIds",
             headerName: t("trackingScreen.delaysList.byRole.tasks"),
             flex: 1,
+            disableColumnMenu: true,
             valueGetter: (params) => params.value.length,
           },
           {
             field: "delayedTasksNumber",
             headerName: t("trackingScreen.delaysList.byRole.delayedNumber"),
             flex: 1,
+            disableColumnMenu: true,
           },
           {
             field: "delayedTasksPercentage",
             headerName: t("trackingScreen.delaysList.byRole.delayPercentage"),
             flex: 1,
+            disableColumnMenu: true,
             valueFormatter: (params) => `${params.value.toFixed(2)}%`,
           },
           {
             field: "totalDelayPercentage",
             headerName: t("trackingScreen.delaysList.byRole.overallDelay"),
             flex: 1,
+            disableColumnMenu: true,
             valueGetter: (params) =>
               `${((params.row.totalDelayDuration / params.row.totalTasksDuration) * 100).toFixed(2)}%`,
           },
@@ -283,22 +292,26 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
             field: "reasonText",
             headerName: t("trackingScreen.delaysList.byReason.delayReason"),
             flex: 1,
+            disableColumnMenu: true,
           },
           {
             field: "delayedTasks",
             headerName: t("trackingScreen.delaysList.byReason.delayedNumber"),
             flex: 1,
+            disableColumnMenu: true,
             valueGetter: (params) => params.row.taskIds.length,
           },
           {
             field: "totalDelayDuration",
             headerName: t("trackingScreen.delaysList.byReason.delayQuantity"),
             flex: 1,
+            disableColumnMenu: true,
           },
           {
             field: "totalDelayPercentage",
             headerName: t("trackingScreen.delaysList.byReason.overallDelay"),
             flex: 1,
+            disableColumnMenu: true,
             valueGetter: (params) => {
               return params.row.totalDelayDuration > 0
                 ? `${((params.row.totalDelayDuration / params.row.totalTasksDuration) * 100).toFixed(2)}%`
