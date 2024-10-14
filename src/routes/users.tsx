@@ -57,7 +57,6 @@ function UsersIndexRoute() {
     jobPositionId: search.jobPositionId,
   });
 
-  // TODO: Users shows incorrect number of results- 13  when there is only 11.
   const maxResults = useCachedMaxResultsFromQuery(listUsersQuery);
   const listProjectsQuery = useListProjectsQuery();
   const listCompaniesQuery = useListCompaniesQuery();
@@ -72,10 +71,6 @@ function UsersIndexRoute() {
   const users = listUsersQuery.data?.users;
   const companies = listCompaniesQuery.data?.companies;
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
-
-  console.log("first:", first, "max:", max, "total results:", maxResults);
-  console.log("listUsersQuery data:", listUsersQuery.data);
-  console.log("filtered users for this page:", users);
 
   /**
    * Delete user mutation

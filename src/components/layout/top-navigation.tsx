@@ -61,7 +61,8 @@ const TopNavigation = () => {
   const routeLinks: NavigationLink[] = [
     { route: "/projects", labelKey: "projects" },
     { route: "/tracking", labelKey: "tracking" },
-    { route: "/project-templates", labelKey: "projectTemplates" },
+    // TODO: Curently unused
+    // { route: "/project-templates", labelKey: "projectTemplates" },
     { route: "/users", labelKey: "users" },
     ...(auth?.roles.includes(ADMIN_ROLE) || auth?.roles.includes(PROJECT_OWNER_ROLE)
       ? ([{ route: "/roles", labelKey: "roles" }] as NavigationLink[])
@@ -94,7 +95,7 @@ const TopNavigation = () => {
         <img src={logo} alt="VP-Kuljetus logo" height={16} />
 
         <Stack direction="row" gap={3} sx={{ ml: 3, flexGrow: 1 }}>
-          <Tabs value={selectedRouteIndex}>
+          <Tabs value={selectedRouteIndex === -1 ? false : selectedRouteIndex}>
             {activeLinks.map(({ route, labelKey }, routeIndex) => (
               <Tab
                 sx={{ color: "white" }}
