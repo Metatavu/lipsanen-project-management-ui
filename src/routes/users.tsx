@@ -49,12 +49,12 @@ function UsersIndexRoute() {
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
   const [selectedUser, setSelectedUser] = useState<User>();
 
-  // TODO: No position filter in the backend currently
   const listUsersQuery = useListUsersQuery({
     first,
     max,
     projectId: search.projectId,
     companyId: search.companyId,
+    jobPositionId: search.jobPositionId,
   });
 
   const maxResults = useCachedMaxResultsFromQuery(listUsersQuery);
@@ -111,6 +111,7 @@ function UsersIndexRoute() {
       </Toolbar>
       <Card sx={{ flex: 1, minWidth: 0 }}>
         <DataGrid
+          paginationMode="server"
           onRowClick={(params) => setSelectedUser(params.row as User)}
           sx={{ width: "100%", height: "100%" }}
           rows={users ?? []}

@@ -48,8 +48,6 @@ const ProjectUsersFiltersForm = ({ formValues, onChange }: Props) => {
         ))}
       </TextField>
       <TextField
-        // TODO: Disabled until backend position filter implemented
-        disabled
         fullWidth
         select
         label={t("userFilters.position")}

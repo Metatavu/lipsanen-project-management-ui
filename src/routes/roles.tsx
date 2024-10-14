@@ -102,6 +102,7 @@ function RolesIndexRoute() {
               headerName: t("roles"),
               editable: true,
               flex: 1,
+              disableColumnMenu: true,
               renderCell: (params) => <div style={{ display: "flex", alignItems: "center" }}>{params.row.name}</div>,
             },
             {
@@ -109,6 +110,7 @@ function RolesIndexRoute() {
               headerName: t("rolesScreen.icon"),
               editable: true,
               flex: 1,
+              disableColumnMenu: true,
               renderCell: (params) => (
                 <MdiIconifyIconWithBackground iconName={params.row.iconName} backgroundColor={params.row.color} />
               ),
@@ -118,12 +120,14 @@ function RolesIndexRoute() {
               headerName: t("rolesScreen.color"),
               editable: true,
               flex: 1,
+              disableColumnMenu: true,
               renderCell: (params) => renderColorCircle(params.row.color),
             },
             {
               field: "usersCount",
               headerName: t("rolesScreen.users"),
               flex: 1,
+              disableColumnMenu: true,
               valueGetter: (params) => getNumberOfUsersInPosition(params.row.id),
             },
             {
