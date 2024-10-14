@@ -308,7 +308,7 @@ export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTa
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["projects", projectId, "tasks", { milestoneId, first, max }],
+    queryKey: ["tasks", { milestoneId, first, max }],
     queryFn: async () => {
       try {
         return await tasksApi.listTasks({ projectId, milestoneId, first, max });
@@ -369,8 +369,7 @@ export const useFindTaskQuery = ({ taskId }: FindTaskRequest) => {
       }
     },
     enabled: !!taskId,
-    // TODO: Tasks dialog is outdated after update in projects task screen if staleTime is set
-    // staleTime: ONE_MINUTE,
+    staleTime: ONE_MINUTE,
   });
 };
 

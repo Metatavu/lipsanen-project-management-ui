@@ -265,7 +265,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
