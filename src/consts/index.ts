@@ -19,7 +19,7 @@ import water from "@iconify-icons/mdi/water";
 import config from "app/config";
 import { IconOption } from "types";
 
-export const DEFAULT_LOGO = `${config.cdnBaseUrl}/Lipsanen logo.png`;
+export const DEFAULT_LOGO = `${config.cdnBaseUrl}/logos/Lipsanen logo.png`;
 
 export const ICON_OPTIONS: IconOption[] = [
   { label: "Architect", value: "ruler-square-compass", icon: rulerSquareCompass },

@@ -15,11 +15,12 @@ import {
   Tabs,
   Toolbar,
   Typography,
+  createTheme,
   styled,
 } from "@mui/material";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
-import { useFindUserQuery, useListNotificationEventsQuery } from "hooks/api-queries";
+import { useFindUserQuery, useListNotificationEventsQuery, useListProjectThemesQuery } from "hooks/api-queries";
 import { useAtom } from "jotai";
 import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useMemo } from "react";
@@ -27,6 +28,7 @@ import { useTranslation } from "react-i18next";
 import { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
 import { authAtom } from "../../atoms/auth";
+import { theme } from "../../theme";
 
 const ADMIN_ROLE = "admin";
 const PROJECT_OWNER_ROLE = "project-owner";
@@ -46,6 +48,7 @@ const TopNavigation = () => {
   useMatches();
   const pathParams = useParams({ strict: false });
 
+  const findProjectThemeQuery = useListProjectThemesQuery(pathParams.projectId);
   const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
   const listNotificationEventsQuery = useListNotificationEventsQuery({
     userId: findUserQuery.data?.id ?? "",
@@ -81,6 +84,33 @@ const TopNavigation = () => {
 
   const isProjectRoute = location.pathname.includes("projects/") && location.pathname.split("projects/")[1] !== "";
 
+  const customProjectTheme = useMemo(() => {
+    if (isProjectRoute && pathParams.projectId && findProjectThemeQuery) {
+      const themeData = findProjectThemeQuery.data ? findProjectThemeQuery.data.at(0) : null;
+      return themeData;
+    }
+    return null;
+  }, [isProjectRoute, pathParams.projectId, findProjectThemeQuery]);
+
+  const updatedTheme = useMemo(() => {
+    if (customProjectTheme) {
+      const primaryColor = customProjectTheme.themeColor;
+
+      return createTheme({
+        ...theme,
+        palette: {
+          ...theme.palette,
+          primary: theme.palette.augmentColor({
+            color: {
+              main: primaryColor,
+            },
+          }),
+        },
+      });
+    }
+    return theme;
+  }, [customProjectTheme]);
+
   const { activeLinks, slug } = isProjectRoute
     ? { activeLinks: projectRouteLinks, slug: 2 }
     : { activeLinks: routeLinks, slug: 0 };
@@ -90,15 +120,35 @@ const TopNavigation = () => {
   );
 
   return (
-    <AppBar position="static" sx={{ height: "48px", backgroundColor: "primary.dark" }}>
+    <AppBar
+      position="static"
+      sx={{ height: "48px", backgroundColor: customProjectTheme ? customProjectTheme?.themeColor : "primary.dark" }}
+    >
       <Toolbar variant="dense">
-        <img src={logo} alt="VP-Kuljetus logo" height={16} />
+        <img
+          // TODO: Further work may be required for the logos e.g. sizes?
+          src={customProjectTheme ? customProjectTheme?.logoUrl : logo}
+          alt="Lipsanen project logo"
+          height={customProjectTheme ? 30 : 16}
+        />
 
         <Stack direction="row" gap={3} sx={{ ml: 3, flexGrow: 1 }}>
-          <Tabs value={selectedRouteIndex === -1 ? false : selectedRouteIndex}>
+          <Tabs
+            sx={{
+              "& .MuiTabs-indicator": {
+                backgroundColor: updatedTheme.palette.primary.contrastText,
+              },
+            }}
+            value={selectedRouteIndex === -1 ? false : selectedRouteIndex}
+          >
             {activeLinks.map(({ route, labelKey }, routeIndex) => (
               <Tab
-                sx={{ color: "white" }}
+                sx={{
+                  color: updatedTheme.palette.primary.contrastText,
+                  "&.Mui-selected": {
+                    color: updatedTheme.palette.primary.contrastText,
+                  },
+                }}
                 key={route}
                 label={labelKey !== "back" && t(labelKey)}
                 icon={labelKey === "back" ? <ArrowBackIcon /> : undefined}
@@ -110,7 +160,11 @@ const TopNavigation = () => {
         </Stack>
 
         <Stack direction="row" gap={1} sx={{ flexGrow: 0 }}>
-          <IconButton color="inherit">
+          <IconButton
+            sx={{
+              color: updatedTheme.palette.primary.contrastText,
+            }}
+          >
             <NotificationBadge badgeContent={unreadNotificationEventsCount} color="warning">
               {listNotificationEventsQuery.isLoading ? (
                 <CircularProgress size={20} />
@@ -119,7 +173,12 @@ const TopNavigation = () => {
               )}
             </NotificationBadge>
           </IconButton>
-          <IconButton color="inherit" {...bindTrigger(accountMenuState)}>
+          <IconButton
+            sx={{
+              color: updatedTheme.palette.primary.contrastText,
+            }}
+            {...bindTrigger(accountMenuState)}
+          >
             <AccountCircleIcon />
           </IconButton>
           <Menu {...bindMenu(accountMenuState)}>

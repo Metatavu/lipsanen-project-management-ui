@@ -18,6 +18,7 @@ import { Route as RolesImport } from "./../../routes/roles"
 import { Route as ProjectsImport } from "./../../routes/projects"
 import { Route as ProjectTemplatesImport } from "./../../routes/project-templates"
 import { Route as IndexImport } from "./../../routes/index"
+import { Route as ProjectsProjectIdImport } from "./../../routes/projects_.$projectId"
 import { Route as ProjectsProjectIdUsersImport } from "./../../routes/projects_.$projectId.users"
 import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/projects_.$projectId.tracking"
 import { Route as ProjectsProjectIdTasksImport } from "./../../routes/projects_.$projectId.tasks"
@@ -64,29 +65,34 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ProjectsProjectIdUsersRoute = ProjectsProjectIdUsersImport.update({
-  path: "/projects/$projectId/users",
+const ProjectsProjectIdRoute = ProjectsProjectIdImport.update({
+  path: "/projects/$projectId",
   getParentRoute: () => rootRoute,
+} as any)
+
+const ProjectsProjectIdUsersRoute = ProjectsProjectIdUsersImport.update({
+  path: "/users",
+  getParentRoute: () => ProjectsProjectIdRoute,
 } as any)
 
 const ProjectsProjectIdTrackingRoute = ProjectsProjectIdTrackingImport.update({
-  path: "/projects/$projectId/tracking",
-  getParentRoute: () => rootRoute,
+  path: "/tracking",
+  getParentRoute: () => ProjectsProjectIdRoute,
 } as any)
 
 const ProjectsProjectIdTasksRoute = ProjectsProjectIdTasksImport.update({
-  path: "/projects/$projectId/tasks",
-  getParentRoute: () => rootRoute,
+  path: "/tasks",
+  getParentRoute: () => ProjectsProjectIdRoute,
 } as any)
 
 const ProjectsProjectIdSettingsRoute = ProjectsProjectIdSettingsImport.update({
-  path: "/projects/$projectId/settings",
-  getParentRoute: () => rootRoute,
+  path: "/settings",
+  getParentRoute: () => ProjectsProjectIdRoute,
 } as any)
 
 const ProjectsProjectIdScheduleRoute = ProjectsProjectIdScheduleImport.update({
-  path: "/projects/$projectId/schedule",
-  getParentRoute: () => rootRoute,
+  path: "/schedule",
+  getParentRoute: () => ProjectsProjectIdRoute,
 } as any)
 
 const ProjectsProjectIdTasksNewRoute = ProjectsProjectIdTasksNewImport.update({
@@ -102,8 +108,8 @@ const ProjectsProjectIdTasksTaskIdRoute =
 
 const ProjectsProjectIdScheduleMilestoneIdTasksRoute =
   ProjectsProjectIdScheduleMilestoneIdTasksImport.update({
-    path: "/projects/$projectId/schedule/$milestoneId/tasks",
-    getParentRoute: () => rootRoute,
+    path: "/schedule/$milestoneId/tasks",
+    getParentRoute: () => ProjectsProjectIdRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -159,40 +165,47 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof UsersImport
       parentRoute: typeof rootRoute
     }
+    "/projects/$projectId": {
+      id: "/projects/$projectId"
+      path: "/projects/$projectId"
+      fullPath: "/projects/$projectId"
+      preLoaderRoute: typeof ProjectsProjectIdImport
+      parentRoute: typeof rootRoute
+    }
     "/projects/$projectId/schedule": {
       id: "/projects/$projectId/schedule"
-      path: "/projects/$projectId/schedule"
+      path: "/schedule"
       fullPath: "/projects/$projectId/schedule"
       preLoaderRoute: typeof ProjectsProjectIdScheduleImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof ProjectsProjectIdImport
     }
     "/projects/$projectId/settings": {
       id: "/projects/$projectId/settings"
-      path: "/projects/$projectId/settings"
+      path: "/settings"
       fullPath: "/projects/$projectId/settings"
       preLoaderRoute: typeof ProjectsProjectIdSettingsImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof ProjectsProjectIdImport
     }
     "/projects/$projectId/tasks": {
       id: "/projects/$projectId/tasks"
-      path: "/projects/$projectId/tasks"
+      path: "/tasks"
       fullPath: "/projects/$projectId/tasks"
       preLoaderRoute: typeof ProjectsProjectIdTasksImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof ProjectsProjectIdImport
     }
     "/projects/$projectId/tracking": {
       id: "/projects/$projectId/tracking"
-      path: "/projects/$projectId/tracking"
+      path: "/tracking"
       fullPath: "/projects/$projectId/tracking"
       preLoaderRoute: typeof ProjectsProjectIdTrackingImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof ProjectsProjectIdImport
     }
     "/projects/$projectId/users": {
       id: "/projects/$projectId/users"
-      path: "/projects/$projectId/users"
+      path: "/users"
       fullPath: "/projects/$projectId/users"
       preLoaderRoute: typeof ProjectsProjectIdUsersImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof ProjectsProjectIdImport
     }
     "/projects/$projectId/tasks/$taskId": {
       id: "/projects/$projectId/tasks/$taskId"
@@ -210,10 +223,10 @@ declare module "@tanstack/react-router" {
     }
     "/projects/$projectId/schedule/$milestoneId/tasks": {
       id: "/projects/$projectId/schedule/$milestoneId/tasks"
-      path: "/projects/$projectId/schedule/$milestoneId/tasks"
+      path: "/schedule/$milestoneId/tasks"
       fullPath: "/projects/$projectId/schedule/$milestoneId/tasks"
       preLoaderRoute: typeof ProjectsProjectIdScheduleMilestoneIdTasksImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof ProjectsProjectIdImport
     }
   }
 }
@@ -228,15 +241,17 @@ export const routeTree = rootRoute.addChildren({
   SettingsRoute,
   TrackingRoute,
   UsersRoute,
-  ProjectsProjectIdScheduleRoute,
-  ProjectsProjectIdSettingsRoute,
-  ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute.addChildren({
-    ProjectsProjectIdTasksTaskIdRoute,
-    ProjectsProjectIdTasksNewRoute,
+  ProjectsProjectIdRoute: ProjectsProjectIdRoute.addChildren({
+    ProjectsProjectIdScheduleRoute,
+    ProjectsProjectIdSettingsRoute,
+    ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute.addChildren({
+      ProjectsProjectIdTasksTaskIdRoute,
+      ProjectsProjectIdTasksNewRoute,
+    }),
+    ProjectsProjectIdTrackingRoute,
+    ProjectsProjectIdUsersRoute,
+    ProjectsProjectIdScheduleMilestoneIdTasksRoute,
   }),
-  ProjectsProjectIdTrackingRoute,
-  ProjectsProjectIdUsersRoute,
-  ProjectsProjectIdScheduleMilestoneIdTasksRoute,
 })
 
 /* prettier-ignore-end */
@@ -254,12 +269,7 @@ export const routeTree = rootRoute.addChildren({
         "/settings",
         "/tracking",
         "/users",
-        "/projects/$projectId/schedule",
-        "/projects/$projectId/settings",
-        "/projects/$projectId/tasks",
-        "/projects/$projectId/tracking",
-        "/projects/$projectId/users",
-        "/projects/$projectId/schedule/$milestoneId/tasks"
+        "/projects/$projectId"
       ]
     },
     "/": {
@@ -283,24 +293,40 @@ export const routeTree = rootRoute.addChildren({
     "/users": {
       "filePath": "users.tsx"
     },
+    "/projects/$projectId": {
+      "filePath": "projects_.$projectId.tsx",
+      "children": [
+        "/projects/$projectId/schedule",
+        "/projects/$projectId/settings",
+        "/projects/$projectId/tasks",
+        "/projects/$projectId/tracking",
+        "/projects/$projectId/users",
+        "/projects/$projectId/schedule/$milestoneId/tasks"
+      ]
+    },
     "/projects/$projectId/schedule": {
-      "filePath": "projects_.$projectId.schedule.tsx"
+      "filePath": "projects_.$projectId.schedule.tsx",
+      "parent": "/projects/$projectId"
     },
     "/projects/$projectId/settings": {
-      "filePath": "projects_.$projectId.settings.tsx"
+      "filePath": "projects_.$projectId.settings.tsx",
+      "parent": "/projects/$projectId"
     },
     "/projects/$projectId/tasks": {
       "filePath": "projects_.$projectId.tasks.tsx",
+      "parent": "/projects/$projectId",
       "children": [
         "/projects/$projectId/tasks/$taskId",
         "/projects/$projectId/tasks/new"
       ]
     },
     "/projects/$projectId/tracking": {
-      "filePath": "projects_.$projectId.tracking.tsx"
+      "filePath": "projects_.$projectId.tracking.tsx",
+      "parent": "/projects/$projectId"
     },
     "/projects/$projectId/users": {
-      "filePath": "projects_.$projectId.users.tsx"
+      "filePath": "projects_.$projectId.users.tsx",
+      "parent": "/projects/$projectId"
     },
     "/projects/$projectId/tasks/$taskId": {
       "filePath": "projects_.$projectId.tasks.$taskId.tsx",
@@ -311,7 +337,8 @@ export const routeTree = rootRoute.addChildren({
       "parent": "/projects/$projectId/tasks"
     },
     "/projects/$projectId/schedule/$milestoneId/tasks": {
-      "filePath": "projects_.$projectId.schedule_.$milestoneId.tasks.tsx"
+      "filePath": "projects_.$projectId.schedule_.$milestoneId.tasks.tsx",
+      "parent": "/projects/$projectId"
     }
   }
 }
