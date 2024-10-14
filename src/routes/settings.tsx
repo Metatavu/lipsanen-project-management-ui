@@ -55,7 +55,7 @@ function SettingsIndexRoute() {
 
   const themeColorDefaultOptions = useMemo(
     () => [
-      { name: "Lipsanen Lipa-Betoni Oy", value: theme.palette.companyDefault.lipsanenLipsaBetoniOy },
+      { name: "Lipsanen Lipa-Betoni Oy", value: theme.palette.companyDefault.lipsanenLipaBetoniOy },
       { name: "Rakennus Ahola", value: theme.palette.companyDefault.rakennusAhola },
       { name: "Moduls", value: theme.palette.companyDefault.moduls },
       { name: "HB-Porras", value: theme.palette.companyDefault.hbPorras },

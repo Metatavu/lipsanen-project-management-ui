@@ -7,7 +7,7 @@ import { ChangeProposalStatus, ProjectStatus } from "generated/client";
 declare module "@mui/material/styles" {
   interface Palette {
     companyDefault: {
-      lipsanenLipsaBetoniOy: string;
+      lipsanenLipaBetoniOy: string;
       rakennusAhola: string;
       moduls: string;
       hbPorras: string;
@@ -22,7 +22,7 @@ declare module "@mui/material/styles" {
 
   interface PaletteOptions {
     companyDefault?: {
-      lipsanenLipsaBetoniOy?: string;
+      lipsanenLipaBetoniOy?: string;
       rakennusAhola?: string;
       moduls?: string;
       hbPorras?: string;
@@ -47,10 +47,10 @@ const theme = createTheme({
       dark: "#00599D",
     },
     companyDefault: {
-      lipsanenLipsaBetoniOy: "rgba(0, 121, 191, 1)",
-      rakennusAhola: "rgba(25, 85, 158, 0.35)",
-      moduls: "rgba(0, 23, 58, 1)",
-      hbPorras: "rgba(0, 122, 191, 1)",
+      lipsanenLipaBetoniOy: "#0079BF",
+      rakennusAhola: "#19559E",
+      moduls: "#00173A",
+      hbPorras: "#75d1ff",
     },
     projectStatus: {
       INITIATION: "#293d96",
