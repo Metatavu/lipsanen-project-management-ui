@@ -106,7 +106,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
   const jobPositions = useMemo(() => jobPositionsQuery.data?.jobPositions ?? [], [jobPositionsQuery.data]);
 
   const updateTaskMutation = useMutation({
-    mutationFn: (task: Task) => tasksApi.updateTask({ projectId: projectId, taskId: task.id as string, task: task }),
+    mutationFn: (task: Task) => tasksApi.updateTask({ taskId: task.id as string, task: task }),
     onMutate: async (taskToUpdate) => {
       const queryKey = ["projects", projectId, "tasks", {}];
       await queryClient.cancelQueries({ queryKey });

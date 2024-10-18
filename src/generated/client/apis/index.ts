@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AttachmentsApi';
 export * from './ChangeProposalsApi';
 export * from './CompaniesApi';
 export * from './JobPositionsApi';

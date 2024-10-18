@@ -129,7 +129,6 @@ export interface TaskFormData {
   userRole?: UserRole;
   estimatedDuration?: number;
   estimatedReadiness?: number;
-  attachmentUrls: string[];
 }
 
 /**
@@ -238,3 +237,15 @@ export type RenderFilterFormFn<FormValues> = (props: {
   formValues: FormValues;
   onChange: FormFieldChangeHandler<FormValues>;
 }) => ReactNode;
+
+/**
+ * Type that defines either matching URL as undefined or with confirmed state
+ */
+export type MatchingUrlWithConfirmedState =
+  | { matchingUrl: undefined }
+  | { matchingUrl: string; confirmedUseOfExistingFile: boolean };
+
+/**
+ * File to upload type that either has no matching URL or has a matching URL with confirmed state
+ */
+export type FileToUpload = { file: File } & MatchingUrlWithConfirmedState;

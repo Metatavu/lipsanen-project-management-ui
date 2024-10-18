@@ -111,12 +111,6 @@ export interface Task {
      */
     estimatedReadiness?: number;
     /**
-     * URLs of attachments related to the task
-     * @type {Array<string>}
-     * @memberof Task
-     */
-    attachmentUrls?: Array<string>;
-    /**
      * 
      * @type {Metadata}
      * @memberof Task
@@ -160,7 +154,6 @@ export function TaskFromJSONTyped(json: any, ignoreDiscriminator: boolean): Task
         'jobPositionId': !exists(json, 'jobPositionId') ? undefined : json['jobPositionId'],
         'estimatedDuration': !exists(json, 'estimatedDuration') ? undefined : json['estimatedDuration'],
         'estimatedReadiness': !exists(json, 'estimatedReadiness') ? undefined : json['estimatedReadiness'],
-        'attachmentUrls': !exists(json, 'attachmentUrls') ? undefined : json['attachmentUrls'],
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
 }
@@ -185,7 +178,6 @@ export function TaskToJSON(value?: Task | null): any {
         'jobPositionId': value.jobPositionId,
         'estimatedDuration': value.estimatedDuration,
         'estimatedReadiness': value.estimatedReadiness,
-        'attachmentUrls': value.attachmentUrls,
         'metadata': MetadataToJSON(value.metadata),
     };
 }

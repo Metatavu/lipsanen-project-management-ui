@@ -1,19 +1,20 @@
 import config from "../app/config";
 import {
+  AttachmentsApi,
+  ChangeProposalsApi,
+  CompaniesApi,
   Configuration,
   ConfigurationParameters,
-  ProjectsApi,
-  UsersApi,
-  CompaniesApi,
-  ProjectThemesApi,
-  ProjectMilestonesApi,
-  TasksApi,
-  ChangeProposalsApi,
-  TaskConnectionsApi,
-  TaskCommentsApi,
   JobPositionsApi,
+  NotificationEventsApi,
   NotificationsApi,
-  NotificationEventsApi
+  ProjectMilestonesApi,
+  ProjectThemesApi,
+  ProjectsApi,
+  TaskCommentsApi,
+  TaskConnectionsApi,
+  TasksApi,
+  UsersApi,
 } from "../generated/client";
 
 type ConfigConstructor<T> = new (_params: ConfigurationParameters) => T;
@@ -43,5 +44,6 @@ export const getApiClient = (accessToken?: string) => {
     jobPositionsApi: new JobPositionsApi(getConfiguration()),
     notificationsApi: new NotificationsApi(getConfiguration()),
     NotificationEventsApi: new NotificationEventsApi(getConfiguration()),
+    attachmentsApi: new AttachmentsApi(getConfiguration()),
   };
 };

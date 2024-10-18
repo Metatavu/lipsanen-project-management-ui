@@ -67,8 +67,12 @@ const ConfirmDialogProvider = ({ children }: { children: ReactNode }) => {
         </AppBar>
         <DialogContent>{options?.description}</DialogContent>
         <DialogActions>
-          {options?.cancelButtonEnabled && <Button onClick={handleClose}>{t("generic.cancel")}</Button>}
-          <Button variant="contained" onClick={handleSubmit}>
+          {options?.cancelButtonEnabled && (
+            <Button size="large" onClick={handleClose}>
+              {t("generic.cancel")}
+            </Button>
+          )}
+          <Button variant="contained" size="large" onClick={handleSubmit}>
             {options?.confirmButtonText || t("generic.confirm")}
           </Button>
         </DialogActions>
