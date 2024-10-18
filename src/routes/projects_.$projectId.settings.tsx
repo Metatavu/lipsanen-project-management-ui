@@ -152,7 +152,7 @@ function ProjectSettingsScreen() {
     <FlexColumnLayout>
       <Toolbar disableGutters sx={{ gap: 2 }}>
         <Typography component="h1" variant="h5">
-          {t("settingsScreen.title")}
+          {t("projectSettingsScreen.title")}
         </Typography>
       </Toolbar>
       <Card sx={{ flex: 1, p: 2 }}>{renderProjectSettings()}</Card>
