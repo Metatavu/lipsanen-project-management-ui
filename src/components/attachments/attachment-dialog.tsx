@@ -38,8 +38,8 @@ const attachmentFormSchema = z.object({
   name: z.string().min(1),
   projectId: z.string().uuid().min(1),
   type: z.string().min(1),
-  url: z.string().min(1),
-  taskId: z.string().uuid().min(1).or(z.null()),
+  url: z.string().min(1).nullable(),
+  taskId: z.string().uuid().min(1).nullable(),
 });
 
 /**
@@ -86,7 +86,7 @@ const AttachmentDialog = ({
 
   const [attachmentFile, setAttachmentFile] = useState<FileToUpload>();
 
-  const { control, handleSubmit, setValue, formState, watch, reset } = useForm({
+  const { control, handleSubmit, setValue, formState, watch, reset } = useForm<AttachmentForm>({
     resolver: zodResolver(attachmentFormSchema),
     values: {
       name: existingAttachment?.name ?? "",
@@ -176,7 +176,7 @@ const AttachmentDialog = ({
     const file = files.at(0);
     if (!file) return;
 
-    setValues({ url: "", name: "", type: "" });
+    setValues({ url: null, name: "", type: "" });
 
     const matchingFileUrl = existingFileUrls?.find((url) => url.endsWith(file.name));
 
@@ -193,7 +193,7 @@ const AttachmentDialog = ({
    */
   const onRemoveFile = () => {
     if (attachmentFile) setAttachmentFile(undefined);
-    setValues({ name: "", type: "", url: "" });
+    setValues({ name: "", type: "", url: null });
   };
 
   /**
@@ -262,7 +262,7 @@ const AttachmentDialog = ({
                   label={t("attachmentDialog.linkToTask")}
                   variant="outlined"
                   value={field.value ?? ""}
-                  onChange={field.onChange}
+                  onChange={(event) => field.onChange(event.target.value || null)}
                 >
                   <MenuItem value="">{t("generic.noSelection")}</MenuItem>
                   {tasks?.map((task) => (
@@ -310,7 +310,7 @@ const AttachmentDialog = ({
             color="primary"
             size="large"
             startIcon={<AddIcon />}
-            disabled={!isValid || !isDirty}
+            disabled={!isValid || !isDirty || attachmentUrl === ""}
             loading={isSubmitting}
           >
             {t("generic.save")}
