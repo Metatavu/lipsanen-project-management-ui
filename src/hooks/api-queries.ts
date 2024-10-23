@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { filesApi } from "api/files";
 import {
   Company,
+  FindAttachmentRequest,
   FindProjectMilestoneRequest,
   FindTaskRequest,
   FindUserRequest,
   JobPosition,
+  ListAttachmentsRequest,
   ListChangeProposalsRequest,
   ListCompaniesRequest,
   ListJobPositionsRequest,
@@ -225,26 +227,78 @@ export const useListProjectThemesQuery = (projectId?: string) => {
 };
 
 /**
- * List logos query hook
+ * List files query hook
  *
- * @param filesPath path to logo files
+ * @param path path to files
  */
-export const useListLogosQuery = (filesPath: string) =>
-  useQuery({
-    queryKey: ["logos"],
-    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing logos")),
+export const useListFilesQuery = (path: string) => {
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["files"],
+    queryFn: async () => {
+      try {
+        return await filesApi.listFiles(path);
+      } catch (error) {
+        handleError(`Error listing files from path ${path}`, error);
+        throw Error(t("errorHandling.errorListingFiles"), {
+          cause: error,
+        });
+      }
+    },
     staleTime: FIVE_MINUTES,
   });
+};
 
 /**
- * List task attachments query hook
+ * List attachments query hook
+ *
+ * @param params request params
  */
-export const useListTaskAttachmentsQuery = (filesPath: string) =>
-  useQuery({
-    queryKey: ["taskAttachments"],
-    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing task attachments")),
+export const useListAttachmentsQuery = (params: ListAttachmentsRequest = {}) => {
+  const { attachmentsApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["attachments", params],
+    queryFn: async () => {
+      try {
+        return await attachmentsApi.listAttachments(params);
+      } catch (error) {
+        handleError("Error listing attachments", error);
+        throw Error(t("errorHandling.errorListingAttachments"), {
+          cause: error,
+        });
+      }
+    },
     staleTime: FIVE_MINUTES,
   });
+};
+
+/**
+ * Find attachment query hook
+ *
+ * @param params request params
+ */
+export const useFindAttachmentQuery = ({ attachmentId }: FindAttachmentRequest) => {
+  const { attachmentsApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["attachments", attachmentId],
+    queryFn: async () => {
+      try {
+        return await attachmentsApi.findAttachment({ attachmentId });
+      } catch (error) {
+        handleError("Error finding attachment", error);
+        throw Error(t("errorHandling.errorFindingAttachment"), {
+          cause: error,
+        });
+      }
+    },
+    staleTime: FIVE_MINUTES,
+  });
+};
 
 /**
  * List project milestones query hook

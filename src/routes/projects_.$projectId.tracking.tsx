@@ -33,7 +33,7 @@ function TrackingIndexRoute() {
   const { projectId } = Route.useParams();
   const { t } = useTranslation();
 
-  const findUserQuery = useFindUserQuery({ userId: auth?.token.userId });
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
   const user = findUserQuery.data;
 
   const listUsersQuery = useListUsersQuery({ projectId });

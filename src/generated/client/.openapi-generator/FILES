@@ -1,3 +1,4 @@
+apis/AttachmentsApi.ts
 apis/ChangeProposalsApi.ts
 apis/CompaniesApi.ts
 apis/JobPositionsApi.ts
@@ -13,6 +14,7 @@ apis/TasksApi.ts
 apis/UsersApi.ts
 apis/index.ts
 index.ts
+models/Attachment.ts
 models/ChangeProposal.ts
 models/ChangeProposalStatus.ts
 models/Company.ts

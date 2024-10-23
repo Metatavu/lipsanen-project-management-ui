@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './Attachment';
 export * from './ChangeProposal';
 export * from './ChangeProposalStatus';
 export * from './Company';

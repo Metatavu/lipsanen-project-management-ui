@@ -61,4 +61,12 @@ export const hexFromString = (str: string) => {
  * @param backgroundColor background color
  * @returns either white or black color hex
  */
-export const getContrastForegroundColor = (backgroundColor: string) => (getContrastRatio("#FFF", backgroundColor) > 3 ? "#FFF" : "#000");
+export const getContrastForegroundColor = (backgroundColor: string) =>
+  getContrastRatio("#FFF", backgroundColor) > 3 ? "#FFF" : "#000";
+
+/**
+ * Returns last part of the given MIME type
+ *
+ * @param mimeType MIME type
+ */
+export const getLastPartFromMimeType = (mimeType: string) => mimeType.split("/").at(-1);

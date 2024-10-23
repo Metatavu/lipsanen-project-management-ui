@@ -15,7 +15,9 @@
   "dependencies": {
     "@emotion/react": "11.11.3",
     "@emotion/styled": "11.11.0",
+    "@fontsource/noto-sans": "5.1.0",
     "@fontsource/roboto": "5.0.8",
+    "@hookform/resolvers": "3.9.0",
     "@iconify-icons/mdi": "1.2.48",
     "@iconify/react": "5.0.1",
     "@mui/icons-material": "5.15.10",
@@ -43,7 +45,8 @@
     "react-hook-form": "7.50.1",
     "react-i18next": "14.0.5",
     "react-mentions": "4.4.10",
-    "uuid": "9.0.1"
+    "uuid": "9.0.1",
+    "zod": "3.23.8"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
