@@ -834,10 +834,10 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   };
 
   /**
-   *  Checks if milestone project status is planning or initiation
+   *  Checks if project status is planning or initiation
    */
-  const checkIfMilestonesAreFixed = () => {
-    return project?.status === ProjectStatus.Planning || project?.status === ProjectStatus.Initiation;
+  const hasProjectStarted = () => {
+    return project?.status !== ProjectStatus.Planning && project?.status !== ProjectStatus.Initiation;
   };
 
   /**
