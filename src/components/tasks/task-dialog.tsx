@@ -127,7 +127,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     [milestones, taskData.milestoneId],
   );
 
-  console.log("selectedMilestone", selectedMilestone);
 
   const [createChangeProposalData, setCreateChangeProposalData] = useState<ChangeProposal[]>([]);
   const [updateChangeProposalData, setUpdateChangeProposalData] = useState<ChangeProposal[]>(
