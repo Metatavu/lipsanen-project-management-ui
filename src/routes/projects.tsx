@@ -86,6 +86,7 @@ function ProjectsIndexRoute() {
       </Toolbar>
       <Card sx={{ flex: 1, minWidth: 0 }}>
         <DataGrid
+          paginationMode="server"
           loading={listProjectsQuery.isLoading}
           sx={{ height: "100%", width: "100%" }}
           rows={projects}
@@ -96,6 +97,7 @@ function ProjectsIndexRoute() {
               headerName: t("projects"),
               editable: true,
               flex: 1,
+              disableColumnMenu: true,
               renderCell: (params) => (
                 <Link
                   to={`/projects/${params.id}/tracking` as string}
@@ -111,22 +113,26 @@ function ProjectsIndexRoute() {
               headerName: t("project.type"),
               editable: true,
               flex: 1,
+              disableColumnMenu: true,
             },
             {
               field: "start_estimate",
               headerName: t("project.estimatedStart"),
               editable: true,
               flex: 1,
+              disableColumnMenu: true,
             },
             {
               field: "complete_estimate",
               headerName: t("project.estimatedStart"),
               flex: 1,
+              disableColumnMenu: true,
             },
             {
               field: "status",
               headerName: t("project.status"),
               flex: 1,
+              disableColumnMenu: true,
               renderCell: (params) => (
                 <Chip
                   size="small"
