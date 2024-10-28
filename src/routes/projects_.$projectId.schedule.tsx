@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import {
   Avatar,
   Box,
@@ -13,20 +13,20 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 import LoadingTableCell from "components/generic/loading-table-cell";
+import ProgressBadge from "components/generic/progress-badge";
 import NewMilestoneDialog from "components/milestones/new-milestone-dialog";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
-import { useTranslation } from "react-i18next";
 import { DateTime } from "luxon";
-import ProgressBadge from "components/generic/progress-badge";
-import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
-import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
-import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
+import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
+import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 /**
  * Schedule file route
