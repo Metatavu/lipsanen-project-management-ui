@@ -2,7 +2,10 @@
 /* eslint-disable */
 export * from './Attachment';
 export * from './ChangeProposal';
+export * from './ChangeProposalCreatedNotificationData';
 export * from './ChangeProposalStatus';
+export * from './ChangeProposalStatusChangedNotificationData';
+export * from './CommentLeftNotificationData';
 export * from './Company';
 export * from './JobPosition';
 export * from './Metadata';
@@ -15,10 +18,12 @@ export * from './Project';
 export * from './ProjectStatus';
 export * from './ProjectTheme';
 export * from './Task';
+export * from './TaskAssignedNotificationData';
 export * from './TaskComment';
 export * from './TaskConnection';
 export * from './TaskConnectionRole';
 export * from './TaskConnectionType';
 export * from './TaskStatus';
+export * from './TaskStatusChangesNotificationData';
 export * from './User';
 export * from './UserRole';
