@@ -31,6 +31,7 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { filesApi } from "api/files";
+import { apiUserAtom } from "atoms/auth";
 import FileUploader from "components/generic/file-upload";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
@@ -41,6 +42,8 @@ import {
   CreateTaskRequest,
   DeleteChangeProposalRequest,
   DeleteTaskConnectionRequest,
+  DeleteTaskRequest,
+  ProjectStatus,
   Task,
   TaskConnectionType,
   TaskStatus,
@@ -49,6 +52,7 @@ import {
   UpdateTaskRequest,
 } from "generated/client";
 import {
+  useFindProjectQuery,
   useListJobPositionsQuery,
   useListProjectMilestonesQuery,
   useListTaskAttachmentsQuery,
@@ -57,6 +61,7 @@ import {
   useListUsersQuery,
 } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
+import { useAtomValue } from "jotai";
 import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
@@ -103,7 +108,11 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
   const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
+  // TODO: Needed if delete task is based on projectStatus
+  const projectStatus = useFindProjectQuery(projectId).data?.status;
   const showConfirmDialog = useConfirmDialog();
+  // TODO: Needed if based on user roles.
+  const user = useAtomValue(apiUserAtom);
 
   const [taskData, setTaskData] = useState<TaskFormData>({
     name: "",
@@ -263,6 +272,18 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
+  });
+
+  /**
+   * Delete task mutation
+   */
+  const deleteTaskMutation = useMutation({
+    mutationFn: (params: DeleteTaskRequest) => tasksApi.deleteTask(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorDeletingTask"), error),
   });
 
   /**
@@ -696,6 +717,16 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     };
 
     setCreateChangeProposalData([...createChangeProposalData, newChangeProposal]);
+  };
+
+  /**
+   * Handles task deletion
+   */
+  const handleDeleteTask = async () => {
+    if (!task?.id) return;
+
+    await deleteTaskMutation.mutateAsync({ taskId: task?.id });
+    closeAndClear();
   };
 
   /**
@@ -1377,6 +1408,16 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     taskConnectionsValid
   );
 
+  // TODO: These conditions are incomplete
+  const deleteDisabled =
+    !task ||
+    task.status !== TaskStatus.NotStarted ||
+    (projectStatus !== ProjectStatus.Planning && projectStatus !== ProjectStatus.Initiation);
+
+  // TODO: Is delete disabled based on the users role also?
+  console.log("the task is", task);
+  console.log("user is", user);
+
   /**
    * Main component render
    */
@@ -1394,12 +1435,31 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             <span>/</span>
             {task ? task.name : t("newMilestoneTaskDialog.title")}
             <Button
+              onClick={() =>
+                showConfirmDialog({
+                  title: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.title"),
+                  description: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.description", {
+                    taskName: task?.name,
+                  }),
+                  cancelButtonEnabled: true,
+                  confirmButtonText: t("generic.delete"),
+                  onConfirmClick: handleDeleteTask,
+                })
+              }
+              variant="contained"
+              color="inherit"
+              size="large"
+              disabled={deleteDisabled}
+              sx={{ ml: "auto", backgroundColor: "#D32F2F" }}
+            >
+              {t("newMilestoneTaskDialog.deleteButton")}
+            </Button>
+            <Button
               onClick={handleTaskFormSubmit}
               variant="outlined"
               color="inherit"
               size="large"
               disabled={isDisabled}
-              sx={{ ml: "auto" }}
             >
               {!task && <AddIcon />}
               {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}
