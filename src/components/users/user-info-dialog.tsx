@@ -121,6 +121,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
         lastName: lastName || "",
         companyId: organization,
         jobPositionId: jobPositionId,
+        roles: undefined
       },
     });
   };
