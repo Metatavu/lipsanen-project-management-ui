@@ -209,7 +209,12 @@
       "today": "Tänään",
       "yesterday": "Eilen",
       "markRead": "Merkitse luetuksi",
-      "delete": "Poista"
+      "delete": "Poista",
+      "changeProposalCreatedMessage": "Uusi muutosehdotus on luotu",
+      "changeProposalStatusChangedMessage": "Muutosehdotus on päivitetty {{newStatus}}",
+      "commentLeftMessage": "Tehtävään lisätty kommentti: {{comment}}",
+      "taskAssignedMessage": "Sinut on määrätty tehtävään {{taskName}}",
+      "taskStatusChangedMessage": "Tehtävän tilaksi muutettu {{newStatus}}"
     },
     "tasksList": {
       "title": "Tehtävät",

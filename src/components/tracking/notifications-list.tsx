@@ -1,7 +1,19 @@
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import { Box, Card, LinearProgress, Tooltip, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { NotificationEvent, Task, UpdateNotificationEventRequest } from "generated/client";
+import {
+  ChangeProposalCreatedNotificationData,
+  ChangeProposalStatus,
+  ChangeProposalStatusChangedNotificationData,
+  CommentLeftNotificationData,
+  NotificationEvent,
+  NotificationType,
+  Task,
+  TaskAssignedNotificationData,
+  TaskStatus,
+  TaskStatusChangesNotificationData,
+  UpdateNotificationEventRequest,
+} from "generated/client";
 import { useApi } from "hooks/use-api";
 import { useTranslation } from "react-i18next";
 
@@ -13,6 +25,15 @@ interface Props {
   notificationEvents: NotificationEvent[];
   loading: boolean;
 }
+/**
+ * Notification data type
+ */
+type NotificationDataType =
+  | ChangeProposalCreatedNotificationData
+  | ChangeProposalStatusChangedNotificationData
+  | CommentLeftNotificationData
+  | TaskAssignedNotificationData
+  | TaskStatusChangesNotificationData;
 
 /**
  * Notifications list component
@@ -109,11 +130,81 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
   };
 
   /**
+   * Returns typed notification data based on notification type1
+   *
+   * @param notificationEvent NotificationEvent
+   * @returns NotificationDataType
+   */
+  const getTypedNotificationData = (notificationEvent: NotificationEvent): NotificationDataType => {
+    const { notification } = notificationEvent;
+
+    switch (notification.type) {
+      case NotificationType.ChangeProposalCreated:
+        return notification.notificationData as ChangeProposalCreatedNotificationData;
+      case NotificationType.ChangeProposalStatusChanged:
+        return notification.notificationData as ChangeProposalStatusChangedNotificationData;
+      case NotificationType.CommentLeft:
+        return notification.notificationData as CommentLeftNotificationData;
+      case NotificationType.TaskAssigned:
+        return notification.notificationData as TaskAssignedNotificationData;
+      case NotificationType.TaskStatusChanged:
+        return notification.notificationData as TaskStatusChangesNotificationData;
+    }
+  };
+
+  const formatChangeProposalStatus = {
+    [ChangeProposalStatus.Pending]: "pending",
+    [ChangeProposalStatus.Approved]: "approved",
+    [ChangeProposalStatus.Rejected]: "rejected",
+  };
+
+  const formatTaskStatus = {
+    [TaskStatus.NotStarted]: "not started",
+    [TaskStatus.InProgress]: "in progress",
+    [TaskStatus.Done]: "done",
+    error: "Unknown task status",
+  };
+
+  /**
+   * Renders notification message based on the notification type
+   *
+   * @param notificationEvent NotificationDataType
+   */
+  const renderNotificationMessage = (notificationEvent: NotificationEvent) => {
+    const typedNotification = getTypedNotificationData(notificationEvent);
+
+    switch (notificationEvent.notification.type) {
+      case NotificationType.ChangeProposalCreated:
+        return t("trackingScreen.notificationsList.changeProposalCreatedMessage");
+      case NotificationType.ChangeProposalStatusChanged:
+        return t("trackingScreen.notificationsList.changeProposalStatusChangedMessage", {
+          newStatus:
+            formatChangeProposalStatus[(typedNotification as ChangeProposalStatusChangedNotificationData).newStatus],
+        });
+      case NotificationType.CommentLeft:
+        return t("trackingScreen.notificationsList.commentLeftMessage", {
+          comment: (typedNotification as CommentLeftNotificationData).comment,
+        });
+      case NotificationType.TaskAssigned:
+        // TODO: Waiting API update to include newlyAssignedUsers in this message
+        return t("trackingScreen.notificationsList.taskAssignedMessage", { taskName: typedNotification.taskName });
+      case NotificationType.TaskStatusChanged:
+        return t("trackingScreen.notificationsList.taskStatusChangedMessage", {
+          newStatus: formatTaskStatus[(typedNotification as TaskStatusChangesNotificationData).newStatus || "error"],
+        });
+      default:
+        return "";
+    }
+  };
+
+  /**
    * Render notification card
    *
    * @param notificationEvent notification event
    */
   const renderNotificationCard = (notificationEvent: NotificationEvent) => {
+    const typedNotification = getTypedNotificationData(notificationEvent);
+
     return (
       <Card
         key={notificationEvent.id}
@@ -135,8 +226,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
             <Typography variant="body2" fontWeight="normal">
-              {tasks.find((task) => task.id === notificationEvent.notification.taskId)?.name ??
-                t("trackingScreen.tasksList.task")}
+              {tasks.find((task) => task.id === typedNotification.taskId)?.name ?? t("trackingScreen.tasksList.task")}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -168,7 +258,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
         </Box>
         <Box sx={{ padding: "1rem" }}>
           <Typography variant="body2" color="textSecondary" sx={{ marginBottom: "0.5rem" }}>
-            {notificationEvent.notification.message}
+            {renderNotificationMessage(notificationEvent)}
           </Typography>
           <Typography variant="body2" color="textSecondary">
             {notificationEvent.metadata?.createdAt
