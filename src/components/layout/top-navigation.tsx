@@ -64,7 +64,8 @@ const TopNavigation = () => {
   const routeLinks: NavigationLink[] = [
     { route: "/projects", labelKey: "projects" },
     { route: "/tracking", labelKey: "tracking" },
-    { route: "/project-templates", labelKey: "projectTemplates" },
+    // TODO: Curently unused
+    // { route: "/project-templates", labelKey: "projectTemplates" },
     { route: "/users", labelKey: "users" },
     ...(auth?.roles.includes(ADMIN_ROLE) || auth?.roles.includes(PROJECT_OWNER_ROLE)
       ? ([{ route: "/roles", labelKey: "roles" }] as NavigationLink[])
@@ -139,7 +140,7 @@ const TopNavigation = () => {
                 backgroundColor: updatedTheme.palette.primary.contrastText,
               },
             }}
-            value={selectedRouteIndex}
+            value={selectedRouteIndex === -1 ? false : selectedRouteIndex}
           >
             {activeLinks.map(({ route, labelKey }, routeIndex) => (
               <Tab

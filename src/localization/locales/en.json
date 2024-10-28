@@ -409,5 +409,10 @@
     "week": "Week",
     "markTasks": "Mark tasks",
     "noDependentUser": "No dependent user"
+  },
+  "taskStatuses": {
+    "NOT_STARTED": "Not started",
+    "IN_PROGRESS": "In progress",
+    "DONE": "Done"
   }
 }

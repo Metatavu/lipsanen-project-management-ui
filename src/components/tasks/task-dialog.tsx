@@ -42,6 +42,7 @@ import {
   CreateTaskRequest,
   DeleteChangeProposalRequest,
   DeleteTaskConnectionRequest,
+  ProjectStatus,
   Task,
   TaskConnectionType,
   TaskStatus,
@@ -51,6 +52,7 @@ import {
 } from "generated/client";
 import {
   useListAttachmentsQuery,
+  useFindProjectQuery,
   useListJobPositionsQuery,
   useListProjectMilestonesQuery,
   useListTaskConnectionsQuery,
@@ -107,6 +109,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
+
+  const findProjectQuery = useFindProjectQuery(projectId);
+  const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
 
   const listTaskAttachmentsQuery = useListAttachmentsQuery({ projectId, taskId: task?.id });
   const [updatedTaskAttachments, setUpdatedTaskAttachments] = useState(listTaskAttachmentsQuery.data ?? []);
@@ -267,7 +272,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
@@ -814,17 +819,28 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   };
 
   /**
+   *  Checks if project status is planning or initiation
+   */
+  const hasProjectStarted = () => {
+    return project?.status !== ProjectStatus.Planning && project?.status !== ProjectStatus.Initiation;
+  };
+
+  /**
    * Returns min date for startDate input
    */
   const getStartDateMin = () => {
-    return selectedMilestone ? getValidDateTimeOrThrow(selectedMilestone.startDate) : undefined;
+    if (!selectedMilestone || !hasProjectStarted()) {
+      return undefined;
+    }
+
+    return getValidDateTimeOrThrow(selectedMilestone.startDate);
   };
 
   /**
    * Returns max date for startDate input
    */
   const getStartDateMax = () => {
-    if (!selectedMilestone) return taskData.endDate ?? undefined;
+    if (!selectedMilestone || !hasProjectStarted()) return taskData.endDate ?? undefined;
 
     return taskData.endDate
       ? [getValidDateTimeOrThrow(selectedMilestone.endDate), taskData.endDate].toSorted().at(0)
@@ -835,7 +851,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Returns min date for endDate input
    */
   const getEndDateMin = () => {
-    if (!selectedMilestone) return taskData.startDate ?? undefined;
+    if (!selectedMilestone || !hasProjectStarted()) {
+      return taskData.startDate ?? undefined;
+    }
 
     return taskData.startDate
       ? [getValidDateTimeOrThrow(selectedMilestone.startDate), taskData.startDate].toSorted().at(1)
@@ -846,7 +864,11 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Returns max date for endDate input
    */
   const getEndDateMax = () => {
-    return selectedMilestone ? getValidDateTimeOrThrow(selectedMilestone.endDate) : undefined;
+    if (!selectedMilestone || !hasProjectStarted()) {
+      return undefined;
+    }
+
+    return getValidDateTimeOrThrow(selectedMilestone.endDate);
   };
 
   /**
