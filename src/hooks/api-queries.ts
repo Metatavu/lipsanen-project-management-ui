@@ -322,6 +322,29 @@ export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTa
 };
 
 /**
+ * Lists tasks affected by a change proposal
+ *
+ * @param changeProposalId change proposal id
+ */
+export const useListChangeProposalAffectedTasksQuery = (changeProposalId?: string) => {
+  const { tasksApi } = useApi();
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: ["changeProposalTasks", changeProposalId],
+    queryFn: async () => {
+      try {
+        return tasksApi.listTasks({ changeProposalId });
+      } catch (error) {
+        handleError("Error listing change proposal affected tasks", error);
+        throw Error(t("errorHandling.errorListingChangeProposalTasksPreview"), { cause: error });
+      }
+    },
+    enabled: !!changeProposalId,
+  });
+};
+
+/**
  * List change proposals query hook
  *
  * @param params request params

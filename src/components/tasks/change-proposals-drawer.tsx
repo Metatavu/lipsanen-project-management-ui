@@ -7,7 +7,7 @@ import ResizablePanel from "components/generic/resizable-panel";
 import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
 import { useFindUsersQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { DateTime } from "luxon";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import UserUtils from "utils/users";
 
@@ -42,6 +42,7 @@ const ChangeProposalsDrawer = ({
 }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const wasOpen = useRef(open);
 
   const proposalCreatorUsersIds = useMemo(
     () => [
@@ -53,6 +54,14 @@ const ChangeProposalsDrawer = ({
     ],
     [changeProposals],
   );
+
+  // Clears selected change proposal id when drawer is closed
+  useEffect(() => {
+    if (wasOpen.current && !open) {
+      setSelectedChangeProposalId("");
+    }
+    wasOpen.current = open;
+  }, [open, setSelectedChangeProposalId]);
 
   const listProposalCreatorUsersQuery = useFindUsersQuery(proposalCreatorUsersIds);
   const creatorUsers = (listProposalCreatorUsersQuery.data ?? []).filter((user) => user);
