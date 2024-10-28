@@ -127,7 +127,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     [milestones, taskData.milestoneId],
   );
 
-
   const [createChangeProposalData, setCreateChangeProposalData] = useState<ChangeProposal[]>([]);
   const [updateChangeProposalData, setUpdateChangeProposalData] = useState<ChangeProposal[]>(
     changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? [],
@@ -844,7 +843,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Returns min date for startDate input
    */
   const getStartDateMin = () => {
-    if (!selectedMilestone || checkIfMilestonesAreFixed()) {
+    if (!selectedMilestone || !hasProjectStarted()) {
       return undefined;
     }
 
@@ -855,7 +854,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Returns max date for startDate input
    */
   const getStartDateMax = () => {
-    if (!selectedMilestone || checkIfMilestonesAreFixed()) return taskData.endDate ?? undefined;
+    if (!selectedMilestone || !hasProjectStarted()) return taskData.endDate ?? undefined;
 
     return taskData.endDate
       ? [getValidDateTimeOrThrow(selectedMilestone.endDate), taskData.endDate].toSorted().at(0)
@@ -866,7 +865,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Returns min date for endDate input
    */
   const getEndDateMin = () => {
-    if (!selectedMilestone || checkIfMilestonesAreFixed()) {
+    if (!selectedMilestone || !hasProjectStarted()) {
       return taskData.startDate ?? undefined;
     }
 
@@ -879,7 +878,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * Returns max date for endDate input
    */
   const getEndDateMax = () => {
-    if (!selectedMilestone || checkIfMilestonesAreFixed()) {
+    if (!selectedMilestone || !hasProjectStarted()) {
       return undefined;
     }
 
