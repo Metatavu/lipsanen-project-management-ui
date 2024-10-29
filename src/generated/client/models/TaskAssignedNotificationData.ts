@@ -31,6 +31,12 @@ export interface TaskAssignedNotificationData {
      * @memberof TaskAssignedNotificationData
      */
     taskName: string;
+    /**
+     * IDs of users that the task was assigned to
+     * @type {Array<string>}
+     * @memberof TaskAssignedNotificationData
+     */
+    assigneeIds: Array<string>;
 }
 
 /**
@@ -40,6 +46,7 @@ export function instanceOfTaskAssignedNotificationData(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "taskId" in value;
     isInstance = isInstance && "taskName" in value;
+    isInstance = isInstance && "assigneeIds" in value;
 
     return isInstance;
 }
@@ -56,6 +63,7 @@ export function TaskAssignedNotificationDataFromJSONTyped(json: any, ignoreDiscr
         
         'taskId': json['taskId'],
         'taskName': json['taskName'],
+        'assigneeIds': json['assigneeIds'],
     };
 }
 
@@ -70,6 +78,7 @@ export function TaskAssignedNotificationDataToJSON(value?: TaskAssignedNotificat
         
         'taskId': value.taskId,
         'taskName': value.taskName,
+        'assigneeIds': value.assigneeIds,
     };
 }
 
