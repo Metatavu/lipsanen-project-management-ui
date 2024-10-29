@@ -50,12 +50,12 @@ function ProjectUsersIndexRoute() {
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
   const [selectedUser, setSelectedUser] = useState<User>();
 
-  // TODO: No position filter in the backend currently
   const listUsersQuery = useListUsersQuery({
     first,
     max,
     projectId: projectId,
     companyId: search.companyId,
+    jobPositionId: search.jobPositionId,
   });
 
   const maxResults = useCachedMaxResultsFromQuery(listUsersQuery);

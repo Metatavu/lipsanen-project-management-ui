@@ -61,12 +61,12 @@ export const useListCompaniesQuery = (params: ListCompaniesRequest = {}) => {
  * @param params ListUsersRequest
  */
 export const useListUsersQuery = (params: ListUsersRequest = {}) => {
-  const { first, max } = params;
+  const { first, max, companyId, includeRoles, jobPositionId, projectId } = params;
   const { usersApi } = useApi();
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["users", { first, max }],
+    queryKey: ["users", { first, max, companyId, includeRoles, jobPositionId, projectId }],
     queryFn: async (): Promise<WithMaxResults<"users", User>> => {
       try {
         const [users, headers] = await usersApi.listUsersWithHeaders(params);
