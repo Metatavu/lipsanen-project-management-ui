@@ -303,44 +303,22 @@ export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindPro
  *
  * @param params request params
  */
-export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTasksRequest) => {
+export const useListTasksQuery = (params: Partial<ListTasksRequest>) => {
+  const { projectId, changeProposalId, milestoneId, first, max } = params;
   const { tasksApi } = useApi();
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["projects", projectId, "tasks", { milestoneId, first, max }],
+    queryKey: ["projects", projectId, "tasks", { changeProposalId, milestoneId, first, max }],
     queryFn: async () => {
       try {
-        return await tasksApi.listTasks({ projectId, milestoneId, first, max });
+        return await tasksApi.listTasks(params as ListTasksRequest);
       } catch (error) {
         handleError("Error listing tasks", error);
         throw Error(t("errorHandling.errorListingTasks"), { cause: error });
       }
     },
     staleTime: ONE_MINUTE,
-  });
-};
-
-/**
- * Lists tasks affected by a change proposal
- *
- * @param changeProposalId change proposal id
- */
-export const useListChangeProposalAffectedTasksQuery = (changeProposalId?: string) => {
-  const { tasksApi } = useApi();
-  const { t } = useTranslation();
-
-  return useQuery({
-    queryKey: ["changeProposalTasks", changeProposalId],
-    queryFn: async () => {
-      try {
-        return tasksApi.listTasks({ changeProposalId });
-      } catch (error) {
-        handleError("Error listing change proposal affected tasks", error);
-        throw Error(t("errorHandling.errorListingChangeProposalTasksPreview"), { cause: error });
-      }
-    },
-    enabled: !!changeProposalId,
   });
 };
 

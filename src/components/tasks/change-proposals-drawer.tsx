@@ -55,14 +55,6 @@ const ChangeProposalsDrawer = ({
     [changeProposals],
   );
 
-  // Clears selected change proposal id when drawer is closed
-  useEffect(() => {
-    if (wasOpen.current && !open) {
-      setSelectedChangeProposalId("");
-    }
-    wasOpen.current = open;
-  }, [open, setSelectedChangeProposalId]);
-
   const listProposalCreatorUsersQuery = useFindUsersQuery(proposalCreatorUsersIds);
   const creatorUsers = (listProposalCreatorUsersQuery.data ?? []).filter((user) => user);
   const listJobPositionsQuery = useListJobPositionsQuery();
@@ -79,6 +71,14 @@ const ChangeProposalsDrawer = ({
 
     const changeProposalId = changeProposal.id;
     updateChangeProposalStatus(changeProposalId, changeProposal, status);
+  };
+
+  /**
+   * Changes drawer open state
+   */
+  const onToggleOpen = () => {
+    if (open) setSelectedChangeProposalId(undefined);
+    setOpen(!open);
   };
 
   /**
@@ -201,7 +201,7 @@ const ChangeProposalsDrawer = ({
   return (
     <>
       <Button
-        onClick={() => setOpen(!open)}
+        onClick={onToggleOpen}
         variant="contained"
         color="primary"
         size="large"

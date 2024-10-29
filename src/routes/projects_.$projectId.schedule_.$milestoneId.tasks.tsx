@@ -36,7 +36,6 @@ import {
 } from "generated/client";
 import {
   useFindProjectMilestoneQuery,
-  useListChangeProposalAffectedTasksQuery,
   useListChangeProposalsQuery,
   useListJobPositionsQuery,
   useListTaskConnectionsQuery,
@@ -97,7 +96,7 @@ function MilestoneTasksListRoute() {
     (proposal) => proposal.id === selectedChangeProposalId,
   )?.taskId;
 
-  const changeProposalTasksPreviewListQuery = useListChangeProposalAffectedTasksQuery(selectedChangeProposalId);
+  const changeProposalTasksPreviewListQuery = useListTasksQuery({ changeProposalId: selectedChangeProposalId });
   const changeProposalTasksPreviewList = changeProposalTasksPreviewListQuery.data;
 
   /**
