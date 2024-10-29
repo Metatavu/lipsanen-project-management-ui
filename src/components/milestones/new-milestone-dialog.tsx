@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Route } from "routes/projects_.$projectId.schedule";
 import { MilestoneFormData } from "types";
+import { useSetError } from "utils/error-handling";
 
 /**
  * New milestone dialog component
@@ -31,6 +32,8 @@ const NewMilestoneDialog = () => {
   const { projectMilestonesApi } = useApi();
   const queryClient = useQueryClient();
   const { projectId } = Route.useParams();
+  const setError = useSetError();
+
   const [open, setOpen] = useState(false);
   const [milestoneData, setMilestoneData] = useState<MilestoneFormData>({
     name: "",
@@ -47,7 +50,7 @@ const NewMilestoneDialog = () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
       setOpen(false);
     },
-    onError: (error) => console.error(t("errorHandling.errorCreatingProjectMilestone"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingProjectMilestone"), error),
   });
 
   /**

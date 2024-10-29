@@ -25,6 +25,7 @@ import {
 import { useApi } from "hooks/use-api";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 
 type Props = {
   projectId?: string;
@@ -39,6 +40,7 @@ const NewUserDialog = ({ projectId }: Props) => {
   const { t } = useTranslation();
   const { usersApi, companiesApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
 
   const [open, setOpen] = useState(false);
   const [userData, setUserData] = useState({ name: "", email: "" });
@@ -69,7 +71,7 @@ const NewUserDialog = ({ projectId }: Props) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       setOpen(false);
     },
-    onError: (error) => console.error(t("errorHandling.errorCreatingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingUser"), error),
   });
 
   /**
@@ -78,7 +80,7 @@ const NewUserDialog = ({ projectId }: Props) => {
   const createCompanyMutation = useMutation({
     mutationFn: (params: CreateCompanyRequest) => companiesApi.createCompany(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
-    onError: (error) => console.error(t("errorHandling.errorCreatingNewCompany"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingNewCompany"), error),
   });
 
   /**

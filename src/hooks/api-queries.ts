@@ -21,7 +21,7 @@ import {
 } from "generated/client";
 import { useTranslation } from "react-i18next";
 import { WithMaxResults } from "types";
-import { handleError, handleErrorWithMessage } from "utils";
+import { useSetError } from "utils/error-handling";
 import { useApi } from "./use-api";
 
 const ONE_MINUTE = 1000 * 60;
@@ -36,6 +36,7 @@ export const useListCompaniesQuery = (params: ListCompaniesRequest = {}) => {
   const { first, max } = params;
   const { companiesApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["companies", { first, max }],
@@ -47,7 +48,7 @@ export const useListCompaniesQuery = (params: ListCompaniesRequest = {}) => {
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
         };
       } catch (error) {
-        handleError("Error listing companies", error);
+        setError(t("errorHandling.errorListingCompanies"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingCompanies"), { cause: error });
       }
     },
@@ -64,6 +65,7 @@ export const useListUsersQuery = (params: ListUsersRequest = {}) => {
   const { first, max, companyId, includeRoles, jobPositionId, projectId } = params;
   const { usersApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["users", { first, max, companyId, includeRoles, jobPositionId, projectId }],
@@ -75,7 +77,7 @@ export const useListUsersQuery = (params: ListUsersRequest = {}) => {
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
         };
       } catch (error) {
-        handleError("Error listing users", error);
+        setError(t("errorHandling.errorListingUsers"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingUsers"), { cause: error });
       }
     },
@@ -92,6 +94,7 @@ export const useFindUserQuery = (params: Partial<FindUserRequest>) => {
   const { userId, includeRoles } = params;
   const { usersApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["users", userId, { includeRoles }],
@@ -99,7 +102,7 @@ export const useFindUserQuery = (params: Partial<FindUserRequest>) => {
       try {
         return await usersApi.findUser(params as FindUserRequest);
       } catch (error) {
-        handleError("Error finding user", error);
+        setError(t("errorHandling.errorFindingUser"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorFindingUser"), { cause: error });
       }
     },
@@ -117,6 +120,7 @@ export const useFindUserQuery = (params: Partial<FindUserRequest>) => {
 export const useFindUsersQuery = (userIds?: string[]) => {
   const { usersApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["users", userIds],
@@ -129,7 +133,7 @@ export const useFindUsersQuery = (userIds?: string[]) => {
         const userLists = await Promise.all(userPromises);
         return userLists.flat();
       } catch (error) {
-        handleError("Error finding multiple users", error);
+        setError(t("errorHandling.errorFindingMultipleUsers"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorFindingMultipleUsers"), {
           cause: error,
         });
@@ -150,6 +154,7 @@ export const useListProjectsQuery = (params: ListProjectsRequest = {}) => {
   const { first, max } = params;
   const { projectsApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["projects", { first, max }],
@@ -162,7 +167,7 @@ export const useListProjectsQuery = (params: ListProjectsRequest = {}) => {
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
         };
       } catch (error) {
-        handleError("Error listing projects", error);
+        setError(t("errorHandling.errorListingProjects"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingProjects"), { cause: error });
       }
     },
@@ -178,6 +183,7 @@ export const useListProjectsQuery = (params: ListProjectsRequest = {}) => {
 export const useFindProjectQuery = (projectId?: string) => {
   const { projectsApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["projects", projectId],
@@ -187,7 +193,7 @@ export const useFindProjectQuery = (projectId?: string) => {
       try {
         return projectsApi.findProject({ projectId: projectId });
       } catch (error) {
-        handleErrorWithMessage("Error finding project")(error);
+        setError(t("errorHandling.errorFindingProject"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorFindingProject"), { cause: error });
       }
     },
@@ -205,6 +211,7 @@ export const useFindProjectQuery = (projectId?: string) => {
 export const useListProjectThemesQuery = (projectId?: string) => {
   const { projectThemesApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["projects", projectId, "themes"],
@@ -213,7 +220,7 @@ export const useListProjectThemesQuery = (projectId?: string) => {
       try {
         return await projectThemesApi.listProjectThemes({ projectId: projectId });
       } catch (error) {
-        handleError("Error listing project themes", error);
+        setError(t("errorHandling.errorListingProjectThemes"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingProjectThemes"), {
           cause: error,
         });
@@ -229,22 +236,28 @@ export const useListProjectThemesQuery = (projectId?: string) => {
  *
  * @param filesPath path to logo files
  */
-export const useListLogosQuery = (filesPath: string) =>
-  useQuery({
+export const useListLogosQuery = (filesPath: string) => {
+  const setError = useSetError();
+
+  return useQuery({
     queryKey: ["logos"],
-    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing logos")),
+    queryFn: () => filesApi.listFiles(filesPath).catch((e) => setError("Error listing logos", e)),
     staleTime: FIVE_MINUTES,
   });
+};
 
 /**
  * List task attachments query hook
  */
-export const useListTaskAttachmentsQuery = (filesPath: string) =>
-  useQuery({
+export const useListTaskAttachmentsQuery = (filesPath: string) => {
+  const setError = useSetError();
+
+  return useQuery({
     queryKey: ["taskAttachments"],
-    queryFn: () => filesApi.listFiles(filesPath).catch(handleErrorWithMessage("Error listing task attachments")),
+    queryFn: () => filesApi.listFiles(filesPath).catch((e) => setError("Error listing task attachments", e)),
     staleTime: FIVE_MINUTES,
   });
+};
 
 /**
  * List project milestones query hook
@@ -254,6 +267,7 @@ export const useListTaskAttachmentsQuery = (filesPath: string) =>
 export const useListProjectMilestonesQuery = ({ projectId }: ListProjectMilestonesRequest) => {
   const { projectMilestonesApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["projects", projectId, "milestones"],
@@ -261,7 +275,7 @@ export const useListProjectMilestonesQuery = ({ projectId }: ListProjectMileston
       try {
         return await projectMilestonesApi.listProjectMilestones({ projectId });
       } catch (error) {
-        handleError("Error listing project milestones", error);
+        setError(t("errorHandling.errorListingProjectMilestones"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingProjectMilestones"), {
           cause: error,
         });
@@ -280,6 +294,7 @@ export const useListProjectMilestonesQuery = ({ projectId }: ListProjectMileston
 export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindProjectMilestoneRequest) => {
   const { projectMilestonesApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["projects", projectId, "milestones", milestoneId],
@@ -287,7 +302,7 @@ export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindPro
       try {
         return await projectMilestonesApi.findProjectMilestone({ projectId, milestoneId });
       } catch (error) {
-        handleError("Error finding project milestone", error);
+        setError(t("errorHandling.errorFindingProjectMilestone"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorFindingProjectMilestone"), {
           cause: error,
         });
@@ -306,6 +321,7 @@ export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindPro
 export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTasksRequest) => {
   const { tasksApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["tasks", { milestoneId, first, max }],
@@ -313,7 +329,7 @@ export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTa
       try {
         return await tasksApi.listTasks({ projectId, milestoneId, first, max });
       } catch (error) {
-        handleError("Error listing tasks", error);
+        setError(t("errorHandling.errorListingTasks"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingTasks"), { cause: error });
       }
     },
@@ -330,6 +346,7 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
   const { projectId, milestoneId, taskId, first, max } = params;
   const { changeProposalsApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["changeProposals", { projectId, milestoneId, taskId, first, max }],
@@ -337,7 +354,7 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
       try {
         return await changeProposalsApi.listChangeProposals(params);
       } catch (error) {
-        handleError("Error listing change proposals", error);
+        setError(t("errorHandling.errorListingChangeProposals"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingChangeProposals"), {
           cause: error,
         });
@@ -355,6 +372,7 @@ export const useListChangeProposalsQuery = (params: ListChangeProposalsRequest) 
 export const useFindTaskQuery = ({ taskId }: FindTaskRequest) => {
   const { tasksApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["tasks", taskId],
@@ -362,7 +380,7 @@ export const useFindTaskQuery = ({ taskId }: FindTaskRequest) => {
       try {
         return await tasksApi.findTask({ taskId });
       } catch (error) {
-        handleError("Error finding task", error);
+        setError(t("errorHandling.errorFindingTask"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorFindingTask"), {
           cause: error,
         });
@@ -382,6 +400,7 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
   const { projectId, taskId, connectionRole } = params;
   const { taskConnectionsApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["projects", projectId, "connections", { taskId, connectionRole }],
@@ -389,7 +408,7 @@ export const useListTaskConnectionsQuery = (params: ListTaskConnectionsRequest) 
       try {
         return await taskConnectionsApi.listTaskConnections(params);
       } catch (error) {
-        handleError("Error listing task connections", error);
+        setError(t("errorHandling.errorListingTaskConnections"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingTaskConnections"), { cause: error });
       }
     },
@@ -407,6 +426,7 @@ export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
   const { taskId } = params;
   const { taskCommentsApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["tasks", taskId, "comments"],
@@ -414,7 +434,7 @@ export const useListTaskCommentsQuery = (params: ListTaskCommentsRequest) => {
       try {
         return taskCommentsApi.listTaskComments(params);
       } catch (error) {
-        handleError("Error listing task comments", error);
+        setError(t("errorHandling.errorListingTaskComments"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingTaskComments"), { cause: error });
       }
     },
@@ -432,6 +452,7 @@ export const useListJobPositionsQuery = (params: ListJobPositionsRequest = {}) =
   const { first, max } = params;
   const { jobPositionsApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["jobPositions", { first, max }],
@@ -443,7 +464,7 @@ export const useListJobPositionsQuery = (params: ListJobPositionsRequest = {}) =
           maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
         };
       } catch (error) {
-        handleError("Error listing job positions", error);
+        setError(t("errorHandling.errorListingJobPositions"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingJobPositions"), { cause: error });
       }
     },
@@ -460,6 +481,7 @@ export const useListNotificationEventsQuery = (params: Partial<ListNotificationE
   const { projectId, taskId, userId, readStatus, first, max } = params;
   const { NotificationEventsApi } = useApi();
   const { t } = useTranslation();
+  const setError = useSetError();
 
   return useQuery({
     queryKey: ["notificationEvents", { projectId, taskId, userId, readStatus, first, max }],
@@ -467,7 +489,7 @@ export const useListNotificationEventsQuery = (params: Partial<ListNotificationE
       try {
         return NotificationEventsApi.listNotificationEvents(params as ListNotificationEventsRequest);
       } catch (error) {
-        handleError("Error listing notification events", error);
+        setError(t("errorHandling.errorListingNotificationEvents"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingNotificationEvents"), { cause: error });
       }
     },

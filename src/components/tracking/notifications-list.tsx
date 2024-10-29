@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { NotificationEvent, Task, UpdateNotificationEventRequest } from "generated/client";
 import { useApi } from "hooks/use-api";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Component props
@@ -23,6 +24,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { NotificationEventsApi } = useApi();
+  const setError = useSetError();
 
   /**
    * Update notification event
@@ -32,7 +34,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notificationEvents"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingNotificationEvent"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingNotificationEvent"), error),
   });
 
   /**
@@ -43,7 +45,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notificationEvents"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingNotificationEvent"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingNotificationEvent"), error),
   });
 
   /**

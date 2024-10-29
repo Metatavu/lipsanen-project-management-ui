@@ -5,10 +5,6 @@ export const getNthSlugFromPathName = (pathName: string, nth: number) => {
   return (pathName.startsWith("/") ? pathName : `/${pathName}`).split("/").at(nth + 1);
 };
 
-export const handleErrorWithMessage = (errorMessage: string) => (error: unknown) => handleError(errorMessage, error);
-
-export const handleError = (errorMessage: string, error: unknown) => console.error(errorMessage, error);
-
 /**
  * Check if given string contains invalid characters
  *
@@ -61,4 +57,5 @@ export const hexFromString = (str: string) => {
  * @param backgroundColor background color
  * @returns either white or black color hex
  */
-export const getContrastForegroundColor = (backgroundColor: string) => (getContrastRatio("#FFF", backgroundColor) > 3 ? "#FFF" : "#000");
+export const getContrastForegroundColor = (backgroundColor: string) =>
+  getContrastRatio("#FFF", backgroundColor) > 3 ? "#FFF" : "#000";

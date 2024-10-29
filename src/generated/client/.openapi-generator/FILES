@@ -16,7 +16,10 @@ apis/index.ts
 index.ts
 models/Attachment.ts
 models/ChangeProposal.ts
+models/ChangeProposalCreatedNotificationData.ts
 models/ChangeProposalStatus.ts
+models/ChangeProposalStatusChangedNotificationData.ts
+models/CommentLeftNotificationData.ts
 models/Company.ts
 models/JobPosition.ts
 models/Metadata.ts
@@ -29,11 +32,13 @@ models/Project.ts
 models/ProjectStatus.ts
 models/ProjectTheme.ts
 models/Task.ts
+models/TaskAssignedNotificationData.ts
 models/TaskComment.ts
 models/TaskConnection.ts
 models/TaskConnectionRole.ts
 models/TaskConnectionType.ts
 models/TaskStatus.ts
+models/TaskStatusChangesNotificationData.ts
 models/User.ts
 models/UserRole.ts
 models/index.ts

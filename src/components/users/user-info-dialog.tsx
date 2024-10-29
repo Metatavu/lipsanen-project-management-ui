@@ -27,6 +27,7 @@ import { useFindUserQuery, useListCompaniesQuery, useListJobPositionsQuery } fro
 import { useApi } from "hooks/use-api";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 import AssignUserToProjectDialog from "./assign-user-to-project-dialog";
 import UserProjectTableRow from "./user-project-table-row";
 
@@ -47,6 +48,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   const { t } = useTranslation();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
   const theme = useTheme();
   const isSmallerScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
@@ -84,7 +86,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingUser"), error),
   });
 
   /**
@@ -133,7 +135,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
     try {
       await handleUserDataSave();
     } catch (error) {
-      console.error(t("errorHandling.errorUpdatingUser"), error);
+      setError(t("errorHandling.errorUpdatingUser"), error instanceof Error ? error : undefined);
     }
     setIsLoading(false);
     setChangesMade(false);

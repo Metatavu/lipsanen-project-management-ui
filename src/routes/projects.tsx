@@ -18,6 +18,7 @@ import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { projectsSearchSchema } from "schemas/search";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Projects file route
@@ -36,6 +37,7 @@ function ProjectsIndexRoute() {
   const queryClient = useQueryClient();
   const showConfirmDialog = useConfirmDialog();
   const search = Route.useSearch();
+  const setError = useSetError();
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 10 });
   const [first, max] = usePaginationToFirstAndMax(paginationModel);
@@ -56,7 +58,7 @@ function ProjectsIndexRoute() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingProject"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingProject"), error),
   });
 
   /**

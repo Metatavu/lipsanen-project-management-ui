@@ -7,6 +7,7 @@
   "roles": "Roles",
   "logout": "Logout",
   "search": "Search",
+  "errorTitle": "Error",
   "generic": {
     "save": "Save",
     "delete": "Delete",
@@ -15,7 +16,8 @@
     "showFilters": "Show filters",
     "clear": "Clear",
     "apply": "Apply",
-    "noSelection": "No selection"
+    "noSelection": "No selection",
+    "close": "Close"
   },
   "project": {
     "status": "Status",
