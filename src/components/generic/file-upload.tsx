@@ -1,13 +1,12 @@
+import CloseIcon from "@mui/icons-material/Close";
 import { Alert, Box, CircularProgress, IconButton } from "@mui/material";
+import config from "app/config";
+import { TWO_MEGABYTES } from "consts";
 import { DropzoneArea } from "mui-file-dropzone";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UploadMessage } from "types";
-import CloseIcon from "@mui/icons-material/Close";
 import { containsIllegalCharacters } from "utils";
-import config from "app/config";
-
-const MAX_FILE_SIZE_IN_BYTES = 2000000;
 
 /**
  * Component props
@@ -57,7 +56,7 @@ const FileUploader = ({
       <DropzoneArea
         onDrop={(files) => handleDropFile(files)}
         acceptedFiles={allowedFileTypes}
-        maxFileSize={MAX_FILE_SIZE_IN_BYTES}
+        maxFileSize={TWO_MEGABYTES}
         onAlert={(message, variant) => variant === "error" && setUploadMessage({ message, severity: "error" })}
         filesLimit={1}
         fileObjects={[]}
@@ -74,16 +73,11 @@ const FileUploader = ({
   const renderAlert = () => {
     return (
       uploadMessage && (
-        <Box sx={{ width: '100%', mt: 2 }}>
+        <Box sx={{ width: "100%", mt: 2 }}>
           <Alert
             severity={uploadMessage.severity}
             action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => setUploadMessage(undefined)}
-              >
+              <IconButton aria-label="close" color="inherit" size="small" onClick={() => setUploadMessage(undefined)}>
                 <CloseIcon fontSize="inherit" />
               </IconButton>
             }

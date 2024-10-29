@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { filesApi } from "api/files";
 import {
   Company,
+  FindAttachmentRequest,
   FindProjectMilestoneRequest,
   FindTaskRequest,
   FindUserRequest,
   JobPosition,
+  ListAttachmentsRequest,
   ListChangeProposalsRequest,
   ListCompaniesRequest,
   ListJobPositionsRequest,
@@ -232,29 +234,78 @@ export const useListProjectThemesQuery = (projectId?: string) => {
 };
 
 /**
- * List logos query hook
+ * List files query hook
  *
- * @param filesPath path to logo files
+ * @param path path to files
  */
-export const useListLogosQuery = (filesPath: string) => {
+export const useListFilesQuery = (path: string) => {
+  const { t } = useTranslation();
   const setError = useSetError();
 
   return useQuery({
-    queryKey: ["logos"],
-    queryFn: () => filesApi.listFiles(filesPath).catch((e) => setError("Error listing logos", e)),
+    queryKey: ["files"],
+    queryFn: async () => {
+      try {
+        return await filesApi.listFiles(path);
+      } catch (error) {
+        setError("Error listing logos", error instanceof Error ? error : undefined);
+        throw Error(t("errorHandling.errorListingFiles"), {
+          cause: error,
+        });
+      }
+    },
     staleTime: FIVE_MINUTES,
   });
 };
 
 /**
- * List task attachments query hook
+ * List attachments query hook
+ *
+ * @param params request params
  */
-export const useListTaskAttachmentsQuery = (filesPath: string) => {
+export const useListAttachmentsQuery = (params: ListAttachmentsRequest = {}) => {
+  const { attachmentsApi } = useApi();
+  const { t } = useTranslation();
   const setError = useSetError();
 
   return useQuery({
-    queryKey: ["taskAttachments"],
-    queryFn: () => filesApi.listFiles(filesPath).catch((e) => setError("Error listing task attachments", e)),
+    queryKey: ["attachments", params],
+    queryFn: async () => {
+      try {
+        return await attachmentsApi.listAttachments(params);
+      } catch (error) {
+        setError("Error listing attachments", error instanceof Error ? error : undefined);
+        throw Error(t("errorHandling.errorListingAttachments"), {
+          cause: error,
+        });
+      }
+    },
+    staleTime: FIVE_MINUTES,
+  });
+};
+
+/**
+ * Find attachment query hook
+ *
+ * @param params request params
+ */
+export const useFindAttachmentQuery = ({ attachmentId }: FindAttachmentRequest) => {
+  const { attachmentsApi } = useApi();
+  const { t } = useTranslation();
+  const setError = useSetError();
+
+  return useQuery({
+    queryKey: ["attachments", attachmentId],
+    queryFn: async () => {
+      try {
+        return await attachmentsApi.findAttachment({ attachmentId });
+      } catch (error) {
+        setError("Error finding attachment", error instanceof Error ? error : undefined);
+        throw Error(t("errorHandling.errorFindingAttachment"), {
+          cause: error,
+        });
+      }
+    },
     staleTime: FIVE_MINUTES,
   });
 };

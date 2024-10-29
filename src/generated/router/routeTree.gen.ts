@@ -24,8 +24,11 @@ import { Route as ProjectsProjectIdTrackingImport } from "./../../routes/project
 import { Route as ProjectsProjectIdTasksImport } from "./../../routes/projects_.$projectId.tasks"
 import { Route as ProjectsProjectIdSettingsImport } from "./../../routes/projects_.$projectId.settings"
 import { Route as ProjectsProjectIdScheduleImport } from "./../../routes/projects_.$projectId.schedule"
+import { Route as ProjectsProjectIdAttachmentsImport } from "./../../routes/projects_.$projectId.attachments"
 import { Route as ProjectsProjectIdTasksNewImport } from "./../../routes/projects_.$projectId.tasks.new"
 import { Route as ProjectsProjectIdTasksTaskIdImport } from "./../../routes/projects_.$projectId.tasks.$taskId"
+import { Route as ProjectsProjectIdAttachmentsNewImport } from "./../../routes/projects_.$projectId.attachments.new"
+import { Route as ProjectsProjectIdAttachmentsAttachmentIdImport } from "./../../routes/projects_.$projectId.attachments.$attachmentId"
 import { Route as ProjectsProjectIdScheduleMilestoneIdTasksImport } from "./../../routes/projects_.$projectId.schedule_.$milestoneId.tasks"
 
 // Create/Update Routes
@@ -95,6 +98,12 @@ const ProjectsProjectIdScheduleRoute = ProjectsProjectIdScheduleImport.update({
   getParentRoute: () => ProjectsProjectIdRoute,
 } as any)
 
+const ProjectsProjectIdAttachmentsRoute =
+  ProjectsProjectIdAttachmentsImport.update({
+    path: "/attachments",
+    getParentRoute: () => ProjectsProjectIdRoute,
+  } as any)
+
 const ProjectsProjectIdTasksNewRoute = ProjectsProjectIdTasksNewImport.update({
   path: "/new",
   getParentRoute: () => ProjectsProjectIdTasksRoute,
@@ -104,6 +113,18 @@ const ProjectsProjectIdTasksTaskIdRoute =
   ProjectsProjectIdTasksTaskIdImport.update({
     path: "/$taskId",
     getParentRoute: () => ProjectsProjectIdTasksRoute,
+  } as any)
+
+const ProjectsProjectIdAttachmentsNewRoute =
+  ProjectsProjectIdAttachmentsNewImport.update({
+    path: "/new",
+    getParentRoute: () => ProjectsProjectIdAttachmentsRoute,
+  } as any)
+
+const ProjectsProjectIdAttachmentsAttachmentIdRoute =
+  ProjectsProjectIdAttachmentsAttachmentIdImport.update({
+    path: "/$attachmentId",
+    getParentRoute: () => ProjectsProjectIdAttachmentsRoute,
   } as any)
 
 const ProjectsProjectIdScheduleMilestoneIdTasksRoute =
@@ -172,6 +193,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ProjectsProjectIdImport
       parentRoute: typeof rootRoute
     }
+    "/projects/$projectId/attachments": {
+      id: "/projects/$projectId/attachments"
+      path: "/attachments"
+      fullPath: "/projects/$projectId/attachments"
+      preLoaderRoute: typeof ProjectsProjectIdAttachmentsImport
+      parentRoute: typeof ProjectsProjectIdImport
+    }
     "/projects/$projectId/schedule": {
       id: "/projects/$projectId/schedule"
       path: "/schedule"
@@ -206,6 +234,20 @@ declare module "@tanstack/react-router" {
       fullPath: "/projects/$projectId/users"
       preLoaderRoute: typeof ProjectsProjectIdUsersImport
       parentRoute: typeof ProjectsProjectIdImport
+    }
+    "/projects/$projectId/attachments/$attachmentId": {
+      id: "/projects/$projectId/attachments/$attachmentId"
+      path: "/$attachmentId"
+      fullPath: "/projects/$projectId/attachments/$attachmentId"
+      preLoaderRoute: typeof ProjectsProjectIdAttachmentsAttachmentIdImport
+      parentRoute: typeof ProjectsProjectIdAttachmentsImport
+    }
+    "/projects/$projectId/attachments/new": {
+      id: "/projects/$projectId/attachments/new"
+      path: "/new"
+      fullPath: "/projects/$projectId/attachments/new"
+      preLoaderRoute: typeof ProjectsProjectIdAttachmentsNewImport
+      parentRoute: typeof ProjectsProjectIdAttachmentsImport
     }
     "/projects/$projectId/tasks/$taskId": {
       id: "/projects/$projectId/tasks/$taskId"
@@ -242,6 +284,11 @@ export const routeTree = rootRoute.addChildren({
   TrackingRoute,
   UsersRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute.addChildren({
+    ProjectsProjectIdAttachmentsRoute:
+      ProjectsProjectIdAttachmentsRoute.addChildren({
+        ProjectsProjectIdAttachmentsAttachmentIdRoute,
+        ProjectsProjectIdAttachmentsNewRoute,
+      }),
     ProjectsProjectIdScheduleRoute,
     ProjectsProjectIdSettingsRoute,
     ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute.addChildren({
@@ -296,12 +343,21 @@ export const routeTree = rootRoute.addChildren({
     "/projects/$projectId": {
       "filePath": "projects_.$projectId.tsx",
       "children": [
+        "/projects/$projectId/attachments",
         "/projects/$projectId/schedule",
         "/projects/$projectId/settings",
         "/projects/$projectId/tasks",
         "/projects/$projectId/tracking",
         "/projects/$projectId/users",
         "/projects/$projectId/schedule/$milestoneId/tasks"
+      ]
+    },
+    "/projects/$projectId/attachments": {
+      "filePath": "projects_.$projectId.attachments.tsx",
+      "parent": "/projects/$projectId",
+      "children": [
+        "/projects/$projectId/attachments/$attachmentId",
+        "/projects/$projectId/attachments/new"
       ]
     },
     "/projects/$projectId/schedule": {
@@ -327,6 +383,14 @@ export const routeTree = rootRoute.addChildren({
     "/projects/$projectId/users": {
       "filePath": "projects_.$projectId.users.tsx",
       "parent": "/projects/$projectId"
+    },
+    "/projects/$projectId/attachments/$attachmentId": {
+      "filePath": "projects_.$projectId.attachments.$attachmentId.tsx",
+      "parent": "/projects/$projectId/attachments"
+    },
+    "/projects/$projectId/attachments/new": {
+      "filePath": "projects_.$projectId.attachments.new.tsx",
+      "parent": "/projects/$projectId/attachments"
     },
     "/projects/$projectId/tasks/$taskId": {
       "filePath": "projects_.$projectId.tasks.$taskId.tsx",
