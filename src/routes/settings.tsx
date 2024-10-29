@@ -21,7 +21,7 @@ import FileUploader from "components/generic/file-upload";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import { DEFAULT_LOGO } from "consts";
 import { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
-import { useListLogosQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
+import { useListFilesQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { MuiColorInput } from "mui-color-input";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -43,7 +43,7 @@ function SettingsIndexRoute() {
   const queryClient = useQueryClient();
   const { projectThemesApi } = useApi();
   const listProjectsQuery = useListProjectsQuery();
-  const listLogosQuery = useListLogosQuery(LOGOS_UPLOAD_PATH);
+  const listLogosQuery = useListFilesQuery(LOGOS_UPLOAD_PATH);
 
   const projects = listProjectsQuery.data?.projects;
 
@@ -107,7 +107,7 @@ function SettingsIndexRoute() {
     mutationFn: (file: File) => filesApi.uploadFile(file, LOGOS_UPLOAD_PATH),
     onSuccess: async (fileName) => {
       handleLogoSelection(fileName);
-      await queryClient.invalidateQueries({ queryKey: ["logos"] });
+      await queryClient.invalidateQueries({ queryKey: ["files"] });
       await queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "projectThemes"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUploadingLogo"), error),

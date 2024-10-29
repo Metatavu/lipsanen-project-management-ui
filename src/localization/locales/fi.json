@@ -101,12 +101,15 @@
     "errorListingProjectThemes": "Virhe haettaessa projektiteemoja",
     "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
     "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",
+    "errorListingFiles": "Virhe haettaessa tiedostoja",
     "errorUploadingLogo": "Virhe logon latauksessa",
     "errorListingLogos": "Virhe haettaessa logoja",
     "errorUploadingNewTaskAttachment": "Virhe ladattaessa uutta tehtävän liitettä",
     "errorUploadingExistingTaskAttachment": "Virhe ladattaessa olemassaolevaa tehtävän liitettä",
-    "errorListingTaskAttachments": "Virhe haettaessa tehtävän liitteitä",
-    "errorDeletingTaskAttachment": "Virhe poistettaessa tehtävän liitettä",
+    "errorListingAttachments": "Virhe haettaessa liitteitä",
+    "errorFindingAttachment": "Virhe haettaessa liitettä",
+    "errorDeletingAttachment": "Virhe poistettaessa liitettä",
+    "errorUpdatingProjectAttachments": "Virhe päivitettäessä projektin liitteitä",
     "errorListingTaskConnections": "Virhe haettaessa tehtävien riippuvuuksia",
     "errorListingCompanies": "Virhe haettaessa yrityksiä",
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
@@ -178,6 +181,30 @@
     "selectIcon": "Valitse ikoni",
     "create": "Luo uusi rooli"
   },
+  "projectAttachmentsScreen": {
+    "routeName": "Liitteet",
+    "title": "Projektin liitteet",
+    "creator": "Lisääjä",
+    "name": "Nimi",
+    "fileType": "Tiedostotyyppi",
+    "attachmentToTask": "Liite tehtävään",
+    "createdAt": "Lisätty",
+    "preview": "Esikatsele",
+    "addNewAttachment": "Lisää uusi liite",
+    "deleteAttachmentConfirmation": {
+      "title": "Poista liite",
+      "description": "Haluatko varmasti poistaa liitteen {{attachmentName}}?"
+    }
+  },
+  "attachmentDialog": {
+    "addAttachment": "Lisää uusi liite",
+    "editAttachment": "Muokkaa liitettä {{attachmentName}}",
+    "description": "Lisää tiedosto tiputtamalla se tiputusalueelle, tai hakemalla se koneelta aluetta klikkaamalla.",
+    "linkToTask": "Liitä tehtävään",
+    "dropzoneText": "Tiputa tai klikkaa lisätäksesi tiedoston",
+    "fileWithSameNameAlreadyExists": "Samanniminen tiedosto on jo aiemmin ladattu projektille. Voit joko ladata tiedoston uudelleen eri nimellä tai käyttää olemassa olevaa tiedostoa.",
+    "useExistingFile": "Käytä olemassaolevaa tiedostoa"
+  },
   "settingsScreen": {
     "title": "Asetukset",
     "projectSpecificTheming": "Projektikohtainen teemoitus",
@@ -225,7 +252,7 @@
       "readiness": "Valmius"
     },
     "delaysList": {
-      "title": "Projektien myoöhästymiset",
+      "title": "Myöhästymiset",
       "groupBy": "Ryhmittele",
       "selectProject": "Valitse projekti",
       "scopes": {

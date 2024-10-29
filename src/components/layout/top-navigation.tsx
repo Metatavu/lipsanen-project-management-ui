@@ -79,6 +79,7 @@ const TopNavigation = () => {
     { route: "/projects/$projectId/schedule", labelKey: "scheduleScreen.title" },
     { route: "/projects/$projectId/users", labelKey: "users" },
     { route: "/projects/$projectId/tasks", labelKey: "tasksScreen.title" },
+    { route: "/projects/$projectId/attachments", labelKey: "projectAttachmentsScreen.routeName" },
     { route: "/projects/$projectId/settings", labelKey: "settingsScreen.title" },
   ];
 

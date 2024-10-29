@@ -101,12 +101,15 @@
     "errorListingProjectThemes": "Error while fetching project themes list",
     "errorCreatingProjectTheme": "Error while creating a new project theme",
     "errorUpdatingProjectTheme": "Error while updating a project theme",
+    "errorListingFiles": "Error while fetching files list",
     "errorUploadingLogo": "Error while uploading logo",
     "errorListingLogos": "Error while fetching logos list",
     "errorUploadingNewTaskAttachment": "Error while uploading new task attachment",
     "errorUploadingExistingTaskAttachment": "Error while uploading existing task attachment",
-    "errorListingTaskAttachments": "Error while fetching task attachments list",
-    "errorDeletingTaskAttachment": "Error while deleting task attachment",
+    "errorListingAttachments": "Error while fetching attachments list",
+    "errorFindingAttachment": "Error while finding attachment",
+    "errorDeletingAttachment": "Error while deleting attachment",
+    "errorUpdatingProjectAttachments": "Error while updating project attachments",
     "errorListingTaskConnections": "Error while fetching task connections list",
     "errorListingCompanies": "Error while fetching companies list",
     "errorCreatingNewCompany": "Error while creating a new company",
@@ -192,6 +195,26 @@
     "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
     "fileSuccessfullyUploaded": "File successfully uploaded"
   },
+  "projectAttachmentsScreen": {
+    "routeName": "Attachments",
+    "title": "Attachments",
+    "creator": "Creator",
+    "name": "Name",
+    "fileType": "File type",
+    "attachmentToTask": "Attachment to task",
+    "createdAt": "Created at",
+    "preview": "Preview",
+    "addNewAttachment": "Add new attachment"
+  },
+  "attachmentDialog": {
+    "addAttachment": "Add a new attachment",
+    "editAttachment": "Edit attachment {{attachmentName}}",
+    "description": "Add a new attachment by dragging and dropping a file to the drop area, or by clicking the area and selecting a file from your computer.",
+    "linkToTask": "Link to task",
+    "dropzoneText": "Drop or click to add file",
+    "fileWithSameNameAlreadyExists": "A file with the same name you are trying to upload already exists. You can either upload the file with a different name or use the existing file.",
+    "useExistingFile": "Use existing file"
+  },
   "projectSettingsScreen": {
     "title": "Settings",
     "baseInfo": "General project information",
@@ -225,7 +248,7 @@
       "readiness": "Readiness"
     },
     "delaysList": {
-      "title": "Project delays",
+      "title": "Delays",
       "groupBy": "Group by",
       "selectProject": "Please select a project",
       "scopes": {

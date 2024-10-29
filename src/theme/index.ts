@@ -37,6 +37,15 @@ declare module "@mui/material/styles" {
 }
 
 const theme = createTheme({
+  typography: {
+    allVariants: {
+      fontFamily: "Noto Sans",
+    },
+    button: {
+      fontWeight: 600,
+      textTransform: "initial",
+    },
+  },
   palette: {
     background: {
       default: "#ECEFF1",
