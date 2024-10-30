@@ -237,6 +237,7 @@
       "changeProposalStatusChangedMessage": "A change proposal has been updated to {{newStatus}}",
       "commentLeftMessage": "Comment added to task: {{comment}}",
       "taskAssignedMessage": "You have been assigned to task {{taskName}}",
+      "otherUserAssignedMessage": "{{numberOfUsers}} new users assigned to task {{taskName}}",
       "taskStatusChangedMessage": "Task status changed to {{newStatus}}"
     },
     "tasksList": {
