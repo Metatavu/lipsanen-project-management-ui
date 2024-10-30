@@ -271,7 +271,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const createTaskMutation = useMutation({
     mutationFn: (params: CreateTaskRequest) => tasksApi.createTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
@@ -294,7 +295,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const deleteTaskMutation = useMutation({
     mutationFn: (params: DeleteTaskRequest) => tasksApi.deleteTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorDeletingTask"), error),
