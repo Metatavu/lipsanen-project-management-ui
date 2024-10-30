@@ -1,4 +1,16 @@
-import { AppBar, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Theme,
+  ThemeProvider,
+  Toolbar,
+  useTheme,
+} from "@mui/material";
 import { GridCloseIcon } from "@mui/x-data-grid";
 import { ReactNode, createContext, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,7 +31,7 @@ type ConfirmDialogOptions = {
  *
  * @param options ConfirmDialogOptions
  */
-type ShowConfirmDialogHandler = (options: ConfirmDialogOptions) => void;
+type ShowConfirmDialogHandler = (theme: Theme) => (options: ConfirmDialogOptions) => void;
 
 /**
  * Confirm dialog context
@@ -36,10 +48,15 @@ const ConfirmDialogContext = createContext<ShowConfirmDialogHandler>(() => {
 const ConfirmDialogProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<ConfirmDialogOptions>();
-  const showDialog = (options: ConfirmDialogOptions) => {
+  const defaultTheme = useTheme();
+  const [theme, setTheme] = useState(defaultTheme);
+
+  const showDialog = (theme: Theme) => (options: ConfirmDialogOptions) => {
+    setTheme(theme);
     setOpen(true);
     setOptions(options);
   };
+
   const { t } = useTranslation();
   const handleClose = () => setOpen(false);
 
@@ -56,23 +73,29 @@ const ConfirmDialogProvider = ({ children }: { children: ReactNode }) => {
    */
   return (
     <>
-      <Dialog open={open} onClose={handleClose}>
-        <AppBar sx={{ position: "relative" }}>
-          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <DialogTitle sx={{ paddingLeft: 0 }}>{options?.title}</DialogTitle>
-            <IconButton edge="start" color="inherit" onClick={() => setOpen(false)} aria-label="close">
-              <GridCloseIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <DialogContent>{options?.description}</DialogContent>
-        <DialogActions>
-          {options?.cancelButtonEnabled && <Button onClick={handleClose}>{t("generic.cancel")}</Button>}
-          <Button variant="contained" onClick={handleSubmit}>
-            {options?.confirmButtonText || t("generic.confirm")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ThemeProvider theme={theme}>
+        <Dialog open={open} onClose={handleClose}>
+          <AppBar sx={{ position: "relative" }}>
+            <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+              <DialogTitle sx={{ paddingLeft: 0 }}>{options?.title}</DialogTitle>
+              <IconButton edge="start" color="inherit" onClick={() => setOpen(false)} aria-label="close">
+                <GridCloseIcon />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+          <DialogContent>{options?.description}</DialogContent>
+          <DialogActions>
+            {options?.cancelButtonEnabled && (
+              <Button size="large" onClick={handleClose}>
+                {t("generic.cancel")}
+              </Button>
+            )}
+            <Button variant="contained" size="large" onClick={handleSubmit}>
+              {options?.confirmButtonText || t("generic.confirm")}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </ThemeProvider>
       <ConfirmDialogContext.Provider value={showDialog}>{children}</ConfirmDialogContext.Provider>
     </>
   );
@@ -82,7 +105,8 @@ const ConfirmDialogProvider = ({ children }: { children: ReactNode }) => {
  * Use confirm dialog hook
  */
 export const useConfirmDialog = () => {
-  return useContext(ConfirmDialogContext);
+  const theme = useTheme();
+  return useContext(ConfirmDialogContext)(theme);
 };
 
 export default ConfirmDialogProvider;

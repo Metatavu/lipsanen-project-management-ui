@@ -2,9 +2,10 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import PreviewIcon from "@mui/icons-material/Preview";
+import { LoadingButton } from "@mui/lab";
 import {
   AppBar,
-  Box,
   Button,
   Chip,
   CircularProgress,
@@ -32,9 +33,11 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { filesApi } from "api/files";
 import { apiUserAtom } from "atoms/auth";
+import AttachmentDialog from "components/attachments/attachment-dialog";
 import FileUploader from "components/generic/file-upload";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
+  Attachment,
   ChangeProposal,
   ChangeProposalStatus,
   CreateChangeProposalRequest,
@@ -53,9 +56,9 @@ import {
 } from "generated/client";
 import {
   useFindProjectQuery,
+  useListAttachmentsQuery,
   useListJobPositionsQuery,
   useListProjectMilestonesQuery,
-  useListTaskAttachmentsQuery,
   useListTaskConnectionsQuery,
   useListTasksQuery,
   useListUsersQuery,
@@ -67,12 +70,11 @@ import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
+import { getLastPartFromMimeType } from "utils";
 import { getValidDateTimeOrThrow } from "utils/date-time-utils";
 import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
 import TaskConnectionsTable from "./task-connections-table";
-
-const TASK_ATTACHMENT_UPLOAD_PATH = "task-attachments";
 
 /**
  * Task dialog properties
@@ -96,25 +98,39 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const theme = useTheme();
   const isSmallerScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const { t } = useTranslation();
-  const { tasksApi, taskConnectionsApi, changeProposalsApi } = useApi();
+  const { tasksApi, taskConnectionsApi, changeProposalsApi, attachmentsApi } = useApi();
   const queryClient = useQueryClient();
+
   const listProjectUsersQuery = useListUsersQuery({ projectId });
+
   const listMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = useMemo(() => listMilestonesQuery.data ?? [], [listMilestonesQuery.data]);
+
   const listMilestoneTasksQuery = useListTasksQuery({ projectId, milestoneId });
   const tasks = useMemo(() => listMilestoneTasksQuery.data ?? [], [listMilestoneTasksQuery.data]);
+
   const listTaskConnectionsQuery = useListTaskConnectionsQuery({ projectId, taskId: task?.id });
   const taskConnections = useMemo(() => listTaskConnectionsQuery.data ?? [], [listTaskConnectionsQuery.data]);
+
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
+
   const findProjectQuery = useFindProjectQuery(projectId);
   const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
-  const listTaskAttachmentsQuery = useListTaskAttachmentsQuery(TASK_ATTACHMENT_UPLOAD_PATH);
+
+  const listTaskAttachmentsQuery = useListAttachmentsQuery({ projectId, taskId: task?.id });
+  const [updatedTaskAttachments, setUpdatedTaskAttachments] = useState(listTaskAttachmentsQuery.data ?? []);
+
+  useEffect(() => {
+    setUpdatedTaskAttachments(listTaskAttachmentsQuery.data ?? []);
+  }, [listTaskAttachmentsQuery.data]);
+
   // TODO: Needed if delete task is based on projectStatus
   const projectStatus = useFindProjectQuery(projectId).data?.status;
-  const showConfirmDialog = useConfirmDialog();
   // TODO: Needed if based on user roles.
   const user = useAtomValue(apiUserAtom);
+
+  const showConfirmDialog = useConfirmDialog();
 
   const [taskData, setTaskData] = useState<TaskFormData>({
     name: "",
@@ -126,7 +142,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     positionId: "",
     estimatedDuration: 0,
     estimatedReadiness: 0,
-    attachmentUrls: [],
   });
 
   const selectedMilestone = useMemo(
@@ -139,7 +154,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     changeProposals?.filter((proposal) => proposal.taskId === task?.id) ?? [],
   );
   const [attachmentDialogOpen, setAttachmentDialogOpen] = useState(false);
-  const [fileUploadLoaderVisible, setFileUploadLoaderVisible] = useState(false);
   const [newTaskConnections, setNewTaskConnections] = useState<TaskConnectionTableData[]>([]);
   const [existingTaskConnections, setExistingTaskConnections] = useState<TaskConnectionTableData[]>([]);
   const [availableTaskConnectionTasks, setAvailableTaskConnectionTasks] = useState<Task[]>([]);
@@ -173,7 +187,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         userRole: task.userRole,
         estimatedDuration: task.estimatedDuration,
         estimatedReadiness: task.estimatedReadiness,
-        attachmentUrls: task.attachmentUrls ?? [],
       });
     } else {
       setTaskData({
@@ -186,7 +199,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         positionId: "",
         estimatedDuration: 0,
         estimatedReadiness: 0,
-        attachmentUrls: [],
       });
     }
   }, [task, milestoneId]);
@@ -355,6 +367,35 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   });
 
   /**
+   * Update task attachments mutation
+   */
+  const updateTaskAttachmentsMutation = useMutation({
+    mutationFn: async () => {
+      const existingAttachments = listTaskAttachmentsQuery.data ?? [];
+
+      const attachmentsToDelete = existingAttachments.filter(
+        (attachment) => !updatedTaskAttachments.some((updatedAttachment) => updatedAttachment.id === attachment.id),
+      );
+      const deletePromises = attachmentsToDelete
+        .map((attachment) => attachment.id)
+        .filter((attachmentId): attachmentId is string => !!attachmentId)
+        .map((attachmentId) => attachmentsApi.deleteAttachment({ attachmentId }));
+
+      const attachmentsToCreate = updatedTaskAttachments.filter((attachment) => !attachment.id);
+      const createPromises = attachmentsToCreate.map((attachment) =>
+        attachmentsApi.createAttachment({ attachment: attachment }),
+      );
+
+      await Promise.all([...deletePromises, ...createPromises]);
+      queryClient.invalidateQueries({ queryKey: ["attachments"] });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attachments"] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorUpdatingProjectAttachments"), error),
+  });
+
+  /**
    * Closes the dialog and clears the form
    */
   const closeAndClear = () => {
@@ -367,7 +408,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       positionId: "",
       estimatedDuration: 0,
       estimatedReadiness: 0,
-      attachmentUrls: [],
     });
 
     setNewTaskConnections([]);
@@ -497,54 +537,15 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   };
 
   /**
-   * Upload task attachment handler function
-   *
-   * @param file file to upload
-   */
-  const handleUploadNewAttachment = async (file: File) => {
-    try {
-      setFileUploadLoaderVisible(true);
-      const url = await filesApi.uploadFile(file, TASK_ATTACHMENT_UPLOAD_PATH);
-      const newAttachmentUrls = [...taskData.attachmentUrls, url];
-
-      setTaskData({ ...taskData, attachmentUrls: newAttachmentUrls });
-      setFileUploadLoaderVisible(false);
-      setAttachmentDialogOpen(false);
-    } catch (error) {
-      console.error(t("errorHandling.errorUploadingNewTaskAttachment"), error);
-    }
-  };
-
-  /**
-   * Handles existing attachment upload
-   *
-   * @param attachmentUrl attachment url
-   */
-  const handleUploadExistingAttachment = async (attachmentUrl: string) => {
-    try {
-      setFileUploadLoaderVisible(true);
-      const updatedAttachmentUrls = taskData.attachmentUrls.includes(attachmentUrl)
-        ? taskData.attachmentUrls
-        : [...taskData.attachmentUrls, attachmentUrl];
-      setTaskData({ ...taskData, attachmentUrls: updatedAttachmentUrls });
-      setAttachmentDialogOpen(false);
-      setFileUploadLoaderVisible(false);
-    } catch (error) {
-      console.error(t("errorHandling.errorUploadingExistingTaskAttachment"), error);
-    }
-  };
-
-  /**
    * Handles task attachment delete
    *
    * @param attachmentUrl attachment url
    */
-  const handleDeleteAttachment = async (attachmentUrl: string) => {
+  const handleDeleteAttachment = async (attachmentToDelete: Attachment) => {
     try {
-      const newAttachmentUrls = taskData.attachmentUrls.filter((url) => url !== attachmentUrl);
-      setTaskData({ ...taskData, attachmentUrls: newAttachmentUrls });
+      setUpdatedTaskAttachments(updatedTaskAttachments.filter((attachment) => attachment.id !== attachmentToDelete.id));
     } catch (error) {
-      console.error(t("errorHandling.errorDeletingTaskAttachment"), error);
+      console.error(t("errorHandling.errorDeletingAttachment"), error);
     }
   };
 
@@ -759,7 +760,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
-          attachmentUrls: taskData.attachmentUrls,
         },
       });
 
@@ -781,7 +781,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
-          attachmentUrls: taskData.attachmentUrls,
         },
       });
 
@@ -790,7 +789,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       }
     }
 
-    persistChangeProposals();
+    await updateTaskAttachmentsMutation.mutateAsync();
+    await persistChangeProposals();
 
     closeAndClear();
   };
@@ -834,17 +834,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     });
 
     await Promise.all([...createdChangeProposalPromises, ...updatedChangeProposalPromises]);
-  };
-
-  /**
-   * Infers attachment type from url
-   *
-   * TODO: It is not perfect as it takes any string after the last dot as attachment type
-   * @param url attachment url
-   */
-  const getAttachmentTypeFromUrlCapitals = (url: string) => {
-    const urlParts = url.split(".");
-    return urlParts[urlParts.length - 1]?.toUpperCase();
   };
 
   /**
@@ -1072,46 +1061,44 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               <TableRow>
                 <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.type")}</TableCell>
                 <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.name")}</TableCell>
-                <TableCell>{t("newMilestoneTaskDialog.taskAttachmentsTable.preview")}</TableCell>
-                <TableCell sx={{ width: 50 }}>{t("newMilestoneTaskDialog.taskAttachmentsTable.delete")}</TableCell>
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
-              {taskData.attachmentUrls.map((attachment) => (
-                <TableRow key={attachment} sx={{ "& > .MuiTableCell-root": { py: 0, px: 1 } }}>
-                  <TableCell>{getAttachmentTypeFromUrlCapitals(attachment)}</TableCell>
-                  <TableCell>{attachment}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="text"
-                      color="primary"
-                      sx={{ borderRadius: 25 }}
-                      onClick={() => {
-                        window.open(attachment.toString(), "_blank");
-                      }}
-                    >
-                      {t("newMilestoneTaskDialog.taskAttachmentsTable.clickToPreview")}
-                    </Button>
-                  </TableCell>
-                  <TableCell style={{ width: 50, textDecorationColor: "red", textAlign: "center" }}>
-                    <IconButton
-                      color="primary"
-                      sx={{ borderRadius: 25 }}
-                      onClick={() =>
-                        showConfirmDialog({
-                          title: t("newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.title"),
-                          description: t(
-                            "newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.description",
-                            { attachmentName: attachment },
-                          ),
-                          cancelButtonEnabled: true,
-                          confirmButtonText: t("generic.delete"),
-                          onConfirmClick: () => handleDeleteAttachment(attachment),
-                        })
-                      }
-                    >
-                      <DeleteIcon color="error" />
-                    </IconButton>
+              {updatedTaskAttachments.map((attachment) => (
+                <TableRow key={`${attachment.id}-${attachment.url}`} sx={{ "& > .MuiTableCell-root": { py: 0 } }}>
+                  <TableCell>{getLastPartFromMimeType(attachment.type)}</TableCell>
+                  <TableCell>{attachment.name}</TableCell>
+                  <TableCell width={60}>
+                    <Stack direction="row" justifyContent="flex-end" gap={1}>
+                      <IconButton
+                        title={t("newMilestoneTaskDialog.taskAttachmentsTable.preview")}
+                        onClick={() => {
+                          window.open(attachment.url, "_blank");
+                        }}
+                      >
+                        <PreviewIcon />
+                      </IconButton>
+                      <IconButton
+                        title={t("newMilestoneTaskDialog.taskAttachmentsTable.delete")}
+                        color="primary"
+                        sx={{ borderRadius: 25 }}
+                        onClick={() =>
+                          showConfirmDialog({
+                            title: t("newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.title"),
+                            description: t(
+                              "newMilestoneTaskDialog.taskAttachmentsTable.deleteConfirmationDialog.description",
+                              { attachmentName: attachment.name },
+                            ),
+                            cancelButtonEnabled: true,
+                            confirmButtonText: t("generic.delete"),
+                            onConfirmClick: () => handleDeleteAttachment(attachment),
+                          })
+                        }
+                      >
+                        <DeleteIcon color="error" />
+                      </IconButton>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               ))}
@@ -1344,51 +1331,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   };
 
   /**
-   * Renders upload task attachment dialog
-   */
-  const renderUploadTaskAttachmentDialog = () => {
-    return (
-      <Dialog open={attachmentDialogOpen} onClose={() => setAttachmentDialogOpen(false)}>
-        <Box sx={{ padding: "1rem" }}>
-          <Typography variant="h5">{t("newMilestoneTaskDialog.taskAttachmentsTable.uploadDialogTitle")}</Typography>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "5rem",
-            justifyContent: "center",
-            padding: "1rem",
-          }}
-        >
-          <FileUploader
-            allowedFileTypes={[".png", ".svg", ".jpg", ".jpeg", ".pdf", ".doc", ".docx"]}
-            uploadFile={handleUploadNewAttachment}
-            existingFiles={taskData.attachmentUrls}
-            allFiles={listTaskAttachmentsQuery.data ?? []}
-            existingFilesPath={TASK_ATTACHMENT_UPLOAD_PATH}
-            width={400}
-            loaderVisible={fileUploadLoaderVisible}
-            uploadExistingFile={(file) =>
-              showConfirmDialog({
-                title: t("newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.title"),
-                description: t(
-                  "newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.description",
-                ),
-                cancelButtonEnabled: true,
-                confirmButtonText: t(
-                  "newMilestoneTaskDialog.taskAttachmentsTable.uploadExistingFileConfirmationDialog.confirm",
-                ),
-                onConfirmClick: () => handleUploadExistingAttachment(file),
-              })
-            }
-          />
-        </Box>
-      </Dialog>
-    );
-  };
-
-  /**
    * Renders milestone name or select input if milestone is not yet defined
    */
   const renderMilestoneName = () => {
@@ -1473,7 +1415,18 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             >
               {t("newMilestoneTaskDialog.deleteButton")}
             </Button>
-            <Button
+            <LoadingButton
+              loading={
+                updateTaskMutation.isPending ||
+                createTaskMutation.isPending ||
+                createChangeProposalMutation.isPending ||
+                updateChangeProposalsMutation.isPending ||
+                deleteChangeProposalMutation.isPending ||
+                createTaskConnectionsMutation.isPending ||
+                updateTaskConnectionsMutation.isPending ||
+                deleteTaskConnectionsMutation.isPending ||
+                updateTaskAttachmentsMutation.isPending
+              }
               onClick={handleTaskFormSubmit}
               variant="outlined"
               color="inherit"
@@ -1482,7 +1435,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             >
               {!task && <AddIcon />}
               {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}
-            </Button>
+            </LoadingButton>
             <IconButton color="inherit" onClick={closeAndClear}>
               <CloseIcon />
             </IconButton>
@@ -1517,7 +1470,13 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           )}
         </DialogContent>
       </Dialog>
-      {renderUploadTaskAttachmentDialog()}
+      <AttachmentDialog
+        open={attachmentDialogOpen}
+        onClose={() => setAttachmentDialogOpen(false)}
+        projectId={projectId}
+        taskId={task?.id}
+        handleAttachmentSave={(attachment) => updatedTaskAttachments.push(attachment)}
+      />
     </>
   );
 };
