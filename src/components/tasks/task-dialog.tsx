@@ -32,10 +32,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { filesApi } from "api/files";
 import { apiUserAtom } from "atoms/auth";
 import AttachmentDialog from "components/attachments/attachment-dialog";
-import FileUploader from "components/generic/file-upload";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
   Attachment,
