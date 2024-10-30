@@ -33,29 +33,17 @@ export interface Notification {
      */
     readonly id?: string;
     /**
-     * notification message
-     * @type {string}
+     * Additional data that is needed for the notification
+     * @type {object}
      * @memberof Notification
      */
-    message: string;
+    notificationData: object;
     /**
      * 
      * @type {NotificationType}
      * @memberof Notification
      */
     type: NotificationType;
-    /**
-     * ID of the subject entity of the notification if applicable, depends on the notification type
-     * @type {string}
-     * @memberof Notification
-     */
-    taskId?: string;
-    /**
-     * ID of the comment entity of the notification if applicable, depends on the notification type
-     * @type {string}
-     * @memberof Notification
-     */
-    commentId?: string;
 }
 
 /**
@@ -63,7 +51,7 @@ export interface Notification {
  */
 export function instanceOfNotification(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "notificationData" in value;
     isInstance = isInstance && "type" in value;
 
     return isInstance;
@@ -80,10 +68,8 @@ export function NotificationFromJSONTyped(json: any, ignoreDiscriminator: boolea
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
-        'message': json['message'],
+        'notificationData': json['notificationData'],
         'type': NotificationTypeFromJSON(json['type']),
-        'taskId': !exists(json, 'taskId') ? undefined : json['taskId'],
-        'commentId': !exists(json, 'commentId') ? undefined : json['commentId'],
     };
 }
 
@@ -96,10 +82,8 @@ export function NotificationToJSON(value?: Notification | null): any {
     }
     return {
         
-        'message': value.message,
+        'notificationData': value.notificationData,
         'type': NotificationTypeToJSON(value.type),
-        'taskId': value.taskId,
-        'commentId': value.commentId,
     };
 }
 
