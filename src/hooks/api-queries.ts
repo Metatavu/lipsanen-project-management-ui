@@ -357,15 +357,16 @@ export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindPro
  *
  * @param params request params
  */
-export const useListTasksQuery = ({ projectId, milestoneId, first, max }: ListTasksRequest) => {
+export const useListTasksQuery = (params: Partial<ListTasksRequest>) => {
+  const { projectId, changeProposalId, milestoneId, first, max } = params;
   const { tasksApi } = useApi();
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["tasks", { milestoneId, first, max }],
+    queryKey: ["tasks", { projectId, milestoneId, changeProposalId, first, max }],
     queryFn: async () => {
       try {
-        return await tasksApi.listTasks({ projectId, milestoneId, first, max });
+        return await tasksApi.listTasks(params as ListTasksRequest);
       } catch (error) {
         handleError("Error listing tasks", error);
         throw Error(t("errorHandling.errorListingTasks"), { cause: error });
