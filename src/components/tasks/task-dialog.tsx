@@ -727,7 +727,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const handleDeleteTask = async () => {
     if (!task?.id) return;
 
-    await deleteTaskMutation.mutateAsync({ taskId: task?.id });
+    deleteTaskMutation.mutate({ taskId: task.id });
     closeAndClear();
   };
 
