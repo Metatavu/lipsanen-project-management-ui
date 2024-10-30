@@ -25,6 +25,7 @@ import {
   TextField,
   ThemeProvider,
   Toolbar,
+  Tooltip,
   Typography,
   createTheme,
   useMediaQuery,
@@ -53,6 +54,7 @@ import {
   UpdateChangeProposalRequest,
   UpdateTaskConnectionRequest,
   UpdateTaskRequest,
+  UserRole,
 } from "generated/client";
 import {
   useFindProjectQuery,
@@ -125,9 +127,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     setUpdatedTaskAttachments(listTaskAttachmentsQuery.data ?? []);
   }, [listTaskAttachmentsQuery.data]);
 
-  // TODO: Needed if delete task is based on projectStatus
   const projectStatus = useFindProjectQuery(projectId).data?.status;
-  // TODO: Needed if based on user roles.
   const user = useAtomValue(apiUserAtom);
 
   const showConfirmDialog = useConfirmDialog();
@@ -1369,15 +1369,26 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     taskConnectionsValid
   );
 
-  // TODO: These conditions are incomplete
-  const deleteDisabled =
-    !task ||
-    task.status !== TaskStatus.NotStarted ||
-    (projectStatus !== ProjectStatus.Planning && projectStatus !== ProjectStatus.Initiation);
+  const isUserAdminOrOwner = user?.roles?.includes(UserRole.Admin) || user?.roles?.includes(UserRole.ProjectOwner);
+  const projectInPlanning = projectStatus === ProjectStatus.Planning || projectStatus === ProjectStatus.Initiation;
+  const deleteDisabled = !task || !!existingTaskConnections.length || (!projectInPlanning && !isUserAdminOrOwner);
 
-  // TODO: Is delete disabled based on the users role also?
-  console.log("the task is", task);
-  console.log("user is", user);
+  /**
+   * Renders tooltip based on reason for button being disabled
+   */
+  const renderDisabledButtonTooltip = () => {
+    if (!deleteDisabled) return null;
+    if (!task) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.noTask");
+    }
+    if (!projectInPlanning && !isUserAdminOrOwner) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.outOfPlanning");
+    }
+    if (existingTaskConnections.length) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.taskHasConnections");
+    }
+    return null;
+  };
 
   /**
    * Main component render
@@ -1395,26 +1406,30 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             {renderMilestoneName()}
             <span>/</span>
             {task ? task.name : t("newMilestoneTaskDialog.title")}
-            <Button
-              onClick={() =>
-                showConfirmDialog({
-                  title: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.title"),
-                  description: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.description", {
-                    taskName: task?.name,
-                  }),
-                  cancelButtonEnabled: true,
-                  confirmButtonText: t("generic.delete"),
-                  onConfirmClick: handleDeleteTask,
-                })
-              }
-              variant="contained"
-              color="inherit"
-              size="large"
-              disabled={deleteDisabled}
-              sx={{ ml: "auto", backgroundColor: "#D32F2F" }}
-            >
-              {t("newMilestoneTaskDialog.deleteButton")}
-            </Button>
+            <Tooltip title={renderDisabledButtonTooltip()}>
+              <span style={{ marginLeft: "auto" }}>
+                <Button
+                  onClick={() =>
+                    showConfirmDialog({
+                      title: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.title"),
+                      description: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.description", {
+                        taskName: task?.name,
+                      }),
+                      cancelButtonEnabled: true,
+                      confirmButtonText: t("generic.delete"),
+                      onConfirmClick: handleDeleteTask,
+                    })
+                  }
+                  variant="contained"
+                  color="inherit"
+                  size="large"
+                  disabled={deleteDisabled}
+                  sx={{ ml: "auto", backgroundColor: "#D32F2F" }}
+                >
+                  {t("newMilestoneTaskDialog.deleteButton")}
+                </Button>
+              </span>
+            </Tooltip>
             <LoadingButton
               loading={
                 updateTaskMutation.isPending ||

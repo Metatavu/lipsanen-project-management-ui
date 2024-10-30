@@ -376,6 +376,11 @@
     "deleteTaskConfirmationDialog": {
       "title": "Delete task",
       "description": "Are you sure you want to delete task: {{taskName}}?"
+    },
+    "deleteButtonToolTips": {
+      "noTask": "Cannot delete a task that has not been saved yet",
+      "outOfPlanning": "Cannot delete tasks where project is outside of the planning phase",
+      "taskHasConnections": "Cannot delete a task that has existing task connections"
     }
   },
   "changeProposals": {
