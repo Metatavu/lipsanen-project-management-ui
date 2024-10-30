@@ -15,7 +15,7 @@ const ErrorDialog = () => {
 
   return (
     <Dialog fullWidth open={!!error} onClose={handleClose}>
-      <AppBar sx={{ position: "relative" }}>
+      <AppBar sx={{ position: "relative", backgroundColor: "#D32F2F" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <DialogTitle>{t("errorTitle")}</DialogTitle>
           <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
