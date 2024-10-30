@@ -309,7 +309,7 @@ export const useListTasksQuery = (params: Partial<ListTasksRequest>) => {
   const { t } = useTranslation();
 
   return useQuery({
-    queryKey: ["projects", projectId, "tasks", { changeProposalId, milestoneId, first, max }],
+    queryKey: ["tasks", { projectId, milestoneId, changeProposalId, first, max }],
     queryFn: async () => {
       try {
         return await tasksApi.listTasks(params as ListTasksRequest);
