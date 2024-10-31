@@ -12,7 +12,8 @@ import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { getLastPartFromMimeType, handleError } from "utils";
+import { getLastPartFromMimeType } from "utils";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Project attachments route
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/projects/$projectId/attachments")({
  */
 function ProjectAttachmentsScreen() {
   const { t } = useTranslation();
+  const setError = useSetError();
   const { projectId } = Route.useParams();
   const navigate = Route.useNavigate();
   const confirm = useConfirmDialog();
@@ -43,7 +45,7 @@ function ProjectAttachmentsScreen() {
 
   const deleteAttachmentMutation = useMutation({
     mutationFn: (attachmentId: string) => attachmentsApi.deleteAttachment({ attachmentId }),
-    onError: (error) => handleError(t("errorHandling.errorDeletingAttachment"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingAttachment"), error),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attachments"] });
     },

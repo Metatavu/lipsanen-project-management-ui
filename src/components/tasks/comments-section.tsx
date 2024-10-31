@@ -21,6 +21,7 @@ import { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mention, MentionItem, MentionsInput } from "react-mentions";
+import { useSetError } from "utils/error-handling";
 import UserUtils from "utils/users";
 
 /**
@@ -52,6 +53,7 @@ const CommentsSection = ({
   const theme = useTheme();
   const { taskCommentsApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
   const loggedInUser = useAtomValue(apiUserAtom);
   const listTaskCommentsQuery = useListTaskCommentsQuery({ taskId: taskId });
   const listJobPositionsQuery = useListJobPositionsQuery();
@@ -77,7 +79,7 @@ const CommentsSection = ({
         queryKey: ["projects", projectId, "milestones", milestoneId, "comments", { taskId }],
       });
     },
-    onError: (error) => console.error(t("errorHandling.errorCreatingTaskComment"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingTaskComment"), error),
   });
 
   /**
@@ -90,7 +92,7 @@ const CommentsSection = ({
         queryKey: ["projects", projectId, "milestones", milestoneId, "comments", { taskId }],
       });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingTaskComment"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingTaskComment"), error),
   });
 
   /**
@@ -103,7 +105,7 @@ const CommentsSection = ({
         queryKey: ["projects", projectId, "milestones", milestoneId, "comments", { taskId }],
       });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingTaskComment"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingTaskComment"), error),
   });
 
   /**

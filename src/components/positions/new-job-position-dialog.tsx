@@ -1,3 +1,5 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   AppBar,
   Button,
@@ -9,15 +11,14 @@ import {
   TextField,
   Toolbar,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import ColorSelector from "components/generic/color-selector";
+import { CreateJobPositionRequest } from "generated/client";
+import { useApi } from "hooks/use-api";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { useApi } from "hooks/use-api";
-import { CreateJobPositionRequest } from "generated/client";
-import ColorSelector from "components/generic/color-selector";
 import { theme } from "theme";
+import { useSetError } from "utils/error-handling";
 import IconSelector from "./icon-selector";
 
 const DEFAULT_COLOR = theme.palette.primary.main;
@@ -31,6 +32,7 @@ const NewJobPositionDialog = () => {
   const { t } = useTranslation();
   const { jobPositionsApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
   const [open, setOpen] = useState(false);
   const [jobPositionData, setJobPositionData] = useState({
     name: "",
@@ -47,7 +49,7 @@ const NewJobPositionDialog = () => {
       queryClient.invalidateQueries({ queryKey: ["jobPositions"] });
       setOpen(false);
     },
-    onError: (error) => console.error(t("errorHandling.errorCreatingJobPosition"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingJobPosition"), error),
   });
 
   /**

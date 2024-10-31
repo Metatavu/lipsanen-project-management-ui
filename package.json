@@ -34,7 +34,7 @@
     "i18next": "23.9.0",
     "i18next-browser-languagedetector": "7.2.0",
     "jotai": "2.6.4",
-    "keycloak-js": "23.0.6",
+    "keycloak-js": "26.0.4",
     "luxon": "3.4.4",
     "material-ui-popup-state": "5.0.10",
     "mui-color-input": "2.0.3",

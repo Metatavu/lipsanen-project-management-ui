@@ -7,6 +7,7 @@
   "positions": "Nimikkeet",
   "logout": "Kirjaudu ulos",
   "search": "Haku",
+  "errorTitle": "Virhe",
   "generic": {
     "save": "Tallenna",
     "delete": "Poista",
@@ -15,7 +16,8 @@
     "showFilters": "Näytä suotimet",
     "clear": "Tyhjennä",
     "apply": "Käytä",
-    "noSelection": "Ei valintaa"
+    "noSelection": "Ei valintaa",
+    "close": "Sulje"
   },
   "project": {
     "status": "Tila",

@@ -15,6 +15,7 @@ import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-ma
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 
 export const Route = createFileRoute("/positions")({ component: PositionsIndexRoute });
 
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/positions")({ component: PositionsIndexRo
  */
 function PositionsIndexRoute() {
   const { t } = useTranslation();
+  const setError = useSetError();
   const { jobPositionsApi } = useApi();
   const queryClient = useQueryClient();
   const showConfirmDialog = useConfirmDialog();
@@ -58,7 +60,7 @@ function PositionsIndexRoute() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobPositions"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingJobPosition"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingJobPosition"), error),
   });
 
   /**

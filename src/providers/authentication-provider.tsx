@@ -4,6 +4,7 @@ import { useFindUserQuery } from "hooks/api-queries";
 import { useAtom, useSetAtom } from "jotai";
 import Keycloak from "keycloak-js";
 import { ReactNode, useCallback, useEffect } from "react";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Component properties
@@ -23,8 +24,9 @@ const AuthenticationProvider = ({ children }: Props) => {
   const [auth, setAuth] = useAtom(authAtom);
   const setUserProfile = useSetAtom(userProfileAtom);
   const setApiUser = useSetAtom(apiUserAtom);
+  const setError = useSetError();
 
-  const findApiUserQuery = useFindUserQuery({ userId: auth?.token.sub, includeRoles: true });
+  const findApiUserQuery = useFindUserQuery({ userId: auth?.token.sub });
 
   useEffect(() => {
     if (findApiUserQuery.data) setApiUser(findApiUserQuery.data);
@@ -61,6 +63,7 @@ const AuthenticationProvider = ({ children }: Props) => {
           await keycloak.loadUserProfile();
         } catch (error) {
           console.error("Could not load user profile", error);
+          setError("Could not load user profile");
         }
 
         updateAuthData();

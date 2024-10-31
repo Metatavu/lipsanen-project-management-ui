@@ -1,3 +1,6 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import {
   AppBar,
   Box,
@@ -13,14 +16,12 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { useTranslation } from "react-i18next";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateProjectRequest, ProjectStatus } from "generated/client";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useApi } from "hooks/use-api";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 
 /**
  * New project dialog component
@@ -31,6 +32,7 @@ const NewProjectDialog = () => {
   const { t } = useTranslation();
   const { projectsApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
 
   const [open, setOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -44,7 +46,7 @@ const NewProjectDialog = () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       setOpen(false);
     },
-    onError: (error) => console.error(t("errorHandling.errorCreatingNewProject"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingNewProject"), error),
   });
 
   /**

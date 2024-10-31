@@ -26,6 +26,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { projectUsersSearchSchema } from "schemas/search";
 import { theme } from "theme";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Tasks index route
@@ -42,6 +43,7 @@ function ProjectUsersIndexRoute() {
   const { projectId } = Route.useParams();
   const search = Route.useSearch();
   const { t } = useTranslation();
+  const setError = useSetError();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
   const showConfirmDialog = useConfirmDialog();
@@ -81,7 +83,7 @@ function ProjectUsersIndexRoute() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingUser"), error),
   });
 
   /**

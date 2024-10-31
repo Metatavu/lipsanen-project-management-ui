@@ -17,6 +17,7 @@ import { useFindUserQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Component props
@@ -46,6 +47,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { NotificationEventsApi } = useApi();
+  const setError = useSetError();
   const [auth] = useAtom(authAtom);
 
   const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
@@ -59,7 +61,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notificationEvents"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingNotificationEvent"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingNotificationEvent"), error),
   });
 
   /**
@@ -70,7 +72,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notificationEvents"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingNotificationEvent"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingNotificationEvent"), error),
   });
 
   /**

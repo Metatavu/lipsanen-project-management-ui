@@ -26,6 +26,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UsersSearchSchema, usersSearchSchema } from "schemas/search";
 import { theme } from "theme";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Users file route
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/users")({
 function UsersIndexRoute() {
   const search = Route.useSearch();
   const { t } = useTranslation();
+  const setError = useSetError();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
   const showConfirmDialog = useConfirmDialog();
@@ -81,7 +83,7 @@ function UsersIndexRoute() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingUser"), error),
   });
 
   /**

@@ -72,6 +72,7 @@ import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
 import { getLastPartFromMimeType } from "utils";
 import { getValidDateTimeOrThrow } from "utils/date-time-utils";
+import { useSetError } from "utils/error-handling";
 import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
 import TaskConnectionsTable from "./task-connections-table";
@@ -98,7 +99,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const theme = useTheme();
   const isSmallerScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const { t } = useTranslation();
+  const setError = useSetError();
   const { tasksApi, taskConnectionsApi, changeProposalsApi, attachmentsApi } = useApi();
+
   const queryClient = useQueryClient();
 
   const listProjectUsersQuery = useListUsersQuery({ projectId });
@@ -270,7 +273,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createTaskMutation = useMutation({
     mutationFn: (params: CreateTaskRequest) => tasksApi.createTask(params),
-    onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
 
   /**
@@ -278,7 +281,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
-    onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
 
   /**
@@ -290,7 +293,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingTask"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingTask"), error),
   });
 
   /**
@@ -298,7 +301,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createChangeProposalMutation = useMutation({
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
-    onError: (error) => console.error(t("errorHandling.errorCreatingChangeProposal"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingChangeProposal"), error),
   });
 
   /**
@@ -306,7 +309,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateChangeProposalsMutation = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
-    onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
 
   /**
@@ -314,7 +317,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const deleteChangeProposalMutation = useMutation({
     mutationFn: (params: DeleteChangeProposalRequest) => changeProposalsApi.deleteChangeProposal(params),
-    onError: (error) => console.error(t("errorHandling.errorDeletingChangeProposal"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingChangeProposal"), error),
   });
 
   /**
@@ -322,7 +325,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createTaskConnectionsMutation = useMutation({
     mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
-    onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingTaskConnection"), error),
   });
 
   /**
@@ -330,7 +333,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateTaskConnectionsMutation = useMutation({
     mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
-    onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingTaskConnection"), error),
   });
 
   /**
@@ -338,7 +341,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const deleteTaskConnectionsMutation = useMutation({
     mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
-    onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingTaskConnection"), error),
   });
 
   /**
@@ -363,7 +366,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
       await Promise.all([...deletePromises, ...createPromises]);
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingProjectAttachments"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingProjectAttachments"), error),
   });
 
   /**
@@ -516,7 +519,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     try {
       setUpdatedTaskAttachments(updatedTaskAttachments.filter((attachment) => attachment.id !== attachmentToDelete.id));
     } catch (error) {
-      console.error(t("errorHandling.errorDeletingAttachment"), error);
+      setError(t("errorHandling.errorDeletingAttachment"), error instanceof Error ? error : undefined);
     }
   };
 

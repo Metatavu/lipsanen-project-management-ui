@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
 import { splitIntervalByDuration } from "utils/date-time-utils";
+import { useSetError } from "utils/error-handling";
 import {
   distributeOverlappingTasksToRows,
   getTimelineIntervalByTasks,
@@ -97,6 +98,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
   const { t } = useTranslation();
   const { tasksApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
 
   const listTasksQuery = useListTasksQuery({ projectId });
   const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
@@ -116,7 +118,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
       return { previousTasks };
     },
     onError: (error, _, context) => {
-      console.error(t("errorHandling.errorUpdatingTask"), error);
+      setError(t("errorHandling.errorUpdatingTask"), error);
       queryClient.setQueryData(["projects", projectId, "tasks", {}], context?.previousTasks);
     },
     onSettled: () => {
