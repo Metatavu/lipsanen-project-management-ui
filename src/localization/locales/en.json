@@ -233,7 +233,7 @@
       "yesterday": "Yesterday",
       "markRead": "Mark as read",
       "delete": "Delete",
-      "changeProposalCreatedMessage": "A new change proposal has been created",
+      "changeProposalCreatedMessage": "New change proposal created",
       "changeProposalStatusChangedMessage": "A change proposal has been updated to {{newStatus}}",
       "commentLeftMessage": "Comment added to task: {{comment}}",
       "taskAssignedMessage": "You have been assigned to task {{taskName}}",
