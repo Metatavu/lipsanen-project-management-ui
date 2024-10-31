@@ -1,8 +1,23 @@
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import { Box, Card, LinearProgress, Tooltip, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { NotificationEvent, Task, UpdateNotificationEventRequest } from "generated/client";
+import { authAtom } from "atoms/auth";
+import {
+  ChangeProposalCreatedNotificationData,
+  ChangeProposalStatus,
+  ChangeProposalStatusChangedNotificationData,
+  CommentLeftNotificationData,
+  NotificationEvent,
+  NotificationType,
+  Task,
+  TaskAssignedNotificationData,
+  TaskStatus,
+  TaskStatusChangesNotificationData,
+  UpdateNotificationEventRequest,
+} from "generated/client";
+import { useFindUserQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
+import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -13,6 +28,15 @@ interface Props {
   notificationEvents: NotificationEvent[];
   loading: boolean;
 }
+/**
+ * Notification data type
+ */
+type NotificationDataType =
+  | ChangeProposalCreatedNotificationData
+  | ChangeProposalStatusChangedNotificationData
+  | CommentLeftNotificationData
+  | TaskAssignedNotificationData
+  | TaskStatusChangesNotificationData;
 
 /**
  * Notifications list component
@@ -23,6 +47,10 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { NotificationEventsApi } = useApi();
+  const [auth] = useAtom(authAtom);
+
+  const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
+  const user = findUserQuery.data;
 
   /**
    * Update notification event
@@ -109,11 +137,69 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
   };
 
   /**
+   * Renders notification message based on the notification type
+   *
+   * @param notificationEvent NotificationDataType
+   */
+  const renderNotificationMessage = (notificationEvent: NotificationEvent) => {
+    const typedNotification = notificationEvent.notification.notificationData as NotificationDataType;
+
+    switch (notificationEvent.notification.type) {
+      case NotificationType.ChangeProposalCreated:
+        return t("trackingScreen.notificationsList.changeProposalCreatedMessage");
+      case NotificationType.ChangeProposalStatusChanged: {
+        const proposalStatus = (typedNotification as ChangeProposalStatusChangedNotificationData).newStatus;
+        if (!proposalStatus) {
+          return t("trackingScreen.notificationsList.errorMessage");
+        }
+
+        return t("trackingScreen.notificationsList.changeProposalStatusChangedMessage", {
+          newStatus: t(`changeProposalStatuses.${proposalStatus}`),
+        });
+      }
+      case NotificationType.CommentLeft:
+        return t("trackingScreen.notificationsList.commentLeftMessage", {
+          comment: (typedNotification as CommentLeftNotificationData).comment,
+        });
+      case NotificationType.TaskAssigned: {
+        const taskAssignedNotification = typedNotification as TaskAssignedNotificationData;
+        const userAssigned = user?.id ? taskAssignedNotification.assigneeIds.includes(user?.id) : false;
+
+        // TODO: Test this once API updated, assigned user should not recieve a second notification, admin user should revieve a "other user message"
+        const message = userAssigned
+          ? t("trackingScreen.notificationsList.taskAssignedMessage", {
+              taskName: taskAssignedNotification.taskName,
+            })
+          : t("trackingScreen.notificationsList.otherUserAssignedMessage", {
+              taskName: taskAssignedNotification.taskName,
+              numberOfUsers: taskAssignedNotification.assigneeIds.length,
+            });
+
+        return message;
+      }
+      case NotificationType.TaskStatusChanged: {
+        const newStatus = (typedNotification as TaskStatusChangesNotificationData).newStatus;
+        if (!newStatus) {
+          return t("trackingScreen.notificationsList.errorMessage");
+        }
+
+        return t("trackingScreen.notificationsList.taskStatusChangedMessage", {
+          newStatus: t(`taskStatuses.${newStatus}`),
+        });
+      }
+      default:
+        return t("trackingScreen.notificationsList.errorMessage");
+    }
+  };
+
+  /**
    * Render notification card
    *
    * @param notificationEvent notification event
    */
   const renderNotificationCard = (notificationEvent: NotificationEvent) => {
+    const typedNotification = notificationEvent.notification.notificationData as NotificationDataType;
+
     return (
       <Card
         key={notificationEvent.id}
@@ -135,8 +221,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
             <Typography variant="body2" fontWeight="normal">
-              {tasks.find((task) => task.id === notificationEvent.notification.taskId)?.name ??
-                t("trackingScreen.tasksList.task")}
+              {tasks.find((task) => task.id === typedNotification.taskId)?.name ?? t("trackingScreen.tasksList.task")}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -168,7 +253,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
         </Box>
         <Box sx={{ padding: "1rem" }}>
           <Typography variant="body2" color="textSecondary" sx={{ marginBottom: "0.5rem" }}>
-            {notificationEvent.notification.message}
+            {renderNotificationMessage(notificationEvent)}
           </Typography>
           <Typography variant="body2" color="textSecondary">
             {notificationEvent.metadata?.createdAt
