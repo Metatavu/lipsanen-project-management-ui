@@ -53,7 +53,7 @@ const CommentsSection = ({
   const { taskCommentsApi } = useApi();
   const queryClient = useQueryClient();
   const loggedInUser = useAtomValue(apiUserAtom);
-  const listTaskCommentsQuery = useListTaskCommentsQuery({ projectId, taskId: taskId });
+  const listTaskCommentsQuery = useListTaskCommentsQuery({ taskId: taskId });
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
@@ -269,7 +269,6 @@ const CommentsSection = ({
    */
   const handleDeleteComment = async (id: string) => {
     await deleteTaskCommentMutation.mutateAsync({
-      projectId: projectId,
       taskId: taskId,
       commentId: id,
     });
@@ -287,7 +286,6 @@ const CommentsSection = ({
     if (!newComment || !taskId) return;
 
     await createTaskCommentMutation.mutateAsync({
-      projectId: projectId,
       taskId: taskId,
       taskComment: {
         comment: newComment,
@@ -311,7 +309,6 @@ const CommentsSection = ({
 
     await updateTaskCommentMutation.mutateAsync({
       commentId: commentId,
-      projectId: projectId,
       taskId: taskId,
       taskComment: {
         comment: editingComment,
