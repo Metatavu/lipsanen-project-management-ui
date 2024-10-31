@@ -1,8 +1,9 @@
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import { Box, LinearProgress, Stack } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, gridClasses } from "@mui/x-data-grid";
 import JobPositionAvatar from "components/generic/job-position-avatar";
 import ProgressBadge from "components/generic/progress-badge";
+import { DATE_WITH_LEADING_ZEROS } from "consts";
 import { JobPosition, Task, User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { DateTime } from "luxon";
@@ -18,6 +19,7 @@ interface Props {
   projectId: string;
   filters?: TasksSearchSchema;
   user?: User | null;
+  readOnly?: boolean;
   onTaskClick?: (task: Task) => void;
 }
 
@@ -27,7 +29,7 @@ interface Props {
  *
  * @param props component properties
  */
-const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
+const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) => {
   const { t } = useTranslation();
 
   const listTasksQuery = useListTasksQuery({ projectId, milestoneId: filters?.milestoneId });
@@ -61,10 +63,10 @@ const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
   };
 
   return (
-    <DataGrid
+    <DataGrid<Task>
       rows={tasks}
       onRowClick={(params) => params.row && onTaskClick?.(params.row as Task)}
-      sx={{ flex: 1 }}
+      sx={{ flex: 1, [`& .${gridClasses.row}`]: { cursor: readOnly ? "default" : "pointer" } }}
       disableColumnFilter
       disableColumnMenu
       disableColumnSelector
@@ -74,10 +76,9 @@ const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
           field: "assignee",
           headerName: t("trackingScreen.tasksList.assignee"),
           flex: 1,
-          valueGetter: (params) => getAssigneeAndJobPositionForTask(params.row),
           sortable: false,
           renderCell: (params) => {
-            const [taskAssignee, jobPosition] = params.value as [User | undefined, JobPosition | undefined];
+            const [taskAssignee, jobPosition] = getAssigneeAndJobPositionForTask(params.row);
 
             return (
               <Stack direction="row" alignItems="center" gap={1}>
@@ -104,7 +105,7 @@ const TaskList = ({ user, projectId, onTaskClick, filters }: Props) => {
           headerName: t("trackingScreen.tasksList.readyBy"),
           flex: 1,
           sortable: false,
-          renderCell: (params) => DateTime.fromJSDate(params.value).toLocaleString(DateTime.DATE_SHORT),
+          renderCell: (params) => DateTime.fromJSDate(params.value).toLocaleString(DATE_WITH_LEADING_ZEROS),
         },
         {
           field: "status",

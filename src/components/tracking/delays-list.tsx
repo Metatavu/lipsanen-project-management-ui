@@ -231,7 +231,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
   /**
    * Renders delays by role column
    */
-  const renderDelaysByRoleColumn = () => (
+  const renderDelaysByPositionColumn = () => (
     <Box sx={{ padding: "1rem" }}>
       <DataGrid
         loading={loading}
@@ -239,33 +239,33 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
         columns={[
           {
             field: "positionName",
-            headerName: t("trackingScreen.delaysList.byRole.role"),
+            headerName: t("trackingScreen.delaysList.byPosition.position"),
             flex: 1,
             disableColumnMenu: true,
           },
           {
             field: "taskIds",
-            headerName: t("trackingScreen.delaysList.byRole.tasks"),
+            headerName: t("trackingScreen.delaysList.byPosition.tasks"),
             flex: 1,
             disableColumnMenu: true,
             valueGetter: (params) => params.value.length,
           },
           {
             field: "delayedTasksNumber",
-            headerName: t("trackingScreen.delaysList.byRole.delayedNumber"),
+            headerName: t("trackingScreen.delaysList.byPosition.delayedNumber"),
             flex: 1,
             disableColumnMenu: true,
           },
           {
             field: "delayedTasksPercentage",
-            headerName: t("trackingScreen.delaysList.byRole.delayPercentage"),
+            headerName: t("trackingScreen.delaysList.byPosition.delayPercentage"),
             flex: 1,
             disableColumnMenu: true,
             valueFormatter: (params) => `${params.value.toFixed(2)}%`,
           },
           {
             field: "totalDelayPercentage",
-            headerName: t("trackingScreen.delaysList.byRole.overallDelay"),
+            headerName: t("trackingScreen.delaysList.byPosition.overallDelay"),
             flex: 1,
             disableColumnMenu: true,
             valueGetter: (params) =>
@@ -332,7 +332,7 @@ const DelaysList = ({ users, tasks, changeProposals, jobPositions, loading }: Pr
   const renderDelaysColumnWithDataGrid = (scope: ChangeProposalScope) =>
     ({
       [ChangeProposalScope.TASK]: renderDelaysByTaskColumn(),
-      [ChangeProposalScope.ROLE]: renderDelaysByRoleColumn(),
+      [ChangeProposalScope.POSITION]: renderDelaysByPositionColumn(),
       [ChangeProposalScope.REASON]: renderDelaysByReasonColumn(),
     })[scope];
 

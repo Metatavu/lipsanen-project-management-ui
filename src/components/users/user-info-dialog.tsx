@@ -1,4 +1,5 @@
 import CloseIcon from "@mui/icons-material/Close";
+import { LoadingButton } from "@mui/lab";
 import {
   AppBar,
   Dialog,
@@ -54,28 +55,27 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
 
   const [name, setName] = useState("");
   const [organization, setOrganization] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState<UserRole>();
   const [jobPositionId, setJobPositionId] = useState("");
 
   const [changesMade, setChangesMade] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const listCompaniesQuery = useListCompaniesQuery();
   const findUserQuery = useFindUserQuery({ userId });
   const listJobPositionsQuery = useListJobPositionsQuery();
 
-  const companies = listCompaniesQuery.data?.companies;
-  const jobPositions = listJobPositionsQuery.data?.jobPositions;
-  const roleOptions = Object.values(UserRole);
+  const companies = useMemo(() => listCompaniesQuery.data?.companies ?? [], [listCompaniesQuery.data]);
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
   /**
-   * Use effect to set user info
+   * Sets user info on user data load
    */
   useEffect(() => {
     if (!findUserQuery.data) return;
     setName(`${findUserQuery.data.firstName} ${findUserQuery.data.lastName}`);
     setOrganization(findUserQuery.data.companyId || "");
     setJobPositionId(findUserQuery.data.jobPositionId || "");
+    setRole(findUserQuery.data.roles?.at(0));
   }, [findUserQuery.data]);
 
   /**
@@ -100,7 +100,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
     const value = event.target.value;
     if (field === "name") setName(value);
     else if (field === "organization") setOrganization(value);
-    else if (field === "role") setRole(value);
+    else if (field === "role") setRole(value as UserRole);
     else if (field === "jobPositionId") setJobPositionId(value);
     else return;
 
@@ -110,36 +110,29 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   /**
    * Handles user data save
    */
-  const handleUserDataSave = async () => {
-    if (!changesMade || !findUserQuery.data || !userId) return;
+  const handleSaveUser = async () => {
+    if (!changesMade || !findUserQuery.data || !userId || !role) return;
 
     const [firstName, lastName] = name.split(" ");
 
-    await updateUserMutation.mutateAsync({
-      userId: userId,
-      user: {
-        ...findUserQuery.data,
-        firstName: firstName || "",
-        lastName: lastName || "",
-        companyId: organization,
-        jobPositionId: jobPositionId,
-      },
-    });
-  };
-
-  /**
-   * Handles dialog close
-   */
-  const handleDialogClose = async () => {
-    setIsLoading(true);
     try {
-      await handleUserDataSave();
+      await updateUserMutation.mutateAsync({
+        userId: userId,
+        user: {
+          ...findUserQuery.data,
+          firstName: firstName || "",
+          lastName: lastName || "",
+          companyId: organization,
+          jobPositionId: jobPositionId,
+          roles: [role],
+        },
+      });
+
+      setChangesMade(false);
+      handleClose();
     } catch (error) {
       setError(t("errorHandling.errorUpdatingUser"), error instanceof Error ? error : undefined);
     }
-    setIsLoading(false);
-    setChangesMade(false);
-    handleClose();
   };
 
   /**
@@ -147,14 +140,11 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
    */
   const renderUserInfoSection = () => {
     const textFieldProps: LoadingTextFieldProps = {
-      loading: findUserQuery.isFetching || isLoading,
+      loading: findUserQuery.isFetching,
       fullWidth: true,
       InputProps: { readOnly: false },
     };
 
-    /**
-     * Main component render
-     */
     return (
       <div style={{ backgroundColor: "rgba(33, 150, 243, 0.08)" }}>
         <Grid container spacing={1} padding={2}>
@@ -183,16 +173,15 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
           </Grid>
           <Grid item xs={3}>
             <LoadingTextField
-              disabled
               select
               {...textFieldProps}
               label={t("userInfoDialog.role")}
-              value={role}
+              value={role ?? ""}
               onChange={handleUserInfoChange("role")}
             >
-              {roleOptions.map((role) => (
+              {Object.values(UserRole).map((role) => (
                 <MenuItem key={role} value={role}>
-                  {role}
+                  {t(`userRoles.${role}`)}
                 </MenuItem>
               ))}
             </LoadingTextField>
@@ -231,6 +220,9 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
     );
   };
 
+  /**
+   * Renders project rows
+   */
   const renderProjectRows = () => {
     if (findUserQuery.isFetching) {
       return (
@@ -280,12 +272,23 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
       fullScreen={isSmallerScreen}
       PaperProps={{ sx: { minHeight: "90vh", maxWidth: 1200 } }}
       open={!!userId}
-      onClose={handleDialogClose}
+      onClose={handleClose}
     >
       <AppBar sx={{ position: "relative" }} elevation={0}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <DialogTitle>{userName}</DialogTitle>
-          <IconButton edge="start" color="inherit" onClick={handleDialogClose} aria-label="close">
+          <LoadingButton
+            loading={updateUserMutation.isPending}
+            onClick={handleSaveUser}
+            variant="outlined"
+            color="inherit"
+            size="large"
+            disabled={!changesMade || !findUserQuery.data || !userId || !role}
+            sx={{ ml: "auto" }}
+          >
+            {t("generic.save")}
+          </LoadingButton>
+          <IconButton color="inherit" onClick={handleClose} aria-label="close">
             <CloseIcon />
           </IconButton>
         </Toolbar>

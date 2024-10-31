@@ -67,7 +67,7 @@ const TopNavigation = () => {
     // { route: "/project-templates", labelKey: "projectTemplates" },
     { route: "/users", labelKey: "users" },
     ...(auth?.roles.includes(ADMIN_ROLE) || auth?.roles.includes(PROJECT_OWNER_ROLE)
-      ? ([{ route: "/roles", labelKey: "roles" }] as NavigationLink[])
+      ? ([{ route: "/positions", labelKey: "positions" }] as NavigationLink[])
       : []),
     { route: "/settings", labelKey: "settingsScreen.title" },
   ];

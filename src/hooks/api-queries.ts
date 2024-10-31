@@ -62,9 +62,13 @@ export const useListCompaniesQuery = (params: ListCompaniesRequest = {}) => {
  *List users query hook
  *
  * @param params ListUsersRequest
+ * @param enabled boolean
  */
-export const useListUsersQuery = (params: ListUsersRequest = {}) => {
-  const { first, max, companyId, includeRoles, jobPositionId, projectId } = params;
+export const useListUsersQuery = (
+  params: ListUsersRequest = {},
+  { enabled }: { enabled?: boolean } = { enabled: true },
+) => {
+  const { first, max, companyId, includeRoles = true, jobPositionId, projectId } = params;
   const { usersApi } = useApi();
   const { t } = useTranslation();
   const setError = useSetError();
@@ -83,6 +87,7 @@ export const useListUsersQuery = (params: ListUsersRequest = {}) => {
         throw Error(t("errorHandling.errorListingUsers"), { cause: error });
       }
     },
+    enabled: enabled,
     staleTime: FIVE_MINUTES,
   });
 };
@@ -93,7 +98,7 @@ export const useListUsersQuery = (params: ListUsersRequest = {}) => {
  * @param params FindUserRequest
  */
 export const useFindUserQuery = (params: Partial<FindUserRequest>) => {
-  const { userId, includeRoles } = params;
+  const { userId, includeRoles = true } = params;
   const { usersApi } = useApi();
   const { t } = useTranslation();
   const setError = useSetError();
@@ -102,7 +107,8 @@ export const useFindUserQuery = (params: Partial<FindUserRequest>) => {
     queryKey: ["users", userId, { includeRoles }],
     queryFn: async () => {
       try {
-        return await usersApi.findUser(params as FindUserRequest);
+        if (!userId) throw Error("User ID is required");
+        return await usersApi.findUser({ userId, includeRoles });
       } catch (error) {
         setError(t("errorHandling.errorFindingUser"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorFindingUser"), { cause: error });
@@ -243,7 +249,7 @@ export const useListFilesQuery = (path: string) => {
   const setError = useSetError();
 
   return useQuery({
-    queryKey: ["files"],
+    queryKey: ["files", path],
     queryFn: async () => {
       try {
         return await filesApi.listFiles(path);
@@ -369,8 +375,7 @@ export const useFindProjectMilestoneQuery = ({ projectId, milestoneId }: FindPro
  *
  * @param params request params
  */
-export const useListTasksQuery = (params: Partial<ListTasksRequest>) => {
-  const { projectId, changeProposalId, milestoneId, first, max } = params;
+export const useListTasksQuery = ({ projectId, milestoneId, changeProposalId, first, max }: ListTasksRequest) => {
   const { tasksApi } = useApi();
   const { t } = useTranslation();
   const setError = useSetError();
@@ -379,7 +384,7 @@ export const useListTasksQuery = (params: Partial<ListTasksRequest>) => {
     queryKey: ["tasks", { projectId, milestoneId, changeProposalId, first, max }],
     queryFn: async () => {
       try {
-        return await tasksApi.listTasks(params as ListTasksRequest);
+        return await tasksApi.listTasks({ projectId, milestoneId, changeProposalId, first, max });
       } catch (error) {
         setError(t("errorHandling.errorListingTasks"), error instanceof Error ? error : undefined);
         throw Error(t("errorHandling.errorListingTasks"), { cause: error });

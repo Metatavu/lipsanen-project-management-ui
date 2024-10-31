@@ -49,14 +49,15 @@ const NewUserDialog = ({ projectId }: Props) => {
   const [selectedProject, setSelectedProject] = useState<Project>();
   const [selectedJobPosition, setSelectedJobPosition] = useState<JobPosition>();
 
-  const listUsersQuery = useListUsersQuery();
+  const listUsersQuery = useListUsersQuery(undefined, { enabled: open });
   const listProjectsQuery = useListProjectsQuery();
   const listCompaniesQuery = useListCompaniesQuery();
   const listJobPositionsQuery = useListJobPositionsQuery();
 
-  const users = listUsersQuery.data?.users;
-  const projects = listProjectsQuery.data?.projects;
-  const companies = listCompaniesQuery.data?.companies;
+  const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
+  const projects = useMemo(() => listProjectsQuery.data?.projects ?? [], [listProjectsQuery.data]);
+  const companies = useMemo(() => listCompaniesQuery.data?.companies ?? [], [listCompaniesQuery.data]);
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
   useEffect(() => {
     if (projectId) setSelectedProject(projects?.find((project) => project.id === projectId));
@@ -177,19 +178,19 @@ const NewUserDialog = ({ projectId }: Props) => {
             helperText={inValidEmailError ?? alreadyExistingEmailError}
           />
           <CreatableSelect
-            options={companies ?? []}
+            options={companies}
             selectedCompany={selectedCompany}
             setSelectedCompany={handleCompanyChange}
           />
           <GenericSelect
-            options={listJobPositionsQuery.data?.jobPositions ?? []}
+            options={jobPositions}
             label={t("newUserDialog.assignUserToPosition")}
             selectedOption={selectedJobPosition}
             setSelectedOption={setSelectedJobPosition}
             getOptionLabel={(option) => option?.name || ""}
           />
           <GenericSelect
-            options={projects ?? []}
+            options={projects}
             label={t("newUserDialog.assignUserToProject")}
             disabled={!!projectId}
             selectedOption={selectedProject}

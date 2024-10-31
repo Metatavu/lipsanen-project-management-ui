@@ -14,9 +14,9 @@ import { Route as rootRoute } from "./../../routes/__root"
 import { Route as UsersImport } from "./../../routes/users"
 import { Route as TrackingImport } from "./../../routes/tracking"
 import { Route as SettingsImport } from "./../../routes/settings"
-import { Route as RolesImport } from "./../../routes/roles"
 import { Route as ProjectsImport } from "./../../routes/projects"
 import { Route as ProjectTemplatesImport } from "./../../routes/project-templates"
+import { Route as PositionsImport } from "./../../routes/positions"
 import { Route as IndexImport } from "./../../routes/index"
 import { Route as ProjectsProjectIdImport } from "./../../routes/projects_.$projectId"
 import { Route as ProjectsProjectIdUsersImport } from "./../../routes/projects_.$projectId.users"
@@ -48,11 +48,6 @@ const SettingsRoute = SettingsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const RolesRoute = RolesImport.update({
-  path: "/roles",
-  getParentRoute: () => rootRoute,
-} as any)
-
 const ProjectsRoute = ProjectsImport.update({
   path: "/projects",
   getParentRoute: () => rootRoute,
@@ -60,6 +55,11 @@ const ProjectsRoute = ProjectsImport.update({
 
 const ProjectTemplatesRoute = ProjectTemplatesImport.update({
   path: "/project-templates",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PositionsRoute = PositionsImport.update({
+  path: "/positions",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -144,6 +144,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    "/positions": {
+      id: "/positions"
+      path: "/positions"
+      fullPath: "/positions"
+      preLoaderRoute: typeof PositionsImport
+      parentRoute: typeof rootRoute
+    }
     "/project-templates": {
       id: "/project-templates"
       path: "/project-templates"
@@ -156,13 +163,6 @@ declare module "@tanstack/react-router" {
       path: "/projects"
       fullPath: "/projects"
       preLoaderRoute: typeof ProjectsImport
-      parentRoute: typeof rootRoute
-    }
-    "/roles": {
-      id: "/roles"
-      path: "/roles"
-      fullPath: "/roles"
-      preLoaderRoute: typeof RolesImport
       parentRoute: typeof rootRoute
     }
     "/settings": {
@@ -277,9 +277,9 @@ declare module "@tanstack/react-router" {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
+  PositionsRoute,
   ProjectTemplatesRoute,
   ProjectsRoute,
-  RolesRoute,
   SettingsRoute,
   TrackingRoute,
   UsersRoute,
@@ -310,9 +310,9 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/positions",
         "/project-templates",
         "/projects",
-        "/roles",
         "/settings",
         "/tracking",
         "/users",
@@ -322,14 +322,14 @@ export const routeTree = rootRoute.addChildren({
     "/": {
       "filePath": "index.tsx"
     },
+    "/positions": {
+      "filePath": "positions.tsx"
+    },
     "/project-templates": {
       "filePath": "project-templates.tsx"
     },
     "/projects": {
       "filePath": "projects.tsx"
-    },
-    "/roles": {
-      "filePath": "roles.tsx"
     },
     "/settings": {
       "filePath": "settings.tsx"

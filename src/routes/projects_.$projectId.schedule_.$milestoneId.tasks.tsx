@@ -168,6 +168,7 @@ function MilestoneTasksListRoute() {
   const updateChangeProposal = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
     },
     onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
@@ -179,6 +180,7 @@ function MilestoneTasksListRoute() {
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
     },
     onError: (error) => setError(t("errorHandling.errorUpdatingMilestoneTask"), error),

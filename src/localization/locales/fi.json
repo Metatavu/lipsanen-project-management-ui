@@ -4,7 +4,7 @@
   "tracking": "Seuranta",
   "projectTemplates": "Projektimallit",
   "users": "Käyttäjät",
-  "roles": "Roolit",
+  "positions": "Nimikkeet",
   "logout": "Kirjaudu ulos",
   "search": "Haku",
   "errorTitle": "Virhe",
@@ -50,14 +50,15 @@
     "lastLoggedIn": "Viimeksi paikalla",
     "deleteUser": "Poista käyttäjä",
     "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?",
-    "position": "Rooli"
+    "position": "Nimike"
   },
-  "rolesScreen": {
+  "positionsScreen": {
+    "title": "Nimikkeet",
     "icon": "Ikoni",
     "color": "Väri",
     "users": "Käyttäjiä",
-    "deleteTitle": "Poista rooli",
-    "deleteDescription": "Haluatko varmasti poistaa roolin: {{name}}?"
+    "deleteTitle": "Poista nimike",
+    "deleteDescription": "Haluatko varmasti poistaa nimikkeen {{name}}?"
   },
   "name": "Nimi",
   "addANewUser": "Lisää uusi käyttäjä",
@@ -71,13 +72,13 @@
     "invalidEmailWarning": "Anna kelvollinen sähköpostiosoite",
     "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen",
     "assignUserToProject": "Lisää käyttäjä projektiin",
-    "assignUserToPosition": "Lisää käyttäjä rooliin"
+    "assignUserToPosition": "Lisää käyttäjä nimikkeeseen"
   },
   "userFilters": {
     "title": "Suodata käyttäjiä",
     "project": "Projekti",
     "company": "Yritys",
-    "position": "Rooli"
+    "position": "Nimike"
   },
   "taskFilters": {
     "title": "Suodata tehtäviä",
@@ -129,9 +130,9 @@
     "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
     "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
     "errorListingJobPositions": "Virhe haettaessa rooleja",
-    "errorCreatingJobPosition": "Virhe luotaessa uutta roolia",
-    "errorUpdatingJobPosition": "Virhe päivitettäessä roolia",
-    "errorDeletingJobPosition": "Virhe poistettaessa roolia",
+    "errorCreatingJobPosition": "Virhe luotaessa uutta nimikettä",
+    "errorUpdatingJobPosition": "Virhe päivitettäessä nimikettä",
+    "errorDeletingJobPosition": "Virhe poistettaessa nimikettä",
     "errorListingNotificationEvents": "Virhe haettaessa ilmoitustapahtumia",
     "errorUpdatingNotificationEvent": "Virhe päivitettäessä ilmoitustapahtumia",
     "errorDeletingNotificationEvent": "Virhe poistettaessa ilmoitustapahtumia",
@@ -155,8 +156,8 @@
     "unknownOrganization": "Tuntematon organisaatio",
     "lastLogin": "Liittyi mukaan",
     "userYetToLogin": "Ei vielä liittynyt",
-    "position": "Rooli",
-    "role": "Käyttöoikeusrooli",
+    "position": "Nimike",
+    "role": "Rooli",
     "noAssignedRole": "Ei määritettyä roolia",
     "projects": "Projektit",
     "projectName": "Nimi",
@@ -169,19 +170,18 @@
     "title": "Lisää käyttäjä projektiin",
     "selectProject": "Valitse projekti johon lisätään käyttäjä",
     "selectUser": "Valitse käyttäjä",
-    "selectRole": "Valitse rooli",
     "assign": "Lisää",
     "cancel": "Peruuta"
   },
   "jobPositionDialog": {
     "title": "Rooleja",
-    "addNewJobPosition": "Lisää uusi rooli",
+    "addNewJobPosition": "Lisää uusi nimike",
     "name": "Nimi",
     "enterName": "Anna nimi",
     "color": "Väri",
     "enterColor": "Anna väri",
     "selectIcon": "Valitse ikoni",
-    "create": "Luo uusi rooli"
+    "create": "Luo uusi nimike"
   },
   "projectAttachmentsScreen": {
     "routeName": "Liitteet",
@@ -251,17 +251,17 @@
       "title": "Tehtävät",
       "assignee": "Tekijä",
       "task": "Tehtävä",
-      "readyBy": "Valmis arvio",
+      "readyBy": "Valmistuu arviolta",
       "status": "Tila",
       "readiness": "Valmius"
     },
     "delaysList": {
-      "title": "Myöhästymiset",
+      "title": "Projektien myöhästymiset",
       "groupBy": "Ryhmittele",
       "selectProject": "Valitse projekti",
       "scopes": {
         "TASK": "Tehtävä",
-        "ROLE": "Rooli",
+        "POSITION": "Nimike",
         "REASON": "Syy"
       },
       "byTask": {
@@ -270,8 +270,8 @@
         "delayReason": "Myöhästymisen syy",
         "delayQuantity": "Aiheuttanut myöhästymisiä kpl"
       },
-      "byRole": {
-        "role": "Rooli",
+      "byPosition": {
+        "position": "Nimike",
         "tasks": "Tehtäviä",
         "delayedNumber": "Myöhästyneitä kpl",
         "delayPercentage": "Myöhästymis %",
@@ -341,7 +341,7 @@
     "dependentUser": "Riippuvainen käyttäjä",
     "type": "Tyyppi",
     "userRole": "Rooli",
-    "position": "Rooli",
+    "position": "Nimike",
     "start": "Alkaa",
     "end": "Valmis",
     "estimatedDuration": "Arvioitu kesto",
@@ -437,5 +437,10 @@
     "NOT_STARTED": "Ei aloitettu",
     "IN_PROGRESS": "Käynnissä",
     "DONE": "Valmis"
+  },
+  "userRoles": {
+    "ADMIN": "Ylläpitäjä",
+    "PROJECT_OWNER": "Projektin omistaja",
+    "USER": "Käyttäjä"
   }
 }
