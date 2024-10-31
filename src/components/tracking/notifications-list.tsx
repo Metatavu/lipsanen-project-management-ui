@@ -283,7 +283,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
         variant="h6"
         sx={{
           padding: 0,
-          paddingBottom: appbarView ? "0.5rem" : "1rem" 
+          paddingBottom: appbarView ? "0.5rem" : "1rem",
           borderBottom: "1px solid #e0e0e0",
           position: appbarView ? "absolute" : "relative",
           top: appbarView ? "0.5rem" : 0,
