@@ -32,7 +32,6 @@ import { theme } from "../../theme";
 
 const ADMIN_ROLE = "admin";
 const PROJECT_OWNER_ROLE = "project-owner";
-const USER_ROLE = "user";
 
 const NotificationBadge = styled(Badge)({
   "& .MuiBadge-badge": {
