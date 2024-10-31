@@ -238,7 +238,8 @@
       "commentLeftMessage": "Comment added to task: {{comment}}",
       "taskAssignedMessage": "You have been assigned to task {{taskName}}",
       "otherUserAssignedMessage": "{{numberOfUsers}} new users assigned to task {{taskName}}",
-      "taskStatusChangedMessage": "Task status changed to {{newStatus}}"
+      "taskStatusChangedMessage": "Task status changed to {{newStatus}}",
+      "errorMessage": "Error with this notification"
     },
     "tasksList": {
       "title": "Tasks",

@@ -242,7 +242,8 @@
       "commentLeftMessage": "Tehtävään lisätty kommentti: {{comment}}",
       "taskAssignedMessage": "Sinut on asetettu tekijäksi tehtävään {{taskName}}",
       "otherUserAssignedMessage": "{{numberOfUsers}} uutta käyttäjää asetettu tekijäksi tehtävään {{taskName}}",
-      "taskStatusChangedMessage": "Tehtävä muutettu tilaan {{newStatus}}"
+      "taskStatusChangedMessage": "Tehtävä muutettu tilaan {{newStatus}}",
+      "errorMessage": "Virhe tässä ilmoituksessa"
     },
     "tasksList": {
       "title": "Tehtävät",

@@ -136,19 +136,6 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
     });
   };
 
-  const formatChangeProposalStatus = {
-    [ChangeProposalStatus.Pending]: "pending",
-    [ChangeProposalStatus.Approved]: "approved",
-    [ChangeProposalStatus.Rejected]: "rejected",
-  };
-
-  const formatTaskStatus = {
-    [TaskStatus.NotStarted]: "not started",
-    [TaskStatus.InProgress]: "in progress",
-    [TaskStatus.Done]: "done",
-    error: "Unknown task status",
-  };
-
   /**
    * Renders notification message based on the notification type
    *
@@ -160,11 +147,16 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
     switch (notificationEvent.notification.type) {
       case NotificationType.ChangeProposalCreated:
         return t("trackingScreen.notificationsList.changeProposalCreatedMessage");
-      case NotificationType.ChangeProposalStatusChanged:
+      case NotificationType.ChangeProposalStatusChanged: {
+        const proposalStatus = (typedNotification as ChangeProposalStatusChangedNotificationData).newStatus;
+        if (!proposalStatus) {
+          return t("trackingScreen.notificationsList.errorMessage");
+        }
+
         return t("trackingScreen.notificationsList.changeProposalStatusChangedMessage", {
-          newStatus:
-            formatChangeProposalStatus[(typedNotification as ChangeProposalStatusChangedNotificationData).newStatus],
+          newStatus: t(`changeProposalStatuses.${proposalStatus}`),
         });
+      }
       case NotificationType.CommentLeft:
         return t("trackingScreen.notificationsList.commentLeftMessage", {
           comment: (typedNotification as CommentLeftNotificationData).comment,
@@ -185,12 +177,18 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
 
         return message;
       }
-      case NotificationType.TaskStatusChanged:
+      case NotificationType.TaskStatusChanged: {
+        const newStatus = (typedNotification as TaskStatusChangesNotificationData).newStatus;
+        if (!newStatus) {
+          return t("trackingScreen.notificationsList.errorMessage");
+        }
+
         return t("trackingScreen.notificationsList.taskStatusChangedMessage", {
-          newStatus: formatTaskStatus[(typedNotification as TaskStatusChangesNotificationData).newStatus || "error"],
+          newStatus: t(`taskStatuses.${newStatus}`),
         });
+      }
       default:
-        return "";
+        return t("trackingScreen.notificationsList.errorMessage");
     }
   };
 
