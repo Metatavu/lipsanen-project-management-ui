@@ -241,7 +241,7 @@
       "changeProposalStatusChangedMessage": "Muutosehdotus päivitetty tilaan {{newStatus}}",
       "commentLeftMessage": "Tehtävään lisätty kommentti: {{comment}}",
       "taskAssignedMessage": "Sinut on asetettu tekijäksi tehtävään {{taskName}}",
-      "otherUserAssignedMessage": "{{numberOfUsers}} uutta käyttäjää osoitettu tehtävään {{taskName}}",
+      "otherUserAssignedMessage": "{{numberOfUsers}} uutta käyttäjää asetettu tekijäksi tehtävään {{taskName}}",
       "taskStatusChangedMessage": "Tehtävän tilaksi muutettu {{newStatus}}"
     },
     "tasksList": {
