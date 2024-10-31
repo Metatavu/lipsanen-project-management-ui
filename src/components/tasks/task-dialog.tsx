@@ -25,12 +25,14 @@ import {
   TextField,
   ThemeProvider,
   Toolbar,
+  Tooltip,
   Typography,
   createTheme,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiUserAtom } from "atoms/auth";
 import AttachmentDialog from "components/attachments/attachment-dialog";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
@@ -42,6 +44,7 @@ import {
   CreateTaskRequest,
   DeleteChangeProposalRequest,
   DeleteTaskConnectionRequest,
+  DeleteTaskRequest,
   ProjectStatus,
   Task,
   TaskConnectionType,
@@ -49,6 +52,7 @@ import {
   UpdateChangeProposalRequest,
   UpdateTaskConnectionRequest,
   UpdateTaskRequest,
+  UserRole,
 } from "generated/client";
 import {
   useFindProjectQuery,
@@ -60,6 +64,7 @@ import {
   useListUsersQuery,
 } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
+import { useAtomValue } from "jotai";
 import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
@@ -121,6 +126,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   useEffect(() => {
     setUpdatedTaskAttachments(task?.id ? listTaskAttachmentsQuery.data ?? [] : []);
   }, [task, listTaskAttachmentsQuery.data]);
+
+  const projectStatus = useFindProjectQuery(projectId).data?.status;
+  const user = useAtomValue(apiUserAtom);
 
   const showConfirmDialog = useConfirmDialog();
 
@@ -264,6 +272,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     mutationFn: (params: CreateTaskRequest) => tasksApi.createTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
@@ -278,6 +287,18 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
+  });
+
+  /**
+   * Delete task mutation
+   */
+  const deleteTaskMutation = useMutation({
+    mutationFn: (params: DeleteTaskRequest) => tasksApi.deleteTask(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+    },
+    onError: (error) => console.error(t("errorHandling.errorDeletingTask"), error),
   });
 
   /**
@@ -700,6 +721,16 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     };
 
     setCreateChangeProposalData([...createChangeProposalData, newChangeProposal]);
+  };
+
+  /**
+   * Handles task deletion
+   */
+  const handleDeleteTask = async () => {
+    if (!task?.id) return;
+
+    deleteTaskMutation.mutate({ taskId: task.id });
+    closeAndClear();
   };
 
   /**
@@ -1337,6 +1368,27 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     taskConnectionsValid
   );
 
+  const isUserAdminOrOwner = user?.roles?.includes(UserRole.Admin) || user?.roles?.includes(UserRole.ProjectOwner);
+  const projectInPlanning = projectStatus === ProjectStatus.Planning || projectStatus === ProjectStatus.Initiation;
+  const deleteDisabled = !task || !!existingTaskConnections.length || (!projectInPlanning && !isUserAdminOrOwner);
+
+  /**
+   * Renders tooltip based on reason for button being disabled
+   */
+  const renderDisabledButtonTooltip = () => {
+    if (!deleteDisabled) return null;
+    if (!task) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.noTask");
+    }
+    if (!projectInPlanning && !isUserAdminOrOwner) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.outOfPlanning");
+    }
+    if (existingTaskConnections.length) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.taskHasConnections");
+    }
+    return null;
+  };
+
   /**
    * Main component render
    */
@@ -1353,6 +1405,30 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             {renderMilestoneName()}
             <span>/</span>
             {task ? task.name : t("newMilestoneTaskDialog.title")}
+            <Tooltip title={renderDisabledButtonTooltip()}>
+              <span style={{ marginLeft: "auto" }}>
+                <Button
+                  onClick={() =>
+                    showConfirmDialog({
+                      title: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.title"),
+                      description: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.description", {
+                        taskName: task?.name,
+                      }),
+                      cancelButtonEnabled: true,
+                      confirmButtonText: t("generic.delete"),
+                      onConfirmClick: handleDeleteTask,
+                    })
+                  }
+                  variant="contained"
+                  color="inherit"
+                  size="large"
+                  disabled={deleteDisabled}
+                  sx={{ ml: "auto", backgroundColor: "#D32F2F" }}
+                >
+                  {t("newMilestoneTaskDialog.deleteButton")}
+                </Button>
+              </span>
+            </Tooltip>
             <LoadingButton
               loading={
                 updateTaskMutation.isPending ||
@@ -1370,7 +1446,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               color="inherit"
               size="large"
               disabled={isDisabled}
-              sx={{ ml: "auto" }}
             >
               {!task && <AddIcon />}
               {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}

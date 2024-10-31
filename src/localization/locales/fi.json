@@ -348,6 +348,7 @@
     "attachments": "Liitteet",
     "createButton": "Luo uusi tehtävä",
     "updateButton": "Tallenna tehtävä",
+    "deleteButton": "Poista tehtävä",
     "inputLabelDays": "pv",
     "inputLabelPercent": "%",
     "taskConnectionsTable": {
@@ -382,6 +383,15 @@
         "title": "Poista tehtävän liite",
         "description": "Haluatko varmasti poistaa liitteen: {{attachmentName}}?"
       }
+    },
+    "deleteTaskConfirmationDialog": {
+      "title": "Poista tehtävän",
+      "description": "Haluatko varmasti poistaa tehtävän: {{taskName}}?"
+    },
+    "deleteButtonToolTips": {
+      "noTask": "Tehtävää, jota ei ole vielä tallennettu, ei voi poistaa",
+      "outOfPlanning": "Tehtäviä ei voi poistaa, kun projekti on suunnitteluvaiheen ulkopuolella",
+      "taskHasConnections": "Tehtävää, jolla on olemassa olevia tehtäväyhteyksiä, ei voi poistaa"
     }
   },
   "changeProposals": {
