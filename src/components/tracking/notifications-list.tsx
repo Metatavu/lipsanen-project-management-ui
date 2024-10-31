@@ -50,6 +50,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
 
   const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
   const user = findUserQuery.data;
+  // TODO: find task for notifications- component notificationEventCard, get the task name from the task id from find task,
 
   /**
    * Update notification event
@@ -191,6 +192,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
     }
   };
 
+  // TODO: Extract and add the find task request query.
   /**
    * Render notification card
    *
@@ -293,7 +295,6 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
         {t("trackingScreen.notificationsList.title")}
       </Typography>
       <Box>
-        {/* TODO: Should there be a limit to the number of notifcations displayed, a see allbutton which redirects to tracking? Maybe this should only show unread? */}
         {Object.keys(groupedNotifications).map((date) => (
           <Box key={date} sx={{ position: "relative", marginBottom: "2rem" }}>
             {/* Vertical line */}

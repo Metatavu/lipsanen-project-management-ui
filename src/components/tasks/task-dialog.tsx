@@ -51,8 +51,8 @@ import {
   UpdateTaskRequest,
 } from "generated/client";
 import {
-  useListAttachmentsQuery,
   useFindProjectQuery,
+  useListAttachmentsQuery,
   useListJobPositionsQuery,
   useListProjectMilestonesQuery,
   useListTaskConnectionsQuery,
@@ -260,9 +260,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createTaskMutation = useMutation({
     mutationFn: (params: CreateTaskRequest) => tasksApi.createTask(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
-    },
     onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
 
@@ -271,10 +268,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
-    },
     onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
 
@@ -283,9 +276,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createChangeProposalMutation = useMutation({
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
-    },
     onError: (error) => console.error(t("errorHandling.errorCreatingChangeProposal"), error),
   });
 
@@ -316,9 +306,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createTaskConnectionsMutation = useMutation({
     mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
-    },
     onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
   });
 
@@ -327,9 +314,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateTaskConnectionsMutation = useMutation({
     mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
-    },
     onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
   });
 
@@ -338,9 +322,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const deleteTaskConnectionsMutation = useMutation({
     mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
-    },
     onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
   });
 
@@ -365,10 +346,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       );
 
       await Promise.all([...deletePromises, ...createPromises]);
-      queryClient.invalidateQueries({ queryKey: ["attachments"] });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["attachments"] });
     },
     onError: (error) => console.error(t("errorHandling.errorUpdatingProjectAttachments"), error),
   });
@@ -759,6 +736,12 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
     await updateTaskAttachmentsMutation.mutateAsync();
     await persistChangeProposals();
+
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+    queryClient.invalidateQueries({ queryKey: ["attachments"] });
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
 
     closeAndClear();
   };

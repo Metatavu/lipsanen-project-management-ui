@@ -55,19 +55,22 @@ const TopNavigation = () => {
 
   const findProjectThemeQuery = useListProjectThemesQuery(pathParams.projectId);
   const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
-  const listNotificationEventsQuery = useListNotificationEventsQuery({
-    userId: findUserQuery.data?.id ?? "",
-  });
+  const listNotificationEventsQuery = useListNotificationEventsQuery(
+    {
+      userId: findUserQuery.data?.id ?? "",
+      readStatus: false,
+    },
+    10_000,
+  );
   const notificationEvents = useMemo(() => listNotificationEventsQuery.data ?? [], [listNotificationEventsQuery.data]);
 
-  // TODO: Seems like a big request??
   const listTasksQuery = useListTasksQuery({});
   const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
 
-  const unreadNotificationEventsCount = useMemo(() => {
-    const notificationEvents = listNotificationEventsQuery.data || [];
-    return notificationEvents.filter((event) => !event.read).length;
-  }, [listNotificationEventsQuery.data]);
+  const unreadNotificationEventsCount = useMemo(
+    () => (listNotificationEventsQuery.data ?? []).length,
+    [listNotificationEventsQuery.data],
+  );
 
   const accountMenuState = usePopupState({ variant: "popover", popupId: "accountMenu" });
   const notificationsListMenuState = usePopupState({ variant: "popover", popupId: "notificationsMenu" });

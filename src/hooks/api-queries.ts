@@ -511,7 +511,7 @@ export const useListJobPositionsQuery = (params: ListJobPositionsRequest = {}) =
  *
  * @param params ListNotificationEventsRequest
  */
-export const useListNotificationEventsQuery = (params: Partial<ListNotificationEventsRequest>) => {
+export const useListNotificationEventsQuery = (params: Partial<ListNotificationEventsRequest>, refetch?: number) => {
   const { projectId, taskId, userId, readStatus, first, max } = params;
   const { NotificationEventsApi } = useApi();
   const { t } = useTranslation();
@@ -528,5 +528,6 @@ export const useListNotificationEventsQuery = (params: Partial<ListNotificationE
     },
     enabled: !!userId,
     staleTime: 0,
+    refetchInterval: refetch,
   });
 };
