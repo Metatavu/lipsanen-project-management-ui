@@ -1,4 +1,14 @@
-import { AppBar, Button, Dialog, DialogContent, DialogTitle, IconButton, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { GridCloseIcon } from "@mui/x-data-grid";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
@@ -31,7 +41,11 @@ const ErrorDialog = () => {
           </Typography>
         )}
       </DialogContent>
-      <Button onClick={handleClose}>{t("generic.close")}</Button>
+      <DialogActions>
+        <Button onClick={handleClose} variant="contained" color="primary" size="large">
+          {t("generic.close")}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };
