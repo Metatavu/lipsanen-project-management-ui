@@ -237,7 +237,7 @@
       "yesterday": "Eilen",
       "markRead": "Merkitse luetuksi",
       "delete": "Poista",
-      "changeProposalCreatedMessage": "Uusi muutosehdotus on luotu",
+      "changeProposalCreatedMessage": "Uusi muutosehdotus",
       "changeProposalStatusChangedMessage": "Muutosehdotus on päivitetty {{newStatus}}",
       "commentLeftMessage": "Tehtävään lisätty kommentti: {{comment}}",
       "taskAssignedMessage": "Sinut on määrätty tehtävään {{taskName}}",
