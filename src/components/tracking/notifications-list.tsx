@@ -4,14 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authAtom } from "atoms/auth";
 import {
   ChangeProposalCreatedNotificationData,
-  ChangeProposalStatus,
   ChangeProposalStatusChangedNotificationData,
   CommentLeftNotificationData,
   NotificationEvent,
   NotificationType,
   Task,
   TaskAssignedNotificationData,
-  TaskStatus,
   TaskStatusChangesNotificationData,
   UpdateNotificationEventRequest,
 } from "generated/client";
@@ -27,6 +25,7 @@ interface Props {
   tasks: Task[];
   notificationEvents: NotificationEvent[];
   loading: boolean;
+  appbarView?: boolean;
 }
 /**
  * Notification data type
@@ -43,7 +42,7 @@ type NotificationDataType =
  *
  * @param props props
  */
-const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
+const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: Props) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { NotificationEventsApi } = useApi();
@@ -165,7 +164,6 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
         const taskAssignedNotification = typedNotification as TaskAssignedNotificationData;
         const userAssigned = user?.id ? taskAssignedNotification.assigneeIds.includes(user?.id) : false;
 
-        // TODO: Test this once API updated, assigned user should not recieve a second notification, admin user should revieve a "other user message"
         const message = userAssigned
           ? t("trackingScreen.notificationsList.taskAssignedMessage", {
               taskName: taskAssignedNotification.taskName,
@@ -280,27 +278,40 @@ const NotificationsList = ({ tasks, notificationEvents, loading }: Props) => {
    */
   return (
     <>
-      <Typography component="h2" variant="h6" sx={{ padding: "0 0 1rem 0", borderBottom: "1px solid #e0e0e0" }}>
+      <Typography
+        component="h2"
+        variant="h6"
+        sx={{
+          padding: 0,
+          paddingBottom: appbarView ? "0.5rem" : "1rem",
+          borderBottom: "1px solid #e0e0e0",
+          position: appbarView ? "absolute" : "relative",
+          top: appbarView ? "0.5rem" : 0,
+          width: "100%",
+        }}
+      >
         {t("trackingScreen.notificationsList.title")}
       </Typography>
       <Box>
         {Object.keys(groupedNotifications).map((date) => (
           <Box key={date} sx={{ position: "relative", marginBottom: "2rem" }}>
             {/* Vertical line */}
-            <Box
-              sx={{
-                position: "absolute",
-                left: "1rem",
-                top: "2rem",
-                height: "100%",
-                width: "1px",
-                backgroundColor: "black",
-              }}
-            />
+            {!appbarView && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  left: "1rem",
+                  top: "2rem",
+                  height: "100%",
+                  width: "1px",
+                  backgroundColor: "black",
+                }}
+              />
+            )}
 
             {/* Notification group */}
             <Box key={date} sx={{ position: "relative" }}>
-              <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
+              <Typography variant="h6" sx={{ marginTop: appbarView ? "3rem" : 0, marginBottom: "1rem" }}>
                 {date}
               </Typography>
               {groupedNotifications[date].map(renderNotificationCard)}

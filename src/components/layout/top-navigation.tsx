@@ -20,7 +20,13 @@ import {
 } from "@mui/material";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import logo from "assets/lipsanen-logo.svg";
-import { useFindUserQuery, useListNotificationEventsQuery, useListProjectThemesQuery } from "hooks/api-queries";
+import NotificationsList from "components/tracking/notifications-list";
+import {
+  useFindUserQuery,
+  useListNotificationEventsQuery,
+  useListProjectThemesQuery,
+  useListTasksQuery,
+} from "hooks/api-queries";
 import { useAtom } from "jotai";
 import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useMemo } from "react";
@@ -32,7 +38,6 @@ import { theme } from "../../theme";
 
 const ADMIN_ROLE = "admin";
 const PROJECT_OWNER_ROLE = "project-owner";
-const USER_ROLE = "user";
 
 const NotificationBadge = styled(Badge)({
   "& .MuiBadge-badge": {
@@ -50,16 +55,25 @@ const TopNavigation = () => {
 
   const findProjectThemeQuery = useListProjectThemesQuery(pathParams.projectId);
   const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
-  const listNotificationEventsQuery = useListNotificationEventsQuery({
-    userId: findUserQuery.data?.id ?? "",
-  });
+  const listNotificationEventsQuery = useListNotificationEventsQuery(
+    {
+      userId: findUserQuery.data?.id ?? "",
+      readStatus: false,
+    },
+    10_000,
+  );
+  const notificationEvents = useMemo(() => listNotificationEventsQuery.data ?? [], [listNotificationEventsQuery.data]);
 
-  const unreadNotificationEventsCount = useMemo(() => {
-    const notificationEvents = listNotificationEventsQuery.data || [];
-    return notificationEvents.filter((event) => !event.read).length;
-  }, [listNotificationEventsQuery.data]);
+  const listTasksQuery = useListTasksQuery({});
+  const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
+
+  const unreadNotificationEventsCount = useMemo(
+    () => (listNotificationEventsQuery.data ?? []).length,
+    [listNotificationEventsQuery.data],
+  );
 
   const accountMenuState = usePopupState({ variant: "popover", popupId: "accountMenu" });
+  const notificationsListMenuState = usePopupState({ variant: "popover", popupId: "notificationsMenu" });
 
   const routeLinks: NavigationLink[] = [
     { route: "/projects", labelKey: "projects" },
@@ -165,6 +179,7 @@ const TopNavigation = () => {
             sx={{
               color: updatedTheme.palette.primary.contrastText,
             }}
+            {...bindTrigger(notificationsListMenuState)}
           >
             <NotificationBadge badgeContent={unreadNotificationEventsCount} color="warning">
               {listNotificationEventsQuery.isLoading ? (
@@ -174,6 +189,16 @@ const TopNavigation = () => {
               )}
             </NotificationBadge>
           </IconButton>
+          <Menu {...bindMenu(notificationsListMenuState)}>
+            <MenuItem>
+              <NotificationsList
+                tasks={tasks}
+                notificationEvents={notificationEvents}
+                loading={listTasksQuery.isLoading || listNotificationEventsQuery.isLoading}
+                appbarView
+              />
+            </MenuItem>
+          </Menu>
           <IconButton
             sx={{
               color: updatedTheme.palette.primary.contrastText,
