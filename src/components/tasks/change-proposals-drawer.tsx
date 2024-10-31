@@ -7,7 +7,7 @@ import ResizablePanel from "components/generic/resizable-panel";
 import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
 import { useFindUsersQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { DateTime } from "luxon";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import UserUtils from "utils/users";
 
@@ -42,6 +42,7 @@ const ChangeProposalsDrawer = ({
 }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const wasOpen = useRef(open);
 
   const proposalCreatorUsersIds = useMemo(
     () => [
@@ -70,6 +71,14 @@ const ChangeProposalsDrawer = ({
 
     const changeProposalId = changeProposal.id;
     updateChangeProposalStatus(changeProposalId, changeProposal, status);
+  };
+
+  /**
+   * Changes drawer open state
+   */
+  const onToggleOpen = () => {
+    if (open) setSelectedChangeProposalId(undefined);
+    setOpen(!open);
   };
 
   /**
@@ -192,7 +201,7 @@ const ChangeProposalsDrawer = ({
   return (
     <>
       <Button
-        onClick={() => setOpen(!open)}
+        onClick={onToggleOpen}
         variant="contained"
         color="primary"
         size="large"
