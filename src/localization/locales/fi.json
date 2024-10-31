@@ -1,19 +1,429 @@
 {
+  "back": "Takaisin",
   "projects": "Projektit",
-  "monitoring": "Seuranta",
+  "tracking": "Seuranta",
   "projectTemplates": "Projektimallit",
   "users": "Käyttäjät",
+  "roles": "Roolit",
   "logout": "Kirjaudu ulos",
   "search": "Haku",
-  "status": "Tila",
-  "newProject": "Uusi projekti",
-  "type": "Tyyppi",
-  "estimatedStart": "Aloitus arviolta",
-  "estimatedEnd": "Lopetus arviolta",
+  "generic": {
+    "save": "Tallenna",
+    "delete": "Poista",
+    "cancel": "Peruuta",
+    "confirm": "Vahvista",
+    "showFilters": "Näytä suotimet",
+    "clear": "Tyhjennä",
+    "apply": "Käytä",
+    "noSelection": "Ei valintaa"
+  },
+  "project": {
+    "status": "Tila",
+    "type": "Tyyppi",
+    "estimatedStart": "Aloitus arviolta",
+    "estimatedEnd": "Lopetus arviolta",
+    "deleteProject": "Poista projekti",
+    "confirmProjectDeleteDescription": "Haluatko varmasti poistaa projektin: {{projectName}}?"
+  },
   "projectStatuses": {
-    "ongoing": "Käynnissä",
-    "tenderPreparation": "Tarjousvalmistelu",
-    "tender": "Tarjous",
-    "done": "Valmis"
+    "INITIATION": "Aloitus",
+    "PLANNING": "Suunnittelu",
+    "DESIGN": "Design",
+    "PROCUREMENT": "Hankinta",
+    "CONSTRUCTION": "Rakentaminen",
+    "INSPECTION": "Tarkastus",
+    "COMPLETION": "Valmis"
+  },
+  "newProjectDialog": {
+    "addNewProject": "Lisää uusi projekti",
+    "createNewProject": "Luo täysin uusi",
+    "createNewProjectDescription": "Luo uusi projekti",
+    "creation/ImportOfANewProject": "Uuden projektin luonti / tuonti",
+    "enterProjectName": "Anna projetin nimi"
+  },
+  "projectName": "Projektin nimi",
+  "usersScreen": {
+    "company": "Yritys",
+    "role": "Rooli",
+    "lastLoggedIn": "Viimeksi paikalla",
+    "deleteUser": "Poista käyttäjä",
+    "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?",
+    "position": "Rooli"
+  },
+  "rolesScreen": {
+    "icon": "Ikoni",
+    "color": "Väri",
+    "users": "Käyttäjiä",
+    "deleteTitle": "Poista rooli",
+    "deleteDescription": "Haluatko varmasti poistaa roolin: {{name}}?"
+  },
+  "name": "Nimi",
+  "addANewUser": "Lisää uusi käyttäjä",
+  "newUserDialog": {
+    "email": "Sähköposti",
+    "sendAnInvitation": "Lähetä kutsu",
+    "selectUsersCompany": "Anna käyttäjän yritys",
+    "enterUsersEmail": "Anna käyttäjän sähköposti",
+    "enterUsersName": "Anna käyttäjän nimi",
+    "createNewCompany": "Perusta uusi yritys",
+    "invalidEmailWarning": "Anna kelvollinen sähköpostiosoite",
+    "emailNotUniqueWarning": "Sähköpostin on oltava yksilöllinen",
+    "assignUserToProject": "Lisää käyttäjä projektiin",
+    "assignUserToPosition": "Lisää käyttäjä rooliin"
+  },
+  "userFilters": {
+    "title": "Suodata käyttäjiä",
+    "project": "Projekti",
+    "company": "Yritys",
+    "position": "Rooli"
+  },
+  "taskFilters": {
+    "title": "Suodata tehtäviä",
+    "milestone": "Tavoite"
+  },
+  "projectFilters": {
+    "title": "Suodata projekteja",
+    "status": "Tila"
+  },
+  "errorHandling": {
+    "errorCreatingNewProject": "Virhe luotaessa uutta projektia",
+    "errorListingProjects": "Virhe haettaessa projekteja",
+    "errorListingUserProjects": "Virhe haettaessa käyttäjän projekteja",
+    "errorFindingProject": "Virhe haettaessa projektia",
+    "errorUpdatingProject": "Virhe päivitettäessä projektia",
+    "errorDeletingProject": "Virhe poistettaessa projektia",
+    "errorListingUsers": "Virhe haettaessa käyttäjiä",
+    "errorCreatingUser": "Virhe luotaessa uutta käyttäjää",
+    "errorFindingUser": "Virhe haettaessa käyttäjää",
+    "errorFindingMultipleUsers": "Virhe etsittäessä useita käyttäjiä",
+    "errorUpdatingUser": "Virhe päivitettäessä käyttäjää",
+    "errorDeletingUser": "Virhe poistettaessa käyttäjää",
+    "errorListingProjectThemes": "Virhe haettaessa projektiteemoja",
+    "errorCreatingProjectTheme": "Virhe luotaessa uutta projektiteemaa",
+    "errorUpdatingProjectTheme": "Virhe päivitettäessä projektin teemaa",
+    "errorListingFiles": "Virhe haettaessa tiedostoja",
+    "errorUploadingLogo": "Virhe logon latauksessa",
+    "errorListingLogos": "Virhe haettaessa logoja",
+    "errorUploadingNewTaskAttachment": "Virhe ladattaessa uutta tehtävän liitettä",
+    "errorUploadingExistingTaskAttachment": "Virhe ladattaessa olemassaolevaa tehtävän liitettä",
+    "errorListingAttachments": "Virhe haettaessa liitteitä",
+    "errorFindingAttachment": "Virhe haettaessa liitettä",
+    "errorDeletingAttachment": "Virhe poistettaessa liitettä",
+    "errorUpdatingProjectAttachments": "Virhe päivitettäessä projektin liitteitä",
+    "errorListingTaskConnections": "Virhe haettaessa tehtävien riippuvuuksia",
+    "errorListingCompanies": "Virhe haettaessa yrityksiä",
+    "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
+    "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
+    "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin tavoitetta",
+    "errorListingProjectMilestones": "Virhe haettaessa projektin tavoitteita",
+    "errorFindingProjectMilestone": "Virhe haettaessa projektin tavoitetta",
+    "errorListingMilestoneTasks": "Virhe haettaessa tavoitteen tehtäviä",
+    "errorFindingMilestoneTask": "Virhe haettaessa tavoitteen tehtävää",
+    "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
+    "errorUpdatingMilestoneTask": "Virhe päivitettäessä tehtävää",
+    "errorListingProjectUsers": "Virhe haettaessa projektin käyttäjiä",
+    "errorCreatingChangeProposal": "Virhe luotaessa muutosehdotusta",
+    "errorListingChangeProposals": "Virhe haettaessa muutosehdotusluetteloa",
+    "errorUpdatingChangeProposal": "Virhe päivitettäessä muutosehdotusta",
+    "errorDeletingChangeProposal": "Virhe poistettaessa muutosehdotusta",
+    "errorListingJobPositions": "Virhe haettaessa rooleja",
+    "errorCreatingJobPosition": "Virhe luotaessa uutta roolia",
+    "errorUpdatingJobPosition": "Virhe päivitettäessä roolia",
+    "errorDeletingJobPosition": "Virhe poistettaessa roolia",
+    "errorListingNotificationEvents": "Virhe haettaessa ilmoitustapahtumia",
+    "errorUpdatingNotificationEvent": "Virhe päivitettäessä ilmoitustapahtumia",
+    "errorDeletingNotificationEvent": "Virhe poistettaessa ilmoitustapahtumia",
+    "errorListingTasks": "Virhe haettaessa tehtäviä",
+    "errorFindingTask": "Virhe haettaessa tehtävää",
+    "errorUpdatingTask": "Virhe päivitettäessä tehtävää",
+    "errorDeletingTask": "Virhe poistettaessa tehtävää",
+    "errorCreatingTaskConnection": "Virhe luotaessa riippuvuutta tehtäville",
+    "errorUpdatingTaskConnection": "Virhe päivitettäessä tehtävien riippuvuutta",
+    "errorDeletingTaskConnection": "Virhe poistettaessa tehtävien riippuvuutta",
+    "errorListingTaskComments": "Virhe haettaessa tehtävän kommentteja",
+    "errorCreatingTaskComment": "Virhe luotaessa uutta kommenttia tehtävään",
+    "errorUpdatingTaskComment": "Virhe päivitettäessä tehtävän kommenttia",
+    "errorDeletingTaskComment": "Virhe poistettaessa tehtävän kommenttia",
+    "errorListingChangeProposalTasksPreview": "Virhe haeessa muutosehdotuksen tehtävien esikatselua"
+  },
+  "userInfoDialog": {
+    "title": "Käyttäjätiedot",
+    "name": "Nimi",
+    "organization": "Organisaatio",
+    "unknownOrganization": "Tuntematon organisaatio",
+    "lastLogin": "Liittyi mukaan",
+    "userYetToLogin": "Ei vielä liittynyt",
+    "position": "Rooli",
+    "role": "Käyttöoikeusrooli",
+    "noAssignedRole": "Ei määritettyä roolia",
+    "projects": "Projektit",
+    "projectName": "Nimi",
+    "projectEstimatesAccuracy": "Arvioiden pitävyys %",
+    "noCompletedTasksYet": "Ei suoritettuja tehtäviä",
+    "projectStatus": "Tila",
+    "assignToNewProject": "Lisää uuteen projektiin"
+  },
+  "assignUserToProjectDialog": {
+    "title": "Lisää käyttäjä projektiin",
+    "selectProject": "Valitse projekti johon lisätään käyttäjä",
+    "selectUser": "Valitse käyttäjä",
+    "selectRole": "Valitse rooli",
+    "assign": "Lisää",
+    "cancel": "Peruuta"
+  },
+  "jobPositionDialog": {
+    "title": "Rooleja",
+    "addNewJobPosition": "Lisää uusi rooli",
+    "name": "Nimi",
+    "enterName": "Anna nimi",
+    "color": "Väri",
+    "enterColor": "Anna väri",
+    "selectIcon": "Valitse ikoni",
+    "create": "Luo uusi rooli"
+  },
+  "projectAttachmentsScreen": {
+    "routeName": "Liitteet",
+    "title": "Projektin liitteet",
+    "creator": "Lisääjä",
+    "name": "Nimi",
+    "fileType": "Tiedostotyyppi",
+    "attachmentToTask": "Liite tehtävään",
+    "createdAt": "Lisätty",
+    "preview": "Esikatsele",
+    "addNewAttachment": "Lisää uusi liite",
+    "deleteAttachmentConfirmation": {
+      "title": "Poista liite",
+      "description": "Haluatko varmasti poistaa liitteen {{attachmentName}}?"
+    }
+  },
+  "attachmentDialog": {
+    "addAttachment": "Lisää uusi liite",
+    "editAttachment": "Muokkaa liitettä {{attachmentName}}",
+    "description": "Lisää tiedosto tiputtamalla se tiputusalueelle, tai hakemalla se koneelta aluetta klikkaamalla.",
+    "linkToTask": "Liitä tehtävään",
+    "dropzoneText": "Tiputa tai klikkaa lisätäksesi tiedoston",
+    "fileWithSameNameAlreadyExists": "Samanniminen tiedosto on jo aiemmin ladattu projektille. Voit joko ladata tiedoston uudelleen eri nimellä tai käyttää olemassa olevaa tiedostoa.",
+    "useExistingFile": "Käytä olemassaolevaa tiedostoa"
+  },
+  "settingsScreen": {
+    "title": "Asetukset",
+    "projectSpecificTheming": "Projektikohtainen teemoitus",
+    "project": "Projekti",
+    "themeMainColor": "Teeman pääväri",
+    "otherColor": "Muu väri",
+    "logo": "Logo",
+    "disableProjectTheme": "Poista projektiteema käytöstä",
+    "dropzoneText": "Tiputa tai klikkaa lisätäksesi tiedoston",
+    "uploadWarningNoFile": "Virheellinen tiedosto: Ei tiedostoa.",
+    "uploadWarningDuplicateFileName": "Virheellinen tiedosto: Tiedostonimien on oltava yksilöllisiä.",
+    "uploadWarningInvalidCharacters": "Virheellinen tiedosto: Tiedostonimi ei saa sisältää ä-, ö- tai å-kirjaimia.",
+    "fileSuccessfullyUploaded": "Tiedosto ladattu onnistuneesti"
+  },
+  "projectSettingsScreen": {
+    "title": "Asetukset",
+    "baseInfo": "Projektin perustiedot",
+    "projectName": "Projektin nimi",
+    "projectStatus": "Projektin tila",
+    "estimatedStart": "Arvioitu aloitus",
+    "estimatedEnd": "Arvioitu päättyminen"
+  },
+  "trackingScreen": {
+    "title": "Seuranta",
+    "selectProject": "Valitse projekti",
+    "allProjects": "Kaikki projektit",
+    "notificationsList": {
+      "title": "Notifikaatiot",
+      "today": "Tänään",
+      "yesterday": "Eilen",
+      "markRead": "Merkitse luetuksi",
+      "delete": "Poista",
+      "changeProposalCreatedMessage": "Uusi muutosehdotus",
+      "changeProposalStatusChangedMessage": "Muutosehdotus päivitetty tilaan {{newStatus}}",
+      "commentLeftMessage": "Tehtävään lisätty kommentti: {{comment}}",
+      "taskAssignedMessage": "Sinut on asetettu tekijäksi tehtävään {{taskName}}",
+      "otherUserAssignedMessage": "{{numberOfUsers}} uutta käyttäjää asetettu tekijäksi tehtävään {{taskName}}",
+      "taskStatusChangedMessage": "Tehtävä muutettu tilaan {{newStatus}}",
+      "errorMessage": "Virhe tässä ilmoituksessa"
+    },
+    "tasksList": {
+      "title": "Tehtävät",
+      "assignee": "Tekijä",
+      "task": "Tehtävä",
+      "readyBy": "Valmis arvio",
+      "status": "Tila",
+      "readiness": "Valmius"
+    },
+    "delaysList": {
+      "title": "Myöhästymiset",
+      "groupBy": "Ryhmittele",
+      "selectProject": "Valitse projekti",
+      "scopes": {
+        "TASK": "Tehtävä",
+        "ROLE": "Rooli",
+        "REASON": "Syy"
+      },
+      "byTask": {
+        "delayedTask": "Myöhästynyt tehtävä",
+        "creator": "Tekijä",
+        "delayReason": "Myöhästymisen syy",
+        "delayQuantity": "Aiheuttanut myöhästymisiä kpl"
+      },
+      "byRole": {
+        "role": "Rooli",
+        "tasks": "Tehtäviä",
+        "delayedNumber": "Myöhästyneitä kpl",
+        "delayPercentage": "Myöhästymis %",
+        "overallDelay": "Osuus myöhästyneistä %"
+      },
+      "byReason": {
+        "delayReason": "Myöhästymisen syy",
+        "delayedNumber": "Myöhästyneitä kpl",
+        "delayQuantity": "Aiheuttanut myöhästymisiä kpl",
+        "overallDelay": "Osuus myöhästyneistä %"
+      }
+    }
+  },
+  "tasksScreen": {
+    "title": "Tehtävät"
+  },
+  "scheduleScreen": {
+    "title": "Aikataulu",
+    "objectives": "Tavoitteet",
+    "noAssignee": "Ei tekijää",
+    "breadcrumbSeparator": " > ",
+    "addANewMilestone": "Lisää uusi tavoite",
+    "addANewTask": "Lisää uusi tehtävä",
+    "objective": "Tavoite",
+    "duration": "kesto",
+    "start": "Alkaa",
+    "ready": "Valmis",
+    "readiness": "Valmius",
+    "days": "pv",
+    "labelDay": "Päivä",
+    "labelWeek": "Viikko",
+    "labelMonth": "Kuukausi",
+    "showConnections": "Näytä riippuvuudet"
+  },
+  "colorSelector": {
+    "otherColor": "Muu väri"
+  },
+  "iconSelector": {
+    "selectIcon": "Valitse ikoni"
+  },
+  "newProjectMilestoneDialog": {
+    "title": "Luo uusi tavoite",
+    "name": "Tavoitteen nimi",
+    "enterName": "Anna tavoitteen nimi",
+    "startDate": "Aloituspäivämäärä",
+    "enterStartDate": "Anna aloituspäivä",
+    "endDate": "Päättymispäivä",
+    "enterEndDate": "Anna lopetuspäivä",
+    "create": "Luo uusi tavoite"
+  },
+  "taskConnectionRoles": {
+    "CHILD": "Seuraaja",
+    "PARENT": "Edeltäjä"
+  },
+  "taskConnectionTypes": {
+    "START_TO_START": "Aloitus-Aloitus",
+    "FINISH_TO_FINISH": "Lopetus-Lopetus",
+    "START_TO_FINISH": "Aloitus-Lopetus",
+    "FINISH_TO_START": "Lopetus-Aloitus"
+  },
+  "newMilestoneTaskDialog": {
+    "title": "Luo uusi tehtävä",
+    "milestone": "Tavoite",
+    "name": "Tehtävän nimi",
+    "status": "Tila",
+    "assignees": "Tekijät",
+    "dependentUser": "Riippuvainen käyttäjä",
+    "type": "Tyyppi",
+    "userRole": "Rooli",
+    "position": "Rooli",
+    "start": "Alkaa",
+    "end": "Valmis",
+    "estimatedDuration": "Arvioitu kesto",
+    "estimatedReadiness": "Arvioitu valmius",
+    "dependencies": "Riippuvuudet",
+    "attachments": "Liitteet",
+    "createButton": "Luo uusi tehtävä",
+    "updateButton": "Tallenna tehtävä",
+    "inputLabelDays": "pv",
+    "inputLabelPercent": "%",
+    "taskConnectionsTable": {
+      "title": "Riippuvuudet",
+      "hierarchy": "Hierarkia",
+      "type": "Tyyppi",
+      "task": "Tehtävä",
+      "status": "Tila",
+      "delete": "Poista",
+      "addButton": "Lisää riippuvuus",
+      "taskTypeCheck": {
+        "sourceStartAfterTargetStartWarning": "Lähdetehtävän aloituspäivä ei voi olla kohdetehtävän aloituspäivän jälkeen",
+        "sourceEndAfterTargetEndWarning": "Lähdetehtävän päättymispäivä ei voi olla kohdetehtävän päättymispäivän jälkeen",
+        "sourceEndAfterTargetStartWarning": "Lähdetehtävän päättymispäivä ei voi olla kohdetehtävän aloituspäivän jälkeen"
+      }
+    },
+    "taskAttachmentsTable": {
+      "title": "Liitteet",
+      "type": "Tyyppi",
+      "name": "Nimi",
+      "preview": "Esikatselu",
+      "delete": "Poista",
+      "clickToPreview": "Klikkaa esikatsellaksesi",
+      "addButton": "Lisää liite",
+      "uploadDialogTitle": "Lataa uusi liite",
+      "uploadExistingFileConfirmationDialog": {
+        "title": "Lataa olemassaoleva liite",
+        "description": "Samanniminen tiedosto, jota yrität ladata on jo olemassa. Haluatko käyttää olemassa olevaa tiedostoa uudelleen tässä tehtävässä? Voit myös muuttaa lataamasi tiedoston nimeä ja ladata sen uudelleen.",
+        "confirm": "Vahvista"
+      },
+      "deleteConfirmationDialog": {
+        "title": "Poista tehtävän liite",
+        "description": "Haluatko varmasti poistaa liitteen: {{attachmentName}}?"
+      }
+    }
+  },
+  "changeProposals": {
+    "viewChangeProposals": "Tarkastele muutosehdotuksia",
+    "viewChangeProposalsWithValue": "Tarkastele muutosehdotuksia ({{value}})",
+    "changeProposals": "Muutosehdotukset",
+    "changeProposalPosition": "Muutosehdotus {{current}}/{{total}}",
+    "accept": "Hyväksy",
+    "reject": "Hylkää",
+    "numberOfChangeProposals": "{{value}} kpl",
+    "addButton": "Lisää muutosehdotus",
+    "changeStart": "Muuta alkua",
+    "changeEnd": "Muuta loppua",
+    "reasonForChange": "Muutoksen syy",
+    "comment": "Kommentti",
+    "reasons": {
+      "missingInitialData": "Lähtötiedot puuttuvat",
+      "resourceShortage": "Resurssivaje",
+      "timeUsageEstimate": "Ajankäyttöarvio"
+    }
+  },
+  "changeProposalStatuses": {
+    "PENDING": "Odottaa hyväksyntää",
+    "APPROVED": "Hyväksytty",
+    "REJECTED": "Hylätty"
+  },
+  "taskComments": {
+    "comments": "Kommentit",
+    "addComment": "Lisää kommentti",
+    "editFlag": "(Muokattu)",
+    "updateComment": "Päivitä kommentti"
+  },
+  "lastPlannerView": {
+    "title": "Last Planner",
+    "user": "Käyttäjä",
+    "week": "Viikko",
+    "markTasks": "Merkitse tehtäviä",
+    "noDependentUser": "Ei riippuvaista käyttäjää"
+  },
+  "taskStatuses": {
+    "NOT_STARTED": "Ei aloitettu",
+    "IN_PROGRESS": "Käynnissä",
+    "DONE": "Valmis"
   }
 }

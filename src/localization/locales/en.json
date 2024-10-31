@@ -1,19 +1,425 @@
 {
+  "back": "Back",
   "projects": "Projects",
-  "monitoring": "Monitoring",
+  "tracking": "Tracking",
   "projectTemplates": "Project templates",
   "users": "Users",
+  "roles": "Roles",
   "logout": "Logout",
   "search": "Search",
-  "status": "Status",
-  "newProject": "New project",
-  "type": "Type",
-  "estimatedStart": "Start estimate",
-  "estimatedEnd": "End estimate",
+  "generic": {
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "OK",
+    "showFilters": "Show filters",
+    "clear": "Clear",
+    "apply": "Apply",
+    "noSelection": "No selection"
+  },
+  "project": {
+    "status": "Status",
+    "type": "Type",
+    "estimatedStart": "Start estimate",
+    "estimatedEnd": "End estimate",
+    "deleteProject": "Delete project",
+    "confirmProjectDeleteDescription": "Are you sure you want to delete project: {{projectName}}?"
+  },
   "projectStatuses": {
-    "ongoing": "Ongoing",
-    "tenderPreparation": "Tender preparation",
-    "tender": "Tender",
-    "done": "Done"
+    "INITIATION": "Initiation",
+    "PLANNING": "Planning",
+    "DESIGN": "Design",
+    "PROCUREMENT": "Procurement",
+    "CONSTRUCTION": "Construction",
+    "INSPECTION": "Inspection",
+    "COMPLETION": "Completed"
+  },
+  "newProjectDialog": {
+    "addNewProject": "Add new project",
+    "createNewProject": "Create new project",
+    "createNewProjectDescription": "Create a new project",
+    "creation/ImportOfANewProject": "Creation / Import of a new project",
+    "enterProjectName": "Enter project name"
+  },
+  "projectName": "Project name",
+  "usersScreen": {
+    "company": "Company",
+    "role": "Role",
+    "lastLoggedIn": "Last logged in",
+    "deleteUser": "Delete user",
+    "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?",
+    "position": "Position"
+  },
+  "rolesScreen": {
+    "icon": "Icon",
+    "color": "Color",
+    "users": "Users",
+    "deleteTitle": "Delete position",
+    "deleteDescription": "Are you sure you want to delete position: {{name}}?"
+  },
+  "name": "Name",
+  "addANewUser": "Add a new user",
+  "newUserDialog": {
+    "email": "Email",
+    "sendAnInvitation": "Send an invitation",
+    "selectUsersCompany": "Enter user's company",
+    "enterUsersEmail": "Enter user's email",
+    "enterUsersName": "Enter user's name",
+    "createNewCompany": "Create new company",
+    "invalidEmailWarning": "Enter a valid email",
+    "emailNotUniqueWarning": "Email must be unique",
+    "assignUserToProject": "Assign user to project",
+    "assignUserToPosition": "Assign user to a position"
+  },
+  "userFilters": {
+    "title": "Filter users",
+    "project": "Project",
+    "company": "Company",
+    "position": "Position"
+  },
+  "taskFilters": {
+    "title": "Filter tasks",
+    "milestone": "Milestone"
+  },
+  "projectFilters": {
+    "title": "Filter projects",
+    "status": "Status"
+  },
+  "errorHandling": {
+    "errorCreatingNewProject": "Error while creating a new project",
+    "errorListingProjects": "Error while fetching projects list",
+    "errorListingUserProjects": "Error while fetching user's projects list",
+    "errorFindingProject": "Error while finding a project",
+    "errorUpdatingProject": "Error while updating a project",
+    "errorDeletingProject": "Error while deleting a project",
+    "errorListingUsers": "Error while fetching users list",
+    "errorCreatingUser": "Error while creating a new user",
+    "errorFindingUser": "Error while finding a user",
+    "errorFindingMultipleUsers": "Error while finding multiple users",
+    "errorUpdatingUser": "Error while updating a user",
+    "errorDeletingUser": "Error while deleting a user",
+    "errorListingProjectThemes": "Error while fetching project themes list",
+    "errorCreatingProjectTheme": "Error while creating a new project theme",
+    "errorUpdatingProjectTheme": "Error while updating a project theme",
+    "errorListingFiles": "Error while fetching files list",
+    "errorUploadingLogo": "Error while uploading logo",
+    "errorListingLogos": "Error while fetching logos list",
+    "errorUploadingNewTaskAttachment": "Error while uploading new task attachment",
+    "errorUploadingExistingTaskAttachment": "Error while uploading existing task attachment",
+    "errorListingAttachments": "Error while fetching attachments list",
+    "errorFindingAttachment": "Error while finding attachment",
+    "errorDeletingAttachment": "Error while deleting attachment",
+    "errorUpdatingProjectAttachments": "Error while updating project attachments",
+    "errorListingTaskConnections": "Error while fetching task connections list",
+    "errorListingCompanies": "Error while fetching companies list",
+    "errorCreatingNewCompany": "Error while creating a new company",
+    "errorAssigningUserToProject": "Error while assigning user to project",
+    "errorCreatingProjectMilestone": "Error while creating a new project milestone",
+    "errorListingProjectMilestones": "Error while fetching project milestones list",
+    "errorFindingProjectMilestone": "Error while finding a project milestone",
+    "errorListingMilestoneTasks": "Error while fetching milestone tasks list",
+    "errorFindingMilestoneTask": "Error while finding a milestone task",
+    "errorCreatingMilestoneTask": "Error while creating a new task",
+    "errorUpdatingMilestoneTask": "Error while updating a task",
+    "errorListingProjectUsers": "Error while fetching project users list",
+    "errorListingChangeProposals": "Error while fetching change proposals list",
+    "errorCreatingChangeProposal": "Error while creating a change proposal",
+    "errorUpdatingChangeProposal": "Error while updating a change proposal",
+    "errorDeletingChangeProposal": "Error while deleting a change proposal",
+    "errorCreatingTaskConnection": "Error while creating a new task connection",
+    "errorUpdatingTaskConnection": "Error while updating a task connection",
+    "errorDeletingTaskConnection": "Error while deleting a task connection",
+    "errorListingJobPositions": "Error while fetching job positions list",
+    "errorCreatingJobPosition": "Error while creating a new job position",
+    "errorUpdatingJobPosition": "Error while updating a job position",
+    "errorDeletingJobPosition": "Error while deleting a job position",
+    "errorListingNotificationEvents": "Error while fetching notification events list",
+    "errorUpdatingNotificationEvent": "Error while updating a notification event",
+    "errorDeletingNotificationEvent": "Error while deleting a notification event",
+    "errorListingTasks": "Error while fetching tasks list",
+    "errorFindingTask": "Error while fetching a task",
+    "errorUpdatingTask": "Error while updating a task",
+    "errorDeletingTask": "Error while deleting a task",
+    "errorListingTaskComments": "Error while fetching task comments list",
+    "errorCreatingTaskComment": "Error while creating a new task comment",
+    "errorUpdatingTaskComment": "Error while updating a task comment",
+    "errorDeletingTaskComment": "Error while deleting a task comment",
+    "errorListingChangeProposalTasksPreview": "Error while fetching change proposal tasks preview list"
+  },
+  "userInfoDialog": {
+    "title": "User information",
+    "name": "Name",
+    "organization": "Organization",
+    "unknownOrganization": "Unknown organization",
+    "lastLogin": "Last login",
+    "userYetToLogin": "Yet to login",
+    "position": "Position",
+    "role": "Role",
+    "noAssignedRole": "No assigned role",
+    "projects": "Projects",
+    "projectName": "Name",
+    "projectEstimatesAccuracy": "Accuracy of estimates %",
+    "noCompletedTasksYet": "No completed tasks yet",
+    "projectStatus": "Status",
+    "assignToNewProject": "Assign to new project"
+  },
+  "assignUserToProjectDialog": {
+    "title": "Assign user to project",
+    "selectProject": "Select project that you want to assign user to",
+    "selectUser": "Select user",
+    "selectRole": "Select role",
+    "assign": "Assign",
+    "cancel": "Cancel"
+  },
+  "jobPositionDialog": {
+    "title": "Job positions",
+    "addNewJobPosition": "Add a new position",
+    "name": "Name",
+    "enterName": "Enter name",
+    "color": "Color",
+    "enterColor": "Enter color",
+    "selectIcon": "Select icon",
+    "create": "Create new position"
+  },
+  "settingsScreen": {
+    "title": "Settings",
+    "projectSpecificTheming": "Project specific theming",
+    "project": "Project",
+    "themeMainColor": "Theme main color",
+    "otherColor": "Other color",
+    "logo": "Logo",
+    "disableProjectTheme": "Disable project theme",
+    "dropzoneText": "Drop or click to add file",
+    "uploadWarningNoFile": "Invalid file: No file selected.",
+    "uploadWarningDuplicateFileName": "Invalid file: File names must be unique.",
+    "uploadWarningInvalidCharacters": "Invalid file: File name must not contain ä, ö or å.",
+    "fileSuccessfullyUploaded": "File successfully uploaded"
+  },
+  "projectAttachmentsScreen": {
+    "routeName": "Attachments",
+    "title": "Attachments",
+    "creator": "Creator",
+    "name": "Name",
+    "fileType": "File type",
+    "attachmentToTask": "Attachment to task",
+    "createdAt": "Created at",
+    "preview": "Preview",
+    "addNewAttachment": "Add new attachment"
+  },
+  "attachmentDialog": {
+    "addAttachment": "Add a new attachment",
+    "editAttachment": "Edit attachment {{attachmentName}}",
+    "description": "Add a new attachment by dragging and dropping a file to the drop area, or by clicking the area and selecting a file from your computer.",
+    "linkToTask": "Link to task",
+    "dropzoneText": "Drop or click to add file",
+    "fileWithSameNameAlreadyExists": "A file with the same name you are trying to upload already exists. You can either upload the file with a different name or use the existing file.",
+    "useExistingFile": "Use existing file"
+  },
+  "projectSettingsScreen": {
+    "title": "Settings",
+    "baseInfo": "General project information",
+    "projectName": "Project name",
+    "projectStatus": "Project status",
+    "estimatedStart": "Estimated start date",
+    "estimatedEnd": "Estimated end date"
+  },
+  "trackingScreen": {
+    "title": "Tracking",
+    "selectProject": "Select a project",
+    "allProjects": "All projects",
+    "notificationsList": {
+      "title": "Notifications",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "markRead": "Mark as read",
+      "delete": "Delete",
+      "changeProposalCreatedMessage": "New change proposal created",
+      "changeProposalStatusChangedMessage": "Change proposal updated to status {{newStatus}}",
+      "commentLeftMessage": "Comment added to task: {{comment}}",
+      "taskAssignedMessage": "You have been assigned to task {{taskName}}",
+      "otherUserAssignedMessage": "{{numberOfUsers}} new users assigned to task {{taskName}}",
+      "taskStatusChangedMessage": "Task status changed to {{newStatus}}",
+      "errorMessage": "Error with this notification"
+    },
+    "tasksList": {
+      "title": "Tasks",
+      "assignee": "Assignee",
+      "task": "Task",
+      "readyBy": "Ready by",
+      "status": "Status",
+      "readiness": "Readiness"
+    },
+    "delaysList": {
+      "title": "Delays",
+      "groupBy": "Group by",
+      "selectProject": "Please select a project",
+      "scopes": {
+        "TASK": "Task",
+        "ROLE": "Role",
+        "REASON": "Reason"
+      },
+      "byTask": {
+        "delayedTask": "Delayed task",
+        "creator": "Creator",
+        "delayReason": "Delay reason",
+        "delayQuantity": "Delay quantity (days)"
+      },
+      "byRole": {
+        "role": "Role",
+        "tasks": "Tasks",
+        "delayedNumber": "Delayed tasks",
+        "delayPercentage": "Delay %",
+        "overallDelay": "Overall delay %"
+      },
+      "byReason": {
+        "delayReason": "Delay reason",
+        "delayedNumber": "Delayed tasks",
+        "delayQuantity": "Delay quantity (days)",
+        "overallDelay": "Overall delay %"
+      }
+    }
+  },
+  "tasksScreen": {
+    "title": "Tasks"
+  },
+  "scheduleScreen": {
+    "title": "Schedule",
+    "objectives": "Objectives",
+    "noAssignee": "No assignee",
+    "breadcrumbSeparator": " > ",
+    "addANewMilestone": "Add a new milestone",
+    "addANewTask": "Add a new task",
+    "objective": "Objective",
+    "duration": "Duration",
+    "start": "Start",
+    "ready": "Ready",
+    "readiness": "Readiness",
+    "days": "days",
+    "labelDay": "Day",
+    "labelWeek": "Week",
+    "labelMonth": "Month",
+    "showConnections": "Show connections"
+  },
+  "colorSelector": {
+    "otherColor": "Other color"
+  },
+  "iconSelector": {
+    "selectIcon": "Select icon"
+  },
+  "taskConnectionRoles": {
+    "CHILD": "Successor",
+    "PARENT": "Predecessor"
+  },
+  "taskConnectionTypes": {
+    "START_TO_START": "Start to start",
+    "FINISH_TO_FINISH": "Finish to finish",
+    "START_TO_FINISH": "Start to finish",
+    "FINISH_TO_START": "Finish to start"
+  },
+  "newProjectMilestoneDialog": {
+    "title": "Create a new milestone",
+    "name": "Milestone name",
+    "enterName": "Enter milestone name",
+    "startDate": "Start date",
+    "enterStartDate": "Enter start date",
+    "endDate": "End date",
+    "enterEndDate": "Enter end date",
+    "create": "Create new milestone"
+  },
+  "newMilestoneTaskDialog": {
+    "title": "Create a new task",
+    "milestone": "Milestone",
+    "name": "Task name",
+    "status": "Status",
+    "assignees": "Assignees",
+    "dependentUser": "Dependent user",
+    "type": "Type",
+    "userRole": "Role",
+    "position": "Position",
+    "start": "Starts",
+    "end": "Ends",
+    "estimatedDuration": "Estimated duration",
+    "estimatedReadiness": "Estimated readiness",
+    "dependencies": "Dependencies",
+    "attachments": "Attachments",
+    "createButton": "Create new task",
+    "updateButton": "Save task",
+    "inputLabelDays": "d",
+    "inputLabelPercent": "%",
+    "taskConnectionsTable": {
+      "title": "Task connections",
+      "hierarchy": "Hierarchy",
+      "type": "Type",
+      "task": "Task",
+      "status": "Status",
+      "delete": "Delete",
+      "addButton": "Add new connection",
+      "taskTypeCheck": {
+        "sourceStartAfterTargetStartWarning": "Source task start date cannot be after target task start date",
+        "sourceEndAfterTargetEndWarning": "Source task end date cannot be after target task end date",
+        "sourceEndAfterTargetStartWarning": "Source task end date cannot be after target task start date"
+      }
+    },
+    "taskAttachmentsTable": {
+      "title": "Task attachments",
+      "type": "Type",
+      "name": "Name",
+      "preview": "Preview",
+      "delete": "Delete",
+      "clickToPreview": "Click to preview",
+      "addButton": "Add new attachment",
+      "uploadDialogTitle": "Add a new attachment",
+      "uploadExistingFileConfirmationDialog": {
+        "title": "Confirm existing file upload",
+        "description": "A file with the same name you are trying to upload already exists. Do you want to reuse the already existing file? You can also change the name of the file and upload it again.",
+        "confirm": "Continue"
+      },
+      "deleteConfirmationDialog": {
+        "title": "Delete task attachment",
+        "description": "Are you sure you want to delete attachment: {{attachmentName}}?"
+      }
+    }
+  },
+  "changeProposals": {
+    "viewChangeProposals": "View change proposals",
+    "viewChangeProposalsWithValue": "View change proposals ({{value}})",
+    "changeProposals": "Change proposals",
+    "changeProposalPosition": "Change proposal {{current}}/{{total}}",
+    "accept": "Accept",
+    "reject": "Reject",
+    "numberOfChangeProposals": "{{value}} proposals",
+    "addButton": "Add new change proposal",
+    "changeStart": "Change start",
+    "changeEnd": "Change end",
+    "reasonForChange": "Reason for the change",
+    "comment": "Comment",
+    "reasons": {
+      "missingInitialData": "Missing initial data",
+      "resourceShortage": "Resource shortage",
+      "timeUsageEstimate": "Time usage estimate"
+    }
+  },
+  "changeProposalStatuses": {
+    "PENDING": "Waiting for approval",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected"
+  },
+  "taskComments": {
+    "comments": "Comments",
+    "addComment": "Add comment",
+    "editFlag": "(Edited)",
+    "updateComment": "Update comment"
+  },
+  "lastPlannerView": {
+    "title": "Last Planner",
+    "user": "User",
+    "week": "Week",
+    "markTasks": "Mark tasks",
+    "noDependentUser": "No dependent user"
+  },
+  "taskStatuses": {
+    "NOT_STARTED": "Not started",
+    "IN_PROGRESS": "In progress",
+    "DONE": "Done"
   }
 }

@@ -10,6 +10,6 @@ const TanStackRouterDevtools = import.meta.env.PROD
 
 export const RouterDevTools = () => (
   <Suspense>
-    <TanStackRouterDevtools position="bottom-right" />
+    <TanStackRouterDevtools />
   </Suspense>
 );
