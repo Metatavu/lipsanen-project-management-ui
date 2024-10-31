@@ -98,9 +98,7 @@ function MilestoneTasksListRoute() {
     (proposal) => proposal.id === selectedChangeProposalId,
   )?.taskId;
 
-  const changeProposalTasksPreviewListQuery = useListTasksQuery({
-    changeProposalId: selectedChangeProposalId,
-  });
+  const changeProposalTasksPreviewListQuery = useListTasksQuery({ changeProposalId: selectedChangeProposalId });
   const changeProposalTasksPreviewList = changeProposalTasksPreviewListQuery.data;
 
   /**
