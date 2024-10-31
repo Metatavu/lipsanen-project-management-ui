@@ -17,6 +17,7 @@ import sunSnowflakeVariant from "@iconify-icons/mdi/sun-snowflake-variant";
 import terrain from "@iconify-icons/mdi/terrain";
 import water from "@iconify-icons/mdi/water";
 import config from "app/config";
+import { DateTimeFormatOptions } from "luxon";
 import { IconOption } from "types";
 
 export const DEFAULT_LOGO = `${config.cdnBaseUrl}/logos/Lipsanen logo.png`;
@@ -47,3 +48,9 @@ export const ICON_OPTIONS: IconOption[] = [
 export const DEFAULT_USER_ICON = "account";
 
 export const NO_SELECTION = "NO_SELECTION";
+
+export const DATE_WITH_LEADING_ZEROS: DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+} as const;

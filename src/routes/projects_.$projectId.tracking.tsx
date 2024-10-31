@@ -90,7 +90,7 @@ function TrackingIndexRoute() {
               <Typography component="h2" variant="h6" mb={2}>
                 {t("trackingScreen.tasksList.title")}
               </Typography>
-              <TaskList projectId={projectId} user={user} />
+              <TaskList projectId={projectId} user={user} readOnly />
             </Stack>
           </Card>
           {/* Delays Column */}

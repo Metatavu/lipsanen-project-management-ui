@@ -9,11 +9,13 @@ import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import NewProjectDialog from "components/projects/new-project-dialog";
 import ProjectsFilterForm from "components/projects/projects-filter-form";
-import { DeleteProjectRequest } from "generated/client";
+import { DATE_WITH_LEADING_ZEROS } from "consts";
+import { DeleteProjectRequest, Project } from "generated/client";
 import { useListProjectsQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
+import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -85,7 +87,7 @@ function ProjectsIndexRoute() {
         </Box>
       </Toolbar>
       <Card sx={{ flex: 1, minWidth: 0 }}>
-        <DataGrid
+        <DataGrid<Project>
           paginationMode="server"
           loading={listProjectsQuery.isLoading}
           sx={{ height: "100%", width: "100%" }}
@@ -95,7 +97,6 @@ function ProjectsIndexRoute() {
             {
               field: "name",
               headerName: t("projects"),
-              editable: true,
               flex: 1,
               disableColumnMenu: true,
               renderCell: (params) => (
@@ -109,24 +110,22 @@ function ProjectsIndexRoute() {
               ),
             },
             {
-              field: "type",
-              headerName: t("project.type"),
-              editable: true,
-              flex: 1,
-              disableColumnMenu: true,
-            },
-            {
               field: "start_estimate",
               headerName: t("project.estimatedStart"),
-              editable: true,
               flex: 1,
               disableColumnMenu: true,
+              valueGetter: ({ row: { estimatedStartDate } }) =>
+                estimatedStartDate
+                  ? DateTime.fromJSDate(estimatedStartDate).toLocaleString(DATE_WITH_LEADING_ZEROS)
+                  : null,
             },
             {
               field: "complete_estimate",
-              headerName: t("project.estimatedStart"),
+              headerName: t("project.estimatedEnd"),
               flex: 1,
               disableColumnMenu: true,
+              valueGetter: ({ row: { estimatedEndDate } }) =>
+                estimatedEndDate ? DateTime.fromJSDate(estimatedEndDate).toLocaleString(DATE_WITH_LEADING_ZEROS) : null,
             },
             {
               field: "status",

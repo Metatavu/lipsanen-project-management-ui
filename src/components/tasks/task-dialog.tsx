@@ -51,8 +51,8 @@ import {
   UpdateTaskRequest,
 } from "generated/client";
 import {
-  useListAttachmentsQuery,
   useFindProjectQuery,
+  useListAttachmentsQuery,
   useListJobPositionsQuery,
   useListProjectMilestonesQuery,
   useListTaskConnectionsQuery,
@@ -114,11 +114,13 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
 
   const listTaskAttachmentsQuery = useListAttachmentsQuery({ projectId, taskId: task?.id });
-  const [updatedTaskAttachments, setUpdatedTaskAttachments] = useState(listTaskAttachmentsQuery.data ?? []);
+  const [updatedTaskAttachments, setUpdatedTaskAttachments] = useState(
+    task?.id ? listTaskAttachmentsQuery.data ?? [] : [],
+  );
 
   useEffect(() => {
-    setUpdatedTaskAttachments(listTaskAttachmentsQuery.data ?? []);
-  }, [listTaskAttachmentsQuery.data]);
+    setUpdatedTaskAttachments(task?.id ? listTaskAttachmentsQuery.data ?? [] : []);
+  }, [task, listTaskAttachmentsQuery.data]);
 
   const showConfirmDialog = useConfirmDialog();
 
@@ -261,7 +263,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const createTaskMutation = useMutation({
     mutationFn: (params: CreateTaskRequest) => tasksApi.createTask(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
@@ -279,7 +281,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   });
 
   /**
-   * Create task mutation
+   * Create change proposal mutation
    */
   const createChangeProposalMutation = useMutation({
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
@@ -1014,8 +1016,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
   /**
    * Renders task attachments table
-   *
-   * TODO: Implement task attachments table logic and add new attachment functionality
    */
   const renderTaskAttachmentsTable = () => {
     return (
