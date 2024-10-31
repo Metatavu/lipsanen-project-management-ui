@@ -366,7 +366,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
       await Promise.all([...deletePromises, ...createPromises]);
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingProjectAttachments"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingProjectAttachments"), error),
   });
 
   /**

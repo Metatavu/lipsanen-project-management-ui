@@ -26,7 +26,7 @@ const AuthenticationProvider = ({ children }: Props) => {
   const setApiUser = useSetAtom(apiUserAtom);
   const setError = useSetError();
 
-  const findApiUserQuery = useFindUserQuery({ userId: auth?.token.sub, includeRoles: true });
+  const findApiUserQuery = useFindUserQuery({ userId: auth?.token.sub });
 
   useEffect(() => {
     if (findApiUserQuery.data) setApiUser(findApiUserQuery.data);
