@@ -20,11 +20,11 @@ import LoadingTableCell from "components/generic/loading-table-cell";
 import ProgressBadge from "components/generic/progress-badge";
 import NewMilestoneDialog from "components/milestones/new-milestone-dialog";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
-import { DateTime } from "luxon";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
+import { differenceInDays, getValidDateTimeOrThrow } from "utils/date-time-utils";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
@@ -62,9 +62,9 @@ function ScheduleIndexRoute() {
     }
 
     return (milestones ?? []).map((milestone) => {
-      const startDate = DateTime.fromJSDate(milestone.startDate);
-      const endDate = DateTime.fromJSDate(milestone.endDate);
-      const difference = endDate.diff(startDate, "days").days;
+      const startDate = getValidDateTimeOrThrow(milestone.startDate);
+      const endDate = getValidDateTimeOrThrow(milestone.endDate);
+      const difference = differenceInDays(startDate, endDate);
       const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
 

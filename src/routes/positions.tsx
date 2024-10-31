@@ -16,9 +16,12 @@ import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/roles")({ component: RolesIndexRoute });
+export const Route = createFileRoute("/positions")({ component: PositionsIndexRoute });
 
-function RolesIndexRoute() {
+/**
+ * Positions route component
+ */
+function PositionsIndexRoute() {
   const { t } = useTranslation();
   const { jobPositionsApi } = useApi();
   const queryClient = useQueryClient();
@@ -85,7 +88,7 @@ function RolesIndexRoute() {
       <UserInfoDialog userId={selectedJobPosition?.id} handleClose={() => setSelectedJobPosition(undefined)} />
       <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
         <Typography component="h1" variant="h5">
-          {t("users")}
+          {t("positionsScreen.title")}
         </Typography>
         <Box sx={{ display: "flex", gap: "1rem" }}>
           <NewJobPositionDialog />
@@ -99,33 +102,32 @@ function RolesIndexRoute() {
           columns={[
             {
               field: "name",
-              headerName: t("roles"),
-              editable: true,
+              headerName: t("positions"),
               flex: 1,
               disableColumnMenu: true,
               renderCell: (params) => <div style={{ display: "flex", alignItems: "center" }}>{params.row.name}</div>,
             },
             {
               field: "icon",
-              headerName: t("rolesScreen.icon"),
-              editable: true,
+              headerName: t("positionsScreen.icon"),
               flex: 1,
               disableColumnMenu: true,
+              sortable: false,
               renderCell: (params) => (
                 <MdiIconifyIconWithBackground iconName={params.row.iconName} backgroundColor={params.row.color} />
               ),
             },
             {
               field: "color",
-              headerName: t("rolesScreen.color"),
-              editable: true,
+              headerName: t("positionsScreen.color"),
               flex: 1,
               disableColumnMenu: true,
+              sortable: false,
               renderCell: (params) => renderColorCircle(params.row.color),
             },
             {
               field: "usersCount",
-              headerName: t("rolesScreen.users"),
+              headerName: t("positionsScreen.users"),
               flex: 1,
               disableColumnMenu: true,
               valueGetter: (params) => getNumberOfUsersInPosition(params.row.id),
@@ -140,8 +142,8 @@ function RolesIndexRoute() {
                   showInMenu
                   onClick={() =>
                     showConfirmDialog({
-                      title: t("rolesScreen.deleteTitle"),
-                      description: t("rolesScreen.deleteDescription", { name: params.row.name }),
+                      title: t("positionsScreen.deleteTitle"),
+                      description: t("positionsScreen.deleteDescription", { name: params.row.name }),
                       cancelButtonEnabled: true,
                       confirmButtonText: t("generic.delete"),
                       onConfirmClick: () => handleJobPositionDelete(params.row.id),
@@ -153,6 +155,7 @@ function RolesIndexRoute() {
           ]}
           loading={loading}
           disableRowSelectionOnClick
+          paginationMode="server"
           pageSizeOptions={[10, 25, 50]}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}

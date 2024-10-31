@@ -1,7 +1,8 @@
 import { Backdrop, CircularProgress } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import TaskDialog from "components/tasks/task-dialog";
-import { useFindTaskQuery } from "hooks/api-queries";
+import { useFindTaskQuery, useListChangeProposalsQuery } from "hooks/api-queries";
+import { useMemo } from "react";
 
 /**
  * Task details route
@@ -15,9 +16,13 @@ function TaskDetailsRoute() {
   const { projectId, taskId } = Route.useParams();
   const navigate = Route.useNavigate();
 
-  const taskQuery = useFindTaskQuery({ taskId });
+  const findTaskQuery = useFindTaskQuery({ taskId });
+  const listChangeProposalsQuery = useListChangeProposalsQuery({ projectId });
 
-  if (taskQuery.isFetching) {
+  const task = useMemo(() => findTaskQuery.data, [findTaskQuery.data]);
+  const changeProposals = useMemo(() => listChangeProposalsQuery.data, [listChangeProposalsQuery.data]);
+
+  if (findTaskQuery.isFetching || listChangeProposalsQuery.isFetching) {
     return (
       <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <CircularProgress color="inherit" />
@@ -25,8 +30,7 @@ function TaskDetailsRoute() {
     );
   }
 
-  const task = taskQuery.data;
-  if (!task) return null;
+  if (!task || !changeProposals) return null;
 
   /**
    * Main component render
@@ -38,6 +42,7 @@ function TaskDetailsRoute() {
       projectId={projectId}
       task={task}
       milestoneId={task.milestoneId}
+      changeProposals={changeProposals}
     />
   );
 }
