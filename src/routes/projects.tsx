@@ -44,7 +44,7 @@ function ProjectsIndexRoute() {
   const listProjectsQuery = useListProjectsQuery({ first, max });
   const maxResults = useCachedMaxResultsFromQuery(listProjectsQuery);
   const allProjects = useMemo(() => listProjectsQuery.data?.projects ?? [], [listProjectsQuery.data]);
-  // TODO: Change to API based filtering
+
   const projects = allProjects.filter((project) => {
     if (search.status && project.status !== search.status) return false;
     return true;
