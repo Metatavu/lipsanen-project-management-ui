@@ -50,7 +50,6 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
 
   const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
   const user = findUserQuery.data;
-  // TODO: find task for notifications- component notificationEventCard, get the task name from the task id from find task,
 
   /**
    * Update notification event
@@ -165,7 +164,6 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
         const taskAssignedNotification = typedNotification as TaskAssignedNotificationData;
         const userAssigned = user?.id ? taskAssignedNotification.assigneeIds.includes(user?.id) : false;
 
-        // TODO: Test this once API updated, assigned user should not recieve a second notification, admin user should revieve a "other user message"
         const message = userAssigned
           ? t("trackingScreen.notificationsList.taskAssignedMessage", {
               taskName: taskAssignedNotification.taskName,
@@ -192,7 +190,6 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
     }
   };
 
-  // TODO: Extract and add the find task request query.
   /**
    * Render notification card
    *
@@ -224,7 +221,6 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
             <Typography variant="body2" fontWeight="normal">
               {tasks.find((task) => task.id === typedNotification.taskId)?.name ?? t("trackingScreen.tasksList.task")}
             </Typography>
-            {/* TODO: Project name here- how to get? */}
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             {!notificationEvent.read && (
@@ -290,6 +286,7 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
           borderBottom: "1px solid #e0e0e0",
           position: appbarView ? "absolute" : "relative",
           top: appbarView ? "0.5rem" : 0,
+          width: "100%",
         }}
       >
         {t("trackingScreen.notificationsList.title")}
