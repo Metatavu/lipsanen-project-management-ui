@@ -4,7 +4,7 @@
   "tracking": "Tracking",
   "projectTemplates": "Project templates",
   "users": "Users",
-  "roles": "Roles",
+  "positions": "Positions",
   "logout": "Logout",
   "search": "Search",
   "generic": {
@@ -50,7 +50,8 @@
     "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?",
     "position": "Position"
   },
-  "rolesScreen": {
+  "positionsScreen": {
+    "title": "Positions",
     "icon": "Icon",
     "color": "Color",
     "users": "Users",
@@ -167,7 +168,6 @@
     "title": "Assign user to project",
     "selectProject": "Select project that you want to assign user to",
     "selectUser": "Select user",
-    "selectRole": "Select role",
     "assign": "Assign",
     "cancel": "Cancel"
   },
@@ -255,7 +255,7 @@
       "selectProject": "Please select a project",
       "scopes": {
         "TASK": "Task",
-        "ROLE": "Role",
+        "POSITION": "Position",
         "REASON": "Reason"
       },
       "byTask": {
@@ -264,8 +264,8 @@
         "delayReason": "Delay reason",
         "delayQuantity": "Delay quantity (days)"
       },
-      "byRole": {
-        "role": "Role",
+      "byPosition": {
+        "position": "Position",
         "tasks": "Tasks",
         "delayedNumber": "Delayed tasks",
         "delayPercentage": "Delay %",
@@ -431,5 +431,10 @@
     "NOT_STARTED": "Not started",
     "IN_PROGRESS": "In progress",
     "DONE": "Done"
+  },
+  "userRoles": {
+    "ADMIN": "Admin",
+    "PROJECT_OWNER": "Project owner",
+    "USER": "User"
   }
 }

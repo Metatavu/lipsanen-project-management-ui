@@ -41,3 +41,16 @@ export const getValidDateTimeOrThrow = (date: Date) => {
   if (!dateTime.isValid) throw Error(`Invalid date ${date}`);
   return dateTime;
 };
+
+/**
+ * Returns the difference in days between two dates
+ *
+ * The difference is at least 1 day, even if the dates are the same.
+ *
+ * @param a date A
+ * @param b date B
+ */
+export const differenceInDays = (a: DateTime<true>, b: DateTime<true>) => {
+  const interval = Interval.fromDateTimes(a, b);
+  return Math.max(interval.count("days") - 1, 1);
+};

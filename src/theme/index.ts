@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import type {} from "@mui/x-data-grid/themeAugmentation";
 import { ChangeProposalStatus, ProjectStatus } from "generated/client";
 
 /**
@@ -139,6 +140,20 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           border: "1px solid rgba(0, 0, 0, 0.1)",
+        },
+      },
+    },
+    MuiDataGrid: {
+      styleOverrides: {
+        row: {
+          "& :focus, & :focus-within": {
+            outline: "none",
+          },
+        },
+        columnHeader: {
+          "& :focus, & :focus-within": {
+            outline: "none",
+          },
         },
       },
     },
