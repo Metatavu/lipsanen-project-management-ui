@@ -232,7 +232,14 @@
       "today": "Today",
       "yesterday": "Yesterday",
       "markRead": "Mark as read",
-      "delete": "Delete"
+      "delete": "Delete",
+      "changeProposalCreatedMessage": "New change proposal created",
+      "changeProposalStatusChangedMessage": "Change proposal updated to status {{newStatus}}",
+      "commentLeftMessage": "Comment added to task: {{comment}}",
+      "taskAssignedMessage": "You have been assigned to task {{taskName}}",
+      "otherUserAssignedMessage": "{{numberOfUsers}} new users assigned to task {{taskName}}",
+      "taskStatusChangedMessage": "Task status changed to {{newStatus}}",
+      "errorMessage": "Error with this notification"
     },
     "tasksList": {
       "title": "Tasks",
