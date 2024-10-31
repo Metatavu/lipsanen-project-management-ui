@@ -234,7 +234,7 @@
       "markRead": "Mark as read",
       "delete": "Delete",
       "changeProposalCreatedMessage": "New change proposal created",
-      "changeProposalStatusChangedMessage": "A change proposal has been updated to {{newStatus}}",
+      "changeProposalStatusChangedMessage": "Change proposal updated to status {{newStatus}}",
       "commentLeftMessage": "Comment added to task: {{comment}}",
       "taskAssignedMessage": "You have been assigned to task {{taskName}}",
       "otherUserAssignedMessage": "{{numberOfUsers}} new users assigned to task {{taskName}}",
