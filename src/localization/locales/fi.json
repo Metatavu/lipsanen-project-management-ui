@@ -238,7 +238,7 @@
       "markRead": "Merkitse luetuksi",
       "delete": "Poista",
       "changeProposalCreatedMessage": "Uusi muutosehdotus",
-      "changeProposalStatusChangedMessage": "Muutosehdotus on päivitetty {{newStatus}}",
+      "changeProposalStatusChangedMessage": "Muutosehdotus päivitetty tilaan {{newStatus}}",
       "commentLeftMessage": "Tehtävään lisätty kommentti: {{comment}}",
       "taskAssignedMessage": "Sinut on määrätty tehtävään {{taskName}}",
       "otherUserAssignedMessage": "{{numberOfUsers}} uutta käyttäjää osoitettu tehtävään {{taskName}}",
