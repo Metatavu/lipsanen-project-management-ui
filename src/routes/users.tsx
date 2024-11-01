@@ -1,6 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Card, Toolbar, Typography } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, GridPaginationModel, gridClasses } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import FilterDrawerButton from "components/generic/filter-drawer";
@@ -22,10 +22,11 @@ import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
 import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UsersSearchSchema, usersSearchSchema } from "schemas/search";
 import { theme } from "theme";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Users file route
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/users")({
 function UsersIndexRoute() {
   const search = Route.useSearch();
   const { t } = useTranslation();
+  const setError = useSetError();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
   const showConfirmDialog = useConfirmDialog();
@@ -55,6 +57,7 @@ function UsersIndexRoute() {
     projectId: search.projectId,
     companyId: search.companyId,
     jobPositionId: search.jobPositionId,
+    includeRoles: true,
   });
 
   const maxResults = useCachedMaxResultsFromQuery(listUsersQuery);
@@ -68,9 +71,9 @@ function UsersIndexRoute() {
     listJobPositionsQuery.isFetching ||
     listProjectsQuery.isFetching;
 
-  const users = listUsersQuery.data?.users;
-  const companies = listCompaniesQuery.data?.companies;
-  const jobPositions = listJobPositionsQuery.data?.jobPositions;
+  const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
+  const companies = useMemo(() => listCompaniesQuery.data?.companies ?? [], [listCompaniesQuery.data]);
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
   /**
    * Delete user mutation
@@ -80,7 +83,7 @@ function UsersIndexRoute() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingUser"), error),
   });
 
   /**
@@ -113,14 +116,13 @@ function UsersIndexRoute() {
         <DataGrid
           paginationMode="server"
           onRowClick={(params) => setSelectedUser(params.row as User)}
-          sx={{ width: "100%", height: "100%" }}
-          rows={users ?? []}
+          sx={{ width: "100%", height: "100%", [`& .${gridClasses.row}`]: { cursor: "pointer" } }}
+          rows={users}
           rowCount={maxResults}
           columns={[
             {
               field: "name",
               headerName: t("users"),
-              editable: true,
               disableColumnMenu: true,
               flex: 1,
               renderCell: (params) => {
@@ -141,18 +143,16 @@ function UsersIndexRoute() {
             {
               field: "companyId",
               headerName: t("usersScreen.company"),
-              editable: true,
               disableColumnMenu: true,
               flex: 1,
-              valueFormatter: ({ value }) => companies?.find((company) => company.id === value)?.name ?? "",
+              valueFormatter: ({ value }) => companies.find((company) => company.id === value)?.name ?? "",
             },
             {
               field: "jobPositionId",
               headerName: t("usersScreen.position"),
-              editable: true,
               disableColumnMenu: true,
               flex: 1,
-              valueFormatter: ({ value }) => jobPositions?.find((jobPosition) => jobPosition.id === value)?.name ?? "",
+              valueFormatter: ({ value }) => jobPositions.find((jobPosition) => jobPosition.id === value)?.name ?? "",
             },
             {
               field: "lastLoggedIn",

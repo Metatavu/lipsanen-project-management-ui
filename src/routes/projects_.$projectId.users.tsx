@@ -22,10 +22,11 @@ import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
 import { usePaginationToFirstAndMax } from "hooks/use-pagination-to-first-and-max";
 import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { projectUsersSearchSchema } from "schemas/search";
 import { theme } from "theme";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Tasks index route
@@ -42,6 +43,7 @@ function ProjectUsersIndexRoute() {
   const { projectId } = Route.useParams();
   const search = Route.useSearch();
   const { t } = useTranslation();
+  const setError = useSetError();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
   const showConfirmDialog = useConfirmDialog();
@@ -69,9 +71,9 @@ function ProjectUsersIndexRoute() {
     listJobPositionsQuery.isFetching ||
     listProjectsQuery.isFetching;
 
-  const users = listUsersQuery.data?.users;
-  const companies = listCompaniesQuery.data?.companies;
-  const jobPositions = listJobPositionsQuery.data?.jobPositions;
+  const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
+  const companies = useMemo(() => listCompaniesQuery.data?.companies ?? [], [listCompaniesQuery.data]);
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
   /**
    * Delete user mutation
@@ -81,7 +83,7 @@ function ProjectUsersIndexRoute() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorDeletingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingUser"), error),
   });
 
   /**
@@ -113,14 +115,13 @@ function ProjectUsersIndexRoute() {
       <Card sx={{ flex: 1, minWidth: 0 }}>
         <DataGrid
           onRowClick={(params) => setSelectedUser(params.row as User)}
-          sx={{ width: "100%", height: "100%" }}
-          rows={users ?? []}
+          sx={{ width: "100%", height: "100%", "& .MuiDataGrid-row": { cursor: "pointer" } }}
+          rows={users}
           rowCount={maxResults}
           columns={[
             {
               field: "name",
               headerName: t("users"),
-              editable: true,
               disableColumnMenu: true,
               flex: 1,
               renderCell: (params) => {
@@ -141,18 +142,16 @@ function ProjectUsersIndexRoute() {
             {
               field: "companyId",
               headerName: t("usersScreen.company"),
-              editable: true,
               disableColumnMenu: true,
               flex: 1,
-              valueFormatter: ({ value }) => companies?.find((company) => company.id === value)?.name ?? "",
+              valueFormatter: ({ value }) => companies.find((company) => company.id === value)?.name ?? "",
             },
             {
               field: "jobPositionId",
               headerName: t("usersScreen.position"),
-              editable: true,
               disableColumnMenu: true,
               flex: 1,
-              valueFormatter: ({ value }) => jobPositions?.find((jobPosition) => jobPosition.id === value)?.name ?? "",
+              valueFormatter: ({ value }) => jobPositions.find((jobPosition) => jobPosition.id === value)?.name ?? "",
             },
             {
               field: "lastLoggedIn",
@@ -187,6 +186,7 @@ function ProjectUsersIndexRoute() {
           ]}
           loading={loading}
           disableRowSelectionOnClick
+          paginationMode="server"
           pageSizeOptions={[10, 25, 50]}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}

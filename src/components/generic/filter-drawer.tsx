@@ -91,7 +91,17 @@ const FilterDrawerButton = <Route extends AppRouteOptions>({ route, children, ti
         <Stack height="100%" bgcolor="#2196F314" gap={2} p={2}>
           {children({ formValues, onChange })}
           <Stack direction="row" gap={1}>
-            <Button fullWidth size="large" variant="outlined" color="primary" onClick={() => setFormValues({})}>
+            <Button
+              fullWidth
+              size="large"
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                setFormValues({});
+                navigate({ search: {} });
+                setOpen(false);
+              }}
+            >
               {t("generic.clear")}
             </Button>
             <Button

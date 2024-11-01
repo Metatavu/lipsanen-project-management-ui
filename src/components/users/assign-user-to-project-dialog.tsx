@@ -16,6 +16,7 @@ import { UpdateUserRequest } from "generated/client";
 import { useFindUserQuery, useListProjectsQuery } from "hooks/api-queries";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 import { useApi } from "../../hooks/use-api";
 
 /**
@@ -32,6 +33,7 @@ interface Props {
  */
 const AssignUserToProjectDialog = ({ userId }: Props) => {
   const { t } = useTranslation();
+  const setError = useSetError();
   const { usersApi } = useApi();
   const queryClient = useQueryClient();
   const findUserQuery = useFindUserQuery({ userId });
@@ -50,7 +52,7 @@ const AssignUserToProjectDialog = ({ userId }: Props) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingUser"), error),
   });
 
   /**
@@ -72,7 +74,7 @@ const AssignUserToProjectDialog = ({ userId }: Props) => {
       setSelectedProjectId(undefined);
       setOpen(false);
     } catch (error) {
-      console.error(t("errorHandling.errorAssigningUserToProject"), error);
+      setError(t("errorHandling.errorAssigningUserToProject"), error instanceof Error ? error : undefined);
     }
   };
 

@@ -22,9 +22,7 @@ export const filesApi = {
   uploadFile: async (file: File, path: string) => {
     const auth = getDefaultStore().get(authAtom);
 
-    const filePath = path
-      ? `${path}/${file.name}`
-      : file.name;
+    const filePath = path ? `${path}/${file.name}` : file.name;
 
     const presignedUrlResponse = await fetch(`${config.lambdasBaseUrl}/uploadFile`, {
       method: "POST",

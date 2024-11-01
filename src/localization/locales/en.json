@@ -4,9 +4,10 @@
   "tracking": "Tracking",
   "projectTemplates": "Project templates",
   "users": "Users",
-  "roles": "Roles",
+  "positions": "Positions",
   "logout": "Logout",
   "search": "Search",
+  "errorTitle": "Error",
   "generic": {
     "save": "Save",
     "delete": "Delete",
@@ -15,7 +16,8 @@
     "showFilters": "Show filters",
     "clear": "Clear",
     "apply": "Apply",
-    "noSelection": "No selection"
+    "noSelection": "No selection",
+    "close": "Close"
   },
   "project": {
     "status": "Status",
@@ -50,7 +52,8 @@
     "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?",
     "position": "Position"
   },
-  "rolesScreen": {
+  "positionsScreen": {
+    "title": "Positions",
     "icon": "Icon",
     "color": "Color",
     "users": "Users",
@@ -167,7 +170,6 @@
     "title": "Assign user to project",
     "selectProject": "Select project that you want to assign user to",
     "selectUser": "Select user",
-    "selectRole": "Select role",
     "assign": "Assign",
     "cancel": "Cancel"
   },
@@ -255,7 +257,7 @@
       "selectProject": "Please select a project",
       "scopes": {
         "TASK": "Task",
-        "ROLE": "Role",
+        "POSITION": "Position",
         "REASON": "Reason"
       },
       "byTask": {
@@ -264,8 +266,8 @@
         "delayReason": "Delay reason",
         "delayQuantity": "Delay quantity (days)"
       },
-      "byRole": {
-        "role": "Role",
+      "byPosition": {
+        "position": "Position",
         "tasks": "Tasks",
         "delayedNumber": "Delayed tasks",
         "delayPercentage": "Delay %",
@@ -344,6 +346,7 @@
     "attachments": "Attachments",
     "createButton": "Create new task",
     "updateButton": "Save task",
+    "deleteButton": "Delete task",
     "inputLabelDays": "d",
     "inputLabelPercent": "%",
     "taskConnectionsTable": {
@@ -378,6 +381,15 @@
         "title": "Delete task attachment",
         "description": "Are you sure you want to delete attachment: {{attachmentName}}?"
       }
+    },
+    "deleteTaskConfirmationDialog": {
+      "title": "Delete task",
+      "description": "Are you sure you want to delete task: {{taskName}}?"
+    },
+    "deleteButtonToolTips": {
+      "noTask": "Cannot delete a task that has not been saved yet",
+      "outOfPlanning": "Cannot delete tasks where project is outside of the planning phase",
+      "taskHasConnections": "Cannot delete a task that has existing task connections"
     }
   },
   "changeProposals": {
@@ -421,5 +433,10 @@
     "NOT_STARTED": "Not started",
     "IN_PROGRESS": "In progress",
     "DONE": "Done"
+  },
+  "userRoles": {
+    "ADMIN": "Admin",
+    "PROJECT_OWNER": "Project owner",
+    "USER": "User"
   }
 }

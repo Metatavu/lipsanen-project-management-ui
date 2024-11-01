@@ -25,6 +25,7 @@ import {
 import { useApi } from "hooks/use-api";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 
 type Props = {
   projectId?: string;
@@ -39,6 +40,7 @@ const NewUserDialog = ({ projectId }: Props) => {
   const { t } = useTranslation();
   const { usersApi, companiesApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
 
   const [open, setOpen] = useState(false);
   const [userData, setUserData] = useState({ name: "", email: "" });
@@ -47,14 +49,15 @@ const NewUserDialog = ({ projectId }: Props) => {
   const [selectedProject, setSelectedProject] = useState<Project>();
   const [selectedJobPosition, setSelectedJobPosition] = useState<JobPosition>();
 
-  const listUsersQuery = useListUsersQuery();
+  const listUsersQuery = useListUsersQuery(undefined, { enabled: open });
   const listProjectsQuery = useListProjectsQuery();
   const listCompaniesQuery = useListCompaniesQuery();
   const listJobPositionsQuery = useListJobPositionsQuery();
 
-  const users = listUsersQuery.data?.users;
-  const projects = listProjectsQuery.data?.projects;
-  const companies = listCompaniesQuery.data?.companies;
+  const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
+  const projects = useMemo(() => listProjectsQuery.data?.projects ?? [], [listProjectsQuery.data]);
+  const companies = useMemo(() => listCompaniesQuery.data?.companies ?? [], [listCompaniesQuery.data]);
+  const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
   useEffect(() => {
     if (projectId) setSelectedProject(projects?.find((project) => project.id === projectId));
@@ -69,7 +72,7 @@ const NewUserDialog = ({ projectId }: Props) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       setOpen(false);
     },
-    onError: (error) => console.error(t("errorHandling.errorCreatingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingUser"), error),
   });
 
   /**
@@ -78,7 +81,7 @@ const NewUserDialog = ({ projectId }: Props) => {
   const createCompanyMutation = useMutation({
     mutationFn: (params: CreateCompanyRequest) => companiesApi.createCompany(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["companies"] }),
-    onError: (error) => console.error(t("errorHandling.errorCreatingNewCompany"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingNewCompany"), error),
   });
 
   /**
@@ -175,19 +178,19 @@ const NewUserDialog = ({ projectId }: Props) => {
             helperText={inValidEmailError ?? alreadyExistingEmailError}
           />
           <CreatableSelect
-            options={companies ?? []}
+            options={companies}
             selectedCompany={selectedCompany}
             setSelectedCompany={handleCompanyChange}
           />
           <GenericSelect
-            options={listJobPositionsQuery.data?.jobPositions ?? []}
+            options={jobPositions}
             label={t("newUserDialog.assignUserToPosition")}
             selectedOption={selectedJobPosition}
             setSelectedOption={setSelectedJobPosition}
             getOptionLabel={(option) => option?.name || ""}
           />
           <GenericSelect
-            options={projects ?? []}
+            options={projects}
             label={t("newUserDialog.assignUserToProject")}
             disabled={!!projectId}
             selectedOption={selectedProject}

@@ -29,6 +29,7 @@ import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FileToUpload } from "types";
+import { useSetError } from "utils/error-handling";
 import { z } from "zod";
 
 /**
@@ -77,6 +78,7 @@ const AttachmentDialog = ({
   const { t } = useTranslation();
   const { attachmentsApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
 
   const listProjectTasksQuery = useListTasksQuery({ projectId });
   const tasks = useMemo(() => listProjectTasksQuery.data, [listProjectTasksQuery.data]);
@@ -164,7 +166,7 @@ const AttachmentDialog = ({
       }
     },
     onSuccess: () => onClose(),
-    onError: (error) => console.error(t("errorHandling.errorUploadingNewTaskAttachment"), error),
+    onError: (error) => setError(t("errorHandling.errorUploadingNewTaskAttachment"), error),
   });
 
   /**

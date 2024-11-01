@@ -49,6 +49,7 @@ import { useTranslation } from "react-i18next";
 import { theme } from "theme";
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
+import { useSetError } from "utils/error-handling";
 import UserUtils from "utils/users";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
@@ -69,6 +70,7 @@ function MilestoneTasksListRoute() {
   const { projectId, milestoneId } = Route.useParams();
   const { tasksApi, changeProposalsApi } = useApi();
   const queryClient = useQueryClient();
+  const setError = useSetError();
 
   const findProjectMilestoneQuery = useFindProjectMilestoneQuery({ projectId, milestoneId });
   const milestone = findProjectMilestoneQuery.data;
@@ -166,9 +168,10 @@ function MilestoneTasksListRoute() {
   const updateChangeProposal = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
 
   /**
@@ -177,9 +180,10 @@ function MilestoneTasksListRoute() {
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
 
   /**

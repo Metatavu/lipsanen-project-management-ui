@@ -26,6 +26,7 @@ import { useApi } from "hooks/use-api";
 import { MuiColorInput } from "mui-color-input";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 
 const LOGOS_UPLOAD_PATH = "logos";
 
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/settings")({ component: SettingsIndexRout
  */
 function SettingsIndexRoute() {
   const { t } = useTranslation();
+  const setError = useSetError();
   const theme = useTheme();
   const queryClient = useQueryClient();
   const { projectThemesApi } = useApi();
@@ -88,7 +90,7 @@ function SettingsIndexRoute() {
   const createProjectThemeMutation = useMutation({
     mutationFn: (params: CreateProjectThemeRequest) => projectThemesApi.createProjectTheme(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
-    onError: (error) => console.error(t("errorHandling.errorCreatingProjectTheme"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingProjectTheme"), error),
   });
 
   /**
@@ -97,7 +99,7 @@ function SettingsIndexRoute() {
   const updateProjectThemeMutation = useMutation({
     mutationFn: (params: UpdateProjectThemeRequest) => projectThemesApi.updateProjectTheme(params),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "themes"] }),
-    onError: (error) => console.error(t("errorHandling.errorUpdatingProjectTheme"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingProjectTheme"), error),
   });
 
   /**
@@ -110,7 +112,7 @@ function SettingsIndexRoute() {
       await queryClient.invalidateQueries({ queryKey: ["files"] });
       await queryClient.invalidateQueries({ queryKey: ["projects", selectedProjectId, "projectThemes"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUploadingLogo"), error),
+    onError: (error) => setError(t("errorHandling.errorUploadingLogo"), error),
   });
 
   /**

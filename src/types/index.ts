@@ -35,7 +35,7 @@ export enum TaskStatusColor {
  */
 export const ChangeProposalScope = {
   TASK: "TASK",
-  ROLE: "ROLE",
+  POSITION: "POSITION",
   REASON: "REASON",
 } as const;
 

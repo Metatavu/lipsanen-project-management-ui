@@ -25,12 +25,14 @@ import {
   TextField,
   ThemeProvider,
   Toolbar,
+  Tooltip,
   Typography,
   createTheme,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiUserAtom } from "atoms/auth";
 import AttachmentDialog from "components/attachments/attachment-dialog";
 import GenericDatePicker from "components/generic/generic-date-picker";
 import {
@@ -42,6 +44,7 @@ import {
   CreateTaskRequest,
   DeleteChangeProposalRequest,
   DeleteTaskConnectionRequest,
+  DeleteTaskRequest,
   ProjectStatus,
   Task,
   TaskConnectionType,
@@ -49,10 +52,11 @@ import {
   UpdateChangeProposalRequest,
   UpdateTaskConnectionRequest,
   UpdateTaskRequest,
+  UserRole,
 } from "generated/client";
 import {
-  useListAttachmentsQuery,
   useFindProjectQuery,
+  useListAttachmentsQuery,
   useListJobPositionsQuery,
   useListProjectMilestonesQuery,
   useListTaskConnectionsQuery,
@@ -60,6 +64,7 @@ import {
   useListUsersQuery,
 } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
+import { useAtomValue } from "jotai";
 import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
@@ -67,6 +72,7 @@ import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
 import { getLastPartFromMimeType } from "utils";
 import { getValidDateTimeOrThrow } from "utils/date-time-utils";
+import { useSetError } from "utils/error-handling";
 import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
 import TaskConnectionsTable from "./task-connections-table";
@@ -93,7 +99,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const theme = useTheme();
   const isSmallerScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const { t } = useTranslation();
+  const setError = useSetError();
   const { tasksApi, taskConnectionsApi, changeProposalsApi, attachmentsApi } = useApi();
+
   const queryClient = useQueryClient();
 
   const listProjectUsersQuery = useListUsersQuery({ projectId });
@@ -114,11 +122,16 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
 
   const listTaskAttachmentsQuery = useListAttachmentsQuery({ projectId, taskId: task?.id });
-  const [updatedTaskAttachments, setUpdatedTaskAttachments] = useState(listTaskAttachmentsQuery.data ?? []);
+  const [updatedTaskAttachments, setUpdatedTaskAttachments] = useState(
+    task?.id ? listTaskAttachmentsQuery.data ?? [] : [],
+  );
 
   useEffect(() => {
-    setUpdatedTaskAttachments(listTaskAttachmentsQuery.data ?? []);
-  }, [listTaskAttachmentsQuery.data]);
+    setUpdatedTaskAttachments(task?.id ? listTaskAttachmentsQuery.data ?? [] : []);
+  }, [task, listTaskAttachmentsQuery.data]);
+
+  const projectStatus = useFindProjectQuery(projectId).data?.status;
+  const user = useAtomValue(apiUserAtom);
 
   const showConfirmDialog = useConfirmDialog();
 
@@ -260,10 +273,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createTaskMutation = useMutation({
     mutationFn: (params: CreateTaskRequest) => tasksApi.createTask(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorCreatingMilestoneTask"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingMilestoneTask"), error),
   });
 
   /**
@@ -271,22 +281,27 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateTaskMutation = useMutation({
     mutationFn: (params: UpdateTaskRequest) => tasksApi.updateTask(params),
+    onError: (error) => setError(t("errorHandling.errorUpdatingMilestoneTask"), error),
+  });
+
+  /**
+   * Delete task mutation
+   */
+  const deleteTaskMutation = useMutation({
+    mutationFn: (params: DeleteTaskRequest) => tasksApi.deleteTask(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
     },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingMilestoneTask"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingTask"), error),
   });
 
   /**
-   * Create task mutation
+   * Create change proposal mutation
    */
   const createChangeProposalMutation = useMutation({
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorCreatingChangeProposal"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingChangeProposal"), error),
   });
 
   /**
@@ -294,10 +309,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateChangeProposalsMutation = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingChangeProposal"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
   });
 
   /**
@@ -305,10 +317,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const deleteChangeProposalMutation = useMutation({
     mutationFn: (params: DeleteChangeProposalRequest) => changeProposalsApi.deleteChangeProposal(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorDeletingChangeProposal"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingChangeProposal"), error),
   });
 
   /**
@@ -316,10 +325,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const createTaskConnectionsMutation = useMutation({
     mutationFn: (params: CreateTaskConnectionRequest) => taskConnectionsApi.createTaskConnection(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorCreatingTaskConnection"), error),
+    onError: (error) => setError(t("errorHandling.errorCreatingTaskConnection"), error),
   });
 
   /**
@@ -327,10 +333,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const updateTaskConnectionsMutation = useMutation({
     mutationFn: (params: UpdateTaskConnectionRequest) => taskConnectionsApi.updateTaskConnection(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingTaskConnection"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingTaskConnection"), error),
   });
 
   /**
@@ -338,10 +341,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const deleteTaskConnectionsMutation = useMutation({
     mutationFn: (params: DeleteTaskConnectionRequest) => taskConnectionsApi.deleteTaskConnection(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorDeletingTaskConnection"), error),
+    onError: (error) => setError(t("errorHandling.errorDeletingTaskConnection"), error),
   });
 
   /**
@@ -365,12 +365,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       );
 
       await Promise.all([...deletePromises, ...createPromises]);
-      queryClient.invalidateQueries({ queryKey: ["attachments"] });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["attachments"] });
-    },
-    onError: (error) => console.error(t("errorHandling.errorUpdatingProjectAttachments"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingProjectAttachments"), error),
   });
 
   /**
@@ -523,7 +519,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     try {
       setUpdatedTaskAttachments(updatedTaskAttachments.filter((attachment) => attachment.id !== attachmentToDelete.id));
     } catch (error) {
-      console.error(t("errorHandling.errorDeletingAttachment"), error);
+      setError(t("errorHandling.errorDeletingAttachment"), error instanceof Error ? error : undefined);
     }
   };
 
@@ -701,6 +697,16 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   };
 
   /**
+   * Handles task deletion
+   */
+  const handleDeleteTask = async () => {
+    if (!task?.id) return;
+
+    deleteTaskMutation.mutate({ taskId: task.id });
+    closeAndClear();
+  };
+
+  /**
    * Handles task update or task create form submit
    */
   const handleTaskFormSubmit = async () => {
@@ -759,6 +765,12 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
     await updateTaskAttachmentsMutation.mutateAsync();
     await persistChangeProposals();
+
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+    queryClient.invalidateQueries({ queryKey: ["attachments"] });
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "changeProposals"] });
+    queryClient.invalidateQueries({ queryKey: ["projects", projectId, "connections"] });
 
     closeAndClear();
   };
@@ -1014,8 +1026,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
   /**
    * Renders task attachments table
-   *
-   * TODO: Implement task attachments table logic and add new attachment functionality
    */
   const renderTaskAttachmentsTable = () => {
     return (
@@ -1337,6 +1347,27 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     taskConnectionsValid
   );
 
+  const isUserAdminOrOwner = user?.roles?.includes(UserRole.Admin) || user?.roles?.includes(UserRole.ProjectOwner);
+  const projectInPlanning = projectStatus === ProjectStatus.Planning || projectStatus === ProjectStatus.Initiation;
+  const deleteDisabled = !task || !!existingTaskConnections.length || (!projectInPlanning && !isUserAdminOrOwner);
+
+  /**
+   * Renders tooltip based on reason for button being disabled
+   */
+  const renderDisabledButtonTooltip = () => {
+    if (!deleteDisabled) return null;
+    if (!task) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.noTask");
+    }
+    if (!projectInPlanning && !isUserAdminOrOwner) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.outOfPlanning");
+    }
+    if (existingTaskConnections.length) {
+      return t("newMilestoneTaskDialog.deleteButtonToolTips.taskHasConnections");
+    }
+    return null;
+  };
+
   /**
    * Main component render
    */
@@ -1353,6 +1384,30 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             {renderMilestoneName()}
             <span>/</span>
             {task ? task.name : t("newMilestoneTaskDialog.title")}
+            <Tooltip title={renderDisabledButtonTooltip()}>
+              <span style={{ marginLeft: "auto" }}>
+                <Button
+                  onClick={() =>
+                    showConfirmDialog({
+                      title: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.title"),
+                      description: t("newMilestoneTaskDialog.deleteTaskConfirmationDialog.description", {
+                        taskName: task?.name,
+                      }),
+                      cancelButtonEnabled: true,
+                      confirmButtonText: t("generic.delete"),
+                      onConfirmClick: handleDeleteTask,
+                    })
+                  }
+                  variant="contained"
+                  color="inherit"
+                  size="large"
+                  disabled={deleteDisabled}
+                  sx={{ ml: "auto", backgroundColor: "#D32F2F" }}
+                >
+                  {t("newMilestoneTaskDialog.deleteButton")}
+                </Button>
+              </span>
+            </Tooltip>
             <LoadingButton
               loading={
                 updateTaskMutation.isPending ||
@@ -1370,7 +1425,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
               color="inherit"
               size="large"
               disabled={isDisabled}
-              sx={{ ml: "auto" }}
             >
               {!task && <AddIcon />}
               {task ? t("newMilestoneTaskDialog.updateButton") : t("newMilestoneTaskDialog.createButton")}
