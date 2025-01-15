@@ -1,8 +1,10 @@
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Avatar,
   Box,
   Card,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -27,6 +29,11 @@ import ChartHelpers from "utils/chart-helpers";
 import { differenceInDays, getValidDateTimeOrThrow } from "utils/date-time-utils";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { useConfirmDialog } from "providers/confirm-dialog-provider";
+import { useApi } from "hooks/use-api";
+import { DeleteProjectMilestoneRequest } from "generated/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSetError } from "utils/error-handling";
 
 /**
  * Schedule file route
@@ -40,12 +47,27 @@ export const Route = createFileRoute("/projects/$projectId/schedule")({
  */
 function ScheduleIndexRoute() {
   const { t } = useTranslation();
+  const { projectMilestonesApi } = useApi();
+  const queryClient = useQueryClient();
+  const setError = useSetError();
+  const showConfirmDialog = useConfirmDialog();
   const { projectId } = Route.useParams();
 
   const listProjectMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = listProjectMilestonesQuery.data;
   const viewDate = useMemo(() => new Date(), []);
   const [viewMode, setViewMode] = useState(ViewMode.Day);
+
+  /**
+   * Delete project milestone mutation
+   */
+  const deleteProjectMilestoneMutation = useMutation({
+    mutationFn: (params: DeleteProjectMilestoneRequest) => projectMilestonesApi.deleteProjectMilestone(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+    },
+    onError: (error) => setError(t("errorHandling.errorDeletingProjectMilestone"), error),
+  });
 
   /**
    * Renders the project milestones rows
@@ -71,25 +93,43 @@ function ScheduleIndexRoute() {
       return (
         <TableRow key={milestone.id}>
           <TableCell style={{ overflow: "hidden" }}>
-            <Link
-              to={`/projects/${projectId}/schedule/${milestone.id}/tasks` as string}
-              style={{ textDecoration: "none", color: "#000" }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
-                  <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
-                </Avatar>
-                {/* TODO: Handle overflowing name with maxWidth could be improved */}
-                <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
-                  <Tooltip placement="top" title={milestone.name}>
-                    <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {milestone.name}
-                    </Typography>
-                  </Tooltip>
-                  <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
-                </Box>
-              </div>
-            </Link>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Link
+                to={`/projects/${projectId}/schedule/${milestone.id}/tasks` as string}
+                style={{ textDecoration: "none", color: "#000" }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                  <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
+                    <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
+                  </Avatar>
+                  {/* TODO: Handle overflowing name with maxWidth could be improved */}
+                  <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
+                    <Tooltip placement="top" title={milestone.name}>
+                      <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {milestone.name}
+                      </Typography>
+                    </Tooltip>
+                    <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
+                  </Box>
+                </div>
+              </Link>
+              <IconButton
+                size="small"
+                style={{padding: 0}}
+                onClick={() =>
+                  showConfirmDialog({
+                    title: t("deleteMilestoneConfirmationDialog.title"),
+                    description: t("deleteMilestoneConfirmationDialog.description", { milestoneName: milestone.name }),
+                    cancelButtonEnabled: true,
+                    confirmButtonText: t("generic.delete"),
+                    onConfirmClick: () =>
+                      deleteProjectMilestoneMutation.mutateAsync({ projectId, milestoneId: milestone.id ?? "" }),
+                  })
+                }
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
           </TableCell>
           <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
           <TableCell>{formattedStartDate}</TableCell>
