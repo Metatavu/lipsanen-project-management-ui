@@ -43,6 +43,18 @@ export const getValidDateTimeOrThrow = (date: Date) => {
 };
 
 /**
+ * Converts a date string dd.MM.yyyy to a date object
+ * 
+ * @param dateStr date string in format "dd.MM.yyyy"
+ * @returns date JS object
+ */
+export const parseDDMMYYYY = (dateStr: string) => {
+  const [day, month, year] = dateStr.split(".");
+  // Create the date at midnight *UTC* so no local offset is applied
+  return new Date(Date.UTC(+year, +month - 1, +day));
+};
+
+/**
  * Returns the difference in days between two dates
  *
  * The difference is at least 1 day, even if the dates are the same.

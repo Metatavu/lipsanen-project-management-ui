@@ -120,6 +120,7 @@
     "errorCreatingNewCompany": "Error while creating a new company",
     "errorAssigningUserToProject": "Error while assigning user to project",
     "errorCreatingProjectMilestone": "Error while creating a new project milestone",
+    "errorUpdatingProjectMilestone": "Error while updating a project milestone",
     "errorListingProjectMilestones": "Error while fetching project milestones list",
     "errorFindingProjectMilestone": "Error while finding a project milestone",
     "errorDeletingProjectMilestone": "Error while deleting a project milestone",

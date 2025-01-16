@@ -1,4 +1,4 @@
-{
+ {
   "back": "Takaisin",
   "projects": "Projektit",
   "tracking": "Seuranta",
@@ -120,6 +120,7 @@
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
     "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin tavoitetta",
+    "errorUpdatingProjectMilestone": "Virhe päivitettäessä projektin tavoitetta",
     "errorListingProjectMilestones": "Virhe haettaessa projektin tavoitteita",
     "errorFindingProjectMilestone": "Virhe haettaessa projektin tavoitetta",
     "errorDeletingProjectMilestone": "Virhe poistettaessa projektin tavoitetta",
