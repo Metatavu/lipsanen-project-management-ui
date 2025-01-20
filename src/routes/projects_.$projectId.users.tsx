@@ -10,7 +10,7 @@ import NewUserDialog from "components/users/new-user-dialog";
 import ProjectUsersFiltersForm from "components/users/project-user-filters-form";
 import UserInfoDialog from "components/users/user-info-dialog";
 import { DEFAULT_USER_ICON } from "consts";
-import { DeleteUserRequest, User } from "generated/client";
+import { DeleteUserRequest, UpdateUserRequest, User } from "generated/client";
 import {
   useListCompaniesQuery,
   useListJobPositionsQuery,
@@ -76,24 +76,31 @@ function ProjectUsersIndexRoute() {
   const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
   /**
-   * Delete user mutation
+   * Update user mutation
    */
-  const deleteUserMutation = useMutation({
-    mutationFn: (params: DeleteUserRequest) => usersApi.deleteUser(params),
+  const updateUserMutation = useMutation({
+    mutationFn: (params: UpdateUserRequest) => usersApi.updateUser(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error) => setError(t("errorHandling.errorDeletingUser"), error),
+    onError: (error) => setError(t("errorHandling.errorUpdatingUser"), error),
   });
 
   /**
-   * Handle user deletion
+   * Handles removing a user from the project
    *
-   * @params userId string
+   * @params userId The ID of the user to remove from the project.
    */
-  const handleUserDelete = (userId?: string) => {
-    userId && deleteUserMutation.mutateAsync({ userId: userId });
+  const handleRemoveUserFromProject = (userId?: string) => {
+    if (!userId) return;
+
+    const user = users.find((user) => user.id === userId);
+    if (!user || !user.projectIds) return;
+
+    const updatedProjects = user.projectIds.filter((id) => id !== projectId);
+    updateUserMutation.mutateAsync({ userId: userId, user: { ...user, projectIds: updatedProjects } });
   };
+
 
   /**
    * Main component render
@@ -165,19 +172,20 @@ function ProjectUsersIndexRoute() {
               type: "actions",
               getActions: (params) => [
                 <GridActionsCellItem
-                  label={t("generic.delete")}
+                  label={t("generic.remove")}
                   icon={<DeleteIcon color="error" />}
                   showInMenu
                   onClick={() =>
                     showConfirmDialog({
                       title: t("usersScreen.deleteUser"),
-                      description: t("usersScreen.confirmUserDeleteDescription", {
+                      description: t("usersScreen.confirmUserRemovalDescription", {
                         firstName: params.row.firstName,
                         lastName: params.row.lastName,
+                        projectName: listProjectsQuery.data?.projects.find((project) => project.id === projectId)?.name,
                       }),
                       cancelButtonEnabled: true,
-                      confirmButtonText: t("generic.delete"),
-                      onConfirmClick: () => handleUserDelete(params.row.id),
+                      confirmButtonText: t("generic.remove"),
+                      onConfirmClick: () => handleRemoveUserFromProject(params.row.id),
                     })
                   }
                 />,

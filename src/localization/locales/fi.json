@@ -1,4 +1,4 @@
-{
+ {
   "back": "Takaisin",
   "projects": "Projektit",
   "tracking": "Seuranta",
@@ -11,6 +11,7 @@
   "generic": {
     "save": "Tallenna",
     "delete": "Poista",
+    "remove": "Poista",
     "cancel": "Peruuta",
     "confirm": "Vahvista",
     "showFilters": "Näytä suotimet",
@@ -50,6 +51,7 @@
     "lastLoggedIn": "Viimeksi paikalla",
     "deleteUser": "Poista käyttäjä",
     "confirmUserDeleteDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}}?",
+    "confirmUserRemovalDescription": "Haluatko varmasti poistaa käyttäjän: {{firstName}} {{lastName}} projektista {{projectName}}?",
     "position": "Nimike"
   },
   "positionsScreen": {
@@ -118,8 +120,10 @@
     "errorCreatingNewCompany": "Virhe luotaessa uutta yritystä",
     "errorAssigningUserToProject": "Virhe lisättäessä käyttäjää projektiin",
     "errorCreatingProjectMilestone": "Virhe luotaessa uutta projektin tavoitetta",
+    "errorUpdatingProjectMilestone": "Virhe päivitettäessä projektin tavoitetta",
     "errorListingProjectMilestones": "Virhe haettaessa projektin tavoitteita",
     "errorFindingProjectMilestone": "Virhe haettaessa projektin tavoitetta",
+    "errorDeletingProjectMilestone": "Virhe poistettaessa projektin tavoitetta",
     "errorListingMilestoneTasks": "Virhe haettaessa tavoitteen tehtäviä",
     "errorFindingMilestoneTask": "Virhe haettaessa tavoitteen tehtävää",
     "errorCreatingMilestoneTask": "Virhe luotaessa uutta tehtävää",
@@ -321,6 +325,10 @@
     "endDate": "Päättymispäivä",
     "enterEndDate": "Anna lopetuspäivä",
     "create": "Luo uusi tavoite"
+  },
+  "deleteMilestoneConfirmationDialog": {
+    "title": "Poista tavoite",
+    "description": "Haluatko varmasti poistaa tavoitteen: {{milestoneName}}?"
   },
   "taskConnectionRoles": {
     "CHILD": "Seuraaja",
