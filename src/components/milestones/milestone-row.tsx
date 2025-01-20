@@ -117,7 +117,7 @@ export const MilestoneRow = ({
             type="text"
             value={localStart}
             onChange={(e) => setLocalStart(e.target.value)}
-            onBlur={() => setStartEditing(false)}
+            onBlur={() => commitStartDate()}
             onKeyDown={(e) => {
               if (e.key === "Enter") commitStartDate();
               if (e.key === "Escape") {
@@ -141,7 +141,7 @@ export const MilestoneRow = ({
             type="text"
             value={localEnd}
             onChange={(e) => setLocalEnd(e.target.value)}
-            onBlur={() => setEndEditing(false)}
+            onBlur={() => commitEndDate()}
             onKeyDown={(e) => {
               if (e.key === "Enter") commitEndDate();
               if (e.key === "Escape") {
