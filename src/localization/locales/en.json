@@ -11,6 +11,7 @@
   "generic": {
     "save": "Save",
     "delete": "Delete",
+    "remove": "Remove",
     "cancel": "Cancel",
     "confirm": "OK",
     "showFilters": "Show filters",
@@ -50,6 +51,7 @@
     "lastLoggedIn": "Last logged in",
     "deleteUser": "Delete user",
     "confirmUserDeleteDescription": "Are you sure you want to delete user: {{firstName}} {{lastName}}?",
+    "confirmUserRemovalDescription": "Are you sure you want to remove user: {{firstName}} {{lastName}} from project {{projectName}}?",
     "position": "Position"
   },
   "positionsScreen": {
@@ -118,8 +120,10 @@
     "errorCreatingNewCompany": "Error while creating a new company",
     "errorAssigningUserToProject": "Error while assigning user to project",
     "errorCreatingProjectMilestone": "Error while creating a new project milestone",
+    "errorUpdatingProjectMilestone": "Error while updating a project milestone",
     "errorListingProjectMilestones": "Error while fetching project milestones list",
     "errorFindingProjectMilestone": "Error while finding a project milestone",
+    "errorDeletingProjectMilestone": "Error while deleting a project milestone",
     "errorListingMilestoneTasks": "Error while fetching milestone tasks list",
     "errorFindingMilestoneTask": "Error while finding a milestone task",
     "errorCreatingMilestoneTask": "Error while creating a new task",
@@ -327,6 +331,10 @@
     "endDate": "End date",
     "enterEndDate": "Enter end date",
     "create": "Create new milestone"
+  },
+  "deleteMilestoneConfirmationDialog": {
+    "title": "Delete milestone",
+    "description": "Are you sure you want to delete milestone: {{milestoneName}}?"
   },
   "newMilestoneTaskDialog": {
     "title": "Create a new task",

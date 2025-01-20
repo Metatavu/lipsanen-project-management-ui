@@ -1,6 +1,4 @@
-import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import {
-  Avatar,
   Box,
   Card,
   Table,
@@ -10,23 +8,27 @@ import {
   TableHead,
   TableRow,
   Toolbar,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 import LoadingTableCell from "components/generic/loading-table-cell";
-import ProgressBadge from "components/generic/progress-badge";
 import NewMilestoneDialog from "components/milestones/new-milestone-dialog";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
-import { differenceInDays, getValidDateTimeOrThrow } from "utils/date-time-utils";
+import { parseDDMMYYYY } from "utils/date-time-utils";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { useConfirmDialog } from "providers/confirm-dialog-provider";
+import { useApi } from "hooks/use-api";
+import { DeleteProjectMilestoneRequest, Milestone, UpdateProjectMilestoneRequest } from "generated/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSetError } from "utils/error-handling";
+import { MilestoneRow } from "components/milestones/milestone-row";
 
 /**
  * Schedule file route
@@ -40,12 +42,73 @@ export const Route = createFileRoute("/projects/$projectId/schedule")({
  */
 function ScheduleIndexRoute() {
   const { t } = useTranslation();
+  const { projectMilestonesApi } = useApi();
+  const queryClient = useQueryClient();
+  const setError = useSetError();
+  const showConfirmDialog = useConfirmDialog();
   const { projectId } = Route.useParams();
 
   const listProjectMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = listProjectMilestonesQuery.data;
   const viewDate = useMemo(() => new Date(), []);
   const [viewMode, setViewMode] = useState(ViewMode.Day);
+
+  /**
+   * Delete project milestone mutation
+   */
+  const deleteProjectMilestoneMutation = useMutation({
+    mutationFn: (params: DeleteProjectMilestoneRequest) => projectMilestonesApi.deleteProjectMilestone(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+    },
+    onError: (error) => setError(t("errorHandling.errorDeletingProjectMilestone"), error),
+  });
+
+  /**
+   * Update project milestone mutation
+   */
+  const updateProjectMilestoneMutation = useMutation({
+    mutationFn: (params: UpdateProjectMilestoneRequest) => projectMilestonesApi.updateProjectMilestone(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "milestones"] });
+    },
+    onError: (error) => setError(t("errorHandling.errorUpdatingProjectMilestone"), error),
+  });
+
+  /**
+   * Handles delete milestone
+   */
+  const handleDeleteMilestone = (milestoneId: string) => {
+    deleteProjectMilestoneMutation.mutate({
+      projectId,
+      milestoneId: milestoneId,
+    });
+  };
+
+  /**
+   * Handles date change for a milestone
+   * 
+   * @param milestone milestone
+   * @param field field
+   * @param newValue new date value
+   */
+  const handleDateChange = (milestone: Milestone, field: "startDate" | "endDate", value: string) => {
+    if (!milestone.id) {
+      return;
+    }
+
+    const newDate = parseDDMMYYYY(value);
+
+    updateProjectMilestoneMutation.mutate({
+      projectId,
+      milestoneId: milestone.id,
+      milestone: {
+        ...milestone,
+        startDate: field === "startDate" ? newDate : milestone.startDate,
+        endDate: field === "endDate" ? newDate : milestone.endDate,
+      },
+    });
+  };
 
   /**
    * Renders the project milestones rows
@@ -61,46 +124,16 @@ function ScheduleIndexRoute() {
       );
     }
 
-    return (milestones ?? []).map((milestone) => {
-      const startDate = getValidDateTimeOrThrow(milestone.startDate);
-      const endDate = getValidDateTimeOrThrow(milestone.endDate);
-      const difference = differenceInDays(startDate, endDate);
-      const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
-      const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
-
-      return (
-        <TableRow key={milestone.id}>
-          <TableCell style={{ overflow: "hidden" }}>
-            <Link
-              to={`/projects/${projectId}/schedule/${milestone.id}/tasks` as string}
-              style={{ textDecoration: "none", color: "#000" }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
-                  <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
-                </Avatar>
-                {/* TODO: Handle overflowing name with maxWidth could be improved */}
-                <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
-                  <Tooltip placement="top" title={milestone.name}>
-                    <Typography sx={{ whiteSpace: "noWrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {milestone.name}
-                    </Typography>
-                  </Tooltip>
-                  <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
-                </Box>
-              </div>
-            </Link>
-          </TableCell>
-          <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
-          <TableCell>{formattedStartDate}</TableCell>
-          <TableCell>{formattedEndDate}</TableCell>
-          <TableCell>
-            {/* TODO: Add progress calculation when data available*/}
-            <ProgressBadge progress={milestone.estimatedReadiness ?? 0} />
-          </TableCell>
-        </TableRow>
-      );
-    });
+    return (milestones ?? []).map((milestone) => (
+      <MilestoneRow
+        key={milestone.id}
+        milestone={milestone}
+        projectId={projectId}
+        showConfirmDialog={showConfirmDialog}
+        handleDeleteMilestone={handleDeleteMilestone}
+        handleDateChange={handleDateChange}
+      />
+    ));
   };
 
   /**
@@ -137,9 +170,13 @@ function ScheduleIndexRoute() {
 
     if (listProjectMilestonesQuery.isFetching) {
       return (
-        <TableRow>
-          <LoadingTableCell loading />
-        </TableRow>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <LoadingTableCell loading />
+            </TableRow>
+          </TableBody>
+        </Table>
       );
     }
 
