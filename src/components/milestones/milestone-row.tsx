@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box, TableRow, TableCell, TextField, Typography, IconButton, Tooltip, Avatar } from "@mui/material";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { Link } from "@tanstack/react-router";
 import { differenceInDays, getValidDateTimeOrThrow } from "utils/date-time-utils";
 import ProgressBadge from "components/generic/progress-badge";
@@ -22,7 +23,7 @@ interface Props {
     onConfirmClick: () => void;
   }) => void;
   handleDeleteMilestone: (milestoneId: string) => void;
-  handleDateChange: (milestone: Milestone, field: "startDate" | "endDate", value: string) => void;
+  handleEditMilestone: (milestone: Milestone, field: "name" | "startDate" | "endDate", value: string) => void;
 }
 
 export const MilestoneRow = ({
@@ -30,7 +31,7 @@ export const MilestoneRow = ({
   projectId,
   showConfirmDialog,
   handleDeleteMilestone,
-  handleDateChange,
+  handleEditMilestone
 }: Props) => {
   const { t } = useTranslation();
   const startDate = getValidDateTimeOrThrow(milestone.startDate);
@@ -43,6 +44,9 @@ export const MilestoneRow = ({
   const [endEditing, setEndEditing] = useState(false);
   const [localStart, setLocalStart] = useState(inputStartDate);
   const [localEnd, setLocalEnd] = useState(inputEndDate);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editableName, setEditableName] = useState(milestone.name);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   /**
    * Commit start date
@@ -50,7 +54,7 @@ export const MilestoneRow = ({
   const commitStartDate = () => {
     setStartEditing(false);
     if (localStart !== inputStartDate) {
-      handleDateChange(milestone, "startDate", localStart);
+      handleEditMilestone(milestone, "startDate", localStart);
     }
   };
 
@@ -60,9 +64,52 @@ export const MilestoneRow = ({
   const commitEndDate = () => {
     setEndEditing(false);
     if (localEnd !== inputEndDate) {
-      handleDateChange(milestone, "endDate", localEnd);
+      handleEditMilestone(milestone, "endDate", localEnd);
     }
   };
+
+  /**
+   * Commit milestone name
+   */
+  const commitMilestoneName = () => {
+    if (editableName !== milestone.name) {
+      handleEditMilestone(milestone, "name", editableName);
+    }
+  };
+
+  /**
+   * Handle milestone name change
+   */
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditableName(event.target.value);
+  };
+
+  /**
+   * Handle milestone name text field blur event
+   */
+  const handleNameBlur = () => {
+    setIsEditingName(false);
+    commitMilestoneName();
+  };
+
+  /**
+   * Handle milestone name text field key press event
+   */
+  const handleNameKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      setIsEditingName(false);
+      commitMilestoneName();
+    }
+  };
+
+  /**
+   * Use effect for focusing on the name input field
+   */
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [isEditingName]);
 
   /**
    * Main component render
@@ -74,21 +121,43 @@ export const MilestoneRow = ({
           <Link
             to={`/projects/${projectId}/schedule/${milestone.id}/tasks`}
             style={{ textDecoration: "none", color: "#000" }}
+            disabled={isEditingName}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
               <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
                 <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
               </Avatar>
               <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
-                <Tooltip placement="top" title={milestone.name}>
-                  <Typography sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {milestone.name}
-                  </Typography>
-                </Tooltip>
+                {isEditingName ? (
+                    <TextField
+                      inputRef={nameInputRef}
+                      value={editableName}
+                      onChange={handleNameChange}
+                      onBlur={handleNameBlur}
+                      onKeyPress={handleNameKeyPress}
+                      inputProps={{ style: { padding: 0 } }}
+                      type="text"
+                      fullWidth
+                    />
+                  ) : (
+                    <Tooltip placement="top" title={milestone.name}>
+                      <Typography sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {milestone.name}
+                      </Typography>
+                    </Tooltip>
+                  )}
                 <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
               </Box>
             </div>
           </Link>
+          <Box sx={{ display: "flex", gap: 1 }}>
+          <IconButton
+              size="small"
+              style={{ padding: 0 }}
+              onClick={() => setIsEditingName(true)}
+            >
+              <EditIcon />
+            </IconButton>
           <IconButton
             size="small"
             style={{ padding: 0 }}
@@ -106,6 +175,7 @@ export const MilestoneRow = ({
           >
             <DeleteIcon />
           </IconButton>
+          </Box>
         </Box>
       </TableCell>
 
