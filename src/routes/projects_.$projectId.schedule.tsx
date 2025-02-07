@@ -86,26 +86,24 @@ function ScheduleIndexRoute() {
   };
 
   /**
-   * Handles date change for a milestone
+   * Handles editing a milestone
+   * Supports editing name, start date and end date
    * 
    * @param milestone milestone
    * @param field field
-   * @param newValue new date value
+   * @param value new value
    */
-  const handleDateChange = (milestone: Milestone, field: "startDate" | "endDate", value: string) => {
+  const handleEditMilestone = (milestone: Milestone, field: "name" | "startDate" | "endDate", value: string) => {
     if (!milestone.id) {
       return;
     }
-
-    const newDate = parseDDMMYYYY(value);
 
     updateProjectMilestoneMutation.mutate({
       projectId,
       milestoneId: milestone.id,
       milestone: {
         ...milestone,
-        startDate: field === "startDate" ? newDate : milestone.startDate,
-        endDate: field === "endDate" ? newDate : milestone.endDate,
+        [field]: field === "name" ? value : parseDDMMYYYY(value),
       },
     });
   };
@@ -131,7 +129,7 @@ function ScheduleIndexRoute() {
         projectId={projectId}
         showConfirmDialog={showConfirmDialog}
         handleDeleteMilestone={handleDeleteMilestone}
-        handleDateChange={handleDateChange}
+        handleEditMilestone={handleEditMilestone}
       />
     ));
   };
