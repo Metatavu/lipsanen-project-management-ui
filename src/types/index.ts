@@ -146,7 +146,7 @@ export interface TaskConnectionTableData {
  * Interface for icon options
  */
 export interface IconOption {
-  label: string;
+  labelKey: string;
   value: string;
   icon: object;
 }

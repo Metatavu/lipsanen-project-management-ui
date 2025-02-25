@@ -314,7 +314,27 @@
     "otherColor": "Muu väri"
   },
   "iconSelector": {
-    "selectIcon": "Valitse ikoni"
+    "selectIcon": "Valitse ikoni",
+    "iconNames": {
+      "architect": "Arkkitehti",
+      "structuralEngineer": "Rakennesuunnittelija",
+      "hvacDesigner": "LVI-suunnittelija",
+      "electricalDesigner": "Sähkösuunnittelija",
+      "buildingAutomationDesigner": "RAU-suunnittelija",
+      "geotechnicalDesigner": "Geo-suunnittelija",
+      "landscapeDesigner": "Pihasuunnittelija",
+      "fireProtectionDesigner": "Palosuunnittelija",
+      "interiorDesigner": "Sisustussuunnittelija",
+      "procurement": "Hankinta",
+      "siteEngineer": "Työmaainsinööri",
+      "siteManager": "Vastaava mestari",
+      "client": "Tilaaja",
+      "user": "Käyttäjä",
+      "supervisor": "Valvoja",
+      "moistureControlCoordinator": "Kosteudenhallintakoordinaattori",
+      "bimCoordinator": "Tietomallikoordinaattori",
+      "safetyCoordinator": "Työturvallisuuskoordinaattori"
+    }
   },
   "newProjectMilestoneDialog": {
     "title": "Luo uusi tavoite",
