@@ -156,8 +156,8 @@
   "userInfoDialog": {
     "title": "Käyttäjätiedot",
     "name": "Nimi",
-    "organization": "Organisaatio",
-    "unknownOrganization": "Tuntematon organisaatio",
+    "company": "Yritys",
+    "unknownCompany": "Tuntematon yritys",
     "lastLogin": "Liittyi mukaan",
     "userYetToLogin": "Ei vielä liittynyt",
     "position": "Nimike",

@@ -156,8 +156,8 @@
   "userInfoDialog": {
     "title": "User information",
     "name": "Name",
-    "organization": "Organization",
-    "unknownOrganization": "Unknown organization",
+    "company": "Company",
+    "unknownCompany": "Unknown company",
     "lastLogin": "Last login",
     "userYetToLogin": "Yet to login",
     "position": "Position",
