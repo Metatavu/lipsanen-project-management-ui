@@ -6,7 +6,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
-import { Project, ProjectStatus } from "generated/client";
+import { type Project, ProjectStatus } from "generated/client";
 import { useFindProjectQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useMemo } from "react";
@@ -52,8 +52,8 @@ function ProjectSettingsScreen() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
-    },
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    }
   });
 
   const { control, handleSubmit, formState } = useForm<ProjectForm>({
