@@ -310,7 +310,27 @@
     "otherColor": "Other color"
   },
   "iconSelector": {
-    "selectIcon": "Select icon"
+    "selectIcon": "Select icon",
+    "iconNames": {
+      "architect": "Architect",
+      "structuralEngineer": "Structural Engineer",
+      "hvacDesigner": "HVAC Designer",
+      "electricalDesigner": "Electrical Designer",
+      "buildingAutomationDesigner": "Building automation designer",
+      "geotechnicalDesigner": "Geotechnical Designer",
+      "landscapeDesigner": "Landscape Designer",
+      "fireProtectionDesigner": "Fire Protection Designer",
+      "interiorDesigner": "Interior Designer",
+      "procurement": "Procurement",
+      "siteEngineer": "Site Engineer",
+      "siteManager": "Site Manager",
+      "client": "Client",
+      "user": "User",
+      "supervisor": "Supervisor",
+      "moistureControlCoordinator": "Moisture Control Coordinator",
+      "bimCoordinator": "BIM Coordinator",
+      "safetyCoordinator": "Safety Coordinator"
+    }
   },
   "taskConnectionRoles": {
     "CHILD": "Successor",
