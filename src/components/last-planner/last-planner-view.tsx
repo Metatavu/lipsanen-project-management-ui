@@ -26,6 +26,7 @@ import { TaskRowCell } from "./task-row-cell";
  */
 const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   position: "relative",
+  marginBottom: 100,
   paddingBottom: theme.spacing(2),
   "& table": {
     width: "100%",
