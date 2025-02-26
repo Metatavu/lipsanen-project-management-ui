@@ -26,6 +26,7 @@ import { TaskRowCell } from "./task-row-cell";
  */
 const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   position: "relative",
+  marginBottom: 100,
   paddingBottom: theme.spacing(2),
   "& table": {
     width: "100%",
@@ -123,6 +124,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
