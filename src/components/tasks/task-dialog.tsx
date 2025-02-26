@@ -386,6 +386,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const closeAndClear = () => {
     setTaskData({
       name: "",
+      milestoneId: taskData.milestoneId,
       startDate: undefined,
       endDate: undefined,
       status: TaskStatus.NotStarted,
