@@ -143,6 +143,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     status: TaskStatus.NotStarted,
     assigneeIds: [],
     positionId: "",
+    dependentUserId: null,
     estimatedDuration: 0,
     estimatedReadiness: 0,
   });
@@ -186,7 +187,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         status: task.status,
         assigneeIds: task.assigneeIds ?? [],
         positionId: task.jobPositionId,
-        dependentUserId: task.dependentUserId,
+        dependentUserId: task.dependentUserId || null,
         userRole: task.userRole,
         estimatedDuration: task.estimatedDuration,
         estimatedReadiness: task.estimatedReadiness,
@@ -200,8 +201,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         status: TaskStatus.NotStarted,
         assigneeIds: [],
         positionId: "",
+        dependentUserId: null,
         estimatedDuration: 0,
-        estimatedReadiness: 0,
+        estimatedReadiness: 0
       });
     }
   }, [task, milestoneId]);
@@ -389,6 +391,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
       status: TaskStatus.NotStarted,
       assigneeIds: [],
       positionId: "",
+      dependentUserId: null,
       estimatedDuration: 0,
       estimatedReadiness: 0,
     });
@@ -739,7 +742,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
           jobPositionId: taskData.positionId,
-          dependentUserId: taskData.dependentUserId,
+          dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
@@ -760,7 +763,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
           jobPositionId: taskData.positionId,
-          dependentUserId: taskData.dependentUserId,
+          dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
@@ -911,7 +914,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         select
         fullWidth
         label={label}
-        value={taskData[field]}
+        value={taskData[field] || ""}
         onChange={handleFormChange(field, multipleSelect)}
         SelectProps={
           multipleSelect
@@ -922,6 +925,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             : undefined
         }
       >
+        { multipleSelect ? undefined : <MenuItem value="">-</MenuItem> }
         {Array.isArray(options)
           ? options.map((option) => (
               <MenuItem key={option} value={option}>

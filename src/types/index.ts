@@ -125,7 +125,7 @@ export interface TaskFormData {
   status: TaskStatus;
   assigneeIds: string[];
   positionId?: string;
-  dependentUserId?: string;
+  dependentUserId: string | null;
   userRole?: UserRole;
   estimatedDuration?: number;
   estimatedReadiness?: number;
