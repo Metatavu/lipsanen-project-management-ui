@@ -123,6 +123,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
