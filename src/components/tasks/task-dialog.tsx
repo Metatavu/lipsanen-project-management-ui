@@ -302,6 +302,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const createChangeProposalMutation = useMutation({
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
     onError: (error) => setError(t("errorHandling.errorCreatingChangeProposal"), error),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals"] });
+    }
   });
 
   /**
@@ -310,6 +313,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const updateChangeProposalsMutation = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals"] });
+    }
   });
 
   /**
@@ -318,6 +324,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const deleteChangeProposalMutation = useMutation({
     mutationFn: (params: DeleteChangeProposalRequest) => changeProposalsApi.deleteChangeProposal(params),
     onError: (error) => setError(t("errorHandling.errorDeletingChangeProposal"), error),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals"] });
+    }
   });
 
   /**
@@ -1171,7 +1180,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         <Stack width={150} gap={1} pt={1} alignItems="flex-start">
           <Chip
             size="small"
-            label={t("changeProposalStatuses.PENDING")}
+            label={t(`changeProposalStatuses.${changeProposal.status}`)}
             sx={{
               bgcolor: (theme) => theme.palette.changeProposalStatus[changeProposal.status],
               color: "white",
