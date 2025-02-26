@@ -143,6 +143,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     status: TaskStatus.NotStarted,
     assigneeIds: [],
     positionId: "",
+    dependentUserId: null,
     estimatedDuration: 0,
     estimatedReadiness: 0,
   });
@@ -186,7 +187,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         status: task.status,
         assigneeIds: task.assigneeIds ?? [],
         positionId: task.jobPositionId,
-        dependentUserId: task.dependentUserId,
+        dependentUserId: task.dependentUserId || null,
         userRole: task.userRole,
         estimatedDuration: task.estimatedDuration,
         estimatedReadiness: task.estimatedReadiness,
@@ -200,8 +201,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         status: TaskStatus.NotStarted,
         assigneeIds: [],
         positionId: "",
+        dependentUserId: null,
         estimatedDuration: 0,
-        estimatedReadiness: 0,
+        estimatedReadiness: 0
       });
     }
   }, [task, milestoneId]);
@@ -302,6 +304,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const createChangeProposalMutation = useMutation({
     mutationFn: (params: CreateChangeProposalRequest) => changeProposalsApi.createChangeProposal(params),
     onError: (error) => setError(t("errorHandling.errorCreatingChangeProposal"), error),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals"] });
+    }
   });
 
   /**
@@ -310,6 +315,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const updateChangeProposalsMutation = useMutation({
     mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
     onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals"] });
+    }
   });
 
   /**
@@ -318,6 +326,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const deleteChangeProposalMutation = useMutation({
     mutationFn: (params: DeleteChangeProposalRequest) => changeProposalsApi.deleteChangeProposal(params),
     onError: (error) => setError(t("errorHandling.errorDeletingChangeProposal"), error),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals"] });
+    }
   });
 
   /**
@@ -375,11 +386,13 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
   const closeAndClear = () => {
     setTaskData({
       name: "",
+      milestoneId: taskData.milestoneId,
       startDate: undefined,
       endDate: undefined,
       status: TaskStatus.NotStarted,
       assigneeIds: [],
       positionId: "",
+      dependentUserId: null,
       estimatedDuration: 0,
       estimatedReadiness: 0,
     });
@@ -730,7 +743,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
           jobPositionId: taskData.positionId,
-          dependentUserId: taskData.dependentUserId,
+          dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
@@ -751,7 +764,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           status: taskData.status,
           assigneeIds: taskData.assigneeIds,
           jobPositionId: taskData.positionId,
-          dependentUserId: taskData.dependentUserId,
+          dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
           estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
@@ -902,7 +915,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         select
         fullWidth
         label={label}
-        value={taskData[field]}
+        value={taskData[field] || ""}
         onChange={handleFormChange(field, multipleSelect)}
         SelectProps={
           multipleSelect
@@ -913,6 +926,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             : undefined
         }
       >
+        { multipleSelect ? undefined : <MenuItem value="">-</MenuItem> }
         {Array.isArray(options)
           ? options.map((option) => (
               <MenuItem key={option} value={option}>
@@ -1171,7 +1185,7 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         <Stack width={150} gap={1} pt={1} alignItems="flex-start">
           <Chip
             size="small"
-            label={t("changeProposalStatuses.PENDING")}
+            label={t(`changeProposalStatuses.${changeProposal.status}`)}
             sx={{
               bgcolor: (theme) => theme.palette.changeProposalStatus[changeProposal.status],
               color: "white",

@@ -125,7 +125,7 @@ export interface TaskFormData {
   status: TaskStatus;
   assigneeIds: string[];
   positionId?: string;
-  dependentUserId?: string;
+  dependentUserId: string | null;
   userRole?: UserRole;
   estimatedDuration?: number;
   estimatedReadiness?: number;
@@ -146,7 +146,7 @@ export interface TaskConnectionTableData {
  * Interface for icon options
  */
 export interface IconOption {
-  label: string;
+  labelKey: string;
   value: string;
   icon: object;
 }

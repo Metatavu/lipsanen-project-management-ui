@@ -54,7 +54,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   const isSmallerScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [name, setName] = useState("");
-  const [organization, setOrganization] = useState("");
+  const [company, setCompany] = useState("");
   const [role, setRole] = useState<UserRole>();
   const [jobPositionId, setJobPositionId] = useState("");
 
@@ -73,7 +73,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   useEffect(() => {
     if (!findUserQuery.data) return;
     setName(`${findUserQuery.data.firstName} ${findUserQuery.data.lastName}`);
-    setOrganization(findUserQuery.data.companyId || "");
+    setCompany(findUserQuery.data.companyId || "");
     setJobPositionId(findUserQuery.data.jobPositionId || "");
     setRole(findUserQuery.data.roles?.at(0));
   }, [findUserQuery.data]);
@@ -99,7 +99,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
   const handleUserInfoChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     if (field === "name") setName(value);
-    else if (field === "organization") setOrganization(value);
+    else if (field === "company") setCompany(value);
     else if (field === "role") setRole(value as UserRole);
     else if (field === "jobPositionId") setJobPositionId(value);
     else return;
@@ -122,7 +122,7 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
           ...findUserQuery.data,
           firstName: firstName || "",
           lastName: lastName || "",
-          companyId: organization,
+          companyId: company,
           jobPositionId: jobPositionId,
           roles: [role],
         },
@@ -190,9 +190,9 @@ const UserInfoDialog = ({ userId, handleClose }: Props) => {
             <LoadingTextField
               select
               {...textFieldProps}
-              label={t("userInfoDialog.organization")}
-              value={organization}
-              onChange={handleUserInfoChange("organization")}
+              label={t("userInfoDialog.company")}
+              value={company}
+              onChange={handleUserInfoChange("company")}
             >
               {companies?.map((company) => (
                 <MenuItem key={company.id} value={company.id}>

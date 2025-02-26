@@ -2,13 +2,16 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DoneIcon from "@mui/icons-material/Done";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import { Box, Button, LinearProgress, List, ListItem, Stack, Typography } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import JobPositionAvatar from "components/generic/job-position-avatar";
 import ResizablePanel from "components/generic/resizable-panel";
-import { ChangeProposal, ChangeProposalStatus, Task } from "generated/client";
+import { ChangeProposal, ChangeProposalStatus, Task, UpdateChangeProposalRequest } from "generated/client";
 import { useFindUsersQuery, useListJobPositionsQuery } from "hooks/api-queries";
+import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetError } from "utils/error-handling";
 import UserUtils from "utils/users";
 
 /**
@@ -18,13 +21,8 @@ interface Props {
   changeProposals?: ChangeProposal[];
   tasks?: Task[];
   selectedChangeProposalId?: string;
-  setSelectedChangeProposalId: (selectedChangeProposalId: string) => void;
+  setSelectedChangeProposalId: (selectedChangeProposalId: string | undefined) => void;
   loading: boolean;
-  updateChangeProposalStatus: (
-    changeProposalId: string,
-    changeProposal: ChangeProposal,
-    status: ChangeProposalStatus,
-  ) => void;
 }
 
 /**
@@ -37,12 +35,13 @@ const ChangeProposalsDrawer = ({
   tasks,
   selectedChangeProposalId,
   setSelectedChangeProposalId,
-  loading,
-  updateChangeProposalStatus,
+  loading
 }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const wasOpen = useRef(open);
+  const { changeProposalsApi } = useApi();
+  const queryClient = useQueryClient();
+  const setError = useSetError();
 
   const proposalCreatorUsersIds = useMemo(
     () => [
@@ -61,7 +60,18 @@ const ChangeProposalsDrawer = ({
   const jobPositions = listJobPositionsQuery.data?.jobPositions;
 
   /**
-   *  Handler for change proposal status change
+   * Update change proposal mutation
+   */
+  const updateChangeProposalMutation = useMutation({
+    mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["changeProposals"] });
+    },
+    onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
+  });
+
+  /**
+   * Handler for change proposal status change
    *
    * @param changeProposal ChangeProposal
    * @param status ChangeProposalStatus
@@ -69,8 +79,13 @@ const ChangeProposalsDrawer = ({
   const handleStatusChange = (changeProposal: ChangeProposal, status: ChangeProposalStatus) => {
     if (!changeProposal.id) return;
 
-    const changeProposalId = changeProposal.id;
-    updateChangeProposalStatus(changeProposalId, changeProposal, status);
+    updateChangeProposalMutation.mutateAsync({
+      changeProposalId: changeProposal.id,
+      changeProposal: {
+        ...changeProposal,
+        status: status
+      },
+    });
   };
 
   /**

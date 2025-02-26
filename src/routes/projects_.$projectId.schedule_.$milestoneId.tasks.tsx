@@ -27,10 +27,8 @@ import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
 import NewTaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
 import {
-  ChangeProposal,
   ChangeProposalStatus,
   Task,
-  UpdateChangeProposalRequest,
   UpdateTaskRequest,
   User,
 } from "generated/client";
@@ -68,7 +66,7 @@ export const Route = createFileRoute("/projects/$projectId/schedule/$milestoneId
 function MilestoneTasksListRoute() {
   const { t } = useTranslation();
   const { projectId, milestoneId } = Route.useParams();
-  const { tasksApi, changeProposalsApi } = useApi();
+  const { tasksApi } = useApi();
   const queryClient = useQueryClient();
   const setError = useSetError();
 
@@ -158,21 +156,9 @@ function MilestoneTasksListRoute() {
    *
    * @param changeProposalId change proposal id
    */
-  const onChangeProposalSelect = (changeProposalId: string) => {
+  const onChangeProposalSelect = (changeProposalId: string | undefined) => {
     setSelectedChangeProposalId((prevId) => (prevId === changeProposalId ? "" : changeProposalId));
   };
-
-  /**
-   * Update change proposal mutation
-   */
-  const updateChangeProposal = useMutation({
-    mutationFn: (params: UpdateChangeProposalRequest) => changeProposalsApi.updateChangeProposal(params),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
-    },
-    onError: (error) => setError(t("errorHandling.errorUpdatingChangeProposal"), error),
-  });
 
   /**
    * Update task mutation
@@ -185,27 +171,6 @@ function MilestoneTasksListRoute() {
     },
     onError: (error) => setError(t("errorHandling.errorUpdatingMilestoneTask"), error),
   });
-
-  /**
-   * Handler for updating change proposal status
-   *
-   * @param changeProposalId string
-   * @param changeProposal ChangeProposal
-   * @param status ChangeProposalStatus
-   */
-  const handleUpdateChangeProposalStatus = async (
-    changeProposalId: string,
-    changeProposal: ChangeProposal,
-    status: ChangeProposalStatus,
-  ) => {
-    await updateChangeProposal.mutateAsync({
-      changeProposal: {
-        ...changeProposal,
-        status: status,
-      },
-      changeProposalId: changeProposalId,
-    });
-  };
 
   /**
    * Returns either user display name or given placeholder text
@@ -476,7 +441,6 @@ function MilestoneTasksListRoute() {
               selectedChangeProposalId={selectedChangeProposalId}
               setSelectedChangeProposalId={onChangeProposalSelect}
               loading={listChangeProposalsQuery.isPending}
-              updateChangeProposalStatus={handleUpdateChangeProposalStatus}
             />
             <NewTaskButton projectId={projectId} milestoneId={milestoneId} />
           </Box>
