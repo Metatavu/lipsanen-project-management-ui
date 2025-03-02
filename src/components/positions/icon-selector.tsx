@@ -12,31 +12,6 @@ interface Props {
 }
 
 /**
- * Render an icon
- *
- * @param icon icon to render
- */
-const renderSelectedIcon = (icon: string) => {
-  const { t } = useTranslation();
-  const selectedItem = ICON_OPTIONS.find((option) => option.value === icon);
-  return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      {selectedItem && (
-        <>
-          <Icon icon={selectedItem.icon as IconifyIcon} />
-          <span style={{ marginLeft: 8 }}>
-              { 
-                // biome-ignore lint: dynamic translation
-                t(`iconSelector.iconNames.${selectedItem.labelKey}` as any)
-              }
-            </span>
-        </>
-      )}
-    </div>
-  );
-};
-
-/**
  * Icon selector component
  *
  * @param props Props
@@ -54,8 +29,26 @@ const IconSelector = ({ icon, onChange }: Props) => {
         if (!selected) {
           return t("iconSelector.selectIcon");
         }
+        
         const selectedItem = ICON_OPTIONS.find((option) => option.value === selected);
-        return renderSelectedIcon(selectedItem?.value ?? "");
+        if (!selectedItem) {
+          return null;
+        }
+
+        const icon = selectedItem.icon as IconifyIcon;
+        // biome-ignore lint: dynamic translation
+        const label = t(`iconSelector.iconNames.${selectedItem.labelKey}` as any);
+
+        if (!icon || !label) {
+          return null;
+        }
+
+        return (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Icon icon={icon} />
+            <span style={{ marginLeft: 8 }}> { label || "" } </span>
+          </div>
+        );
       }}
       required
     >
