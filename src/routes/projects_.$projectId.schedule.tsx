@@ -10,25 +10,26 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 import LoadingTableCell from "components/generic/loading-table-cell";
+import { MilestoneRow } from "components/milestones/milestone-row";
 import NewMilestoneDialog from "components/milestones/new-milestone-dialog";
+import { DeleteProjectMilestoneRequest, Milestone, UpdateProjectMilestoneRequest } from "generated/client";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
+import { useApi } from "hooks/use-api";
+import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskStatusColor } from "types";
 import ChartHelpers from "utils/chart-helpers";
 import { parseDDMMYYYY } from "utils/date-time-utils";
+import { useSetError } from "utils/error-handling";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
-import { useConfirmDialog } from "providers/confirm-dialog-provider";
-import { useApi } from "hooks/use-api";
-import { DeleteProjectMilestoneRequest, Milestone, UpdateProjectMilestoneRequest } from "generated/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSetError } from "utils/error-handling";
-import { MilestoneRow } from "components/milestones/milestone-row";
 
 /**
  * Schedule file route
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/projects/$projectId/schedule")({
  * Schedule index route component
  */
 function ScheduleIndexRoute() {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { projectMilestonesApi } = useApi();
   const queryClient = useQueryClient();
@@ -205,6 +207,16 @@ function ScheduleIndexRoute() {
             headerHeight={58}
             rowHeight={77}
             taskListHidden
+            onClick={(task) => {
+              if (task.type === "custom-milestone") {
+                navigate({
+                  to: "$milestoneId/tasks",
+                  params: {
+                    milestoneId: task.id,
+                  },
+                });
+              }
+            }}
           />
         </Box>
       </Box>
