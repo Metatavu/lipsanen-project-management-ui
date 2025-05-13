@@ -1,4 +1,4 @@
- {
+{
   "back": "Takaisin",
   "projects": "Projektit",
   "tracking": "Seuranta",
@@ -158,7 +158,7 @@
     "name": "Nimi",
     "company": "Yritys",
     "unknownCompany": "Tuntematon yritys",
-    "lastLogin": "Liittyi mukaan",
+    "lastLogin": "Viimeksi paikalla",
     "userYetToLogin": "Ei vielä liittynyt",
     "position": "Nimike",
     "role": "Rooli",
