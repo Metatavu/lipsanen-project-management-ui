@@ -251,6 +251,8 @@
       "title": "Tasks",
       "assignee": "Assignee",
       "task": "Task",
+      "project": "Project",
+      "milestone": "Milestone",
       "readyBy": "Ready by",
       "status": "Status",
       "readiness": "Readiness"
