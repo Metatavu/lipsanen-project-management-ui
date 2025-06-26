@@ -55,14 +55,31 @@ export const parseDDMMYYYY = (dateStr: string) => {
 };
 
 /**
- * Returns the difference in days between two dates
+ * Returns the number of whole days between two dates, excluding the end date.
+ * 
+ * The result is always at least 1, even if the dates are the same.
  *
- * The difference is at least 1 day, even if the dates are the same.
- *
- * @param a date A
- * @param b date B
+ * @param a Start date (inclusive)
+ * @param b End date (exclusive)
  */
 export const differenceInDays = (a: DateTime<true>, b: DateTime<true>) => {
   const interval = Interval.fromDateTimes(a, b);
   return Math.max(interval.count("days") - 1, 1);
+};
+
+
+/**
+ * Returns the number of days between two dates, inclusive of both start and end.
+ * 
+ * Used when calculating estimated durations, where both the start and end dates count as full days.
+ * The result is always at least 1.
+ *
+ * @param a Start date (inclusive)
+ * @param b End date (inclusive)
+ */
+export const differenceInDaysInclusive = (a: DateTime<true>, b: DateTime<true>) => {
+  const start = a.startOf("day");
+  const end = b.startOf("day");
+  const interval = Interval.fromDateTimes(start, end);
+  return Math.max(interval.count("days") + 1, 1);
 };
