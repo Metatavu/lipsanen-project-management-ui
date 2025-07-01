@@ -135,7 +135,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
   const showConfirmDialog = useConfirmDialog();
 
-  // TODO: Remove estimated duration from taskData and use seperate UI only state after API changes.
   const [taskData, setTaskData] = useState<TaskFormData>({
     name: "",
     milestoneId: milestoneId,
@@ -793,7 +792,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           jobPositionId: taskData.positionId,
           dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
-          estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
         },
       });
@@ -814,7 +812,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           jobPositionId: taskData.positionId,
           dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
-          estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
         },
       });
