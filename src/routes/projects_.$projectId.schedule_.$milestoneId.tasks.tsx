@@ -29,6 +29,7 @@ import TaskDialog from "components/tasks/task-dialog";
 import {
   ChangeProposalStatus,
   Task,
+  TaskConnection,
   UpdateTaskRequest,
   User,
 } from "generated/client";
@@ -132,6 +133,20 @@ function MilestoneTasksListRoute() {
       return task;
     });
   }, [tasks, taskConnections, changeProposalTasksPreviewList, selectedChangeProposalId]);
+
+  /**
+   * Task connections for gantt chart with full type definitions for improved arrow rendering
+   */
+  const taskConnectionsForGantt = useMemo(
+    () =>
+      taskConnections
+        ?.filter((c): c is TaskConnection & { id: string } => !!c.id)
+        .map((c) => ({
+          id: c.id,
+          sourceTaskId: c.sourceTaskId,
+          targetTaskId: c.targetTaskId,
+          type: c.type,
+        })), [taskConnections]);
 
   /**
    * Handles task select
@@ -385,8 +400,9 @@ function MilestoneTasksListRoute() {
             headerHeight={58}
             rowHeight={77}
             taskListHidden
-            onProgressChange={() => {}}
+            onProgressChange={() => { }}
             arrowsVisible={taskConnectionsVisible}
+            taskConnections={taskConnectionsForGantt}
           />
         </Box>
       </Box>
