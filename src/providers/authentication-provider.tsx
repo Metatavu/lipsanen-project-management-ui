@@ -3,6 +3,7 @@ import { apiUserAtom, authAtom, userProfileAtom } from "atoms/auth";
 import { useFindUserQuery } from "hooks/api-queries";
 import { useAtom, useSetAtom } from "jotai";
 import Keycloak from "keycloak-js";
+import i18n from "localization/i18n";
 import { ReactNode, useCallback, useEffect } from "react";
 import { useSetError } from "utils/error-handling";
 
@@ -64,6 +65,10 @@ const AuthenticationProvider = ({ children }: Props) => {
         } catch (error) {
           console.error("Could not load user profile", error);
           setError("Could not load user profile");
+        }
+        const locale = keycloak.tokenParsed?.locale ?? "fi";
+        if (["fi", "en"].includes(locale)) {
+          i18n.changeLanguage(locale);
         }
 
         updateAuthData();

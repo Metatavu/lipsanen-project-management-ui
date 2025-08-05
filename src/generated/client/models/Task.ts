@@ -99,12 +99,6 @@ export interface Task {
      */
     jobPositionId?: string;
     /**
-     * Estimated duration of the task in days
-     * @type {number}
-     * @memberof Task
-     */
-    estimatedDuration?: number;
-    /**
      * Estimated readiness of the task
      * @type {number}
      * @memberof Task
@@ -152,7 +146,6 @@ export function TaskFromJSONTyped(json: any, ignoreDiscriminator: boolean): Task
         'dependentUserId': !exists(json, 'dependentUserId') ? undefined : json['dependentUserId'],
         'userRole': !exists(json, 'userRole') ? undefined : UserRoleFromJSON(json['userRole']),
         'jobPositionId': !exists(json, 'jobPositionId') ? undefined : json['jobPositionId'],
-        'estimatedDuration': !exists(json, 'estimatedDuration') ? undefined : json['estimatedDuration'],
         'estimatedReadiness': !exists(json, 'estimatedReadiness') ? undefined : json['estimatedReadiness'],
         'metadata': !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
     };
@@ -176,7 +169,6 @@ export function TaskToJSON(value?: Task | null): any {
         'dependentUserId': value.dependentUserId,
         'userRole': UserRoleToJSON(value.userRole),
         'jobPositionId': value.jobPositionId,
-        'estimatedDuration': value.estimatedDuration,
         'estimatedReadiness': value.estimatedReadiness,
         'metadata': MetadataToJSON(value.metadata),
     };
