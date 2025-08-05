@@ -12,8 +12,14 @@ import { TaskWithInterval, UserWithTasks } from "types";
  * @returns the timeline interval
  */
 export const getTimelineIntervalByTasks = (tasks: Task[]) => {
-  if (!tasks.length) return Interval.fromDateTimes(new Date(), new Date()) as Interval<true>;
+  // If the tasks list is empty, return the current week interval
+  if (!tasks.length) {
+    const startOfWeek = DateTime.now().startOf("week");
+    const endOfWeek = DateTime.now().endOf("week");
+    return Interval.fromDateTimes(startOfWeek, endOfWeek) as Interval<true>;
+  }
 
+  // If we wanted to ensure the current date is always rendered and therefore scrolled to we could do it here.
   const [earliestStartDate, latestEndDate] = tasks.reduce<[Date, Date]>(
     (dates, task) => {
       if (!task.startDate || !task.endDate) return dates;
@@ -92,46 +98,46 @@ export const renderTaskRows =
     onTaskClick: (taskId: string) => void,
     onSwitchTaskStatus: (task: Task) => void,
   ) =>
-  (tasksInRow: TaskWithInterval[]) => {
-    const filledRow = [];
+    (tasksInRow: TaskWithInterval[]) => {
+      const filledRow = [];
 
-    for (let i = 0; i < tasksInRow.length; i++) {
-      const previousTask = i > 0 ? tasksInRow[i - 1] : undefined;
-      const currentTaskData = tasksInRow[i];
-      const isLastTask = i === tasksInRow.length - 1;
+      for (let i = 0; i < tasksInRow.length; i++) {
+        const previousTask = i > 0 ? tasksInRow[i - 1] : undefined;
+        const currentTaskData = tasksInRow[i];
+        const isLastTask = i === tasksInRow.length - 1;
 
-      if (!previousTask) {
-        const daysBetweenStartAndTaskStart = currentTaskData.interval.start.diff(timelineInterval.start, "days").days;
-        for (let j = 0; j < daysBetweenStartAndTaskStart; j++)
-          filledRow.push(
-            <TaskRowCell key={`leading-${j}`} colSpan={1} cellStyle={{ borderLeft: j === 0 ? "none" : undefined }} />,
-          );
-      } else {
-        const daysBetweenTasks = currentTaskData.interval.start.diff(previousTask.interval.end, "days").days - 1;
-        for (let j = 0; j < daysBetweenTasks; j++) filledRow.push(<TaskRowCell key={`middle-${i}-${j}`} colSpan={1} />);
+        if (!previousTask) {
+          const daysBetweenStartAndTaskStart = currentTaskData.interval.start.diff(timelineInterval.start, "days").days;
+          for (let j = 0; j < daysBetweenStartAndTaskStart; j++)
+            filledRow.push(
+              <TaskRowCell key={`leading-${j}`} colSpan={1} cellStyle={{ borderLeft: j === 0 ? "none" : undefined }} />,
+            );
+        } else {
+          const daysBetweenTasks = currentTaskData.interval.start.diff(previousTask.interval.end, "days").days - 1;
+          for (let j = 0; j < daysBetweenTasks; j++) filledRow.push(<TaskRowCell key={`middle-${i}-${j}`} colSpan={1} />);
+        }
+
+        filledRow.push(
+          <TaskRowCell
+            key={currentTaskData.task.id as string}
+            colSpan={currentTaskData.interval.count("days")}
+            task={currentTaskData.task}
+            editMode={editMode}
+            onTaskClick={(task) => onTaskClick(task.id as string)}
+            onSwitchTaskStatus={(task) => onSwitchTaskStatus(task)}
+          />,
+        );
+
+        if (isLastTask) {
+          const daysBetweenTaskEndAndTimelineEnd = timelineInterval.end.diff(currentTaskData.interval.end, "days").days;
+
+          for (let j = 0; j < daysBetweenTaskEndAndTimelineEnd; j++)
+            filledRow.push(<TaskRowCell key={`trailing-${j}`} colSpan={1} />);
+        }
       }
 
-      filledRow.push(
-        <TaskRowCell
-          key={currentTaskData.task.id as string}
-          colSpan={currentTaskData.interval.count("days")}
-          task={currentTaskData.task}
-          editMode={editMode}
-          onTaskClick={(task) => onTaskClick(task.id as string)}
-          onSwitchTaskStatus={(task) => onSwitchTaskStatus(task)}
-        />,
-      );
-
-      if (isLastTask) {
-        const daysBetweenTaskEndAndTimelineEnd = timelineInterval.end.diff(currentTaskData.interval.end, "days").days;
-
-        for (let j = 0; j < daysBetweenTaskEndAndTimelineEnd; j++)
-          filledRow.push(<TaskRowCell key={`trailing-${j}`} colSpan={1} />);
-      }
-    }
-
-    return filledRow;
-  };
+      return filledRow;
+    };
 
 /**
  * Map users to user with tasks

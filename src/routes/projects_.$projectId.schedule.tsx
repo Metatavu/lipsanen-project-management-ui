@@ -200,7 +200,7 @@ function ScheduleIndexRoute() {
         <Box sx={{ width: "auto", padding: 0 }} p={2}>
           <Gantt
             tasks={milestonesForGantt}
-            todayColor={"rgba(100, 100, 300, 0.3)"}
+            todayColor={"rgba(255, 247, 163, 0.6)"}
             viewMode={viewMode}
             viewDate={viewDate}
             //TODO: Add proper height and row height

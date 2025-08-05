@@ -5,7 +5,7 @@ import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-b
 import { Task, TaskStatus, User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
@@ -20,6 +20,7 @@ import {
   sortTasksByStartTime,
 } from "utils/last-planner-utils";
 import { TaskRowCell } from "./task-row-cell";
+import { DateTime } from "luxon";
 
 /**
  * Styled wrapper element for the last planner table
@@ -28,6 +29,7 @@ const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   position: "relative",
   marginBottom: 100,
   paddingBottom: theme.spacing(2),
+  overflowX: "auto",
   "& table": {
     width: "100%",
     borderCollapse: "separate",
@@ -107,6 +109,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
   const users = useMemo(() => listProjectUsersQuery.data?.users ?? [], [listProjectUsersQuery.data]);
   const jobPositionsQuery = useListJobPositionsQuery({ max: 9999 });
   const jobPositions = useMemo(() => jobPositionsQuery.data?.jobPositions ?? [], [jobPositionsQuery.data]);
+  const tableWrapperRef = useRef<HTMLDivElement>(null);
 
   const updateTaskMutation = useMutation({
     mutationFn: (task: Task) => tasksApi.updateTask({ taskId: task.id as string, task: task }),
@@ -134,6 +137,21 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
   const weeks = useMemo(() => splitIntervalByDuration(timelineInterval, "week"), [timelineInterval]);
   const days = useMemo(() => splitIntervalByDuration(timelineInterval, "day"), [timelineInterval]);
   const tasksByAssigneeIdMap = useMemo(() => mapTasksAndUsersByUserId(tasks, users), [tasks, users]);
+
+  // Scroll table to current day
+  useEffect(() => {
+    if (!tableWrapperRef.current || !days?.length) return;
+
+    const today = DateTime.now();
+    const currentDayIndex = days.findIndex((day) => day.contains(today));
+
+    if (currentDayIndex >= 0) {
+      const cellWidth = 40;
+      const wrapperWidth = tableWrapperRef.current!.clientWidth;
+      const scrollOffset = currentDayIndex * cellWidth - wrapperWidth / 2 + (cellWidth * 3.5);
+      tableWrapperRef.current.scrollLeft = scrollOffset;
+    }
+  }, [days]);
 
   /**
    * Render user cell
@@ -249,21 +267,29 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
   /**
    * Render week cells
    */
-  const renderWeeks = () =>
-    weeks?.map((week, i) => (
-      <StickyTableCell
-        key={i.toString()}
-        colSpan={week.count("days")}
-        constrainWidth
-        align="center"
-        top={60}
-        style={{ borderLeft: i === 0 ? "none" : undefined }}
-      >
-        <Typography textOverflow="ellipsis" noWrap>
-          {t("lastPlannerView.week")} {week.start?.weekNumber}
-        </Typography>
-      </StickyTableCell>
-    ));
+  const renderWeeks = () => {
+    const today = DateTime.now();
+    return weeks?.map((week, i) => {
+      const isCurrentWeek = week.contains(today);
+      return (
+        <StickyTableCell
+          key={i.toString()}
+          colSpan={week.count("days")}
+          constrainWidth
+          align="center"
+          top={60}
+          style={{
+            borderLeft: i === 0 ? "none" : undefined,
+            backgroundColor: isCurrentWeek ? "rgba(255, 247, 163, 0.6)" : undefined,
+          }}
+        >
+          <Typography textOverflow="ellipsis" noWrap>
+            {t("lastPlannerView.week")} {week.start?.weekNumber}
+          </Typography>
+        </StickyTableCell>
+      );
+    });
+  };
 
   /**
    * Render day cells
@@ -283,7 +309,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
    * Component render
    */
   return (
-    <LastPlannerTableWrapper>
+    <LastPlannerTableWrapper ref={tableWrapperRef}>
       <table style={{ borderCollapse: "separate" }}>
         <thead>
           <FixedHeightTableRow style={{ height: 30 }}>
