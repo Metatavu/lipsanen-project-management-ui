@@ -255,6 +255,8 @@
       "title": "Tehtävät",
       "assignee": "Tekijä",
       "task": "Tehtävä",
+      "project": "Projekti",
+      "milestone": "Tavoite",
       "readyBy": "Valmistuu arviolta",
       "status": "Tila",
       "readiness": "Valmius"

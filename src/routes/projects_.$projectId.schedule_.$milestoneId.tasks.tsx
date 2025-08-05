@@ -390,7 +390,7 @@ function MilestoneTasksListRoute() {
           <Gantt
             tasks={tasksForGantt}
             milestone={oneMilestoneForGantt}
-            todayColor={"rgba(100, 100, 300, 0.3)"}
+            todayColor={"rgba(255, 247, 163, 0.6)"}
             viewMode={viewMode}
             viewDate={viewDate}
             //TODO: enable if a customer wants to update tasks by dragging them in the gantt chart

@@ -5,7 +5,7 @@ import JobPositionAvatar from "components/generic/job-position-avatar";
 import ProgressBadge from "components/generic/progress-badge";
 import { DATE_WITH_LEADING_ZEROS } from "consts";
 import { JobPosition, Task, User } from "generated/client";
-import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
+import { useFindProjectQuery, useListJobPositionsQuery, useListProjectMilestonesQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { DateTime } from "luxon";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,10 +39,26 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
   const listUsersQuery = useListUsersQuery({ projectId });
   const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
 
+  const findProjectQuery = useFindProjectQuery(projectId);
+  const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
+
+  const listMilestonesQuery = useListProjectMilestonesQuery({ projectId });
+  const milestones = useMemo(() => listMilestonesQuery.data ?? [], [listMilestonesQuery.data]);
+
+  const milestoneNameMap = useMemo(
+    () => Object.fromEntries(milestones.map((m) => [m.id, m.name])),
+    [milestones]
+  );
+
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
-  if (listTasksQuery.isFetching || listUsersQuery.isFetching || listJobPositionsQuery.isFetching) {
+  if (listTasksQuery.isFetching
+    || listUsersQuery.isFetching
+    || listJobPositionsQuery.isFetching
+    || findProjectQuery.isFetching
+    || listMilestonesQuery.isFetching
+  ) {
     return <LinearProgress />;
   }
 
@@ -100,6 +116,21 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
             </Box>
           ),
         },
+        {
+          field: "project",
+          headerName: t("trackingScreen.tasksList.project"),
+          flex: 1,
+          sortable: false,
+          renderCell: () => project?.name ?? "-",
+        },
+        {
+          field: "milestone",
+          headerName: t("trackingScreen.tasksList.milestone"),
+          flex: 1,
+          sortable: false,
+          renderCell: (params) => milestoneNameMap[params.row.milestoneId] ?? "-",
+        },
+
         {
           field: "endDate",
           headerName: t("trackingScreen.tasksList.readyBy"),
