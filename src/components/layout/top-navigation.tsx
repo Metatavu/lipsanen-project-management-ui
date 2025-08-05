@@ -140,13 +140,12 @@ const TopNavigation = () => {
       sx={{ height: "48px", backgroundColor: customProjectTheme ? customProjectTheme?.themeColor : "primary.dark" }}
     >
       <Toolbar variant="dense">
-        <img
-          // TODO: Further work may be required for the logos e.g. sizes?
-          src={customProjectTheme ? customProjectTheme?.logoUrl : logo}
-          alt="Lipsanen project logo"
-          height={customProjectTheme ? 30 : 16}
+        {customProjectTheme && <img
+          src={customProjectTheme?.logoUrl}
+          alt="Project logo"
+          height={30}
         />
-
+        }
         <Stack direction="row" gap={3} sx={{ ml: 3, flexGrow: 1 }}>
           <Tabs
             sx={{
