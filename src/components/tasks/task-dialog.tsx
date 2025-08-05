@@ -71,7 +71,7 @@ import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
 import { getLastPartFromMimeType } from "utils";
-import { getValidDateTimeOrThrow } from "utils/date-time-utils";
+import { differenceInDaysInclusive, getValidDateTimeOrThrow } from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
@@ -179,6 +179,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
   useEffect(() => {
     if (task) {
+      const startDate = getValidDateTimeOrThrow(task.startDate);
+      const endDate = getValidDateTimeOrThrow(task.endDate);
       setTaskData({
         name: task.name,
         milestoneId: milestoneId,
@@ -189,7 +191,9 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         positionId: task.jobPositionId,
         dependentUserId: task.dependentUserId || null,
         userRole: task.userRole,
-        estimatedDuration: task.estimatedDuration,
+        estimatedDuration: startDate?.isValid && endDate?.isValid
+          ? differenceInDaysInclusive(startDate, endDate)
+          : 0,
         estimatedReadiness: task.estimatedReadiness,
       });
     } else {
@@ -236,10 +240,10 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
     const availableTasks = task
       ? tasks.filter(
-          (taskElement) =>
-            taskElement.id !== task.id &&
-            !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
-        )
+        (taskElement) =>
+          taskElement.id !== task.id &&
+          !existingTaskConnections.some((connection) => connection.attachedTask?.id === taskElement.id),
+      )
       : tasks;
 
     setAvailableTaskConnectionTasks(availableTasks);
@@ -544,18 +548,18 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    */
   const handleFormChange =
     (field: keyof TaskFormData, multipleSelect = false) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
+      (event: ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
 
-      if (multipleSelect) {
-        setTaskData({
-          ...taskData,
-          [field]: Array.isArray(value) ? value : [value],
-        });
-      } else {
-        setTaskData({ ...taskData, [field]: value });
-      }
-    };
+        if (multipleSelect) {
+          setTaskData({
+            ...taskData,
+            [field]: Array.isArray(value) ? value : [value],
+          });
+        } else {
+          setTaskData({ ...taskData, [field]: value });
+        }
+      };
 
   /**
    * Handles task creation form date change
@@ -564,7 +568,50 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
    * @param value date
    */
   const handleDateFormChange = (field: keyof typeof taskData) => (value: DateTime<boolean> | null) => {
-    setTaskData({ ...taskData, [field]: value });
+    const updatedTask = { ...taskData, [field]: value };
+    const start = (updatedTask.startDate?.startOf("day") ?? null) as DateTime<true> | null;
+    const end = (updatedTask.endDate?.startOf("day") ?? null) as DateTime<true> | null;
+
+
+    const newEstimatedDuration =
+      start?.isValid && end?.isValid ? differenceInDaysInclusive(start, end) : 0;
+
+    setTaskData({
+      ...updatedTask,
+      estimatedDuration: newEstimatedDuration
+    });
+  };
+
+  /**
+   * Handles estimated duration change and updates end date accordingly
+   * Note, tasks starting and ending on same day are considered to have a duration of 1 day.
+   *  
+   * @param event ChangeEvent<HTMLInputElement>
+   */
+  const handleEstimatedDurationChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed)) {
+      setTaskData({ ...taskData, estimatedDuration: 0 });
+      return;
+    }
+
+    const duration = Math.max(parsed, 1);
+
+    if (taskData.startDate?.isValid) {
+      const newEndDate = taskData.startDate.plus({ days: duration - 1 });
+      setTaskData({
+        ...taskData,
+        estimatedDuration: duration,
+        endDate: newEndDate,
+      });
+    } else {
+      setTaskData({
+        ...taskData,
+        estimatedDuration: duration,
+      });
+    }
   };
 
   /**
@@ -745,7 +792,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           jobPositionId: taskData.positionId,
           dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
-          estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
         },
       });
@@ -766,7 +812,6 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
           jobPositionId: taskData.positionId,
           dependentUserId: taskData.dependentUserId || undefined,
           userRole: taskData.userRole,
-          estimatedDuration: taskData.estimatedDuration,
           estimatedReadiness: taskData.estimatedReadiness,
         },
       });
@@ -812,10 +857,10 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
     const updatedChangeProposals = changeProposals
       ? updateChangeProposalData.filter((updatedProposal) => {
-          const originalProposal = changeProposals.find((proposal) => proposal.id === updatedProposal.id);
+        const originalProposal = changeProposals.find((proposal) => proposal.id === updatedProposal.id);
 
-          return JSON.stringify(updatedProposal) !== JSON.stringify(originalProposal);
-        })
+        return JSON.stringify(updatedProposal) !== JSON.stringify(originalProposal);
+      })
       : [];
 
     const updatedChangeProposalPromises = updatedChangeProposals.map((proposal) => {
@@ -920,24 +965,24 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         SelectProps={
           multipleSelect
             ? {
-                multiple: true,
-                renderValue: getDropdownRenderValue(options),
-              }
+              multiple: true,
+              renderValue: getDropdownRenderValue(options),
+            }
             : undefined
         }
       >
-        { multipleSelect ? undefined : <MenuItem value="">-</MenuItem> }
+        {multipleSelect ? undefined : <MenuItem value="">-</MenuItem>}
         {Array.isArray(options)
           ? options.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))
           : Object.entries(options).map(([id, name]) => (
-              <MenuItem key={id} value={id}>
-                {name}
-              </MenuItem>
-            ))}
+            <MenuItem key={id} value={id}>
+              {name}
+            </MenuItem>
+          ))}
       </TextField>
     );
   };
@@ -991,8 +1036,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
             <TextField
               fullWidth
               label={t("newMilestoneTaskDialog.estimatedDuration")}
-              value={taskData.estimatedDuration}
-              onChange={handleFormChange("estimatedDuration")}
+              value={taskData.estimatedDuration || ""}
+              onChange={handleEstimatedDurationChange}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">{t("newMilestoneTaskDialog.inputLabelDays")}</InputAdornment>
