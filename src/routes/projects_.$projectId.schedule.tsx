@@ -209,10 +209,8 @@ function ScheduleIndexRoute() {
             onClick={(task) => {
               if (task.type === "custom-milestone") {
                 navigate({
-                  to: "$milestoneId/tasks",
-                  params: {
-                    milestoneId: task.id,
-                  },
+                  to: "/projects/$projectId/schedule/$milestoneId/tasks",
+                  params: { projectId: projectId, milestoneId: task.id },
                 });
               }
             }}
