@@ -1,15 +1,29 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on",
+        "useSortedAttributes": "on",
+        "useSortedKeys": "on",
+        "useSortedProperties": "on"
+      }
+    }
+  },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/generated/**/*", "!**/openapi/**/*"]
+    "includes": [
+      "src/**",
+      "!**/generated/**/*",
+      "!**/openapi/**/*"
+    ]
   },
-  "vcs": {
+  "formatter": {
     "enabled": true,
-    "clientKind": "git",
-    "defaultBranch": "develop",
-    "useIgnoreFile": true
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 120
   },
   "linter": {
     "enabled": true,
@@ -17,11 +31,10 @@
       "recommended": true
     }
   },
-  "formatter": {
+  "vcs": {
+    "clientKind": "git",
+    "defaultBranch": "develop",
     "enabled": true,
-    "indentWidth": 2,
-    "indentStyle": "space",
-    "lineEnding": "lf",
-    "lineWidth": 120
+    "useIgnoreFile": true
   }
 }
