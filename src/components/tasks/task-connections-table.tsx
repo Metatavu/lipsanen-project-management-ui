@@ -12,13 +12,13 @@ import {
   TableHead,
   TableRow,
   TextField,
-  TextFieldProps,
+  type TextFieldProps,
   Typography,
 } from "@mui/material";
-import { Task, TaskConnectionType } from "generated/client";
-import { useEffect, useMemo } from "react";
+import { type Task, TaskConnectionType } from "generated/client";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { TaskConnectionRelationship, TaskConnectionTableData, TaskFormData } from "types";
+import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
 
 /**
  * Component properties
@@ -104,52 +104,51 @@ const TaskConnectionsTable = ({
    * @param editedTaskFormData edited / new task form data
    * @param type task connection type
    */
-  const determineIfTaskTypeIsAllowed = (
-    connectedTask: TaskConnectionTableData,
-    editedTaskFormData: TaskFormData,
-    type?: TaskConnectionType,
-  ) => {
-    if (
-      !connectedTask ||
-      !editedTaskFormData ||
-      !connectedTask.attachedTask ||
-      !editedTaskFormData.startDate ||
-      !editedTaskFormData.endDate
-    ) {
-      return null;
-    }
-
-    const connectedTaskStartDate = connectedTask.attachedTask.startDate;
-    const connectedTaskEndDate = connectedTask.attachedTask.endDate;
-    const editedTaskStartDate = new Date(editedTaskFormData.startDate.toISODate());
-    const editedTaskEndDate = new Date(editedTaskFormData.endDate.toISODate());
-
-    const sourceTaskDates =
-      connectedTask.hierarchy === TaskConnectionRelationship.PARENT
-        ? { startDate: connectedTaskStartDate, endDate: connectedTaskEndDate }
-        : { startDate: editedTaskStartDate, endDate: editedTaskEndDate };
-    const targetTaskDates =
-      connectedTask.hierarchy === TaskConnectionRelationship.PARENT
-        ? { startDate: editedTaskStartDate, endDate: editedTaskEndDate }
-        : { startDate: connectedTaskStartDate, endDate: connectedTaskEndDate };
-
-    switch (type) {
-      case TaskConnectionType.StartToStart:
-        return sourceTaskDates.startDate > targetTaskDates.startDate
-          ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceStartAfterTargetStartWarning")
-          : null;
-      case TaskConnectionType.FinishToFinish:
-        return sourceTaskDates.endDate > targetTaskDates.endDate
-          ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceEndAfterTargetEndWarning")
-          : null;
-      case TaskConnectionType.FinishToStart:
-        return sourceTaskDates.endDate > targetTaskDates.startDate
-          ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceEndAfterTargetStartWarning")
-          : null;
-      default:
+  const determineIfTaskTypeIsAllowed = useCallback(
+    (connectedTask: TaskConnectionTableData, editedTaskFormData: TaskFormData, type?: TaskConnectionType) => {
+      if (
+        !connectedTask ||
+        !editedTaskFormData ||
+        !connectedTask.attachedTask ||
+        !editedTaskFormData.startDate ||
+        !editedTaskFormData.endDate
+      ) {
         return null;
-    }
-  };
+      }
+
+      const connectedTaskStartDate = connectedTask.attachedTask.startDate;
+      const connectedTaskEndDate = connectedTask.attachedTask.endDate;
+      const editedTaskStartDate = new Date(editedTaskFormData.startDate.toISODate());
+      const editedTaskEndDate = new Date(editedTaskFormData.endDate.toISODate());
+
+      const sourceTaskDates =
+        connectedTask.hierarchy === TaskConnectionRelationship.PARENT
+          ? { startDate: connectedTaskStartDate, endDate: connectedTaskEndDate }
+          : { startDate: editedTaskStartDate, endDate: editedTaskEndDate };
+      const targetTaskDates =
+        connectedTask.hierarchy === TaskConnectionRelationship.PARENT
+          ? { startDate: editedTaskStartDate, endDate: editedTaskEndDate }
+          : { startDate: connectedTaskStartDate, endDate: connectedTaskEndDate };
+
+      switch (type) {
+        case TaskConnectionType.StartToStart:
+          return sourceTaskDates.startDate > targetTaskDates.startDate
+            ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceStartAfterTargetStartWarning")
+            : null;
+        case TaskConnectionType.FinishToFinish:
+          return sourceTaskDates.endDate > targetTaskDates.endDate
+            ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceEndAfterTargetEndWarning")
+            : null;
+        case TaskConnectionType.FinishToStart:
+          return sourceTaskDates.endDate > targetTaskDates.startDate
+            ? t("newMilestoneTaskDialog.taskConnectionsTable.taskTypeCheck.sourceEndAfterTargetStartWarning")
+            : null;
+        default:
+          return null;
+      }
+    },
+    [t],
+  );
 
   /**
    * Recalculate overall validity

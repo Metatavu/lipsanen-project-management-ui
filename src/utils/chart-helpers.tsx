@@ -1,6 +1,6 @@
-import { Task, Milestone, TaskConnection } from "generated/client";
+import type { Milestone, Task, TaskConnection } from "generated/client";
 import { TaskStatusColor } from "types";
-import * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import type * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 namespace ChartHelpers {
   /**
@@ -61,7 +61,7 @@ namespace ChartHelpers {
 
   /**
    * Save task connections visible setting to local storage
-   * 
+   *
    * @param visible boolean
    */
   export const saveTaskConnectionsVisibleSetting = (visible: boolean) => {

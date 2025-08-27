@@ -13,13 +13,13 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import GenericDatePicker from "components/generic/generic-date-picker";
-import { CreateProjectMilestoneRequest } from "generated/client";
+import type { CreateProjectMilestoneRequest } from "generated/client";
 import { useApi } from "hooks/use-api";
-import { DateTime } from "luxon";
+import type { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Route } from "routes/projects_.$projectId.schedule";
-import { MilestoneFormData } from "types";
+import type { MilestoneFormData } from "types";
 import { useSetError } from "utils/error-handling";
 
 /**
@@ -123,7 +123,6 @@ const NewMilestoneDialog = () => {
         <DialogContent sx={{ backgroundColor: "#2196F314", display: "flex", flexDirection: "column", gap: 1 }}>
           <TextField
             fullWidth
-            id="project-name"
             label={t("newProjectMilestoneDialog.name")}
             placeholder={t("newProjectMilestoneDialog.enterName")}
             value={milestoneData.name}

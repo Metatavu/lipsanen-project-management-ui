@@ -1,12 +1,11 @@
-import { SvgIconTypeMap } from "@mui/material";
-import { OverridableComponent } from "@mui/material/OverridableComponent";
-import { ParseRoute, RouteById } from "@tanstack/react-router";
-import { Metadata, ProjectStatus, Task, TaskConnectionType, TaskStatus, UserRole } from "generated/client";
-import { User } from "generated/client";
-import { routeTree } from "generated/router/routeTree.gen";
-import { DefaultNamespace, ParseKeys } from "i18next";
-import { DateTime, Interval } from "luxon";
-import { ReactNode } from "react";
+import type { SvgIconTypeMap } from "@mui/material";
+import type { OverridableComponent } from "@mui/material/OverridableComponent";
+import type { ParseRoute, RouteById } from "@tanstack/react-router";
+import type { Metadata, ProjectStatus, Task, TaskConnectionType, TaskStatus, User, UserRole } from "generated/client";
+import type { routeTree } from "generated/router/routeTree.gen";
+import type { DefaultNamespace, ParseKeys } from "i18next";
+import type { DateTime, Interval } from "luxon";
+import type { ReactNode } from "react";
 
 /**
  * Task connection relationships
@@ -70,8 +69,7 @@ export type AppRouteSearchSchema<RoutePath extends AppRouteOptions> = RouteById<
 export type NavigationLink = {
   route: AppRouteOptions;
   labelKey: ParseKeys<DefaultNamespace>;
-  // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">> & {
+  icon?: OverridableComponent<SvgIconTypeMap<Record<string, unknown>, "svg">> & {
     muiName: string;
   };
 };

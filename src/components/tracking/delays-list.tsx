@@ -1,9 +1,9 @@
 import { Box, Grid, LinearProgress, MenuItem, TextField, Typography } from "@mui/material";
-import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
-import { ChangeProposal, JobPosition, Task, User } from "generated/client";
+import { DataGrid, type GridRenderCellParams } from "@mui/x-data-grid";
+import type { ChangeProposal, JobPosition, Task, User } from "generated/client";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChangeProposalScope, DelaysByReason, DelaysByRole, DelaysByTask } from "types";
+import { ChangeProposalScope, type DelaysByReason, type DelaysByRole, type DelaysByTask } from "types";
 
 /**
  * Component props

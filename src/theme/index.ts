@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material";
 import type {} from "@mui/x-data-grid/themeAugmentation";
-import { ChangeProposalStatus, ProjectStatus } from "generated/client";
+import type { ChangeProposalStatus, ProjectStatus } from "generated/client";
 
 /**
  * Extend theme with custom variables in here

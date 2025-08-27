@@ -4,12 +4,12 @@ import { AppBar, Badge, Button, Divider, Drawer, IconButton, Stack, Toolbar, Typ
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
+import type {
   AppRouteOptions,
-  AppRouteSearchSchema,
   AppRouter,
-  FormFieldChangeHandler,
+  AppRouteSearchSchema,
   RenderFilterFormFn as FilterFormRenderFunction,
+  FormFieldChangeHandler,
 } from "types";
 
 /**

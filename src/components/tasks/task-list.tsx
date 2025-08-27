@@ -4,12 +4,18 @@ import { DataGrid, gridClasses } from "@mui/x-data-grid";
 import JobPositionAvatar from "components/generic/job-position-avatar";
 import ProgressBadge from "components/generic/progress-badge";
 import { DATE_WITH_LEADING_ZEROS } from "consts";
-import { JobPosition, Task, User } from "generated/client";
-import { useFindProjectQuery, useListJobPositionsQuery, useListProjectMilestonesQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
+import type { JobPosition, Task, User } from "generated/client";
+import {
+  useFindProjectQuery,
+  useListJobPositionsQuery,
+  useListProjectMilestonesQuery,
+  useListTasksQuery,
+  useListUsersQuery,
+} from "hooks/api-queries";
 import { DateTime } from "luxon";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { TasksSearchSchema } from "schemas/search";
+import type { TasksSearchSchema } from "schemas/search";
 import TaskUtils from "utils/task";
 
 /**
@@ -45,19 +51,17 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
   const listMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = useMemo(() => listMilestonesQuery.data ?? [], [listMilestonesQuery.data]);
 
-  const milestoneNameMap = useMemo(
-    () => Object.fromEntries(milestones.map((m) => [m.id, m.name])),
-    [milestones]
-  );
+  const milestoneNameMap = useMemo(() => Object.fromEntries(milestones.map((m) => [m.id, m.name])), [milestones]);
 
   const listJobPositionsQuery = useListJobPositionsQuery();
   const jobPositions = useMemo(() => listJobPositionsQuery.data?.jobPositions ?? [], [listJobPositionsQuery.data]);
 
-  if (listTasksQuery.isFetching
-    || listUsersQuery.isFetching
-    || listJobPositionsQuery.isFetching
-    || findProjectQuery.isFetching
-    || listMilestonesQuery.isFetching
+  if (
+    listTasksQuery.isFetching ||
+    listUsersQuery.isFetching ||
+    listJobPositionsQuery.isFetching ||
+    findProjectQuery.isFetching ||
+    listMilestonesQuery.isFetching
   ) {
     return <LinearProgress />;
   }

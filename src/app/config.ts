@@ -1,4 +1,4 @@
-import { cleanEnv, url, str } from "envalid";
+import { cleanEnv, str, url } from "envalid";
 
 const env = cleanEnv(import.meta.env, {
   VITE_KEYCLOAK_URL: url(),

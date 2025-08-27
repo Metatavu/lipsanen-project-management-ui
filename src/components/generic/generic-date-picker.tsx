@@ -1,8 +1,8 @@
 import { CalendarTodayOutlined } from "@mui/icons-material";
 import { Typography } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DateTime } from "luxon";
-import { Ref } from "react";
+import type { DateTime } from "luxon";
+import type { Ref } from "react";
 
 /**
  * Component Props

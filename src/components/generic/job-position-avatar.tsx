@@ -1,4 +1,4 @@
-import { JobPosition } from "generated/client";
+import type { JobPosition } from "generated/client";
 import { MdiIconifyIconWithBackground } from "./mdi-icon-with-background";
 
 /**

@@ -1,4 +1,4 @@
-import { DateTime, DateTimeUnit, Interval } from "luxon";
+import { DateTime, type DateTimeUnit, Interval } from "luxon";
 
 /**
  * Splits an interval into a list of durations of the given unit.
@@ -44,7 +44,7 @@ export const getValidDateTimeOrThrow = (date: Date) => {
 
 /**
  * Converts a date string dd.MM.yyyy to a date object
- * 
+ *
  * @param dateStr date string in format "dd.MM.yyyy"
  * @returns date JS object
  */
@@ -56,7 +56,7 @@ export const parseDDMMYYYY = (dateStr: string) => {
 
 /**
  * Returns the number of whole days between two dates, excluding the end date.
- * 
+ *
  * The result is always at least 1, even if the dates are the same.
  *
  * @param a Start date (inclusive)
@@ -67,10 +67,9 @@ export const differenceInDays = (a: DateTime<true>, b: DateTime<true>) => {
   return Math.max(interval.count("days") - 1, 1);
 };
 
-
 /**
  * Returns the number of days between two dates, inclusive of both start and end.
- * 
+ *
  * Used when calculating estimated durations, where both the start and end dates count as full days.
  * The result is always at least 1.
  *

@@ -1,6 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
 import { Button, Card, FormControlLabel, Stack, Switch, Toolbar, Typography } from "@mui/material";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import ResizablePanel from "components/generic/resizable-panel";
@@ -58,7 +58,7 @@ function TasksIndexRoute() {
         <ResizablePanel
           containerRef={cardRef}
           storeLastPosition
-          id="last-planner-panel"
+          storeKey="last-planner-panel"
           toolbar={
             <Stack direction="row" alignItems="center" gap={2} px={1} py={0.5} bgcolor="grey.100">
               <Typography component="h2" variant="h5" pl={1} mr="auto">

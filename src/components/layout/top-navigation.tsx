@@ -7,19 +7,18 @@ import {
   AppBar,
   Badge,
   CircularProgress,
+  createTheme,
   IconButton,
   Menu,
   MenuItem,
   Stack,
+  styled,
   Tab,
   Tabs,
   Toolbar,
   Typography,
-  createTheme,
-  styled,
 } from "@mui/material";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
-import logo from "assets/lipsanen-logo.svg";
 import NotificationsList from "components/tracking/notifications-list";
 import {
   useFindUserQuery,
@@ -31,7 +30,7 @@ import { useAtom } from "jotai";
 import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { NavigationLink } from "types";
+import type { NavigationLink } from "types";
 import { getNthSlugFromPathName } from "utils";
 import { authAtom } from "../../atoms/auth";
 import { theme } from "../../theme";
@@ -140,12 +139,7 @@ const TopNavigation = () => {
       sx={{ height: "48px", backgroundColor: customProjectTheme ? customProjectTheme?.themeColor : "primary.dark" }}
     >
       <Toolbar variant="dense">
-        {customProjectTheme && <img
-          src={customProjectTheme?.logoUrl}
-          alt="Project logo"
-          height={30}
-        />
-        }
+        {customProjectTheme && <img src={customProjectTheme?.logoUrl} alt="Project logo" height={30} />}
         <Stack direction="row" gap={3} sx={{ ml: 3, flexGrow: 1 }}>
           <Tabs
             sx={{

@@ -1,6 +1,7 @@
-import Autocomplete, { AutocompleteRenderOptionState } from "@mui/material/Autocomplete";
+import Autocomplete, { type AutocompleteRenderOptionState } from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { HTMLAttributes, ReactNode, SyntheticEvent } from "react";
+import type { HTMLAttributes, ReactNode, SyntheticEvent } from "react";
+
 /**
  * Component Props
  */

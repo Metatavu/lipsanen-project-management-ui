@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 import JobPositionAvatar from "components/generic/job-position-avatar";
@@ -28,10 +28,10 @@ import NewTaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
 import {
   ChangeProposalStatus,
-  Task,
-  TaskConnection,
-  UpdateTaskRequest,
-  User,
+  type Task,
+  type TaskConnection,
+  type UpdateTaskRequest,
+  type User,
 } from "generated/client";
 import {
   useFindProjectMilestoneQuery,
@@ -51,8 +51,8 @@ import ChartHelpers from "utils/chart-helpers";
 import { useSetError } from "utils/error-handling";
 import UserUtils from "utils/users";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
+import type * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 import { ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
-import * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 /**
  * Milestone tasks file route
@@ -146,7 +146,9 @@ function MilestoneTasksListRoute() {
           sourceTaskId: c.sourceTaskId,
           targetTaskId: c.targetTaskId,
           type: c.type,
-        })), [taskConnections]);
+        })),
+    [taskConnections],
+  );
 
   /**
    * Handles task select
@@ -320,7 +322,7 @@ function MilestoneTasksListRoute() {
     );
   };
 
-  const getTaskChildren = (taskId: string) =>
+  const _getTaskChildren = (taskId: string) =>
     (taskConnections ?? []).filter((connection) => connection.targetTaskId === taskId);
 
   /**
@@ -329,7 +331,7 @@ function MilestoneTasksListRoute() {
    * @param task chart task
    * TODO: enable if a customer wants to update tasks by dragging them in the gantt chart
    */
-  const onUpdateTask = async (task: GanttTypes.Task) => {
+  const _onUpdateTask = async (task: GanttTypes.Task) => {
     const foundTask = tasks?.find((t) => t.id === task.id);
     if (!foundTask) {
       return;
@@ -400,7 +402,7 @@ function MilestoneTasksListRoute() {
             headerHeight={58}
             rowHeight={77}
             taskListHidden
-            onProgressChange={() => { }}
+            onProgressChange={() => {}}
             arrowsVisible={taskConnectionsVisible}
             taskConnections={taskConnectionsForGantt}
           />

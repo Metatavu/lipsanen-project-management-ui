@@ -7,7 +7,7 @@ import { Box, CircularProgress, IconButton, LinearProgress, Stack, Typography, u
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiUserAtom } from "atoms/auth";
 import JobPositionAvatar from "components/generic/job-position-avatar";
-import {
+import type {
   CreateTaskCommentRequest,
   DeleteTaskCommentRequest,
   TaskComment,
@@ -20,7 +20,7 @@ import { useAtomValue } from "jotai";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Mention, MentionItem, MentionsInput } from "react-mentions";
+import { Mention, type MentionItem, MentionsInput } from "react-mentions";
 import { useSetError } from "utils/error-handling";
 import UserUtils from "utils/users";
 
@@ -143,7 +143,6 @@ const CommentsSection = ({
     newPlainTextValue: string,
     mentions: MentionItem[],
   ) => {
-    // biome-ignore lint/complexity/noForEach: Using forEach for readability
     commentReferencedUsers.forEach((userId) => {
       if (!newPlainTextValue.includes(projectUsersMap[userId])) {
         handleMentionDelete(userId);
@@ -174,7 +173,6 @@ const CommentsSection = ({
     newPlainTextValue: string,
     mentions: MentionItem[],
   ) => {
-    // biome-ignore lint/complexity/noForEach: Using forEach for readability
     editingReferencedUsers.forEach((userId) => {
       if (!newPlainTextValue.includes(projectUsersMap[userId])) {
         handleUpdateMentionDelete(userId);
@@ -451,7 +449,7 @@ const CommentsSection = ({
    */
   const renderComments = () => {
     return listTaskCommentsQuery?.data?.map((comment) => {
-      if (!comment?.id) return;
+      if (!comment?.id) return null;
 
       const commentId = comment.id;
       const editDisabled = !!isEditingId && isEditingId !== commentId;

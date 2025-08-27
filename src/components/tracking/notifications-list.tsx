@@ -3,15 +3,15 @@ import { Box, Card, LinearProgress, Tooltip, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authAtom } from "atoms/auth";
 import {
-  ChangeProposalCreatedNotificationData,
-  ChangeProposalStatusChangedNotificationData,
-  CommentLeftNotificationData,
-  NotificationEvent,
+  type ChangeProposalCreatedNotificationData,
+  type ChangeProposalStatusChangedNotificationData,
+  type CommentLeftNotificationData,
+  type NotificationEvent,
   NotificationType,
-  Task,
-  TaskAssignedNotificationData,
-  TaskStatusChangesNotificationData,
-  UpdateNotificationEventRequest,
+  type Task,
+  type TaskAssignedNotificationData,
+  type TaskStatusChangesNotificationData,
+  type UpdateNotificationEventRequest,
 } from "generated/client";
 import { useFindUserQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";

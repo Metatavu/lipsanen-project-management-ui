@@ -53,7 +53,7 @@ function ProjectSettingsScreen() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-    }
+    },
   });
 
   const { control, handleSubmit, formState } = useForm<ProjectForm>({

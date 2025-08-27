@@ -11,14 +11,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 import LoadingTableCell from "components/generic/loading-table-cell";
 import { MilestoneRow } from "components/milestones/milestone-row";
 import NewMilestoneDialog from "components/milestones/new-milestone-dialog";
-import { DeleteProjectMilestoneRequest, Milestone, UpdateProjectMilestoneRequest } from "generated/client";
+import type { DeleteProjectMilestoneRequest, Milestone, UpdateProjectMilestoneRequest } from "generated/client";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
@@ -29,7 +28,7 @@ import ChartHelpers from "utils/chart-helpers";
 import { parseDDMMYYYY } from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
-import { Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { type Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 /**
  * Schedule file route
@@ -90,7 +89,7 @@ function ScheduleIndexRoute() {
   /**
    * Handles editing a milestone
    * Supports editing name, start date and end date
-   * 
+   *
    * @param milestone milestone
    * @param field field
    * @param value new value

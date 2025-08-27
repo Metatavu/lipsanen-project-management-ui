@@ -17,8 +17,8 @@ import sunSnowflakeVariant from "@iconify-icons/mdi/sun-snowflake-variant";
 import terrain from "@iconify-icons/mdi/terrain";
 import water from "@iconify-icons/mdi/water";
 import config from "app/config";
-import { DateTimeFormatOptions } from "luxon";
-import { IconOption } from "types";
+import type { DateTimeFormatOptions } from "luxon";
+import type { IconOption } from "types";
 
 export const DEFAULT_LOGO = `${config.cdnBaseUrl}/logos/Lipsanen logo.png`;
 

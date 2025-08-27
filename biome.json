@@ -9,11 +9,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": [
-      "src/**",
-      "!**/generated/**/*",
-      "!**/openapi/**/*"
-    ]
+    "includes": ["src/**", "!**/generated/**/*", "!**/openapi/**/*"]
   },
   "formatter": {
     "enabled": true,

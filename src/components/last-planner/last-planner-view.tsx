@@ -1,13 +1,14 @@
-import { LinearProgress, Stack, Typography, styled } from "@mui/material";
+import { LinearProgress, Stack, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
-import { Task, TaskStatus, User } from "generated/client";
+import { type Task, TaskStatus, type User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
+import { DateTime } from "luxon";
 import { Fragment, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { TaskWithInterval } from "types";
+import type { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
 import { splitIntervalByDuration } from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
@@ -20,7 +21,6 @@ import {
   sortTasksByStartTime,
 } from "utils/last-planner-utils";
 import { TaskRowCell } from "./task-row-cell";
-import { DateTime } from "luxon";
 
 /**
  * Styled wrapper element for the last planner table
@@ -147,8 +147,8 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
 
     if (currentDayIndex >= 0) {
       const cellWidth = 40;
-      const wrapperWidth = tableWrapperRef.current!.clientWidth;
-      const scrollOffset = currentDayIndex * cellWidth - wrapperWidth / 2 + (cellWidth * 3.5);
+      const wrapperWidth = tableWrapperRef.current?.clientWidth;
+      const scrollOffset = currentDayIndex * cellWidth - wrapperWidth / 2 + cellWidth * 3.5;
       tableWrapperRef.current.scrollLeft = scrollOffset;
     }
   }, [days]);

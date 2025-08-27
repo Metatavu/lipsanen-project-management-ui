@@ -1,5 +1,5 @@
-import { ThemeProvider, createTheme } from "@mui/material";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useListProjectThemesQuery } from "hooks/api-queries";
 import { useMemo } from "react";
 import { theme } from "../theme";

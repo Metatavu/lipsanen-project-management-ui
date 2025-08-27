@@ -1,9 +1,9 @@
 import { Icon } from "@iconify/react";
-import { Box, Tooltip, Typography, darken } from "@mui/material";
-import { JobPosition, Task, TaskStatus } from "generated/client";
+import { Box, darken, Tooltip, Typography } from "@mui/material";
+import { type JobPosition, type Task, TaskStatus } from "generated/client";
 import { useFindUserQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { Interval } from "luxon";
-import { CSSProperties, useMemo } from "react";
+import { type CSSProperties, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { getContrastForegroundColor, hexFromString } from "utils";
 

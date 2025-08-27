@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { Box, TableRow, TableCell, TextField, Typography, IconButton, Tooltip, Avatar } from "@mui/material";
-import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
+import { Avatar, Box, IconButton, TableCell, TableRow, TextField, Tooltip, Typography } from "@mui/material";
 import { Link } from "@tanstack/react-router";
-import { differenceInDays, getValidDateTimeOrThrow } from "utils/date-time-utils";
 import ProgressBadge from "components/generic/progress-badge";
+import type { Milestone } from "generated/client";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Milestone } from "generated/client";
+import { differenceInDays, getValidDateTimeOrThrow } from "utils/date-time-utils";
 
 /**
  * Component props
@@ -31,7 +31,7 @@ export const MilestoneRow = ({
   projectId,
   showConfirmDialog,
   handleDeleteMilestone,
-  handleEditMilestone
+  handleEditMilestone,
 }: Props) => {
   const { t } = useTranslation();
   const startDate = getValidDateTimeOrThrow(milestone.startDate);
@@ -129,52 +129,48 @@ export const MilestoneRow = ({
               </Avatar>
               <Box sx={{ margin: "0 1rem", maxWidth: 300 }}>
                 {isEditingName ? (
-                    <TextField
-                      inputRef={nameInputRef}
-                      value={editableName}
-                      onChange={handleNameChange}
-                      onBlur={handleNameBlur}
-                      onKeyPress={handleNameKeyPress}
-                      inputProps={{ style: { padding: 0 } }}
-                      type="text"
-                      fullWidth
-                    />
-                  ) : (
-                    <Tooltip placement="top" title={milestone.name}>
-                      <Typography sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {milestone.name}
-                      </Typography>
-                    </Tooltip>
-                  )}
+                  <TextField
+                    inputRef={nameInputRef}
+                    value={editableName}
+                    onChange={handleNameChange}
+                    onBlur={handleNameBlur}
+                    onKeyPress={handleNameKeyPress}
+                    inputProps={{ style: { padding: 0 } }}
+                    type="text"
+                    fullWidth
+                  />
+                ) : (
+                  <Tooltip placement="top" title={milestone.name}>
+                    <Typography sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {milestone.name}
+                    </Typography>
+                  </Tooltip>
+                )}
                 <Typography variant="body2">{t("scheduleScreen.objective")}</Typography>
               </Box>
             </div>
           </Link>
           <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton
-              size="small"
-              style={{ padding: 0 }}
-              onClick={() => setIsEditingName(true)}
-            >
+            <IconButton size="small" style={{ padding: 0 }} onClick={() => setIsEditingName(true)}>
               <EditIcon />
             </IconButton>
-          <IconButton
-            size="small"
-            style={{ padding: 0 }}
-            onClick={() =>
-              showConfirmDialog({
-                title: t("deleteMilestoneConfirmationDialog.title"),
-                description: t("deleteMilestoneConfirmationDialog.description", {
-                  milestoneName: milestone.name,
-                }),
-                cancelButtonEnabled: true,
-                confirmButtonText: t("generic.delete"),
-                onConfirmClick: () => handleDeleteMilestone(milestone.id ?? ""),
-              })
-            }
-          >
-            <DeleteIcon />
-          </IconButton>
+            <IconButton
+              size="small"
+              style={{ padding: 0 }}
+              onClick={() =>
+                showConfirmDialog({
+                  title: t("deleteMilestoneConfirmationDialog.title"),
+                  description: t("deleteMilestoneConfirmationDialog.description", {
+                    milestoneName: milestone.name,
+                  }),
+                  cancelButtonEnabled: true,
+                  confirmButtonText: t("generic.delete"),
+                  onConfirmClick: () => handleDeleteMilestone(milestone.id ?? ""),
+                })
+              }
+            >
+              <DeleteIcon />
+            </IconButton>
           </Box>
         </Box>
       </TableCell>
