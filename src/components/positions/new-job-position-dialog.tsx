@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ColorSelector from "components/generic/color-selector";
-import { CreateJobPositionRequest } from "generated/client";
+import type { CreateJobPositionRequest } from "generated/client";
 import { useApi } from "hooks/use-api";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -125,7 +125,6 @@ const NewJobPositionDialog = () => {
         <DialogContent sx={{ backgroundColor: "#2196F314", display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             fullWidth
-            id="job-position-name"
             label={t("jobPositionDialog.name")}
             placeholder={t("jobPositionDialog.enterName")}
             value={jobPositionData.name}

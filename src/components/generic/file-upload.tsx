@@ -5,7 +5,7 @@ import { TWO_MEGABYTES } from "consts";
 import { DropzoneArea } from "mui-file-dropzone";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { UploadMessage } from "types";
+import type { UploadMessage } from "types";
 import { containsIllegalCharacters } from "utils";
 
 /**

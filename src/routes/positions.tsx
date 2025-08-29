@@ -1,13 +1,13 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Card, Toolbar, Typography } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, type GridPaginationModel } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import NewJobPositionDialog from "components/positions/new-job-position-dialog";
 import UserInfoDialog from "components/users/user-info-dialog";
-import { DeleteJobPositionRequest, JobPosition } from "generated/client";
+import type { DeleteJobPositionRequest, JobPosition } from "generated/client";
 import { useListJobPositionsQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
@@ -139,6 +139,7 @@ function PositionsIndexRoute() {
               type: "actions",
               getActions: (params) => [
                 <GridActionsCellItem
+                  key="delete"
                   label={t("generic.delete")}
                   icon={<DeleteIcon color="error" />}
                   showInMenu

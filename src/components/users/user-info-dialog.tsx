@@ -22,8 +22,8 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import LoadingTableCell from "components/generic/loading-table-cell";
-import LoadingTextField, { LoadingTextFieldProps } from "components/generic/loading-text-field";
-import { UpdateUserRequest, UserRole } from "generated/client";
+import LoadingTextField, { type LoadingTextFieldProps } from "components/generic/loading-text-field";
+import { type UpdateUserRequest, UserRole } from "generated/client";
 import { useFindUserQuery, useListCompaniesQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useEffect, useMemo, useState } from "react";

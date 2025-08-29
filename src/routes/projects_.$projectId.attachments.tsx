@@ -4,7 +4,7 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import { Button, Card, Toolbar, Typography } from "@mui/material";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import { useListAttachmentsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
@@ -106,11 +106,13 @@ function ProjectAttachmentsScreen() {
               type: "actions",
               getActions: (params) => [
                 <GridActionsCellItem
+                  key="preview"
                   icon={<PreviewIcon />}
                   label={t("projectAttachmentsScreen.preview")}
                   onClick={() => window.open(params.row.url, "_blank")}
                 />,
                 <GridActionsCellItem
+                  key="delete"
                   icon={<DeleteIcon />}
                   label={t("generic.delete")}
                   onClick={() =>

@@ -1,4 +1,4 @@
-import { GridPaginationModel } from "@mui/x-data-grid";
+import type { GridPaginationModel } from "@mui/x-data-grid";
 import { useMemo } from "react";
 
 export const usePaginationToFirstAndMax = (pagination: GridPaginationModel): [first: number, max: number] => {

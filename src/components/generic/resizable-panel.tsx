@@ -3,7 +3,7 @@ import { Box, Divider } from "@mui/material";
 import { useResizableHeight } from "hooks/use-resizable-height";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { ReactNode, useEffect, useMemo } from "react";
+import { type ReactNode, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 
 /**
@@ -16,11 +16,11 @@ type Props = {
   toolbar?: ReactNode;
 } & (
   | {
-      id: string;
+      storeKey: string;
       storeLastPosition: true;
     }
   | {
-      id?: never;
+      storeKey?: never;
       storeLastPosition?: never;
     }
 );
@@ -33,10 +33,12 @@ type Props = {
  */
 const useStoredHeightWithId = (initialHeight: number, storeLastPosition?: boolean, id?: string) => {
   if (!storeLastPosition || !id) return [undefined, undefined];
+  // biome-ignore lint/correctness/useHookAtTopLevel: Fixing this might cause unexpected behavior
   const storedHeightAtom = useMemo(
     () => atomWithStorage(`resizable-panel-${id}`, initialHeight, undefined, { getOnInit: true }),
     [id, initialHeight],
   );
+  // biome-ignore lint/correctness/useHookAtTopLevel: Fixing this might cause unexpected behavior
   return useAtom(storedHeightAtom);
 };
 
@@ -52,14 +54,14 @@ const useStoredHeightWithId = (initialHeight: number, storeLastPosition?: boolea
  * @param props.toolbar optional toolbar component
  */
 const ResizablePanel = ({
-  id,
+  storeKey,
   children,
   initialHeight = 20,
   containerRef,
   storeLastPosition,
   toolbar = null,
 }: Props) => {
-  const [storedHeight, setStoredHeight] = useStoredHeightWithId(initialHeight, storeLastPosition, id);
+  const [storedHeight, setStoredHeight] = useStoredHeightWithId(initialHeight, storeLastPosition, storeKey);
 
   const { height, onMouseDown } = useResizableHeight({
     containerRef,

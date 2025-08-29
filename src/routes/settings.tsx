@@ -20,11 +20,11 @@ import { filesApi } from "api/files";
 import FileUploader from "components/generic/file-upload";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import { DEFAULT_LOGO } from "consts";
-import { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
-import { useListFilesQuery, useListProjectThemesQuery, useListProjectsQuery } from "hooks/api-queries";
+import type { CreateProjectThemeRequest, ProjectTheme, UpdateProjectThemeRequest } from "generated/client";
+import { useListFilesQuery, useListProjectsQuery, useListProjectThemesQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { MuiColorInput } from "mui-color-input";
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetError } from "utils/error-handling";
 
@@ -75,14 +75,31 @@ function SettingsIndexRoute() {
   const projectTheme = useMemo(
     () =>
       listProjectThemesQuery.data
-        ? listProjectThemesQuery.data.at(0) ?? { themeColor: themeColorDefaultOptions[0].value, logoUrl: DEFAULT_LOGO }
+        ? (listProjectThemesQuery.data.at(0) ?? {
+            themeColor: themeColorDefaultOptions[0].value,
+            logoUrl: DEFAULT_LOGO,
+          })
         : null,
     [themeColorDefaultOptions[0].value, listProjectThemesQuery.data],
   );
 
+  /**
+   * Applies the project theme settings to settings configuration
+   */
+  const applyProjectThemeSettings = useCallback(
+    (theme: ProjectTheme) => {
+      setSelectedColor(theme.themeColor);
+      setSelectedLogo(theme.logoUrl);
+
+      const isCustomColor = themeColorDefaultOptions.every((color) => color.value !== theme.themeColor);
+      setColorPickerOpen(isCustomColor);
+    },
+    [themeColorDefaultOptions],
+  );
+
   useEffect(() => {
     if (projectTheme) applyProjectThemeSettings(projectTheme);
-  }, [projectTheme]);
+  }, [projectTheme, applyProjectThemeSettings]);
 
   /**
    * Create project theme mutation
@@ -114,17 +131,6 @@ function SettingsIndexRoute() {
     },
     onError: (error) => setError(t("errorHandling.errorUploadingLogo"), error),
   });
-
-  /**
-   * Applies the project theme settings to settings configuration
-   */
-  const applyProjectThemeSettings = (theme: ProjectTheme) => {
-    setSelectedColor(theme.themeColor);
-    setSelectedLogo(theme.logoUrl);
-
-    const isCustomColor = themeColorDefaultOptions.every((color) => color.value !== theme.themeColor);
-    setColorPickerOpen(isCustomColor);
-  };
 
   /**
    * Disable project theme handler

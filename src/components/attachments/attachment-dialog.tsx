@@ -6,6 +6,7 @@ import { LoadingButton } from "@mui/lab";
 import {
   Alert,
   AppBar,
+  alpha,
   Box,
   Button,
   Dialog,
@@ -17,18 +18,17 @@ import {
   TextField,
   Toolbar,
   Typography,
-  alpha,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { filesApi } from "api/files";
 import FileUploadDropzone from "components/generic/file-upload-dropzone";
-import { Attachment } from "generated/client";
+import type { Attachment } from "generated/client";
 import { useListFilesQuery, useListTasksQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { FileToUpload } from "types";
+import type { FileToUpload } from "types";
 import { useSetError } from "utils/error-handling";
 import { z } from "zod";
 

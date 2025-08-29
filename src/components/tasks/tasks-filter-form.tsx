@@ -3,8 +3,8 @@ import { NO_SELECTION } from "consts";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { TasksSearchSchema } from "schemas/search";
-import { FormFieldChangeHandler } from "types";
+import type { TasksSearchSchema } from "schemas/search";
+import type { FormFieldChangeHandler } from "types";
 
 /**
  * Component properties

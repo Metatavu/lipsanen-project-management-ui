@@ -1,4 +1,4 @@
-import { JobPosition, User } from "generated/client";
+import type { JobPosition, User } from "generated/client";
 
 /**
  * User utility functions

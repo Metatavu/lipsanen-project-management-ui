@@ -1,6 +1,6 @@
-import { Slider, Box } from "@mui/material";
-import { ViewMode } from "../../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { Box, Slider } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { ViewMode } from "../../../lipsanen-project-management-gantt-chart/src/types/public-types";
 
 /**
  * Component properties
@@ -36,7 +36,7 @@ const GanttViewModesSlider = ({ viewMode, onViewModeChange }: Props) => {
    * @param event event
    * @param newValue new value
    */
-  const handleViewModeChange = (event: Event, newValue: number | number[]) => {
+  const handleViewModeChange = (_event: Event, newValue: number | number[]) => {
     if (typeof newValue === "number") {
       onViewModeChange(sliderViewModes[newValue]);
     }

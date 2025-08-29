@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { UpdateUserRequest } from "generated/client";
+import type { UpdateUserRequest } from "generated/client";
 import { useFindUserQuery, useListProjectsQuery } from "hooks/api-queries";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

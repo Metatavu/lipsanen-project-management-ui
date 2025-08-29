@@ -1,6 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Card, Toolbar, Typography } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, type GridPaginationModel } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import FilterDrawerButton from "components/generic/filter-drawer";
@@ -10,7 +10,7 @@ import NewUserDialog from "components/users/new-user-dialog";
 import ProjectUsersFiltersForm from "components/users/project-user-filters-form";
 import UserInfoDialog from "components/users/user-info-dialog";
 import { DEFAULT_USER_ICON } from "consts";
-import { DeleteUserRequest, UpdateUserRequest, User } from "generated/client";
+import type { UpdateUserRequest, User } from "generated/client";
 import {
   useListCompaniesQuery,
   useListJobPositionsQuery,
@@ -101,7 +101,6 @@ function ProjectUsersIndexRoute() {
     updateUserMutation.mutateAsync({ userId: userId, user: { ...user, projectIds: updatedProjects } });
   };
 
-
   /**
    * Main component render
    */
@@ -172,6 +171,7 @@ function ProjectUsersIndexRoute() {
               type: "actions",
               getActions: (params) => [
                 <GridActionsCellItem
+                  key="delete"
                   label={t("generic.remove")}
                   icon={<DeleteIcon color="error" />}
                   showInMenu

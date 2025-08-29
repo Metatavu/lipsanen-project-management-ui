@@ -1,4 +1,4 @@
-import { UseQueryResult } from "@tanstack/react-query";
+import type { UseQueryResult } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 export const useCachedMaxResultsFromQuery = <T extends UseQueryResult<{ maxResults: number }>>(query: T) => {

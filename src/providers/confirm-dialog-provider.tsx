@@ -6,13 +6,13 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  Theme,
+  type Theme,
   ThemeProvider,
   Toolbar,
   useTheme,
 } from "@mui/material";
 import { GridCloseIcon } from "@mui/x-data-grid";
-import { ReactNode, createContext, useContext, useState } from "react";
+import { createContext, type ReactNode, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 /**

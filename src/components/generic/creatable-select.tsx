@@ -1,8 +1,8 @@
-import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
-import { SyntheticEvent } from "react";
+import TextField from "@mui/material/TextField";
+import type { SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { CompanyOptionType } from "types";
+import type { CompanyOptionType } from "types";
 
 /**
  * Component Props

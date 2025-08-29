@@ -5,7 +5,12 @@ import { Box, Button, LinearProgress, List, ListItem, Stack, Typography } from "
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import JobPositionAvatar from "components/generic/job-position-avatar";
 import ResizablePanel from "components/generic/resizable-panel";
-import { ChangeProposal, ChangeProposalStatus, Task, UpdateChangeProposalRequest } from "generated/client";
+import {
+  type ChangeProposal,
+  ChangeProposalStatus,
+  type Task,
+  type UpdateChangeProposalRequest,
+} from "generated/client";
 import { useFindUsersQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
@@ -35,7 +40,7 @@ const ChangeProposalsDrawer = ({
   tasks,
   selectedChangeProposalId,
   setSelectedChangeProposalId,
-  loading
+  loading,
 }: Props) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -83,7 +88,7 @@ const ChangeProposalsDrawer = ({
       changeProposalId: changeProposal.id,
       changeProposal: {
         ...changeProposal,
-        status: status
+        status: status,
       },
     });
   };
