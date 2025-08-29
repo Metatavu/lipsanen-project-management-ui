@@ -66,7 +66,7 @@ function TrackingIndexRoute() {
       {/* Header Component */}
       <Box display="flex" flexDirection="row" height="calc(100vh - 136px)" gap={2}>
         {/* Notifications Column */}
-        <Card sx={{ width: "30%", height: "100%", overflow: "auto", boxShadow: "none", padding: "1rem" }}>
+        <Card sx={{ width: "30%", height: "100%", overflow: "auto", boxShadow: "none", p: 1 }}>
           <NotificationsList
             projectId={projectId}
             notificationEvents={notificationEvents}
