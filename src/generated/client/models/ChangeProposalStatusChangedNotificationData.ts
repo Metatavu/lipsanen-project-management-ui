@@ -45,6 +45,30 @@ export interface ChangeProposalStatusChangedNotificationData {
      */
     taskName: string;
     /**
+     * ID of the milestone that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalStatusChangedNotificationData
+     */
+    milestoneId: string;
+    /**
+     * Name of the milestone that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalStatusChangedNotificationData
+     */
+    milestoneName: string;
+    /**
+     * ID of the project that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalStatusChangedNotificationData
+     */
+    projectId: string;
+    /**
+     * Name of the project that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalStatusChangedNotificationData
+     */
+    projectName: string;
+    /**
      * 
      * @type {ChangeProposalStatus}
      * @memberof ChangeProposalStatusChangedNotificationData
@@ -60,6 +84,10 @@ export function instanceOfChangeProposalStatusChangedNotificationData(value: obj
     isInstance = isInstance && "changeProposalId" in value;
     isInstance = isInstance && "taskId" in value;
     isInstance = isInstance && "taskName" in value;
+    isInstance = isInstance && "milestoneId" in value;
+    isInstance = isInstance && "milestoneName" in value;
+    isInstance = isInstance && "projectId" in value;
+    isInstance = isInstance && "projectName" in value;
     isInstance = isInstance && "newStatus" in value;
 
     return isInstance;
@@ -78,6 +106,10 @@ export function ChangeProposalStatusChangedNotificationDataFromJSONTyped(json: a
         'changeProposalId': json['changeProposalId'],
         'taskId': json['taskId'],
         'taskName': json['taskName'],
+        'milestoneId': json['milestoneId'],
+        'milestoneName': json['milestoneName'],
+        'projectId': json['projectId'],
+        'projectName': json['projectName'],
         'newStatus': ChangeProposalStatusFromJSON(json['newStatus']),
     };
 }
@@ -94,6 +126,10 @@ export function ChangeProposalStatusChangedNotificationDataToJSON(value?: Change
         'changeProposalId': value.changeProposalId,
         'taskId': value.taskId,
         'taskName': value.taskName,
+        'milestoneId': value.milestoneId,
+        'milestoneName': value.milestoneName,
+        'projectId': value.projectId,
+        'projectName': value.projectName,
         'newStatus': ChangeProposalStatusToJSON(value.newStatus),
     };
 }

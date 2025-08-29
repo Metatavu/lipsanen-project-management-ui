@@ -11,6 +11,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Popover,
   Stack,
   styled,
   Tab,
@@ -27,7 +28,7 @@ import {
   useListTasksQuery,
 } from "hooks/api-queries";
 import { useAtom } from "jotai";
-import { bindMenu, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
+import { bindMenu, bindPopover, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { NavigationLink } from "types";
@@ -64,7 +65,6 @@ const TopNavigation = () => {
   const notificationEvents = useMemo(() => listNotificationEventsQuery.data ?? [], [listNotificationEventsQuery.data]);
 
   const listTasksQuery = useListTasksQuery({});
-  const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
 
   const unreadNotificationEventsCount = useMemo(
     () => (listNotificationEventsQuery.data ?? []).length,
@@ -140,7 +140,7 @@ const TopNavigation = () => {
     >
       <Toolbar variant="dense">
         {customProjectTheme && <img src={customProjectTheme?.logoUrl} alt="Project logo" height={30} />}
-        <Stack direction="row" gap={3} sx={{ ml: 3, flexGrow: 1 }}>
+        <Stack direction="row" gap={3} flexGrow={1} ml={3}>
           <Tabs
             sx={{
               "& .MuiTabs-indicator": {
@@ -158,7 +158,7 @@ const TopNavigation = () => {
                   },
                 }}
                 key={route}
-                label={labelKey !== "back" && t(labelKey)}
+                label={labelKey !== "back" ? t(labelKey) : undefined}
                 icon={labelKey === "back" ? <ArrowBackIcon /> : undefined}
                 value={routeIndex}
                 onClick={() => navigate({ to: route, params: pathParams })}
@@ -167,7 +167,7 @@ const TopNavigation = () => {
           </Tabs>
         </Stack>
 
-        <Stack direction="row" gap={1} sx={{ flexGrow: 0 }}>
+        <Stack direction="row" gap={1} flexGrow={0}>
           <IconButton
             sx={{
               color: updatedTheme.palette.primary.contrastText,
@@ -182,16 +182,18 @@ const TopNavigation = () => {
               )}
             </NotificationBadge>
           </IconButton>
-          <Menu {...bindMenu(notificationsListMenuState)}>
-            <MenuItem>
-              <NotificationsList
-                tasks={tasks}
-                notificationEvents={notificationEvents}
-                loading={listTasksQuery.isLoading || listNotificationEventsQuery.isLoading}
-                appbarView
-              />
-            </MenuItem>
-          </Menu>
+          <Popover
+            {...bindPopover(notificationsListMenuState)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            slotProps={{ paper: { sx: { minWidth: 500 } } }}
+          >
+            <NotificationsList
+              notificationEvents={notificationEvents}
+              loading={listTasksQuery.isLoading || listNotificationEventsQuery.isLoading}
+              appbarView
+            />
+          </Popover>
           <IconButton
             sx={{
               color: updatedTheme.palette.primary.contrastText,

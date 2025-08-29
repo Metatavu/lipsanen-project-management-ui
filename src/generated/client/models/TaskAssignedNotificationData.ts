@@ -32,6 +32,30 @@ export interface TaskAssignedNotificationData {
      */
     taskName: string;
     /**
+     * ID of the milestone that the comment is related to
+     * @type {string}
+     * @memberof TaskAssignedNotificationData
+     */
+    milestoneId: string;
+    /**
+     * Name of the milestone that the comment is related to
+     * @type {string}
+     * @memberof TaskAssignedNotificationData
+     */
+    milestoneName: string;
+    /**
+     * ID of the project that the comment is related to
+     * @type {string}
+     * @memberof TaskAssignedNotificationData
+     */
+    projectId: string;
+    /**
+     * Name of the project that the comment is related to
+     * @type {string}
+     * @memberof TaskAssignedNotificationData
+     */
+    projectName: string;
+    /**
      * IDs of users that the task was assigned to
      * @type {Array<string>}
      * @memberof TaskAssignedNotificationData
@@ -46,6 +70,10 @@ export function instanceOfTaskAssignedNotificationData(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "taskId" in value;
     isInstance = isInstance && "taskName" in value;
+    isInstance = isInstance && "milestoneId" in value;
+    isInstance = isInstance && "milestoneName" in value;
+    isInstance = isInstance && "projectId" in value;
+    isInstance = isInstance && "projectName" in value;
     isInstance = isInstance && "assigneeIds" in value;
 
     return isInstance;
@@ -63,6 +91,10 @@ export function TaskAssignedNotificationDataFromJSONTyped(json: any, ignoreDiscr
         
         'taskId': json['taskId'],
         'taskName': json['taskName'],
+        'milestoneId': json['milestoneId'],
+        'milestoneName': json['milestoneName'],
+        'projectId': json['projectId'],
+        'projectName': json['projectName'],
         'assigneeIds': json['assigneeIds'],
     };
 }
@@ -78,6 +110,10 @@ export function TaskAssignedNotificationDataToJSON(value?: TaskAssignedNotificat
         
         'taskId': value.taskId,
         'taskName': value.taskName,
+        'milestoneId': value.milestoneId,
+        'milestoneName': value.milestoneName,
+        'projectId': value.projectId,
+        'projectName': value.projectName,
         'assigneeIds': value.assigneeIds,
     };
 }
