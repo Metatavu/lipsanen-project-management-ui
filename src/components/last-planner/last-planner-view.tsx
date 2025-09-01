@@ -1,4 +1,4 @@
-import { LinearProgress, Stack, styled, Typography } from "@mui/material";
+import { FormControlLabel, LinearProgress, Stack, Switch, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
@@ -22,14 +22,15 @@ import {
 } from "utils/last-planner-utils";
 import { TaskRowCell } from "./task-row-cell";
 
+const TOOLBAR_HEIGHT = 50;
+const HEADER_ROW_HEIGHT = 30;
+
 /**
  * Styled wrapper element for the last planner table
  */
 const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   position: "relative",
-  marginBottom: 100,
   paddingBottom: theme.spacing(2),
-  overflowX: "auto",
   "& table": {
     width: "100%",
     borderCollapse: "separate",
@@ -43,10 +44,23 @@ const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
       borderBottom: `1px solid ${theme.palette.grey[300]}`,
       borderRight: `1px solid ${theme.palette.grey[300]}`,
     },
-    "& th:first-of-type, & td:first-of-type": {
-      borderLeft: `1px solid ${theme.palette.grey[300]}`,
-    },
   },
+}));
+
+const StyledToolbar = styled(Stack)(({ theme }) => ({
+  height: TOOLBAR_HEIGHT,
+  flexDirection: "row",
+  alignItems: "center",
+  gap: theme.spacing(2),
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(1),
+  position: "sticky",
+  top: 0,
+  left: 0,
+  zIndex: 4,
+  backgroundColor: theme.palette.grey[100],
+  borderBottom: "1px solid",
+  borderColor: theme.palette.divider,
 }));
 
 /**
@@ -68,8 +82,7 @@ type StickyTableCellProps = {
  * Styled sticky table cell element
  */
 const StickyTableCell = styled("td", {
-  shouldForwardProp: (prop) =>
-    prop !== "top" && prop !== "left" && prop !== "noLeftBorder" && prop !== "constrainWidth",
+  shouldForwardProp: (prop) => prop !== "top" && prop !== "left" && prop !== "constrainWidth",
 })<StickyTableCellProps>(({ top, left, colSpan = 1, constrainWidth = false }) => ({
   position: "sticky",
   top: top,
@@ -89,6 +102,7 @@ const StickyTableCell = styled("td", {
 type Props = {
   projectId: string;
   editMode?: boolean;
+  setEditMode?: (editMode: boolean) => void;
 };
 
 /**
@@ -96,7 +110,7 @@ type Props = {
  *
  * @param props component properties
  */
-const LastPlannerView = ({ projectId, editMode }: Props) => {
+const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   const navigate = useNavigate({ from: "/projects/$projectId/tasks" });
   const { t } = useTranslation();
   const { tasksApi } = useApi();
@@ -242,7 +256,13 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
    */
   const renderYears = () =>
     years?.map((year, i) => (
-      <StickyTableCell key={i.toString()} colSpan={year.count("days")} top={0} align="center" constrainWidth>
+      <StickyTableCell
+        key={i.toString()}
+        colSpan={year.count("days")}
+        top={TOOLBAR_HEIGHT}
+        align="center"
+        constrainWidth
+      >
         {year.start?.year}
       </StickyTableCell>
     ));
@@ -257,8 +277,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
         colSpan={month.count("days")}
         constrainWidth
         align="center"
-        top={30}
-        style={{ borderLeft: i === 0 ? "none" : undefined }}
+        top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT}
       >
         {month.start?.monthLong}
       </StickyTableCell>
@@ -277,11 +296,8 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
           colSpan={week.count("days")}
           constrainWidth
           align="center"
-          top={60}
-          style={{
-            borderLeft: i === 0 ? "none" : undefined,
-            backgroundColor: isCurrentWeek ? "rgba(255, 247, 163, 0.6)" : undefined,
-          }}
+          top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 2}
+          style={{ backgroundColor: isCurrentWeek ? "rgba(255, 247, 163, 0.6)" : undefined }}
         >
           <Typography textOverflow="ellipsis" noWrap>
             {t("lastPlannerView.week")} {week.start?.weekNumber}
@@ -296,7 +312,7 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
    */
   const renderDays = () =>
     days?.map((day, i) => (
-      <StickyTableCell key={i.toString()} constrainWidth align="center" top={90}>
+      <StickyTableCell key={i.toString()} constrainWidth align="center" top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 3}>
         {day.start?.day}
       </StickyTableCell>
     ));
@@ -309,28 +325,39 @@ const LastPlannerView = ({ projectId, editMode }: Props) => {
    * Component render
    */
   return (
-    <LastPlannerTableWrapper ref={tableWrapperRef}>
-      <table style={{ borderCollapse: "separate" }}>
-        <thead>
-          <FixedHeightTableRow style={{ height: 30 }}>
-            <StickyTableCell rowSpan={4} top={0} left={0} style={{ verticalAlign: "bottom", zIndex: 3 }}>
-              <Typography component="h3" variant="body2" fontWeight="bold" mb={1} ml={2}>
-                {t("lastPlannerView.user")}
-              </Typography>
-            </StickyTableCell>
-            {renderYears()}
-          </FixedHeightTableRow>
-          <FixedHeightTableRow style={{ height: 30 }}>{renderMonths()}</FixedHeightTableRow>
-          <FixedHeightTableRow style={{ height: 30 }}>{renderWeeks()}</FixedHeightTableRow>
-          <FixedHeightTableRow style={{ height: 30 }}>{renderDays()}</FixedHeightTableRow>
-        </thead>
-        <tbody>
-          {users.map((user) =>
-            user.id ? renderTableRowsForUser(user, tasksByAssigneeIdMap.get(user.id)?.tasks ?? []) : null,
-          )}
-        </tbody>
-      </table>
-    </LastPlannerTableWrapper>
+    <>
+      <StyledToolbar>
+        <Typography component="h2" variant="h5" mr="auto">
+          {t("lastPlannerView.title")}
+        </Typography>
+        <FormControlLabel
+          control={<Switch value={editMode} onChange={(event) => setEditMode?.(event.target.checked)} />}
+          label={t("lastPlannerView.markTasks")}
+        />
+      </StyledToolbar>
+      <LastPlannerTableWrapper ref={tableWrapperRef}>
+        <table style={{ borderCollapse: "separate" }}>
+          <thead>
+            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>
+              <StickyTableCell rowSpan={4} top={TOOLBAR_HEIGHT} left={0} style={{ verticalAlign: "bottom", zIndex: 3 }}>
+                <Typography component="h3" variant="body2" fontWeight="bold" mb={1} ml={2}>
+                  {t("lastPlannerView.user")}
+                </Typography>
+              </StickyTableCell>
+              {renderYears()}
+            </FixedHeightTableRow>
+            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderMonths()}</FixedHeightTableRow>
+            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderWeeks()}</FixedHeightTableRow>
+            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderDays()}</FixedHeightTableRow>
+          </thead>
+          <tbody>
+            {users.map((user) =>
+              user.id ? renderTableRowsForUser(user, tasksByAssigneeIdMap.get(user.id)?.tasks ?? []) : null,
+            )}
+          </tbody>
+        </table>
+      </LastPlannerTableWrapper>
+    </>
   );
 };
 
