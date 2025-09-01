@@ -6,37 +6,28 @@ import { atomWithStorage } from "jotai/utils";
 import { type ReactNode, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 
+const INITIAL_HEIGHT = 20;
+
 /**
  *  Component properties
  */
 type Props = {
-  containerRef?: React.RefObject<HTMLElement>;
-  initialHeight?: number;
   children?: ReactNode;
-  toolbar?: ReactNode;
-} & (
-  | {
-      storeKey: string;
-      storeLastPosition: true;
-    }
-  | {
-      storeKey?: never;
-      storeLastPosition?: never;
-    }
-);
+  storeKey?: string;
+  reserveSpaceForHandle?: boolean;
+};
 
 /**
  * Hook for storing the height of a resizable panel in local storage
  *
- * @param storeLastPosition whether to store the last position to localstorage or not
- * @param id ID to store the last position to localstorage with
+ * @param storeId ID to store the last position to localstorage with
  */
-const useStoredHeightWithId = (initialHeight: number, storeLastPosition?: boolean, id?: string) => {
-  if (!storeLastPosition || !id) return [undefined, undefined];
+const useStoredHeightWithId = (initialHeight: number, storeId?: string) => {
+  if (!storeId) return [undefined, undefined];
   // biome-ignore lint/correctness/useHookAtTopLevel: Fixing this might cause unexpected behavior
   const storedHeightAtom = useMemo(
-    () => atomWithStorage(`resizable-panel-${id}`, initialHeight, undefined, { getOnInit: true }),
-    [id, initialHeight],
+    () => atomWithStorage(`resizable-panel-${storeId}`, initialHeight, undefined, { getOnInit: true }),
+    [storeId, initialHeight],
   );
   // biome-ignore lint/correctness/useHookAtTopLevel: Fixing this might cause unexpected behavior
   return useAtom(storedHeightAtom);
@@ -49,71 +40,60 @@ const useStoredHeightWithId = (initialHeight: number, storeLastPosition?: boolea
  * @param props.id unique identifier for the resizable panel
  * @param props.children panel content
  * @param props.initialHeight initial height of the panel
- * @param props.containerRef reference to the container element
- * @param props.storeLastPosition whether to store the last position in local storage
- * @param props.toolbar optional toolbar component
  */
-const ResizablePanel = ({
-  storeKey,
-  children,
-  initialHeight = 20,
-  containerRef,
-  storeLastPosition,
-  toolbar = null,
-}: Props) => {
-  const [storedHeight, setStoredHeight] = useStoredHeightWithId(initialHeight, storeLastPosition, storeKey);
+const ResizablePanel = ({ storeKey, children, reserveSpaceForHandle }: Props) => {
+  const [storedHeight, setStoredHeight] = useStoredHeightWithId(INITIAL_HEIGHT, storeKey);
 
   const { height, onMouseDown } = useResizableHeight({
-    containerRef,
-    initialHeight: storedHeight ?? initialHeight,
+    initialHeight: storedHeight ?? INITIAL_HEIGHT,
+    minHeight: INITIAL_HEIGHT,
     handleOffset: 10,
   });
 
-  useEffect(() => {
-    setStoredHeight?.(height);
-  }, [height, setStoredHeight]);
+  useEffect(() => setStoredHeight?.(height), [height, setStoredHeight]);
 
   /**
    * Main component render
    */
-  return createPortal(
+  return (
     <>
-      {containerRef?.current && <Box height={20} />}
-      <Box
-        position={containerRef?.current ? "absolute" : "fixed"}
-        bottom={0}
-        left={0}
-        right={0}
-        height={height}
-        bgcolor="background.paper"
-        borderTop="2px solid rgba(0, 0, 0, .1)"
-        zIndex={(theme) => theme.zIndex.drawer}
-      >
+      {reserveSpaceForHandle && <Box height={20} />}
+      {createPortal(
         <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height={20}
-          onMouseDown={onMouseDown}
-          sx={{
-            transition: "background-color .1s",
-            cursor: "row-resize",
-            "&:hover,&:active": {
-              backgroundColor: "rgba(0, 0, 0, .025)",
-            },
-          }}
+          position="fixed"
+          bottom={0}
+          left={0}
+          right={0}
+          height={height}
+          bgcolor="background.paper"
+          // borderTop="2px solid rgba(0, 0, 0, .1)"
+          boxShadow={10}
+          zIndex={(theme) => theme.zIndex.drawer}
         >
-          <DragHandleIcon sx={{ color: (theme) => theme.palette.grey[500] }} />
-        </Box>
-        <Divider />
-        {toolbar}
-        {toolbar ? <Divider /> : null}
-        <Box height={`${height - 1}px`} overflow="auto">
-          {children}
-        </Box>
-      </Box>
-    </>,
-    containerRef?.current ?? document.body,
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height={20}
+            onMouseDown={onMouseDown}
+            sx={{
+              transition: "background-color .1s",
+              cursor: "row-resize",
+              "&:hover,&:active": {
+                backgroundColor: "rgba(0, 0, 0, .025)",
+              },
+            }}
+          >
+            <DragHandleIcon sx={{ color: "grey.500" }} />
+          </Box>
+          <Divider />
+          <Box height={`${height - 20 - 1}px`} overflow="auto" position="relative">
+            {children}
+          </Box>
+        </Box>,
+        document.body,
+      )}
+    </>
   );
 };
 
