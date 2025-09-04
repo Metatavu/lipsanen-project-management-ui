@@ -56,7 +56,7 @@ function TrackingIndexRoute() {
 
   return (
     <FlexColumnLayout>
-      <Box sx={{ display: "flex", flexDirection: "row", marginBottom: "0rem" }}>
+      <Box display="flex" flexDirection="row" mb={0}>
         <Card sx={{ flex: 1, padding: "1rem", backgroundColor: "#fff", boxShadow: "none", marginBottom: "1rem" }}>
           <Typography component="h1" variant="h5">
             {project?.name ?? ""}
@@ -64,29 +64,20 @@ function TrackingIndexRoute() {
         </Card>
       </Box>
       {/* Header Component */}
-      <Box sx={{ display: "flex", flexDirection: "row", height: "calc(100vh - 136px)", gap: "2rem" }}>
+      <Box display="flex" flexDirection="row" height="calc(100vh - 136px)" gap={2}>
         {/* Notifications Column */}
-        <Card sx={{ width: "30%", height: "100%", overflow: "auto", boxShadow: "none", padding: "1rem" }}>
+        <Card sx={{ width: "30%", height: "100%", overflow: "auto", boxShadow: "none", p: 1 }}>
           <NotificationsList
-            tasks={tasks}
+            projectId={projectId}
             notificationEvents={notificationEvents}
             loading={listTasksQuery.isLoading || listNotificationEventsQuery.isLoading}
           />
         </Card>
         {/* Tasks and Delays Column */}
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: "2rem",
-            overflow: "auto",
-            justifyContent: "space-between",
-          }}
-        >
+        <Box flex={1} display="flex" flexDirection="column" justifyContent="space-between" gap={2} overflow="auto">
           {/* Tasks Column */}
           <Card sx={{ flex: 1, minWidth: 0, overflow: "auto", boxShadow: "none" }}>
-            <Stack height="100%" p={2} minHeight={0}>
+            <Stack height={1} p={2} minHeight={0}>
               <Typography component="h2" variant="h6" mb={2}>
                 {t("trackingScreen.tasksList.title")}
               </Typography>

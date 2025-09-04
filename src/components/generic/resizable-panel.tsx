@@ -66,7 +66,6 @@ const ResizablePanel = ({ storeKey, children, reserveSpaceForHandle }: Props) =>
           right={0}
           height={height}
           bgcolor="background.paper"
-          // borderTop="2px solid rgba(0, 0, 0, .1)"
           boxShadow={10}
           zIndex={(theme) => theme.zIndex.drawer}
         >
