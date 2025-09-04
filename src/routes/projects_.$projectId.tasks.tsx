@@ -1,5 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
-import { Button, Card, FormControlLabel, Stack, Switch, Toolbar, Typography } from "@mui/material";
+import { Button, Card, Stack, Toolbar, Typography } from "@mui/material";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
@@ -55,25 +55,10 @@ function TasksIndexRoute() {
             onTaskClick={(task) => navigate({ to: "$taskId", params: { taskId: task.id as string } })}
           />
         </Stack>
-        <ResizablePanel
-          containerRef={cardRef}
-          storeLastPosition
-          storeKey="last-planner-panel"
-          toolbar={
-            <Stack direction="row" alignItems="center" gap={2} px={1} py={0.5} bgcolor="grey.100">
-              <Typography component="h2" variant="h5" pl={1} mr="auto">
-                {t("lastPlannerView.title")}
-              </Typography>
-              <FormControlLabel
-                control={<Switch value={editMode} onChange={(event) => setEditMode(event.target.checked)} />}
-                label={t("lastPlannerView.markTasks")}
-              />
-            </Stack>
-          }
-        >
-          <LastPlannerView projectId={projectId} editMode={editMode} />
-        </ResizablePanel>
       </Card>
+      <ResizablePanel reserveSpaceForHandle storeKey="last-planner">
+        <LastPlannerView projectId={projectId} editMode={editMode} setEditMode={setEditMode} />
+      </ResizablePanel>
       <Outlet />
     </FlexColumnLayout>
   );

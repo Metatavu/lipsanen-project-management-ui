@@ -60,9 +60,9 @@ function TrackingIndexRoute() {
    * Renders dropdown picker
    */
   const renderDropdownPicker = () => (
-    <Box sx={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+    <Box display="flex" alignItems="center" gap={4}>
       {/* Label on the left */}
-      <Typography variant="h5" sx={{ whiteSpace: "nowrap" }}>
+      <Typography variant="h5" whiteSpace="nowrap">
         {t("trackingScreen.selectProject")}
       </Typography>
       <TextField
@@ -90,23 +90,22 @@ function TrackingIndexRoute() {
    */
   return (
     <FlexColumnLayout>
-      <Box sx={{ display: "flex", flexDirection: "row", marginBottom: "0rem" }}>
+      <Box display="flex" flexDirection="row" mb={0}>
         <Card sx={{ flex: 1, padding: "1rem", backgroundColor: "#fff", boxShadow: "none", marginBottom: "1rem" }}>
           {renderDropdownPicker()}
         </Card>
       </Box>
       {/* Header Component */}
-      <Box sx={{ display: "flex", flexDirection: "row", height: "calc(100vh - 136px)", gap: "1rem" }}>
+      <Box display="flex" flexDirection="row" height="calc(100vh - 136px)" gap={2}>
         {/* Notifications Column */}
-        <Card sx={{ width: "30%", height: "100%", overflow: "auto", boxShadow: "none", padding: "1rem" }}>
+        <Card sx={{ minWidth: "500px", width: 0.3, height: 1, overflow: "auto", boxShadow: "none", p: 1 }}>
           <NotificationsList
-            tasks={tasks}
             notificationEvents={notificationEvents}
             loading={listTasksQuery.isLoading || listNotificationEventsQuery.isLoading}
           />
         </Card>
         {/* Tasks and Delays Column */}
-        <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+        <Box display="flex" flexDirection="column" width="100%">
           <Card sx={{ minWidth: 0, overflow: "auto", boxShadow: "none" }}>
             <DelaysList
               users={users}
