@@ -96,7 +96,7 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
           field: "assignee",
           headerName: t("trackingScreen.tasksList.assignee"),
           flex: 1,
-          sortable: false,
+          sortable: true,
           renderCell: (params) => {
             const [taskAssignee, jobPosition] = getAssigneeAndJobPositionForTask(params.row);
 
@@ -112,7 +112,7 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
           field: "name",
           headerName: t("trackingScreen.tasksList.task"),
           flex: 1,
-          sortable: false,
+          sortable: true,
           renderCell: (params) => (
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
@@ -131,29 +131,28 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
           field: "milestone",
           headerName: t("trackingScreen.tasksList.milestone"),
           flex: 1,
-          sortable: false,
+          sortable: true,
           renderCell: (params) => milestoneNameMap[params.row.milestoneId] ?? "-",
         },
-
         {
           field: "endDate",
           headerName: t("trackingScreen.tasksList.readyBy"),
           flex: 1,
-          sortable: false,
+          sortable: true,
           renderCell: (params) => DateTime.fromJSDate(params.value).toLocaleString(DATE_WITH_LEADING_ZEROS),
         },
         {
           field: "status",
           headerName: t("trackingScreen.tasksList.status"),
           flex: 1,
-          sortable: false,
+          sortable: true,
           renderCell: (params) => TaskUtils.renderStatusElement(params.value),
         },
         {
           field: "estimatedReadiness",
           headerName: t("trackingScreen.tasksList.readiness"),
           flex: 1,
-          sortable: false,
+          sortable: true,
           renderCell: (params) => <ProgressBadge progress={params.value ?? 0} width="120px" />,
         },
       ]}
