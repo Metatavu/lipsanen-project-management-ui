@@ -39,6 +39,30 @@ export interface TaskStatusChangesNotificationData {
      */
     taskName: string;
     /**
+     * ID of the milestone that the comment is related to
+     * @type {string}
+     * @memberof TaskStatusChangesNotificationData
+     */
+    milestoneId: string;
+    /**
+     * Name of the milestone that the comment is related to
+     * @type {string}
+     * @memberof TaskStatusChangesNotificationData
+     */
+    milestoneName: string;
+    /**
+     * ID of the project that the comment is related to
+     * @type {string}
+     * @memberof TaskStatusChangesNotificationData
+     */
+    projectId: string;
+    /**
+     * Name of the project that the comment is related to
+     * @type {string}
+     * @memberof TaskStatusChangesNotificationData
+     */
+    projectName: string;
+    /**
      * 
      * @type {TaskStatus}
      * @memberof TaskStatusChangesNotificationData
@@ -53,6 +77,10 @@ export function instanceOfTaskStatusChangesNotificationData(value: object): bool
     let isInstance = true;
     isInstance = isInstance && "taskId" in value;
     isInstance = isInstance && "taskName" in value;
+    isInstance = isInstance && "milestoneId" in value;
+    isInstance = isInstance && "milestoneName" in value;
+    isInstance = isInstance && "projectId" in value;
+    isInstance = isInstance && "projectName" in value;
 
     return isInstance;
 }
@@ -69,6 +97,10 @@ export function TaskStatusChangesNotificationDataFromJSONTyped(json: any, ignore
         
         'taskId': json['taskId'],
         'taskName': json['taskName'],
+        'milestoneId': json['milestoneId'],
+        'milestoneName': json['milestoneName'],
+        'projectId': json['projectId'],
+        'projectName': json['projectName'],
         'newStatus': !exists(json, 'newStatus') ? undefined : TaskStatusFromJSON(json['newStatus']),
     };
 }
@@ -84,6 +116,10 @@ export function TaskStatusChangesNotificationDataToJSON(value?: TaskStatusChange
         
         'taskId': value.taskId,
         'taskName': value.taskName,
+        'milestoneId': value.milestoneId,
+        'milestoneName': value.milestoneName,
+        'projectId': value.projectId,
+        'projectName': value.projectName,
         'newStatus': TaskStatusToJSON(value.newStatus),
     };
 }

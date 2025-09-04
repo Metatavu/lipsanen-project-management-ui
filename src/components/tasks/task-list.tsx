@@ -46,7 +46,6 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
   const users = useMemo(() => listUsersQuery.data?.users ?? [], [listUsersQuery.data]);
 
   const findProjectQuery = useFindProjectQuery(projectId);
-  const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
 
   const listMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = useMemo(() => listMilestonesQuery.data ?? [], [listMilestonesQuery.data]);
@@ -119,13 +118,6 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
               {params.value}
             </Box>
           ),
-        },
-        {
-          field: "project",
-          headerName: t("trackingScreen.tasksList.project"),
-          flex: 1,
-          sortable: false,
-          renderCell: () => project?.name ?? "-",
         },
         {
           field: "milestone",

@@ -37,6 +37,30 @@ export interface ChangeProposalCreatedNotificationData {
      * @memberof ChangeProposalCreatedNotificationData
      */
     taskName: string;
+    /**
+     * ID of the milestone that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalCreatedNotificationData
+     */
+    milestoneId: string;
+    /**
+     * Name of the milestone that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalCreatedNotificationData
+     */
+    milestoneName: string;
+    /**
+     * ID of the project that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalCreatedNotificationData
+     */
+    projectId: string;
+    /**
+     * Name of the project that the comment is related to
+     * @type {string}
+     * @memberof ChangeProposalCreatedNotificationData
+     */
+    projectName: string;
 }
 
 /**
@@ -47,6 +71,10 @@ export function instanceOfChangeProposalCreatedNotificationData(value: object): 
     isInstance = isInstance && "changeProposalId" in value;
     isInstance = isInstance && "taskId" in value;
     isInstance = isInstance && "taskName" in value;
+    isInstance = isInstance && "milestoneId" in value;
+    isInstance = isInstance && "milestoneName" in value;
+    isInstance = isInstance && "projectId" in value;
+    isInstance = isInstance && "projectName" in value;
 
     return isInstance;
 }
@@ -64,6 +92,10 @@ export function ChangeProposalCreatedNotificationDataFromJSONTyped(json: any, ig
         'changeProposalId': json['changeProposalId'],
         'taskId': json['taskId'],
         'taskName': json['taskName'],
+        'milestoneId': json['milestoneId'],
+        'milestoneName': json['milestoneName'],
+        'projectId': json['projectId'],
+        'projectName': json['projectName'],
     };
 }
 
@@ -79,6 +111,10 @@ export function ChangeProposalCreatedNotificationDataToJSON(value?: ChangePropos
         'changeProposalId': value.changeProposalId,
         'taskId': value.taskId,
         'taskName': value.taskName,
+        'milestoneId': value.milestoneId,
+        'milestoneName': value.milestoneName,
+        'projectId': value.projectId,
+        'projectName': value.projectName,
     };
 }
 
