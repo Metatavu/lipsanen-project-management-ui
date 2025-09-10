@@ -33,6 +33,9 @@ interface Props {
  * Get assignee and job position for a task
  *
  * @param task task
+ * @param users users
+ * @param jobPositions job positions
+ * @param currentUser possible current user, used when displayed in user-specific todo-list
  * @returns assignee and job position in array
  */
 const getAssigneeAndJobPositionForTask = (
