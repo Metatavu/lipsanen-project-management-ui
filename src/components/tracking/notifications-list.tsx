@@ -1,4 +1,4 @@
-import { Circle, Clear, Close, X } from "@mui/icons-material";
+import { Circle, Clear } from "@mui/icons-material";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import { Box, Breadcrumbs, Card, Divider, IconButton, LinearProgress, Stack, Tooltip, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -44,7 +44,7 @@ type NotificationDataType =
  *
  * @param props props
  */
-const NotificationsList = ({ projectId, notificationEvents, loading, appbarView }: Props) => {
+const NotificationsList = ({ projectId, notificationEvents, loading }: Props) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { NotificationEventsApi } = useApi();
