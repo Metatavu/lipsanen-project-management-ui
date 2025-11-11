@@ -98,7 +98,10 @@ function MilestoneTasksListRoute() {
   )?.taskId;
 
   const changeProposalTasksPreviewListQuery = useListTasksQuery({ changeProposalId: selectedChangeProposalId });
-  const changeProposalTasksPreviewList = changeProposalTasksPreviewListQuery.data;
+  const changeProposalTasksPreviewList = useMemo(
+    () => changeProposalTasksPreviewListQuery.data,
+    [changeProposalTasksPreviewListQuery.data],
+  );
 
   /**
    * View date for the gantt chart
@@ -209,7 +212,7 @@ function MilestoneTasksListRoute() {
 
     const startDate = DateTime.fromJSDate(milestone.startDate);
     const endDate = DateTime.fromJSDate(milestone.endDate);
-    const difference = endDate.diff(startDate, "days").days;
+    const difference = Math.ceil(endDate.diff(startDate, "days").days);
     const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
     const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
 
@@ -258,7 +261,7 @@ function MilestoneTasksListRoute() {
     return (tasks ?? []).map((task) => {
       const startDate = DateTime.fromJSDate(task.startDate);
       const endDate = DateTime.fromJSDate(task.endDate);
-      const difference = endDate.diff(startDate, "days").days;
+      const difference = Math.ceil(endDate.diff(startDate, "days").days);
       const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
       const taskAssignee = projectUsers.find((user) => user.id === task.assigneeIds?.at(0));
