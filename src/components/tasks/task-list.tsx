@@ -1,8 +1,9 @@
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import { Box, LinearProgress, Stack } from "@mui/material";
-import { DataGrid, type GridColDef, type GridComparatorFn, gridClasses } from "@mui/x-data-grid";
+import { DataGrid, type GridColDef, gridClasses } from "@mui/x-data-grid";
 import JobPositionAvatar from "components/generic/job-position-avatar";
 import ProgressBadge from "components/generic/progress-badge";
+import { RouterLink } from "components/generic/router-link";
 import { DATE_WITH_LEADING_ZEROS } from "consts";
 import type { JobPosition, Task, User } from "generated/client";
 import {
@@ -16,7 +17,7 @@ import { DateTime } from "luxon";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { TasksSearchSchema } from "schemas/search";
-import TaskUtils from "utils/task";
+import { default as TaskUtils } from "utils/task";
 
 /**
  * Component properties
@@ -106,12 +107,41 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
         headerName: t("trackingScreen.tasksList.task"),
         flex: 1,
         sortable: true,
-        renderCell: (params) => (
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
-            {params.value}
-          </Box>
-        ),
+        renderCell: (params) => {
+          const task = params.row as Task;
+          const taskId = task.id;
+          const taskName = task.name;
+          const content = (
+            <Box sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              "&:hover span.task-name": {
+                  textDecoration: "underline",
+                }, 
+              }}
+            >
+              <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
+              <Box component="span" className="task-name">
+                {taskName}
+              </Box>
+            </Box>
+          );
+
+          if (!taskId) {
+            return content;
+          }
+
+          return (
+            <RouterLink
+              to="/projects/$projectId/tasks/$taskId"
+              params={{ projectId, taskId: taskId }}
+              onClick={(event) => event.stopPropagation()}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              {content}
+            </RouterLink>
+          );
+        },
       },
       {
         field: "milestone",
