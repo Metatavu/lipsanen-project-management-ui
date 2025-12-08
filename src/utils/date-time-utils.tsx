@@ -1,3 +1,4 @@
+import finnishholidays, { type Holiday } from "finnish-holidays-js";
 import { DateTime, type DateTimeUnit, Interval } from "luxon";
 
 /**
@@ -81,4 +82,107 @@ export const differenceInDaysInclusive = (a: DateTime<true>, b: DateTime<true>) 
   const end = b.startOf("day");
   const interval = Interval.fromDateTimes(start, end);
   return Math.max(interval.count("days") + 1, 1);
+};
+
+const isWeekend = (date: DateTime) => {
+  const weekday = date.weekday; // 1 = Monday, 7 = Sunday
+  return weekday === 6 || weekday === 7;
+};
+
+const isSameDay = (a: DateTime, b: DateTime) => a.toISODate() === b.toISODate();
+
+const isHoliday = (date: DateTime, holidays: Date[]) =>
+  holidays.some((h) => isSameDay(date, DateTime.fromJSDate(h)));
+
+/**
+ * Add N business days (skipping weekends + holidays).
+ * If days = 0, returns the original date.
+ * Used for determining end date based on start date and estimated duration.
+ */
+export const addBusinessDays = (start: DateTime, days: number, holidays: Date[] = []): DateTime => {
+  let result = start;
+  let added = 0;
+
+  while (added < days) {
+    result = result.plus({ days: 1 });
+    if (!isWeekend(result) && !isHoliday(result, holidays)) {
+      added += 1;
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Subtract N business days (skipping weekends + holidays).
+ * Used for determining start date based on end date and estimated duration.
+ */
+export const subtractBusinessDays = (end: DateTime, days: number, holidays: Date[] = []): DateTime => {
+  let result = end;
+  let subtracted = 0;
+
+  while (subtracted < days) {
+    result = result.minus({ days: 1 });
+    if (!isWeekend(result) && !isHoliday(result, holidays)) {
+      subtracted += 1;
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Inclusive business-day difference between start and end (1 = same business day).
+ * Used for determining estimated duration based on start and end dates.
+ */
+export const businessDaysInclusive = (
+  start: DateTime,
+  end: DateTime,
+  holidays: Date[] = [],
+): number => {
+  if (end < start) return 0;
+
+  let current = start.startOf("day");
+  const last = end.startOf("day");
+  let count = 0;
+
+  while (current <= last) {
+    if (!isWeekend(current) && !isHoliday(current, holidays)) {
+      count += 1;
+    }
+    current = current.plus({ days: 1 });
+  }
+
+  return count;
+};
+
+/**
+ * Get Finnish holidays within a date range
+ * @param start DateTime start
+ * @param end DateTime end
+ * @returns Array of Date objects representing Finnish holidays within the range
+ */
+export const getFinnishHolidaysForRange = (start: DateTime, end: DateTime): Date[] => {
+  const startDay = start.startOf("day");
+  const endDay = end.startOf("day");
+
+  const holidays: Date[] = [];
+
+  for (let year = startDay.year; year <= endDay.year; year++) {
+    const yearHolidays: Holiday[] = finnishholidays.year(year, false);
+
+    for (const h of yearHolidays) {
+      const dt = DateTime.fromObject({
+        year: h.year,
+        month: h.month,
+        day: h.day,
+      }).startOf("day");
+
+      if (dt >= startDay && dt <= endDay) {
+        holidays.push(dt.toJSDate());
+      }
+    }
+  }
+
+  return holidays;
 };
