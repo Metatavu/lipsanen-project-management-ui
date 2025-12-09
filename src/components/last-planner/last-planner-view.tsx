@@ -31,6 +31,8 @@ const HEADER_ROW_HEIGHT = 30;
 const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   position: "relative",
   paddingBottom: theme.spacing(2),
+  overflowX: "auto",
+  maxWidth: "100%",
   "& table": {
     width: "100%",
     borderCollapse: "separate",
@@ -150,6 +152,11 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   const months = useMemo(() => splitIntervalByDuration(timelineInterval, "month"), [timelineInterval]);
   const weeks = useMemo(() => splitIntervalByDuration(timelineInterval, "week"), [timelineInterval]);
   const days = useMemo(() => splitIntervalByDuration(timelineInterval, "day"), [timelineInterval]);
+  const todayIndex = useMemo(() => {
+    if (!days?.length) return -1;
+    const today = DateTime.now();
+    return days.findIndex((day) => day.contains(today));
+  }, [days]);
   const tasksByAssigneeIdMap = useMemo(() => mapTasksAndUsersByUserId(tasks, users), [tasks, users]);
 
   const holidays = useMemo(() => {
@@ -249,6 +256,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
             }[task.status],
           }),
         nonWorkingDayFlags,
+        todayIndex,
       ),
     );
 
@@ -259,7 +267,14 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
         <FixedHeightTableRow key={user.id}>
           {renderUserCell(user)}
           {firstRow ??
-            days?.map((_, i) => <TaskRowCell key={i.toString()} colSpan={1} isNonWorkingDay={nonWorkingDayFlags[i]} />)}
+            days?.map((_, i) => (
+              <TaskRowCell
+                key={i.toString()}
+                colSpan={1}
+                isNonWorkingDay={nonWorkingDayFlags[i]}
+                isToday={i === todayIndex}
+              />
+            ))}
         </FixedHeightTableRow>
       );
     }
@@ -282,13 +297,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
    */
   const renderYears = () =>
     years?.map((year, i) => (
-      <StickyTableCell
-        key={i.toString()}
-        colSpan={year.count("days")}
-        top={TOOLBAR_HEIGHT}
-        align="center"
-        constrainWidth
-      >
+      <StickyTableCell key={i.toString()} colSpan={year.count("days")} top={0} align="center" constrainWidth>
         {year.start?.year}
       </StickyTableCell>
     ));
@@ -303,7 +312,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
         colSpan={month.count("days")}
         constrainWidth
         align="center"
-        top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT}
+        top={HEADER_ROW_HEIGHT}
       >
         {month.start?.monthLong}
       </StickyTableCell>
@@ -322,7 +331,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
           colSpan={week.count("days")}
           constrainWidth
           align="center"
-          top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 2}
+          top={HEADER_ROW_HEIGHT * 2}
           style={{ backgroundColor: isCurrentWeek ? "rgba(255, 247, 163, 0.6)" : undefined }}
         >
           <Typography textOverflow="ellipsis" noWrap>
@@ -336,21 +345,34 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   /**
    * Render day cells
    */
-  const renderDays = () =>
-    days?.map((day, i) => {
+  const renderDays = () => {
+    const today = DateTime.now();
+
+    return days?.map((day, i) => {
       const isNonWorkingDay = nonWorkingDayFlags[i];
+      const isToday = day.contains(today);
+
+      let backgroundColor: string | undefined;
+
+      if (isToday) {
+        backgroundColor = "rgba(255, 247, 163, 0.8)";
+      } else if (isNonWorkingDay) {
+        backgroundColor = "#F3F3F3";
+      }
+
       return (
         <StickyTableCell
           key={i.toString()}
           constrainWidth
           align="center"
-          top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 3}
-          style={{ backgroundColor: isNonWorkingDay ? "#F3F3F3" : undefined }}
+          top={HEADER_ROW_HEIGHT * 3}
+          style={{ backgroundColor }}
         >
           {day.start?.day}
         </StickyTableCell>
       );
     });
+  };
 
   if (!listTasksQuery.data || !listProjectUsersQuery.data) {
     return <LinearProgress sx={{ height: 2 }} />;
@@ -374,7 +396,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
         <table style={{ borderCollapse: "separate" }}>
           <thead>
             <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>
-              <StickyTableCell rowSpan={4} top={TOOLBAR_HEIGHT} left={0} style={{ verticalAlign: "bottom", zIndex: 3 }}>
+              <StickyTableCell rowSpan={4} top={0} left={0} style={{ verticalAlign: "bottom", zIndex: 3 }}>
                 <Typography component="h3" variant="body2" fontWeight="bold" mb={1} ml={2}>
                   {t("lastPlannerView.user")}
                 </Typography>
