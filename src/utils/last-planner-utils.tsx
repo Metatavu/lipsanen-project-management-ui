@@ -99,6 +99,7 @@ export const renderTaskRows =
     onTaskClick: (taskId: string) => void,
     onSwitchTaskStatus: (task: Task) => void,
     nonWorkingDayFlags: boolean[],
+    todayIndex: number,
   ) =>
   (tasksInRow: TaskWithInterval[]) => {
     const filledRow = [];
@@ -125,6 +126,7 @@ export const renderTaskRows =
               colSpan={1}
               cellStyle={dayIndex === 0 ? { borderLeft: "none" } : undefined}
               isNonWorkingDay={nonWorkingDayFlags[dayIndex] ?? false}
+              isToday={dayIndex === todayIndex}
             />,
           );
         }
@@ -138,6 +140,7 @@ export const renderTaskRows =
               key={`middle-${i}-${dayIndex}`}
               colSpan={1}
               isNonWorkingDay={nonWorkingDayFlags[dayIndex] ?? false}
+              isToday={dayIndex === todayIndex}
             />,
           );
         }
@@ -166,6 +169,7 @@ export const renderTaskRows =
               key={`trailing-${dayIndex}`}
               colSpan={1}
               isNonWorkingDay={nonWorkingDayFlags[dayIndex] ?? false}
+              isToday={dayIndex === todayIndex}
             />,
           );
         }

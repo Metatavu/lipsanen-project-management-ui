@@ -202,7 +202,6 @@ function ScheduleIndexRoute() {
             todayColor={"rgba(255, 247, 163, 0.6)"}
             viewMode={viewMode}
             viewDate={viewDate}
-            //TODO: Add proper height and row height
             headerHeight={58}
             rowHeight={77}
             taskListHidden

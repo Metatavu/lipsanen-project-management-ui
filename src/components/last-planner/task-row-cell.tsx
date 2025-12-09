@@ -29,6 +29,7 @@ type Props = {
   onSwitchTaskStatus?: (task: Task) => void;
   cellStyle?: CSSProperties;
   isNonWorkingDay?: boolean;
+  isToday?: boolean;
 };
 
 /**
@@ -44,6 +45,7 @@ export const TaskRowCell = ({
   onSwitchTaskStatus,
   cellStyle = {},
   isNonWorkingDay,
+  isToday,
 }: Props) => {
   const { t } = useTranslation();
   const { dependentUserId } = task ?? {};
@@ -119,6 +121,15 @@ export const TaskRowCell = ({
       ),
     })[status];
 
+  let backgroundColor: string | undefined;
+  if (isToday) {
+    backgroundColor = "rgba(255, 247, 163, 0.8)";
+  } else if (isNonWorkingDay) {
+    backgroundColor = "#F3F3F3";
+  } else {
+    backgroundColor = "rgba(0, 150, 255, 0.02)";
+  }
+
   /**
    * Component render
    */
@@ -129,7 +140,7 @@ export const TaskRowCell = ({
       style={{
         minWidth: 40,
         verticalAlign: "middle",
-        backgroundColor: isNonWorkingDay ? "#F3F3F3" : "rgba(0, 150, 255, 0.02)",
+        backgroundColor,
         ...cellStyle,
       }}
     >
