@@ -28,6 +28,7 @@ type Props = {
   onTaskClick?: (task: Task) => void;
   onSwitchTaskStatus?: (task: Task) => void;
   cellStyle?: CSSProperties;
+  isNonWorkingDay?: boolean;
 };
 
 /**
@@ -42,6 +43,7 @@ export const TaskRowCell = ({
   onTaskClick,
   onSwitchTaskStatus,
   cellStyle = {},
+  isNonWorkingDay,
 }: Props) => {
   const { t } = useTranslation();
   const { dependentUserId } = task ?? {};
@@ -124,7 +126,12 @@ export const TaskRowCell = ({
     <td
       align="center"
       colSpan={colSpan}
-      style={{ minWidth: 40, verticalAlign: "middle", backgroundColor: "rgba(0, 150, 255, 0.02)", ...cellStyle }}
+      style={{
+        minWidth: 40,
+        verticalAlign: "middle",
+        backgroundColor: isNonWorkingDay ? "#F3F3F3" : "rgba(0, 150, 255, 0.02)",
+        ...cellStyle,
+      }}
     >
       {task ? (
         <Box

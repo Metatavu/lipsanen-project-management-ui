@@ -1,4 +1,4 @@
-import { FormControlLabel, LinearProgress, Stack, Switch, styled, Typography } from "@mui/material";
+import { FormControlLabel, LinearProgress, Stack, styled, Switch, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
@@ -10,7 +10,7 @@ import { Fragment, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
-import { splitIntervalByDuration } from "utils/date-time-utils";
+import { getFinnishHolidaysForRange, splitIntervalByDuration } from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import {
   distributeOverlappingTasksToRows,
@@ -152,6 +152,30 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   const days = useMemo(() => splitIntervalByDuration(timelineInterval, "day"), [timelineInterval]);
   const tasksByAssigneeIdMap = useMemo(() => mapTasksAndUsersByUserId(tasks, users), [tasks, users]);
 
+  const holidays = useMemo(() => {
+    if (!timelineInterval.start || !timelineInterval.end) {
+      return [];
+    }
+
+    return getFinnishHolidaysForRange(timelineInterval.start, timelineInterval.end);
+  }, [timelineInterval]);
+
+  const nonWorkingDayFlags = useMemo(() => {
+    if (!days?.length) return [];
+
+    return days.map((day) => {
+      const date = day.start;
+      if (!date) return false;
+
+      // Weekend (Sat = 6 / Sun = 7)
+      const isWeekend = date.weekday === 6 || date.weekday === 7;
+
+      const isHoliday = holidays.some((h) => DateTime.fromJSDate(h).hasSame(date, "day"));
+
+      return isWeekend || isHoliday;
+    });
+  }, [days, holidays]);
+
   // Scroll table to current day
   useEffect(() => {
     if (!tableWrapperRef.current || !days?.length) return;
@@ -224,6 +248,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
               [TaskStatus.Done]: TaskStatus.NotStarted,
             }[task.status],
           }),
+        nonWorkingDayFlags,
       ),
     );
 
@@ -233,7 +258,8 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
       return (
         <FixedHeightTableRow key={user.id}>
           {renderUserCell(user)}
-          {firstRow ?? days?.map((_, i) => <TaskRowCell key={i.toString()} colSpan={1} />)}
+          {firstRow ??
+            days?.map((_, i) => <TaskRowCell key={i.toString()} colSpan={1} isNonWorkingDay={nonWorkingDayFlags[i]} />)}
         </FixedHeightTableRow>
       );
     }
@@ -311,11 +337,20 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
    * Render day cells
    */
   const renderDays = () =>
-    days?.map((day, i) => (
-      <StickyTableCell key={i.toString()} constrainWidth align="center" top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 3}>
-        {day.start?.day}
-      </StickyTableCell>
-    ));
+    days?.map((day, i) => {
+      const isNonWorkingDay = nonWorkingDayFlags[i];
+      return (
+        <StickyTableCell
+          key={i.toString()}
+          constrainWidth
+          align="center"
+          top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 3}
+          style={{ backgroundColor: isNonWorkingDay ? "#F3F3F3" : undefined }}
+        >
+          {day.start?.day}
+        </StickyTableCell>
+      );
+    });
 
   if (!listTasksQuery.data || !listProjectUsersQuery.data) {
     return <LinearProgress sx={{ height: 2 }} />;
