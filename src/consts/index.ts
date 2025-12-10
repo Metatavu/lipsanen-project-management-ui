@@ -54,3 +54,24 @@ export const DATE_WITH_LEADING_ZEROS: DateTimeFormatOptions = {
   month: "2-digit",
   year: "numeric",
 } as const;
+
+export const GANTT_MEASUREMENTS = {
+  cardHeaderHeight: 60,
+  headerHeight: 48,
+  rowHeight: 64,
+  horizontalScrollbarHeight: 20,
+  objectiveCellWidth: 300,
+  durationCellWidth: 80,
+  startCellWidth: 125,
+  readyCellWidth: 125,
+  readinessCellWidth: 120,
+  get taskListWidth() {
+    return (
+      this.objectiveCellWidth +
+      this.durationCellWidth +
+      this.startCellWidth +
+      this.readyCellWidth +
+      this.readinessCellWidth
+    );
+  },
+};

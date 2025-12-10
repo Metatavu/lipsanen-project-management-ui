@@ -26,6 +26,7 @@ import ProgressBadge from "components/generic/progress-badge";
 import ChangeProposalsDrawer from "components/tasks/change-proposals-drawer";
 import NewTaskButton from "components/tasks/new-task-button";
 import TaskDialog from "components/tasks/task-dialog";
+import { GANTT_MEASUREMENTS } from "consts";
 import {
   ChangeProposalStatus,
   type Task,
@@ -43,16 +44,30 @@ import {
 } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { theme } from "theme";
 import { TaskStatusColor } from "types";
+import { useResizeObserver } from "usehooks-ts";
 import ChartHelpers from "utils/chart-helpers";
 import { useSetError } from "utils/error-handling";
 import UserUtils from "utils/users";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import type * as GanttTypes from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
 import { ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+
+const {
+  cardHeaderHeight,
+  headerHeight,
+  rowHeight,
+  horizontalScrollbarHeight,
+  objectiveCellWidth,
+  durationCellWidth,
+  startCellWidth,
+  readyCellWidth,
+  readinessCellWidth,
+  taskListWidth,
+} = GANTT_MEASUREMENTS;
 
 /**
  * Milestone tasks file route
@@ -96,9 +111,22 @@ function MilestoneTasksListRoute() {
   const taskIdForSelectedChangeProposal = changeProposals?.find(
     (proposal) => proposal.id === selectedChangeProposalId,
   )?.taskId;
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const { height: cardHeight = 0 } = useResizeObserver({
+    ref: cardRef,
+    box: "content-box",
+  });
+
+  const ganttHeight = useMemo(
+    () => cardHeight - cardHeaderHeight - headerHeight - horizontalScrollbarHeight,
+    [cardHeight],
+  );
 
   const changeProposalTasksPreviewListQuery = useListTasksQuery({ changeProposalId: selectedChangeProposalId });
-  const changeProposalTasksPreviewList = changeProposalTasksPreviewListQuery.data;
+  const changeProposalTasksPreviewList = useMemo(
+    () => changeProposalTasksPreviewListQuery.data,
+    [changeProposalTasksPreviewListQuery.data],
+  );
 
   /**
    * View date for the gantt chart
@@ -209,13 +237,21 @@ function MilestoneTasksListRoute() {
 
     const startDate = DateTime.fromJSDate(milestone.startDate);
     const endDate = DateTime.fromJSDate(milestone.endDate);
-    const difference = endDate.diff(startDate, "days").days;
+    const difference = Math.ceil(endDate.diff(startDate, "days").days);
     const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
     const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
 
     return (
       <TableRow key={milestone.id}>
-        <TableCell style={{ overflow: "hidden" }}>
+        <TableCell
+          style={{
+            width: objectiveCellWidth,
+            minWidth: objectiveCellWidth,
+            maxWidth: objectiveCellWidth,
+            borderLeft: "none",
+            overflow: "hidden",
+          }}
+        >
           <Stack direction="row" alignItems="center" gap={1}>
             <Avatar sx={{ backgroundColor: "#0079BF", width: 30, height: 30 }}>
               <FlagOutlinedIcon fontSize="medium" sx={{ color: "#fff" }} />
@@ -230,10 +266,10 @@ function MilestoneTasksListRoute() {
             </Box>
           </Stack>
         </TableCell>
-        <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
-        <TableCell>{formattedStartDate}</TableCell>
-        <TableCell>{formattedEndDate}</TableCell>
-        <TableCell>
+        <TableCell style={{ width: durationCellWidth }}>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
+        <TableCell style={{ width: startCellWidth }}>{formattedStartDate}</TableCell>
+        <TableCell style={{ width: readyCellWidth }}>{formattedEndDate}</TableCell>
+        <TableCell style={{ width: readinessCellWidth }}>
           {/* TODO: Add progress calculation when data available*/}
           <ProgressBadge progress={milestone.estimatedReadiness ?? 0} />
         </TableCell>
@@ -248,9 +284,11 @@ function MilestoneTasksListRoute() {
     if (listMilestoneTasksQuery.isFetching) {
       return (
         <TableRow>
-          <LoadingTableCell loading />
-          <LoadingTableCell loading />
-          <LoadingTableCell loading />
+          <LoadingTableCell style={{ width: objectiveCellWidth }} loading />
+          <LoadingTableCell style={{ width: durationCellWidth }} loading />
+          <LoadingTableCell style={{ width: startCellWidth }} loading />
+          <LoadingTableCell style={{ width: readyCellWidth }} loading />
+          <LoadingTableCell style={{ width: readinessCellWidth }} loading />
         </TableRow>
       );
     }
@@ -258,7 +296,7 @@ function MilestoneTasksListRoute() {
     return (tasks ?? []).map((task) => {
       const startDate = DateTime.fromJSDate(task.startDate);
       const endDate = DateTime.fromJSDate(task.endDate);
-      const difference = endDate.diff(startDate, "days").days;
+      const difference = Math.ceil(endDate.diff(startDate, "days").days);
       const formattedStartDate = startDate.toFormat("dd.MM.yyyy");
       const formattedEndDate = endDate.toFormat("dd.MM.yyyy");
       const taskAssignee = projectUsers.find((user) => user.id === task.assigneeIds?.at(0));
@@ -268,7 +306,16 @@ function MilestoneTasksListRoute() {
           key={task.id}
           sx={{ backgroundColor: taskIdForSelectedChangeProposal === task.id ? "#0079BF1A" : undefined }}
         >
-          <TableCell sx={{ overflow: "hidden", cursor: "pointer" }} onClick={() => onTaskSelect(task)}>
+          <TableCell
+            sx={{ overflow: "hidden", cursor: "pointer" }}
+            style={{
+              width: objectiveCellWidth,
+              minWidth: objectiveCellWidth,
+              maxWidth: objectiveCellWidth,
+              borderLeft: "none",
+            }}
+            onClick={() => onTaskSelect(task)}
+          >
             <Stack direction="row" alignItems="center" gap={1}>
               <JobPositionAvatar jobPosition={UserUtils.getUserJobPosition(jobPositions, taskAssignee)} />
               <Box mx={1}>
@@ -283,43 +330,16 @@ function MilestoneTasksListRoute() {
               </Box>
             </Stack>
           </TableCell>
-          <TableCell>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
-          <TableCell>{formattedStartDate}</TableCell>
-          <TableCell>{formattedEndDate}</TableCell>
-          <TableCell>
+          <TableCell style={{ width: durationCellWidth }}>{`${difference} ${t("scheduleScreen.days")}`}</TableCell>
+          <TableCell style={{ width: startCellWidth }}>{formattedStartDate}</TableCell>
+          <TableCell style={{ width: readyCellWidth }}>{formattedEndDate}</TableCell>
+          <TableCell style={{ width: readinessCellWidth }}>
             {/* TODO: Add progress calculation when data available*/}
             <ProgressBadge progress={task.estimatedReadiness ?? 0} />
           </TableCell>
         </TableRow>
       );
     });
-  };
-
-  /**
-   * Renders the milestone tasks table
-   */
-  const renderMilestoneTasksTable = () => {
-    return (
-      <Box sx={{ width: "auto", padding: 0 }} p={2}>
-        <TableContainer>
-          <Table style={{ width: "100%" }}>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ width: "40%" }}>{t("scheduleScreen.objective")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.duration")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.start")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.ready")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.readiness")}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {renderMilestoneRow()}
-              {renderMilestoneTasksRows()}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    );
   };
 
   const _getTaskChildren = (taskId: string) =>
@@ -352,9 +372,10 @@ function MilestoneTasksListRoute() {
   /**
    * Renders the task Gantt chart
    *
-   * TODO: implement a gantt chart
    */
   const renderGanttChart = () => {
+    if (!ganttHeight) return;
+
     if (listMilestoneTasksQuery.isFetching || listTaskConnectionsQuery.isFetching) {
       return (
         <TableContainer>
@@ -387,27 +408,72 @@ function MilestoneTasksListRoute() {
       } as GanttTypes.Task);
 
     return (
-      <Box sx={{ width: "100%", overflowX: "auto" }}>
-        <Box sx={{ width: "auto", padding: 0 }} p={2}>
-          <Gantt
-            tasks={tasksForGantt}
-            milestone={oneMilestoneForGantt}
-            todayColor={"rgba(255, 247, 163, 0.6)"}
-            viewMode={viewMode}
-            viewDate={viewDate}
-            //TODO: enable if a customer wants to update tasks by dragging them in the gantt chart
-            // onDateChange={onUpdateTask}
-            //TODO: Add proper height and row height
-            arrowColor={theme.palette.primary.main}
-            headerHeight={58}
-            rowHeight={77}
-            taskListHidden
-            onProgressChange={() => {}}
-            arrowsVisible={taskConnectionsVisible}
-            taskConnections={taskConnectionsForGantt}
-          />
-        </Box>
-      </Box>
+      <Gantt
+        tasks={tasksForGantt}
+        milestone={oneMilestoneForGantt}
+        todayColor={"rgba(255, 247, 163, 0.6)"}
+        viewMode={viewMode}
+        viewDate={viewDate}
+        //TODO: enable if a customer wants to update tasks by dragging them in the gantt chart
+        // onDateChange={onUpdateTask}
+        arrowColor={theme.palette.primary.main}
+        // 0.5 to take into account SVG stroke width
+        headerHeight={headerHeight + 0.5}
+        ganttHeight={ganttHeight}
+        rowHeight={rowHeight}
+        onProgressChange={() => {}}
+        arrowsVisible={taskConnectionsVisible}
+        taskConnections={taskConnectionsForGantt}
+        TaskListHeader={() => (
+          <TableContainer>
+            <Table
+              sx={{
+                width: taskListWidth,
+                borderCollapse: "separate",
+                "& .MuiTableCell-root": { borderLeft: "none", p: 1, height: headerHeight },
+              }}
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ width: objectiveCellWidth, borderBottom: "none", borderLeft: "none" }}>
+                    {t("scheduleScreen.objective")}
+                  </TableCell>
+                  <TableCell sx={{ width: durationCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.duration")}
+                  </TableCell>
+                  <TableCell sx={{ width: startCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.start")}
+                  </TableCell>
+                  <TableCell sx={{ width: readyCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.ready")}
+                  </TableCell>
+                  <TableCell sx={{ width: readinessCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.readiness")}
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+            </Table>
+          </TableContainer>
+        )}
+        TaskListTable={() => (
+          <TableContainer>
+            <Table
+              sx={{
+                width: taskListWidth,
+                borderCollapse: "separate",
+                borderBottom: "1px solid",
+                borderBottomColor: "divider",
+                "& .MuiTableCell-root": { borderLeft: "none", borderBottom: "none", p: 1, height: rowHeight },
+              }}
+            >
+              <TableBody>
+                {renderMilestoneRow()}
+                {renderMilestoneTasksRows()}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      />
     );
   };
 
@@ -463,12 +529,9 @@ function MilestoneTasksListRoute() {
             <NewTaskButton projectId={projectId} milestoneId={milestoneId} />
           </Box>
         </Toolbar>
-        <Card sx={{ flex: 1, minWidth: 0, overflow: "auto" }}>
+        <Card ref={cardRef} sx={{ flex: 1, minWidth: 0 }}>
           {renderBreadcrumb()}
-          <Box sx={{ display: "flex", flexDirection: "row" }}>
-            {renderMilestoneTasksTable()}
-            {renderGanttChart()}
-          </Box>
+          {renderGanttChart()}
         </Card>
       </FlexColumnLayout>
       <TaskDialog
