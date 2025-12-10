@@ -123,7 +123,7 @@ export const TaskRowCell = ({
 
   let backgroundColor: string | undefined;
   if (isToday) {
-    backgroundColor = "rgba(255, 247, 163, 0.8)";
+    backgroundColor = "#FFF7A3";
   } else if (isNonWorkingDay) {
     backgroundColor = "#F3F3F3";
   } else {

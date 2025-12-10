@@ -6,7 +6,7 @@ import { type Task, TaskStatus, type User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
-import { Fragment, useEffect, useMemo, useRef } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
@@ -31,8 +31,6 @@ const HEADER_ROW_HEIGHT = 30;
 const LastPlannerTableWrapper = styled("div")(({ theme }) => ({
   position: "relative",
   paddingBottom: theme.spacing(2),
-  overflowX: "auto",
-  maxWidth: "100%",
   "& table": {
     width: "100%",
     borderCollapse: "separate",
@@ -105,6 +103,7 @@ type Props = {
   projectId: string;
   editMode?: boolean;
   setEditMode?: (editMode: boolean) => void;
+  scrollContainerRef?: React.RefObject<HTMLDivElement>;
 };
 
 /**
@@ -112,7 +111,7 @@ type Props = {
  *
  * @param props component properties
  */
-const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
+const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef }: Props) => {
   const navigate = useNavigate({ from: "/projects/$projectId/tasks" });
   const { t } = useTranslation();
   const { tasksApi } = useApi();
@@ -125,7 +124,6 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   const users = useMemo(() => listProjectUsersQuery.data?.users ?? [], [listProjectUsersQuery.data]);
   const jobPositionsQuery = useListJobPositionsQuery({ max: 9999 });
   const jobPositions = useMemo(() => jobPositionsQuery.data?.jobPositions ?? [], [jobPositionsQuery.data]);
-  const tableWrapperRef = useRef<HTMLDivElement>(null);
 
   const updateTaskMutation = useMutation({
     mutationFn: (task: Task) => tasksApi.updateTask({ taskId: task.id as string, task: task }),
@@ -185,18 +183,18 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
 
   // Scroll table to current day
   useEffect(() => {
-    if (!tableWrapperRef.current || !days?.length) return;
+    if (!scrollContainerRef?.current || !days?.length) return;
 
     const today = DateTime.now();
     const currentDayIndex = days.findIndex((day) => day.contains(today));
 
     if (currentDayIndex >= 0) {
       const cellWidth = 40;
-      const wrapperWidth = tableWrapperRef.current?.clientWidth;
+      const wrapperWidth = scrollContainerRef.current.clientWidth;
       const scrollOffset = currentDayIndex * cellWidth - wrapperWidth / 2 + cellWidth * 3.5;
-      tableWrapperRef.current.scrollLeft = scrollOffset;
+      scrollContainerRef.current.scrollLeft = scrollOffset;
     }
-  }, [days]);
+  }, [days, scrollContainerRef]);
 
   /**
    * Render user cell
@@ -297,7 +295,13 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
    */
   const renderYears = () =>
     years?.map((year, i) => (
-      <StickyTableCell key={i.toString()} colSpan={year.count("days")} top={0} align="center" constrainWidth>
+      <StickyTableCell
+        key={i.toString()}
+        colSpan={year.count("days")}
+        top={TOOLBAR_HEIGHT}
+        align="center"
+        constrainWidth
+      >
         {year.start?.year}
       </StickyTableCell>
     ));
@@ -312,7 +316,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
         colSpan={month.count("days")}
         constrainWidth
         align="center"
-        top={HEADER_ROW_HEIGHT}
+        top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT}
       >
         {month.start?.monthLong}
       </StickyTableCell>
@@ -331,8 +335,8 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
           colSpan={week.count("days")}
           constrainWidth
           align="center"
-          top={HEADER_ROW_HEIGHT * 2}
-          style={{ backgroundColor: isCurrentWeek ? "rgba(255, 247, 163, 0.6)" : undefined }}
+          top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 2}
+          style={{ backgroundColor: isCurrentWeek ? "#FFF7A3" : undefined }}
         >
           <Typography textOverflow="ellipsis" noWrap>
             {t("lastPlannerView.week")} {week.start?.weekNumber}
@@ -355,7 +359,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
       let backgroundColor: string | undefined;
 
       if (isToday) {
-        backgroundColor = "rgba(255, 247, 163, 0.8)";
+        backgroundColor = "#FFF7A3";
       } else if (isNonWorkingDay) {
         backgroundColor = "#F3F3F3";
       }
@@ -365,7 +369,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
           key={i.toString()}
           constrainWidth
           align="center"
-          top={HEADER_ROW_HEIGHT * 3}
+          top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 3}
           style={{ backgroundColor }}
         >
           {day.start?.day}
@@ -392,11 +396,11 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
           label={t("lastPlannerView.markTasks")}
         />
       </StyledToolbar>
-      <LastPlannerTableWrapper ref={tableWrapperRef}>
+      <LastPlannerTableWrapper>
         <table style={{ borderCollapse: "separate" }}>
           <thead>
             <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>
-              <StickyTableCell rowSpan={4} top={0} left={0} style={{ verticalAlign: "bottom", zIndex: 3 }}>
+              <StickyTableCell rowSpan={4} top={TOOLBAR_HEIGHT} left={0} style={{ verticalAlign: "bottom", zIndex: 3 }}>
                 <Typography component="h3" variant="body2" fontWeight="bold" mb={1} ml={2}>
                   {t("lastPlannerView.user")}
                 </Typography>
