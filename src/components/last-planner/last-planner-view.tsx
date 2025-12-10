@@ -103,7 +103,7 @@ type Props = {
   projectId: string;
   editMode?: boolean;
   setEditMode?: (editMode: boolean) => void;
-  scrollContainerRef?: React.RefObject<HTMLDivElement>;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 /**

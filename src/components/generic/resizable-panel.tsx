@@ -15,7 +15,7 @@ type Props = {
   children?: ReactNode;
   storeKey?: string;
   reserveSpaceForHandle?: boolean;
-  scrollContainerRef?: React.RefObject<HTMLDivElement>;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 /**
