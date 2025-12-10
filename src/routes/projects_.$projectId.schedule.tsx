@@ -1,6 +1,6 @@
 import {
-  Box,
   Card,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -17,18 +17,33 @@ import GanttViewModesSlider from "components/generic/gantt-view-mode-slider";
 import LoadingTableCell from "components/generic/loading-table-cell";
 import { MilestoneRow } from "components/milestones/milestone-row";
 import NewMilestoneDialog from "components/milestones/new-milestone-dialog";
+import { GANTT_MEASUREMENTS } from "consts";
 import type { DeleteProjectMilestoneRequest, Milestone, UpdateProjectMilestoneRequest } from "generated/client";
 import { useListProjectMilestonesQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskStatusColor } from "types";
+import { useResizeObserver } from "usehooks-ts";
 import ChartHelpers from "utils/chart-helpers";
 import { parseDDMMYYYY } from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import { Gantt } from "../../lipsanen-project-management-gantt-chart/src/components/gantt/gantt";
 import { type Task, ViewMode } from "../../lipsanen-project-management-gantt-chart/src/types/public-types";
+
+const {
+  cardHeaderHeight,
+  headerHeight,
+  rowHeight,
+  horizontalScrollbarHeight,
+  objectiveCellWidth,
+  durationCellWidth,
+  startCellWidth,
+  readyCellWidth,
+  readinessCellWidth,
+  taskListWidth,
+} = GANTT_MEASUREMENTS;
 
 /**
  * Schedule file route
@@ -48,6 +63,16 @@ function ScheduleIndexRoute() {
   const setError = useSetError();
   const showConfirmDialog = useConfirmDialog();
   const { projectId } = Route.useParams();
+
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const { height: cardHeight = 0 } = useResizeObserver({
+    ref: cardRef,
+    box: "content-box",
+  });
+  const ganttHeight = useMemo(
+    () => cardHeight - cardHeaderHeight - headerHeight - horizontalScrollbarHeight,
+    [cardHeight],
+  );
 
   const listProjectMilestonesQuery = useListProjectMilestonesQuery({ projectId });
   const milestones = listProjectMilestonesQuery.data;
@@ -116,9 +141,11 @@ function ScheduleIndexRoute() {
     if (listProjectMilestonesQuery.isFetching) {
       return (
         <TableRow>
-          <LoadingTableCell loading />
-          <LoadingTableCell loading />
-          <LoadingTableCell loading />
+          <LoadingTableCell style={{ width: objectiveCellWidth }} loading />
+          <LoadingTableCell style={{ width: durationCellWidth }} loading />
+          <LoadingTableCell style={{ width: startCellWidth }} loading />
+          <LoadingTableCell style={{ width: readyCellWidth }} loading />
+          <LoadingTableCell style={{ width: readinessCellWidth }} loading />
         </TableRow>
       );
     }
@@ -136,33 +163,11 @@ function ScheduleIndexRoute() {
   };
 
   /**
-   * Renders the project milestones table
-   */
-  const renderProjectMilestonesTable = () => {
-    return (
-      <Box sx={{ width: "auto", padding: 0 }} p={2}>
-        <TableContainer>
-          <Table style={{ width: "100%" }}>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ width: "40%" }}>{t("scheduleScreen.objective")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.duration")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.start")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.ready")}</TableCell>
-                <TableCell style={{ width: "15%" }}>{t("scheduleScreen.readiness")}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>{renderProjectMilestonesRows()}</TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    );
-  };
-
-  /**
    * Renders the milestone Gantt chart
    */
   const renderGanttChart = () => {
+    if (!ganttHeight) return;
+
     if (!listProjectMilestonesQuery.data?.length) {
       return;
     }
@@ -195,27 +200,70 @@ function ScheduleIndexRoute() {
     }));
 
     return (
-      <Box sx={{ width: "100%", overflowX: "auto" }}>
-        <Box sx={{ width: "auto", padding: 0 }} p={2}>
-          <Gantt
-            tasks={milestonesForGantt}
-            todayColor={"rgba(255, 247, 163, 0.6)"}
-            viewMode={viewMode}
-            viewDate={viewDate}
-            headerHeight={58}
-            rowHeight={77}
-            taskListHidden
-            onClick={(task) => {
-              if (task.type === "custom-milestone") {
-                navigate({
-                  to: "/projects/$projectId/schedule/$milestoneId/tasks",
-                  params: { projectId: projectId, milestoneId: task.id },
-                });
-              }
-            }}
-          />
-        </Box>
-      </Box>
+      <Gantt
+        tasks={milestonesForGantt}
+        todayColor={"rgba(255, 247, 163, 0.6)"}
+        viewMode={viewMode}
+        viewDate={viewDate}
+        // 0.5 to take into account SVG stroke width
+        headerHeight={headerHeight + 0.5}
+        ganttHeight={ganttHeight}
+        rowHeight={rowHeight}
+        TaskListHeader={() => (
+          <TableContainer>
+            <Table
+              sx={{
+                width: taskListWidth,
+                borderCollapse: "separate",
+                "& .MuiTableCell-root": { borderLeft: "none", p: 1, height: headerHeight },
+              }}
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ width: objectiveCellWidth, borderBottom: "none", borderLeft: "none" }}>
+                    {t("scheduleScreen.objective")}
+                  </TableCell>
+                  <TableCell sx={{ width: durationCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.duration")}
+                  </TableCell>
+                  <TableCell sx={{ width: startCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.start")}
+                  </TableCell>
+                  <TableCell sx={{ width: readyCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.ready")}
+                  </TableCell>
+                  <TableCell sx={{ width: readinessCellWidth, borderBottom: "none" }}>
+                    {t("scheduleScreen.readiness")}
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+            </Table>
+          </TableContainer>
+        )}
+        TaskListTable={() => (
+          <TableContainer>
+            <Table
+              sx={{
+                width: taskListWidth,
+                borderCollapse: "separate",
+                borderBottom: "1px solid",
+                borderBottomColor: "divider",
+                "& .MuiTableCell-root": { borderLeft: "none", borderBottom: "none", p: 1, height: rowHeight },
+              }}
+            >
+              <TableBody>{renderProjectMilestonesRows()}</TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        onClick={(task) => {
+          if (task.type === "custom-milestone") {
+            navigate({
+              to: "/projects/$projectId/schedule/$milestoneId/tasks",
+              params: { projectId: projectId, milestoneId: task.id },
+            });
+          }
+        }}
+      />
     );
   };
 
@@ -224,25 +272,20 @@ function ScheduleIndexRoute() {
    */
   return (
     <FlexColumnLayout>
-      <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
+      <Toolbar disableGutters sx={{ justifyContent: "space-between", height: cardHeaderHeight, px: 2 }}>
         <Typography component="h1" variant="h5">
           {t("scheduleScreen.title")}
         </Typography>
-        <Box sx={{ display: "flex", gap: "1rem" }}>
-          <NewMilestoneDialog />
-        </Box>
+        <NewMilestoneDialog />
       </Toolbar>
-      <Card sx={{ flex: 1, minWidth: 0, overflow: "auto" }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Typography component="h2" variant="h6" sx={{ padding: "1rem" }}>
+      <Card ref={cardRef} sx={{ flex: 1, minWidth: 0 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" gap={2} px={2}>
+          <Typography component="h2" variant="h6">
             {t("scheduleScreen.objectives")}
           </Typography>
           <GanttViewModesSlider viewMode={viewMode} onViewModeChange={setViewMode} />
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "row" }}>
-          {renderProjectMilestonesTable()}
-          {renderGanttChart()}
-        </Box>
+        </Stack>
+        {renderGanttChart()}
       </Card>
     </FlexColumnLayout>
   );
