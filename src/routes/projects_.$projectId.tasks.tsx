@@ -30,6 +30,7 @@ function TasksIndexRoute() {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const [editMode, setEditMode] = useState(false);
+  const [dragMode, setDragMode] = useState(false);
 
   /**
    * Main component render
@@ -57,7 +58,13 @@ function TasksIndexRoute() {
         </Stack>
       </Card>
       <ResizablePanel reserveSpaceForHandle storeKey="last-planner">
-        <LastPlannerView projectId={projectId} editMode={editMode} setEditMode={setEditMode} />
+        <LastPlannerView
+          projectId={projectId}
+          editMode={editMode}
+          setEditMode={setEditMode}
+          dragMode={dragMode}
+          setDragMode={setDragMode}
+        />
       </ResizablePanel>
       <Outlet />
     </FlexColumnLayout>

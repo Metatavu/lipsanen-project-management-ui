@@ -84,12 +84,25 @@ export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =
   a.interval.start.toMillis() - b.interval.start.toMillis();
 
 /**
+ * Options for rendering task rows
+ */
+type RenderTaskRowsOptions = {
+  enableDrag?: boolean;
+  assigneeId?: string;
+};
+
+/**
  * Fill the gaps between tasks in a row with empty cells. This is necessary to render the tasks in a row properly.
+ *
+ *  * When `enableDrag` is true in options, task cells receive the drag metadata needed for:
+ * - horizontal date shifting (based on startDayIndex / durationDays)
+ * - vertical reassignment (based on assigneeId / assigneeIds)
  *
  * @param timelineInterval the interval that wraps the tasks
  * @param editMode whether the tasks are in edit mode
  * @param onTaskClick the task click handler
  * @param onSwitchTaskStatus the task status switch handler
+ * @param options rendering options
  */
 export const renderTaskRows =
   (
@@ -97,6 +110,7 @@ export const renderTaskRows =
     editMode: boolean | undefined,
     onTaskClick: (taskId: string) => void,
     onSwitchTaskStatus: (task: Task) => void,
+    options?: RenderTaskRowsOptions,
   ) =>
   (tasksInRow: TaskWithInterval[]) => {
     const filledRow = [];
@@ -117,14 +131,35 @@ export const renderTaskRows =
         for (let j = 0; j < daysBetweenTasks; j++) filledRow.push(<TaskRowCell key={`middle-${i}-${j}`} colSpan={1} />);
       }
 
+      const taskStart = DateTime.fromJSDate(currentTaskData.task.startDate).startOf("day");
+      const taskEnd = DateTime.fromJSDate(currentTaskData.task.endDate).startOf("day");
+
+      const durationDays = Math.max(1, Math.round(taskEnd.diff(taskStart, "days").days) + 1);
+
+      // index relative to timeline start (also normalize to startOf day)
+      const startOffsetDays = taskStart.diff(timelineInterval.start.startOf("day"), "days").days;
+
+      const dragData =
+        options?.enableDrag && options.assigneeId && currentTaskData.task.id
+          ? {
+              taskId: currentTaskData.task.id as string,
+              assigneeId: options.assigneeId,
+              startDayIndex: Math.round(startOffsetDays),
+              durationDays,
+              assigneeIds: currentTaskData.task.assigneeIds ?? [],
+            }
+          : undefined;
+
       filledRow.push(
         <TaskRowCell
           key={currentTaskData.task.id as string}
-          colSpan={currentTaskData.interval.count("days")}
+          colSpan={durationDays}
           task={currentTaskData.task}
           editMode={editMode}
           onTaskClick={(task) => onTaskClick(task.id as string)}
           onSwitchTaskStatus={(task) => onSwitchTaskStatus(task)}
+          draggable={options?.enableDrag}
+          dragData={dragData}
         />,
       );
 

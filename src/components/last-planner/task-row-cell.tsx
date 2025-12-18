@@ -1,3 +1,4 @@
+import { useDraggable } from "@dnd-kit/core";
 import { Icon } from "@iconify/react";
 import { Box, darken, Tooltip, Typography } from "@mui/material";
 import { type JobPosition, type Task, TaskStatus } from "generated/client";
@@ -9,6 +10,8 @@ import { getContrastForegroundColor, hexFromString } from "utils";
 
 const HORIZONTAL_PADDING = 16;
 const COLUMN_MIN_WIDTH = 40;
+const CELL_WIDTH = 40;
+const ROW_HEIGHT = 50;
 
 /**
  * This is used as a fallback job position when the dependent user is not found
@@ -28,6 +31,14 @@ type Props = {
   onTaskClick?: (task: Task) => void;
   onSwitchTaskStatus?: (task: Task) => void;
   cellStyle?: CSSProperties;
+  draggable?: boolean;
+  dragData?: {
+    taskId: string;
+    assigneeId: string;
+    startDayIndex: number;
+    durationDays: number;
+    assigneeIds: string[];
+  };
 };
 
 /**
@@ -42,6 +53,8 @@ export const TaskRowCell = ({
   onTaskClick,
   onSwitchTaskStatus,
   cellStyle = {},
+  draggable,
+  dragData,
 }: Props) => {
   const { t } = useTranslation();
   const { dependentUserId } = task ?? {};
@@ -54,6 +67,14 @@ export const TaskRowCell = ({
     jobPositions.find((jobPosition) => jobPosition.id === dependentUser?.jobPositionId) ?? DEFAULT_JOB_POSITION;
   const taskBackgroundColor = dependentUserId ? hexFromString(dependentUserId) : "#666666";
   const taskForegroundColor = taskBackgroundColor ? getContrastForegroundColor(taskBackgroundColor) : undefined;
+
+  const isDraggable = !!(draggable && task && dragData);
+
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: task ? `task-${task.id}` : "task-empty",
+    data: dragData,
+    disabled: !isDraggable,
+  });
 
   /**
    * Returns the tooltip for the task
@@ -117,6 +138,15 @@ export const TaskRowCell = ({
       ),
     })[status];
 
+  const disableVerticalSnap = (task?.assigneeIds?.length ?? 0) > 1;
+  const snappedTransform =
+    isDraggable && transform
+      ? {
+          x: Math.round(transform.x / CELL_WIDTH) * CELL_WIDTH,
+          y: disableVerticalSnap ? 0 : Math.round(transform.y / ROW_HEIGHT) * ROW_HEIGHT,
+        }
+      : null;
+
   /**
    * Component render
    */
@@ -128,6 +158,8 @@ export const TaskRowCell = ({
     >
       {task ? (
         <Box
+          ref={isDraggable ? setNodeRef : undefined}
+          {...(isDraggable ? { ...listeners, ...attributes } : {})}
           height={40}
           borderRadius={999}
           display="flex"
@@ -137,14 +169,28 @@ export const TaskRowCell = ({
           bgcolor={taskBackgroundColor}
           color={taskForegroundColor}
           onClick={() => !editMode && onTaskClick?.(task)}
-          sx={
-            onTaskClick && !editMode
+          sx={{
+            ...(onTaskClick && !editMode
               ? {
                   transition: "background-color 0.1s",
-                  cursor: "pointer",
+                  cursor: isDraggable ? "grab" : "pointer",
                   "&:hover": {
                     backgroundColor: taskBackgroundColor ? darken(taskBackgroundColor, 0.1) : "rgba(0, 0, 0, 0.1)",
                   },
+                  "&:active": isDraggable ? { cursor: "grabbing" } : undefined,
+                }
+              : isDraggable
+                ? {
+                    cursor: "grab",
+                    "&:active": { cursor: "grabbing" },
+                  }
+                : undefined),
+          }}
+          style={
+            isDraggable && snappedTransform
+              ? {
+                  transform: `translate3d(${snappedTransform.x}px, ${snappedTransform.y}px, 0)`,
+                  opacity: isDragging ? 0.8 : 1,
                 }
               : undefined
           }
@@ -158,6 +204,9 @@ export const TaskRowCell = ({
               position="relative"
               height={40}
               width={16}
+              onPointerDown={(e) => {
+                if (editMode) e.stopPropagation();
+              }}
               onClick={() => editMode && onSwitchTaskStatus?.(task)}
               sx={onSwitchTaskStatus && editMode ? { cursor: "pointer" } : undefined}
             >

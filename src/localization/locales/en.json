@@ -457,7 +457,8 @@
     "user": "User",
     "week": "Week",
     "markTasks": "Mark tasks",
-    "noDependentUser": "No dependent user"
+    "noDependentUser": "No dependent user",
+    "dragTasks": "Drag tasks"
   },
   "taskStatuses": {
     "NOT_STARTED": "Not started",

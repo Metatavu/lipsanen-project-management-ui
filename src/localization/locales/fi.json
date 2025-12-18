@@ -461,7 +461,8 @@
     "user": "Käyttäjä",
     "week": "Viikko",
     "markTasks": "Merkitse tehtäviä",
-    "noDependentUser": "Ei riippuvaista käyttäjää"
+    "noDependentUser": "Ei riippuvaista käyttäjää",
+    "dragTasks": "Siirrä tehtäviä"
   },
   "taskStatuses": {
     "NOT_STARTED": "Ei aloitettu",
