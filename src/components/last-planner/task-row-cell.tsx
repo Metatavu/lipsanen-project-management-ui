@@ -154,7 +154,14 @@ export const TaskRowCell = ({
     <td
       align="center"
       colSpan={colSpan}
-      style={{ minWidth: 40, verticalAlign: "middle", backgroundColor: "rgba(0, 150, 255, 0.02)", ...cellStyle }}
+      style={{
+        minWidth: CELL_WIDTH * colSpan,
+        maxWidth: CELL_WIDTH * colSpan,
+        width: CELL_WIDTH,
+        verticalAlign: "middle",
+        backgroundColor: "rgba(0, 150, 255, 0.02)",
+        ...cellStyle,
+      }}
     >
       {task ? (
         <Box
@@ -204,13 +211,15 @@ export const TaskRowCell = ({
               position="relative"
               height={40}
               width={16}
+              display="flex"
+              alignItems="center"
               onPointerDown={(e) => {
                 if (editMode) e.stopPropagation();
               }}
               onClick={() => editMode && onSwitchTaskStatus?.(task)}
               sx={onSwitchTaskStatus && editMode ? { cursor: "pointer" } : undefined}
             >
-              <Icon icon={`mdi:${jobPosition.iconName}`} height="100%" width="100%" />
+              <Icon icon={`mdi:${jobPosition.iconName}`} height={16} width={16} />
               {renderTaskStatusIndicator(task.status)}
             </Box>
           </Tooltip>
