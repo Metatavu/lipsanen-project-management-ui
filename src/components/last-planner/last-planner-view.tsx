@@ -2,6 +2,7 @@ import { FormControlLabel, LinearProgress, Stack, styled, Switch, Typography } f
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import { NON_WORKING_DAY_COLOR, TODAY_HIGHLIGHT_COLOR } from "consts";
 import { type Task, TaskStatus, type User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
@@ -336,7 +337,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef 
           constrainWidth
           align="center"
           top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 2}
-          style={{ backgroundColor: isCurrentWeek ? "#FFF7A3" : undefined }}
+          style={{ backgroundColor: isCurrentWeek ? TODAY_HIGHLIGHT_COLOR : undefined }}
         >
           <Typography textOverflow="ellipsis" noWrap>
             {t("lastPlannerView.week")} {week.start?.weekNumber}
@@ -359,9 +360,9 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef 
       let backgroundColor: string | undefined;
 
       if (isToday) {
-        backgroundColor = "#FFF7A3";
+        backgroundColor = TODAY_HIGHLIGHT_COLOR;
       } else if (isNonWorkingDay) {
-        backgroundColor = "#F3F3F3";
+        backgroundColor = NON_WORKING_DAY_COLOR;
       }
 
       return (

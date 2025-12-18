@@ -71,7 +71,13 @@ import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
 import { getLastPartFromMimeType } from "utils";
-import { addBusinessDays, businessDaysInclusive, getFinnishHolidaysForRange, getValidDateTimeOrThrow, subtractBusinessDays } from "utils/date-time-utils";
+import {
+  addBusinessDays,
+  businessDaysInclusive,
+  getFinnishHolidaysForRange,
+  getValidDateTimeOrThrow,
+  subtractBusinessDays,
+} from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
@@ -193,10 +199,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         positionId: task.jobPositionId,
         dependentUserId: task.dependentUserId || null,
         userRole: task.userRole,
-        estimatedDuration: 
-          startDate?.isValid && endDate?.isValid 
-            ? businessDaysInclusive(startDate, endDate, holidays)
-            : 0,
+        estimatedDuration:
+          startDate?.isValid && endDate?.isValid ? businessDaysInclusive(startDate, endDate, holidays) : 0,
         estimatedReadiness: task.estimatedReadiness,
       });
     } else {
@@ -566,14 +570,11 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
   /**
    * Returns Finnish holidays for the relevant year range around given dates.
-   * 
+   *
    * @param start start date
    * @param end end date
    */
-  const getHolidaysForRange = (
-    start?: DateTime<boolean> | null,
-    end?: DateTime<boolean> | null,
-  ): Date[] => {
+  const getHolidaysForRange = (start?: DateTime<boolean> | null, end?: DateTime<boolean> | null): Date[] => {
     if (start && end) {
       return getFinnishHolidaysForRange(start, end);
     }

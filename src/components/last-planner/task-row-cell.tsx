@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Box, darken, Tooltip, Typography } from "@mui/material";
+import { NON_WORKING_DAY_COLOR, TODAY_HIGHLIGHT_COLOR } from "consts";
 import { type JobPosition, type Task, TaskStatus } from "generated/client";
 import { useFindUserQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { Interval } from "luxon";
@@ -123,9 +124,9 @@ export const TaskRowCell = ({
 
   let backgroundColor: string | undefined;
   if (isToday) {
-    backgroundColor = "#FFF7A3";
+    backgroundColor = TODAY_HIGHLIGHT_COLOR;
   } else if (isNonWorkingDay) {
-    backgroundColor = "#F3F3F3";
+    backgroundColor = NON_WORKING_DAY_COLOR;
   } else {
     backgroundColor = "rgba(0, 150, 255, 0.02)";
   }

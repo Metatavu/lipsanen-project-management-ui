@@ -91,6 +91,7 @@ export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =
  * @param onTaskClick the task click handler
  * @param onSwitchTaskStatus the task status switch handler
  * @param nonWorkingDayFlags flags indicating non-working days
+ * @param todayIndex the index of today's date in the timeline interval
  */
 export const renderTaskRows =
   (
@@ -146,7 +147,7 @@ export const renderTaskRows =
         }
       }
 
-      // The task cell itself (can span multiple days)- no backgrond color for non-working days
+      // The task cell itself (can span multiple days)- no background color for non-working days
       filledRow.push(
         <TaskRowCell
           key={currentTaskData.task.id as string}
