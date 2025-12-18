@@ -112,12 +112,13 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
           const taskId = task.id;
           const taskName = task.name;
           const content = (
-            <Box sx={{ 
-              display: "flex", 
-              alignItems: "center", 
-              "&:hover span.task-name": {
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                "&:hover span.task-name": {
                   textDecoration: "underline",
-                }, 
+                },
               }}
             >
               <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
@@ -134,7 +135,7 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
           return (
             <RouterLink
               to="/projects/$projectId/tasks/$taskId"
-              params={{ projectId, taskId: taskId }}
+              params={{ projectId, taskId }}
               onClick={(event) => event.stopPropagation()}
               style={{ textDecoration: "none", color: "inherit" }}
             >
@@ -172,7 +173,7 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
         renderCell: (params) => <ProgressBadge progress={params.value ?? 0} width="120px" />,
       },
     ],
-    [jobPositions, milestoneNameMap, t, user, users],
+    [jobPositions, milestoneNameMap, t, user, users, projectId],
   );
 
   if (
