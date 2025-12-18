@@ -8,7 +8,7 @@ import { type JobPosition, type Task, TaskStatus, type User } from "generated/cl
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { DateTime, type Interval } from "luxon";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
@@ -250,6 +250,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, dragMode, setDragMo
   const { tasksApi } = useApi();
   const queryClient = useQueryClient();
   const setError = useSetError();
+  const didAutoScrollRef = useRef(false);
 
   const listTasksQuery = useListTasksQuery({ projectId });
   const tasks = useMemo(() => listTasksQuery.data ?? [], [listTasksQuery.data]);
@@ -413,18 +414,21 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, dragMode, setDragMo
 
   // Scroll table to current day
   useEffect(() => {
-    if (!scrollContainerRef?.current || !days?.length) return;
+    const el = scrollContainerRef?.current;
+    if (!el) return;
 
-    const today = DateTime.now();
-    const currentDayIndex = days.findIndex((day) => day.contains(today));
+    if (todayIndex < 0) return;
 
-    if (currentDayIndex >= 0) {
-      const cellWidth = 40;
-      const wrapperWidth = scrollContainerRef.current.clientWidth;
-      const scrollOffset = currentDayIndex * cellWidth - wrapperWidth / 2 + cellWidth * 3.5;
-      scrollContainerRef.current.scrollLeft = scrollOffset;
-    }
-  }, [days, scrollContainerRef]);
+    // Only autoscroll once (prevents scroll after drag/drop updates)
+    if (didAutoScrollRef.current) return;
+    didAutoScrollRef.current = true;
+
+    const cellWidth = CELL_WIDTH;
+    const wrapperWidth = el.clientWidth;
+    const scrollOffset = todayIndex * cellWidth - wrapperWidth / 2 + cellWidth * 3.5;
+
+    el.scrollLeft = scrollOffset;
+  }, [todayIndex, scrollContainerRef]);
 
   /**
    * Render year cells
