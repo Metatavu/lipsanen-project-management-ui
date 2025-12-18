@@ -32,6 +32,7 @@
     "@tanstack/router-vite-plugin": "1.48.5",
     "@types/react-mentions": "4.1.13",
     "envalid": "8.0.0",
+    "finnish-holidays-js": "1.1.2",
     "i18next": "23.9.0",
     "i18next-browser-languagedetector": "7.2.0",
     "jotai": "2.6.4",
