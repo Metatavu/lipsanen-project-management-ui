@@ -15,9 +15,12 @@ import { splitIntervalByDuration } from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import {
   distributeOverlappingTasksToRows,
+  getApiErrorMessageAsync,
+  getApiStatus,
   getTimelineIntervalByTasks,
   groupTasksByOverlap,
   mapTasksAndUsersByUserId,
+  parseTaskDependencyConflict,
   renderTaskRows,
   sortTasksByStartTime,
 } from "utils/last-planner-utils";
@@ -252,8 +255,30 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, dragMode, setDragMo
       queryClient.setQueryData<Task[]>(queryKey, updatedTasks);
       return { previousTasks };
     },
-    onError: (error, _, context) => {
-      setError(t("errorHandling.errorUpdatingTask"), error);
+    onError: async (error, _, context) => {
+      const status = getApiStatus(error);
+      const apiMessage = await getApiErrorMessageAsync(error);
+
+      if (status === 409 && apiMessage) {
+        const parsed = parseTaskDependencyConflict(apiMessage);
+        if (parsed) {
+          const key =
+            parsed.kind === "FINISH_TO_START"
+              ? "errorHandling.taskDependencyFinishToStart"
+              : parsed.kind === "START_TO_START"
+                ? "errorHandling.taskDependencyStartToStart"
+                : "errorHandling.taskDependencyFinishToFinish";
+
+          setError(
+            t("errorHandling.taskBlockedByDependenciesTitle"),
+            new Error(t(key, { source: parsed.source, target: parsed.target })),
+          );
+        } else {
+          setError(t("errorHandling.taskBlockedByDependenciesTitle"), new Error(apiMessage));
+        }
+      } else {
+        setError(t("errorHandling.errorUpdatingTask"), error);
+      }
       queryClient.setQueryData(["projects", projectId, "tasks", {}], context?.previousTasks);
     },
     onSettled: () => {

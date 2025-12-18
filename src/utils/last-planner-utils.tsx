@@ -1,7 +1,7 @@
 import { TaskRowCell } from "components/last-planner/task-row-cell";
 import type { Task, User } from "generated/client";
 import { DateTime, Interval } from "luxon";
-import type { TaskWithInterval, UserWithTasks } from "types";
+import type { DependencyErrorType, TaskWithInterval, UserWithTasks } from "types";
 
 /**
  * Get the timeline interval by tasks. The interval will be from one day earlier of
@@ -210,3 +210,59 @@ export const mapTasksAndUsersByUserId = (tasks: Task[], users: User[]) =>
 
     return acc;
   }, mapUsersToUserWithTasks(users));
+
+/**
+ * Gets the API error message in UI, allows us to localize the task update dependency error message on 409s.
+ */
+export const getApiErrorMessageAsync = async (error: unknown): Promise<string | undefined> => {
+  const res = (error as any)?.response as Response | undefined;
+
+  if (!res) {
+    const msg = (error as any)?.body?.message ?? (error as any)?.message;
+    return typeof msg === "string" ? msg : undefined;
+  }
+
+  try {
+    const clone = res.clone();
+
+    try {
+      const data = await clone.json();
+      const msg = data?.message ?? data?.detail ?? data?.error ?? data?.title;
+      return typeof msg === "string" && msg.trim() ? msg : JSON.stringify(data);
+    } catch {
+      const text = await clone.text();
+      return text && text.trim() ? text : undefined;
+    }
+  } catch {
+    return undefined;
+  }
+};
+
+export const getApiStatus = (error: unknown): number | undefined => {
+  const e = error as any;
+  return e?.status ?? e?.response?.status;
+};
+
+/**
+ * Parse the task dependency conflict message from the API
+ */
+export const parseTaskDependencyConflict = (
+  message: string,
+): { kind: DependencyErrorType; source: string; target: string } | undefined => {
+  if (message.includes(" must be finished before task ") && message.endsWith(" can be started")) {
+    const match = message.match(/^Task (.+) must be finished before task (.+) can be started$/);
+    return match ? { kind: "FINISH_TO_START", source: match[1], target: match[2] } : undefined;
+  }
+
+  if (message.includes(" must be started before task ") && message.endsWith(" can be started")) {
+    const match = message.match(/^Task (.+) must be started before task (.+) can be started$/);
+    return match ? { kind: "START_TO_START", source: match[1], target: match[2] } : undefined;
+  }
+
+  if (message.includes(" must be finished before task ") && message.endsWith(" can be finished")) {
+    const match = message.match(/^Task (.+) must be finished before task (.+) can be finished$/);
+    return match ? { kind: "FINISH_TO_FINISH", source: match[1], target: match[2] } : undefined;
+  }
+
+  return undefined;
+};
