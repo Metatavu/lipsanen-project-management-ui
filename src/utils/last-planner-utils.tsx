@@ -90,6 +90,8 @@ export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =
  * @param editMode whether the tasks are in edit mode
  * @param onTaskClick the task click handler
  * @param onSwitchTaskStatus the task status switch handler
+ * @param nonWorkingDayFlags flags indicating non-working days
+ * @param todayIndex the index of today's date in the timeline interval
  */
 export const renderTaskRows =
   (
@@ -97,30 +99,59 @@ export const renderTaskRows =
     editMode: boolean | undefined,
     onTaskClick: (taskId: string) => void,
     onSwitchTaskStatus: (task: Task) => void,
+    nonWorkingDayFlags: boolean[],
+    todayIndex: number,
   ) =>
   (tasksInRow: TaskWithInterval[]) => {
     const filledRow = [];
+
+    // Convert a DateTime to "day index since timeline start"
+    const dayIndexFromTimelineStart = (date: DateTime) =>
+      Math.floor(date.startOf("day").diff(timelineInterval.start.startOf("day"), "days").days);
 
     for (let i = 0; i < tasksInRow.length; i++) {
       const previousTask = i > 0 ? tasksInRow[i - 1] : undefined;
       const currentTaskData = tasksInRow[i];
       const isLastTask = i === tasksInRow.length - 1;
 
+      const taskStartIndex = dayIndexFromTimelineStart(currentTaskData.interval.start);
+      const taskEndIndex = dayIndexFromTimelineStart(currentTaskData.interval.end);
+      const taskLength = taskEndIndex - taskStartIndex + 1;
+
+      // Empty cells before the first task in this row
       if (!previousTask) {
-        const daysBetweenStartAndTaskStart = currentTaskData.interval.start.diff(timelineInterval.start, "days").days;
-        for (let j = 0; j < daysBetweenStartAndTaskStart; j++)
+        for (let dayIndex = 0; dayIndex < taskStartIndex; dayIndex++) {
           filledRow.push(
-            <TaskRowCell key={`leading-${j}`} colSpan={1} cellStyle={{ borderLeft: j === 0 ? "none" : undefined }} />,
+            <TaskRowCell
+              key={`leading-${dayIndex}`}
+              colSpan={1}
+              cellStyle={dayIndex === 0 ? { borderLeft: "none" } : undefined}
+              isNonWorkingDay={nonWorkingDayFlags[dayIndex] ?? false}
+              isToday={dayIndex === todayIndex}
+            />,
           );
+        }
       } else {
-        const daysBetweenTasks = currentTaskData.interval.start.diff(previousTask.interval.end, "days").days - 1;
-        for (let j = 0; j < daysBetweenTasks; j++) filledRow.push(<TaskRowCell key={`middle-${i}-${j}`} colSpan={1} />);
+        // Empty cells between previous task and this task
+        const prevTaskEndIndex = dayIndexFromTimelineStart(previousTask.interval.end);
+
+        for (let dayIndex = prevTaskEndIndex + 1; dayIndex < taskStartIndex; dayIndex++) {
+          filledRow.push(
+            <TaskRowCell
+              key={`middle-${i}-${dayIndex}`}
+              colSpan={1}
+              isNonWorkingDay={nonWorkingDayFlags[dayIndex] ?? false}
+              isToday={dayIndex === todayIndex}
+            />,
+          );
+        }
       }
 
+      // The task cell itself (can span multiple days)- no background color for non-working days
       filledRow.push(
         <TaskRowCell
           key={currentTaskData.task.id as string}
-          colSpan={currentTaskData.interval.count("days")}
+          colSpan={taskLength}
           task={currentTaskData.task}
           editMode={editMode}
           onTaskClick={(task) => onTaskClick(task.id as string)}
@@ -128,11 +159,21 @@ export const renderTaskRows =
         />,
       );
 
+      // Empty cells after the last task in the row
       if (isLastTask) {
-        const daysBetweenTaskEndAndTimelineEnd = timelineInterval.end.diff(currentTaskData.interval.end, "days").days;
+        const lastTaskEndIndex = taskEndIndex;
+        const totalDays = nonWorkingDayFlags.length;
 
-        for (let j = 0; j < daysBetweenTaskEndAndTimelineEnd; j++)
-          filledRow.push(<TaskRowCell key={`trailing-${j}`} colSpan={1} />);
+        for (let dayIndex = lastTaskEndIndex + 1; dayIndex < totalDays; dayIndex++) {
+          filledRow.push(
+            <TaskRowCell
+              key={`trailing-${dayIndex}`}
+              colSpan={1}
+              isNonWorkingDay={nonWorkingDayFlags[dayIndex] ?? false}
+              isToday={dayIndex === todayIndex}
+            />,
+          );
+        }
       }
     }
 

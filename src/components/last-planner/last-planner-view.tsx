@@ -1,16 +1,17 @@
-import { FormControlLabel, LinearProgress, Stack, Switch, styled, Typography } from "@mui/material";
+import { FormControlLabel, LinearProgress, Stack, styled, Switch, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
+import { NON_WORKING_DAY_COLOR, TODAY_HIGHLIGHT_COLOR } from "consts";
 import { type Task, TaskStatus, type User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { DateTime } from "luxon";
-import { Fragment, useEffect, useMemo, useRef } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
-import { splitIntervalByDuration } from "utils/date-time-utils";
+import { getFinnishHolidaysForRange, splitIntervalByDuration } from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import {
   distributeOverlappingTasksToRows,
@@ -103,6 +104,7 @@ type Props = {
   projectId: string;
   editMode?: boolean;
   setEditMode?: (editMode: boolean) => void;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 /**
@@ -110,7 +112,7 @@ type Props = {
  *
  * @param props component properties
  */
-const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
+const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef }: Props) => {
   const navigate = useNavigate({ from: "/projects/$projectId/tasks" });
   const { t } = useTranslation();
   const { tasksApi } = useApi();
@@ -123,7 +125,6 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   const users = useMemo(() => listProjectUsersQuery.data?.users ?? [], [listProjectUsersQuery.data]);
   const jobPositionsQuery = useListJobPositionsQuery({ max: 9999 });
   const jobPositions = useMemo(() => jobPositionsQuery.data?.jobPositions ?? [], [jobPositionsQuery.data]);
-  const tableWrapperRef = useRef<HTMLDivElement>(null);
 
   const updateTaskMutation = useMutation({
     mutationFn: (task: Task) => tasksApi.updateTask({ taskId: task.id as string, task: task }),
@@ -150,22 +151,51 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   const months = useMemo(() => splitIntervalByDuration(timelineInterval, "month"), [timelineInterval]);
   const weeks = useMemo(() => splitIntervalByDuration(timelineInterval, "week"), [timelineInterval]);
   const days = useMemo(() => splitIntervalByDuration(timelineInterval, "day"), [timelineInterval]);
+  const todayIndex = useMemo(() => {
+    if (!days?.length) return -1;
+    const today = DateTime.now();
+    return days.findIndex((day) => day.contains(today));
+  }, [days]);
   const tasksByAssigneeIdMap = useMemo(() => mapTasksAndUsersByUserId(tasks, users), [tasks, users]);
+
+  const holidays = useMemo(() => {
+    if (!timelineInterval.start || !timelineInterval.end) {
+      return [];
+    }
+
+    return getFinnishHolidaysForRange(timelineInterval.start, timelineInterval.end);
+  }, [timelineInterval]);
+
+  const nonWorkingDayFlags = useMemo(() => {
+    if (!days?.length) return [];
+
+    return days.map((day) => {
+      const date = day.start;
+      if (!date) return false;
+
+      // Weekend (Sat = 6 / Sun = 7)
+      const isWeekend = date.weekday === 6 || date.weekday === 7;
+
+      const isHoliday = holidays.some((h) => DateTime.fromJSDate(h).hasSame(date, "day"));
+
+      return isWeekend || isHoliday;
+    });
+  }, [days, holidays]);
 
   // Scroll table to current day
   useEffect(() => {
-    if (!tableWrapperRef.current || !days?.length) return;
+    if (!scrollContainerRef?.current || !days?.length) return;
 
     const today = DateTime.now();
     const currentDayIndex = days.findIndex((day) => day.contains(today));
 
     if (currentDayIndex >= 0) {
       const cellWidth = 40;
-      const wrapperWidth = tableWrapperRef.current?.clientWidth;
+      const wrapperWidth = scrollContainerRef.current.clientWidth;
       const scrollOffset = currentDayIndex * cellWidth - wrapperWidth / 2 + cellWidth * 3.5;
-      tableWrapperRef.current.scrollLeft = scrollOffset;
+      scrollContainerRef.current.scrollLeft = scrollOffset;
     }
-  }, [days]);
+  }, [days, scrollContainerRef]);
 
   /**
    * Render user cell
@@ -224,6 +254,8 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
               [TaskStatus.Done]: TaskStatus.NotStarted,
             }[task.status],
           }),
+        nonWorkingDayFlags,
+        todayIndex,
       ),
     );
 
@@ -233,7 +265,15 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
       return (
         <FixedHeightTableRow key={user.id}>
           {renderUserCell(user)}
-          {firstRow ?? days?.map((_, i) => <TaskRowCell key={i.toString()} colSpan={1} />)}
+          {firstRow ??
+            days?.map((_, i) => (
+              <TaskRowCell
+                key={i.toString()}
+                colSpan={1}
+                isNonWorkingDay={nonWorkingDayFlags[i]}
+                isToday={i === todayIndex}
+              />
+            ))}
         </FixedHeightTableRow>
       );
     }
@@ -297,7 +337,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
           constrainWidth
           align="center"
           top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 2}
-          style={{ backgroundColor: isCurrentWeek ? "rgba(255, 247, 163, 0.6)" : undefined }}
+          style={{ backgroundColor: isCurrentWeek ? TODAY_HIGHLIGHT_COLOR : undefined }}
         >
           <Typography textOverflow="ellipsis" noWrap>
             {t("lastPlannerView.week")} {week.start?.weekNumber}
@@ -310,12 +350,34 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
   /**
    * Render day cells
    */
-  const renderDays = () =>
-    days?.map((day, i) => (
-      <StickyTableCell key={i.toString()} constrainWidth align="center" top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 3}>
-        {day.start?.day}
-      </StickyTableCell>
-    ));
+  const renderDays = () => {
+    const today = DateTime.now();
+
+    return days?.map((day, i) => {
+      const isNonWorkingDay = nonWorkingDayFlags[i];
+      const isToday = day.contains(today);
+
+      let backgroundColor: string | undefined;
+
+      if (isToday) {
+        backgroundColor = TODAY_HIGHLIGHT_COLOR;
+      } else if (isNonWorkingDay) {
+        backgroundColor = NON_WORKING_DAY_COLOR;
+      }
+
+      return (
+        <StickyTableCell
+          key={i.toString()}
+          constrainWidth
+          align="center"
+          top={TOOLBAR_HEIGHT + HEADER_ROW_HEIGHT * 3}
+          style={{ backgroundColor }}
+        >
+          {day.start?.day}
+        </StickyTableCell>
+      );
+    });
+  };
 
   if (!listTasksQuery.data || !listProjectUsersQuery.data) {
     return <LinearProgress sx={{ height: 2 }} />;
@@ -335,7 +397,7 @@ const LastPlannerView = ({ projectId, editMode, setEditMode }: Props) => {
           label={t("lastPlannerView.markTasks")}
         />
       </StyledToolbar>
-      <LastPlannerTableWrapper ref={tableWrapperRef}>
+      <LastPlannerTableWrapper>
         <table style={{ borderCollapse: "separate" }}>
           <thead>
             <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>

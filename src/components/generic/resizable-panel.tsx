@@ -15,6 +15,7 @@ type Props = {
   children?: ReactNode;
   storeKey?: string;
   reserveSpaceForHandle?: boolean;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 /**
@@ -41,7 +42,7 @@ const useStoredHeightWithId = (initialHeight: number, storeId?: string) => {
  * @param props.children panel content
  * @param props.initialHeight initial height of the panel
  */
-const ResizablePanel = ({ storeKey, children, reserveSpaceForHandle }: Props) => {
+const ResizablePanel = ({ storeKey, children, reserveSpaceForHandle, scrollContainerRef }: Props) => {
   const [storedHeight, setStoredHeight] = useStoredHeightWithId(INITIAL_HEIGHT, storeKey);
 
   const { height, onMouseDown } = useResizableHeight({
@@ -86,7 +87,7 @@ const ResizablePanel = ({ storeKey, children, reserveSpaceForHandle }: Props) =>
             <DragHandleIcon sx={{ color: "grey.500" }} />
           </Box>
           <Divider />
-          <Box height={`${height - 20 - 1}px`} overflow="auto" position="relative">
+          <Box height={`${height - 20 - 1}px`} overflow="auto" position="relative" ref={scrollContainerRef}>
             {children}
           </Box>
         </Box>,

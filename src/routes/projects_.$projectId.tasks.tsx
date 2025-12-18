@@ -28,6 +28,7 @@ function TasksIndexRoute() {
   const { projectId } = Route.useParams();
   const navigate = Route.useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
+  const lastPlannerScrollRef = useRef<HTMLDivElement | null>(null);
 
   const [editMode, setEditMode] = useState(false);
 
@@ -56,8 +57,13 @@ function TasksIndexRoute() {
           />
         </Stack>
       </Card>
-      <ResizablePanel reserveSpaceForHandle storeKey="last-planner">
-        <LastPlannerView projectId={projectId} editMode={editMode} setEditMode={setEditMode} />
+      <ResizablePanel reserveSpaceForHandle storeKey="last-planner" scrollContainerRef={lastPlannerScrollRef}>
+        <LastPlannerView
+          projectId={projectId}
+          editMode={editMode}
+          setEditMode={setEditMode}
+          scrollContainerRef={lastPlannerScrollRef}
+        />
       </ResizablePanel>
       <Outlet />
     </FlexColumnLayout>

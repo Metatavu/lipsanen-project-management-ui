@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Box, darken, Tooltip, Typography } from "@mui/material";
+import { NON_WORKING_DAY_COLOR, TODAY_HIGHLIGHT_COLOR } from "consts";
 import { type JobPosition, type Task, TaskStatus } from "generated/client";
 import { useFindUserQuery, useListJobPositionsQuery } from "hooks/api-queries";
 import { Interval } from "luxon";
@@ -28,6 +29,8 @@ type Props = {
   onTaskClick?: (task: Task) => void;
   onSwitchTaskStatus?: (task: Task) => void;
   cellStyle?: CSSProperties;
+  isNonWorkingDay?: boolean;
+  isToday?: boolean;
 };
 
 /**
@@ -42,6 +45,8 @@ export const TaskRowCell = ({
   onTaskClick,
   onSwitchTaskStatus,
   cellStyle = {},
+  isNonWorkingDay,
+  isToday,
 }: Props) => {
   const { t } = useTranslation();
   const { dependentUserId } = task ?? {};
@@ -117,6 +122,15 @@ export const TaskRowCell = ({
       ),
     })[status];
 
+  let backgroundColor: string | undefined;
+  if (isToday) {
+    backgroundColor = TODAY_HIGHLIGHT_COLOR;
+  } else if (isNonWorkingDay) {
+    backgroundColor = NON_WORKING_DAY_COLOR;
+  } else {
+    backgroundColor = "rgba(0, 150, 255, 0.02)";
+  }
+
   /**
    * Component render
    */
@@ -124,7 +138,12 @@ export const TaskRowCell = ({
     <td
       align="center"
       colSpan={colSpan}
-      style={{ minWidth: 40, verticalAlign: "middle", backgroundColor: "rgba(0, 150, 255, 0.02)", ...cellStyle }}
+      style={{
+        minWidth: 40,
+        verticalAlign: "middle",
+        backgroundColor,
+        ...cellStyle,
+      }}
     >
       {task ? (
         <Box
