@@ -212,7 +212,7 @@ export const mapTasksAndUsersByUserId = (tasks: Task[], users: User[]) =>
   }, mapUsersToUserWithTasks(users));
 
 /**
- * Gets the API error message in UI, allows us to localize the task update dependency error message on 409s.
+ * Gets the API error message for the UI, allows us to localize the task update dependency error message on 409s.
  */
 export const getApiErrorMessageAsync = async (error: unknown): Promise<string | undefined> => {
   const res = (error as any)?.response as Response | undefined;
