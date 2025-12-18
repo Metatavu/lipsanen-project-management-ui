@@ -1,7 +1,7 @@
 import { TaskRowCell } from "components/last-planner/task-row-cell";
 import type { Task, User } from "generated/client";
 import { DateTime, Interval } from "luxon";
-import type { TaskWithInterval, UserWithTasks } from "types";
+import type { DependencyErrorType, TaskWithInterval, UserWithTasks } from "types";
 
 /**
  * Get the timeline interval by tasks. The interval will be from one day earlier of
@@ -84,7 +84,19 @@ export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =
   a.interval.start.toMillis() - b.interval.start.toMillis();
 
 /**
+ * Options for rendering task rows
+ */
+type RenderTaskRowsOptions = {
+  enableDrag?: boolean;
+  assigneeId?: string;
+};
+
+/**
  * Fill the gaps between tasks in a row with empty cells. This is necessary to render the tasks in a row properly.
+ *
+ *  * When `enableDrag` is true in options, task cells receive the drag metadata needed for:
+ * - horizontal date shifting (based on startDayIndex / durationDays)
+ * - vertical reassignment (based on assigneeId / assigneeIds)
  *
  * @param timelineInterval the interval that wraps the tasks
  * @param editMode whether the tasks are in edit mode
@@ -92,6 +104,7 @@ export const sortTasksByStartTime = (a: TaskWithInterval, b: TaskWithInterval) =
  * @param onSwitchTaskStatus the task status switch handler
  * @param nonWorkingDayFlags flags indicating non-working days
  * @param todayIndex the index of today's date in the timeline interval
+ * @param options rendering options
  */
 export const renderTaskRows =
   (
@@ -101,6 +114,7 @@ export const renderTaskRows =
     onSwitchTaskStatus: (task: Task) => void,
     nonWorkingDayFlags: boolean[],
     todayIndex: number,
+    options?: RenderTaskRowsOptions,
   ) =>
   (tasksInRow: TaskWithInterval[]) => {
     const filledRow = [];
@@ -147,15 +161,35 @@ export const renderTaskRows =
         }
       }
 
-      // The task cell itself (can span multiple days)- no background color for non-working days
+      const taskStart = DateTime.fromJSDate(currentTaskData.task.startDate).startOf("day");
+      const taskEnd = DateTime.fromJSDate(currentTaskData.task.endDate).startOf("day");
+
+      const durationDays = Math.max(1, Math.round(taskEnd.diff(taskStart, "days").days) + 1);
+
+      // index relative to timeline start (also normalize to startOf day)
+      const startOffsetDays = taskStart.diff(timelineInterval.start.startOf("day"), "days").days;
+
+      const dragData =
+        options?.enableDrag && options.assigneeId && currentTaskData.task.id
+          ? {
+              taskId: currentTaskData.task.id as string,
+              assigneeId: options.assigneeId,
+              startDayIndex: Math.round(startOffsetDays),
+              durationDays,
+              assigneeIds: currentTaskData.task.assigneeIds ?? [],
+            }
+          : undefined;
+
       filledRow.push(
         <TaskRowCell
           key={currentTaskData.task.id as string}
-          colSpan={taskLength}
+          colSpan={durationDays}
           task={currentTaskData.task}
           editMode={editMode}
           onTaskClick={(task) => onTaskClick(task.id as string)}
           onSwitchTaskStatus={(task) => onSwitchTaskStatus(task)}
+          draggable={options?.enableDrag}
+          dragData={dragData}
         />,
       );
 
@@ -216,3 +250,59 @@ export const mapTasksAndUsersByUserId = (tasks: Task[], users: User[]) =>
 
     return acc;
   }, mapUsersToUserWithTasks(users));
+
+/**
+ * Gets the API error message for the UI, allows us to localize the task update dependency error message on 409s.
+ */
+export const getApiErrorMessageAsync = async (error: unknown): Promise<string | undefined> => {
+  const res = (error as any)?.response as Response | undefined;
+
+  if (!res) {
+    const msg = (error as any)?.body?.message ?? (error as any)?.message;
+    return typeof msg === "string" ? msg : undefined;
+  }
+
+  try {
+    const clone = res.clone();
+
+    try {
+      const data = await clone.json();
+      const msg = data?.message ?? data?.detail ?? data?.error ?? data?.title;
+      return typeof msg === "string" && msg.trim() ? msg : JSON.stringify(data);
+    } catch {
+      const text = await clone.text();
+      return text && text.trim() ? text : undefined;
+    }
+  } catch {
+    return undefined;
+  }
+};
+
+export const getApiStatus = (error: unknown): number | undefined => {
+  const e = error as any;
+  return e?.status ?? e?.response?.status;
+};
+
+/**
+ * Parse the task dependency conflict message from the API
+ */
+export const parseTaskDependencyConflict = (
+  message: string,
+): { kind: DependencyErrorType; source: string; target: string } | undefined => {
+  if (message.includes(" must be finished before task ") && message.endsWith(" can be started")) {
+    const match = message.match(/^Task (.+) must be finished before task (.+) can be started$/);
+    return match ? { kind: "FINISH_TO_START", source: match[1], target: match[2] } : undefined;
+  }
+
+  if (message.includes(" must be started before task ") && message.endsWith(" can be started")) {
+    const match = message.match(/^Task (.+) must be started before task (.+) can be started$/);
+    return match ? { kind: "START_TO_START", source: match[1], target: match[2] } : undefined;
+  }
+
+  if (message.includes(" must be finished before task ") && message.endsWith(" can be finished")) {
+    const match = message.match(/^Task (.+) must be finished before task (.+) can be finished$/);
+    return match ? { kind: "FINISH_TO_FINISH", source: match[1], target: match[2] } : undefined;
+  }
+
+  return undefined;
+};

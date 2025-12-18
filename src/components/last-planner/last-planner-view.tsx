@@ -1,13 +1,14 @@
+import { DndContext, type DragEndEvent, useDroppable } from "@dnd-kit/core";
 import { FormControlLabel, LinearProgress, Stack, styled, Switch, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { MdiIconifyIconWithBackground } from "components/generic/mdi-icon-with-background";
 import { NON_WORKING_DAY_COLOR, TODAY_HIGHLIGHT_COLOR } from "consts";
-import { type Task, TaskStatus, type User } from "generated/client";
+import { type JobPosition, type Task, TaskStatus, type User } from "generated/client";
 import { useListJobPositionsQuery, useListTasksQuery, useListUsersQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
-import { DateTime } from "luxon";
-import { Fragment, useEffect, useMemo } from "react";
+import { DateTime, type Interval } from "luxon";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskWithInterval } from "types";
 import { getContrastForegroundColor, hexFromString } from "utils";
@@ -15,9 +16,12 @@ import { getFinnishHolidaysForRange, splitIntervalByDuration } from "utils/date-
 import { useSetError } from "utils/error-handling";
 import {
   distributeOverlappingTasksToRows,
+  getApiErrorMessageAsync,
+  getApiStatus,
   getTimelineIntervalByTasks,
   groupTasksByOverlap,
   mapTasksAndUsersByUserId,
+  parseTaskDependencyConflict,
   renderTaskRows,
   sortTasksByStartTime,
 } from "utils/last-planner-utils";
@@ -25,6 +29,7 @@ import { TaskRowCell } from "./task-row-cell";
 
 const TOOLBAR_HEIGHT = 50;
 const HEADER_ROW_HEIGHT = 30;
+const CELL_WIDTH = 40;
 
 /**
  * Styled wrapper element for the last planner table
@@ -98,6 +103,131 @@ const StickyTableCell = styled("td", {
 }));
 
 /**
+ * Render user cell with job position icon and name
+ *
+ * @param user User
+ * @param jobPositions JobPosition list
+ * @param rowSpan number
+ */
+const renderUserCell = (user: User, jobPositions: JobPosition[], rowSpan?: number) => {
+  if (!user.id) return null;
+
+  const jobPosition = jobPositions.find((jp) => jp.id === user.jobPositionId);
+  const backgroundColor = hexFromString(user.id);
+  const foregroundColor = getContrastForegroundColor(backgroundColor);
+
+  return (
+    <StickyTableCell rowSpan={rowSpan} style={{ left: 0, zIndex: 2 }}>
+      <Stack direction="row" alignItems="center" gap={2} px={2} textOverflow="ellipsis">
+        <MdiIconifyIconWithBackground
+          iconName={jobPosition?.iconName}
+          backgroundColor={backgroundColor}
+          color={foregroundColor}
+        />
+        <Typography noWrap>
+          {user.firstName} {user.lastName}
+        </Typography>
+      </Stack>
+    </StickyTableCell>
+  );
+};
+
+/**
+ * Props for user rows component
+ */
+type UserRowsProps = {
+  user: User;
+  tasksWithIntervals: TaskWithInterval[];
+  timelineInterval: Interval<true>;
+  editMode?: boolean;
+  dragMode?: boolean;
+  days: Interval[] | undefined;
+  jobPositions: JobPosition[];
+  onTaskClick: (taskId: string) => void;
+  onSwitchTaskStatus: (task: Task) => void;
+  nonWorkingDayFlags: boolean[];
+  todayIndex: number;
+};
+
+/**
+ * User rows component
+ *
+ * @param props UserRowsProps
+ */
+const UserRows = ({
+  user,
+  tasksWithIntervals,
+  timelineInterval,
+  editMode,
+  dragMode,
+  days,
+  jobPositions,
+  onTaskClick,
+  onSwitchTaskStatus,
+  nonWorkingDayFlags,
+  todayIndex,
+}: UserRowsProps) => {
+  const { setNodeRef } = useDroppable({
+    id: `user-${user.id}`,
+    data: { userId: user.id },
+  });
+
+  const tasksGroupedByOverlap = groupTasksByOverlap(tasksWithIntervals);
+  const tasksGroupedToRows = distributeOverlappingTasksToRows(tasksGroupedByOverlap);
+  for (const tasksInRow of tasksGroupedToRows) {
+    tasksInRow.sort(sortTasksByStartTime);
+  }
+
+  const filledTableRows = tasksGroupedToRows.map(
+    renderTaskRows(timelineInterval, editMode, onTaskClick, onSwitchTaskStatus, nonWorkingDayFlags, todayIndex, {
+      enableDrag: !!dragMode,
+      assigneeId: user.id as string,
+    }),
+  );
+
+  const [firstRow, ...otherRows] = filledTableRows;
+
+  if (!otherRows.length) {
+    return (
+      <FixedHeightTableRow ref={setNodeRef}>
+        {renderUserCell(user, jobPositions)}
+        {firstRow ??
+          days?.map((_, i) => (
+            <TaskRowCell
+              key={i.toString()}
+              colSpan={1}
+              isNonWorkingDay={nonWorkingDayFlags[i]}
+              isToday={i === todayIndex}
+            />
+          ))}
+      </FixedHeightTableRow>
+    );
+  }
+
+  return (
+    <>
+      <FixedHeightTableRow ref={setNodeRef}>
+        {renderUserCell(user, jobPositions, filledTableRows.length)}
+        {firstRow}
+      </FixedHeightTableRow>
+      {otherRows.map((row, i) => (
+        <FixedHeightTableRow key={i.toString()}>{row}</FixedHeightTableRow>
+      ))}
+    </>
+  );
+};
+
+/**
+ * Converts a Luxon DateTime to a JS Date that represents the same calendar day in UTC.
+ *
+ * Used when persisting `startDate` / `endDate` so we avoid timezone drift (e.g. local midnight -> previous/next day UTC).
+ *
+ * @param dt - DateTime
+ * @returns A JS Date at 00:00:00 UTC for that calendar day.
+ */
+const toUtcDateOnly = (dt: DateTime) => new Date(Date.UTC(dt.year, dt.month - 1, dt.day));
+
+/**
  * Last planner view component properties
  */
 type Props = {
@@ -105,6 +235,8 @@ type Props = {
   editMode?: boolean;
   setEditMode?: (editMode: boolean) => void;
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  dragMode?: boolean;
+  setDragMode?: (dragMode: boolean) => void;
 };
 
 /**
@@ -112,7 +244,7 @@ type Props = {
  *
  * @param props component properties
  */
-const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef }: Props) => {
+const LastPlannerView = ({ projectId, editMode, setEditMode, dragMode, setDragMode, scrollContainerRef }: Props) => {
   const navigate = useNavigate({ from: "/projects/$projectId/tasks" });
   const { t } = useTranslation();
   const { tasksApi } = useApi();
@@ -136,8 +268,30 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef 
       queryClient.setQueryData<Task[]>(queryKey, updatedTasks);
       return { previousTasks };
     },
-    onError: (error, _, context) => {
-      setError(t("errorHandling.errorUpdatingTask"), error);
+    onError: async (error, _, context) => {
+      const status = getApiStatus(error);
+      const apiMessage = await getApiErrorMessageAsync(error);
+
+      if (status === 409 && apiMessage) {
+        const parsed = parseTaskDependencyConflict(apiMessage);
+        if (parsed) {
+          const key =
+            parsed.kind === "FINISH_TO_START"
+              ? "errorHandling.taskDependencyFinishToStart"
+              : parsed.kind === "START_TO_START"
+                ? "errorHandling.taskDependencyStartToStart"
+                : "errorHandling.taskDependencyFinishToFinish";
+
+          setError(
+            t("errorHandling.taskBlockedByDependenciesTitle"),
+            new Error(t(key, { source: parsed.source, target: parsed.target })),
+          );
+        } else {
+          setError(t("errorHandling.taskBlockedByDependenciesTitle"), new Error(apiMessage));
+        }
+      } else {
+        setError(t("errorHandling.errorUpdatingTask"), error);
+      }
       queryClient.setQueryData(["projects", projectId, "tasks", {}], context?.previousTasks);
     },
     onSettled: () => {
@@ -182,6 +336,81 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef 
     });
   }, [days, holidays]);
 
+  /**
+   * Handles drag end for tasks.
+   *
+   * - Horizontal movement snaps to day columns and updates start/end dates.
+   * - Vertical drop onto a user row updates `assigneeIds` only for single-assignee tasks.
+   * - No-ops if nothing actually changed or the drop target isn't a user row.
+   */
+  const handleDragEnd = (event: DragEndEvent) => {
+    if (!dragMode) return;
+
+    const { active, over, delta } = event;
+
+    const dragData = active.data.current as
+      | {
+          taskId: string;
+          assigneeId: string;
+          startDayIndex: number;
+          durationDays: number;
+          assigneeIds: string[];
+        }
+      | undefined;
+
+    if (!dragData) return;
+
+    const task = tasks.find((t) => t.id === dragData.taskId);
+    if (!task || !days?.length) return;
+
+    // Horizontal shift = date change
+    const deltaDays = Math.round(delta.x / CELL_WIDTH);
+
+    const originalStartIndex = dragData.startDayIndex;
+    const duration = dragData.durationDays;
+    const maxStartIndex = days.length - duration;
+
+    let newStartIndex = originalStartIndex + deltaDays;
+    if (newStartIndex < 0) newStartIndex = 0;
+    if (newStartIndex > maxStartIndex) newStartIndex = maxStartIndex;
+
+    const startInterval = days[newStartIndex];
+    if (!startInterval?.start) return;
+
+    const newStartDay = startInterval.start.startOf("day");
+    const newEndDay = newStartDay.plus({ days: duration - 1 });
+
+    // Vertical move = new assignee based on droppable user row
+    const overData = over?.data.current as { userId?: string } | undefined;
+    const dropUserId = overData?.userId;
+    if (!dropUserId) return;
+
+    // default: preserve existing assignees
+    let nextAssigneeIds = dragData.assigneeIds?.length ? [...dragData.assigneeIds] : [...(task.assigneeIds ?? [])];
+
+    // Only allow vertical (user) change if the task is single-assignee
+    const isSingleAssignee = nextAssigneeIds.length <= 1;
+    let didAssigneeChange = false;
+    if (isSingleAssignee && dropUserId) {
+      // Only change if actually dropped onto a different user row
+      if (nextAssigneeIds[0] !== dropUserId) {
+        nextAssigneeIds = [dropUserId];
+        didAssigneeChange = true;
+      }
+    }
+
+    if (deltaDays === 0 && !didAssigneeChange) return; // No change = no-op
+
+    const updatedTask: Task = {
+      ...task,
+      startDate: toUtcDateOnly(newStartDay),
+      endDate: toUtcDateOnly(newEndDay),
+      assigneeIds: nextAssigneeIds,
+    };
+
+    updateTaskMutation.mutate(updatedTask);
+  };
+
   // Scroll table to current day
   useEffect(() => {
     if (!scrollContainerRef?.current || !days?.length) return;
@@ -196,100 +425,6 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef 
       scrollContainerRef.current.scrollLeft = scrollOffset;
     }
   }, [days, scrollContainerRef]);
-
-  /**
-   * Render user cell
-   *
-   * @param user user
-   * @param rowSpan rowSpan for the cell
-   * @returns rendered cell for the user
-   */
-  const renderUserCell = (user: User, rowSpan?: number) => {
-    if (!user.id) return null;
-
-    const jobPosition = jobPositions.find((jobPosition) => jobPosition.id === user.jobPositionId);
-    const backgroundColor = hexFromString(user.id);
-    const foregroundColor = getContrastForegroundColor(backgroundColor);
-
-    return (
-      <StickyTableCell rowSpan={rowSpan} style={{ left: 0, zIndex: 2 }}>
-        <Stack direction="row" alignItems="center" gap={2} px={2} textOverflow="ellipsis">
-          <MdiIconifyIconWithBackground
-            iconName={jobPosition?.iconName}
-            backgroundColor={backgroundColor}
-            color={foregroundColor}
-          />
-          <Typography noWrap>
-            {user.firstName} {user.lastName}
-          </Typography>
-        </Stack>
-      </StickyTableCell>
-    );
-  };
-
-  /**
-   * Render table rows for user
-   *
-   * @param user user
-   * @param tasksWithIntervals tasks and their intervals
-   * @returns rendered table rows with tasks for the user
-   */
-  const renderTableRowsForUser = (user: User, tasksWithIntervals: TaskWithInterval[]) => {
-    const tasksGroupedByOverlap = groupTasksByOverlap(tasksWithIntervals);
-    const tasksGroupedToRows = distributeOverlappingTasksToRows(tasksGroupedByOverlap);
-    for (const tasksInRow of tasksGroupedToRows) {
-      tasksInRow.sort(sortTasksByStartTime);
-    }
-    const filledTableRows = tasksGroupedToRows.map(
-      renderTaskRows(
-        timelineInterval,
-        editMode,
-        (taskId) => navigate({ to: "$taskId", params: { taskId: taskId } }),
-        (task) =>
-          updateTaskMutation.mutate({
-            ...task,
-            status: {
-              [TaskStatus.NotStarted]: TaskStatus.InProgress,
-              [TaskStatus.InProgress]: TaskStatus.Done,
-              [TaskStatus.Done]: TaskStatus.NotStarted,
-            }[task.status],
-          }),
-        nonWorkingDayFlags,
-        todayIndex,
-      ),
-    );
-
-    const [firstRow, ...otherRows] = filledTableRows;
-
-    if (!otherRows.length) {
-      return (
-        <FixedHeightTableRow key={user.id}>
-          {renderUserCell(user)}
-          {firstRow ??
-            days?.map((_, i) => (
-              <TaskRowCell
-                key={i.toString()}
-                colSpan={1}
-                isNonWorkingDay={nonWorkingDayFlags[i]}
-                isToday={i === todayIndex}
-              />
-            ))}
-        </FixedHeightTableRow>
-      );
-    }
-
-    return (
-      <Fragment key={user.id}>
-        <FixedHeightTableRow>
-          {renderUserCell(user, filledTableRows.length)}
-          {firstRow}
-        </FixedHeightTableRow>
-        {otherRows.map((row, i) => (
-          <FixedHeightTableRow key={i.toString()}>{row}</FixedHeightTableRow>
-        ))}
-      </Fragment>
-    );
-  };
 
   /**
    * Render year cells
@@ -393,32 +528,67 @@ const LastPlannerView = ({ projectId, editMode, setEditMode, scrollContainerRef 
           {t("lastPlannerView.title")}
         </Typography>
         <FormControlLabel
-          control={<Switch value={editMode} onChange={(event) => setEditMode?.(event.target.checked)} />}
+          control={<Switch checked={editMode} onChange={(event) => setEditMode?.(event.target.checked)} />}
           label={t("lastPlannerView.markTasks")}
         />
+        <FormControlLabel
+          control={<Switch checked={dragMode} onChange={(event) => setDragMode?.(event.target.checked)} />}
+          label={t("lastPlannerView.dragTasks")}
+        />
       </StyledToolbar>
-      <LastPlannerTableWrapper>
-        <table style={{ borderCollapse: "separate" }}>
-          <thead>
-            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>
-              <StickyTableCell rowSpan={4} top={TOOLBAR_HEIGHT} left={0} style={{ verticalAlign: "bottom", zIndex: 3 }}>
-                <Typography component="h3" variant="body2" fontWeight="bold" mb={1} ml={2}>
-                  {t("lastPlannerView.user")}
-                </Typography>
-              </StickyTableCell>
-              {renderYears()}
-            </FixedHeightTableRow>
-            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderMonths()}</FixedHeightTableRow>
-            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderWeeks()}</FixedHeightTableRow>
-            <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderDays()}</FixedHeightTableRow>
-          </thead>
-          <tbody>
-            {users.map((user) =>
-              user.id ? renderTableRowsForUser(user, tasksByAssigneeIdMap.get(user.id)?.tasks ?? []) : null,
-            )}
-          </tbody>
-        </table>
-      </LastPlannerTableWrapper>
+      <DndContext onDragEnd={handleDragEnd}>
+        <LastPlannerTableWrapper>
+          <table style={{ borderCollapse: "separate" }}>
+            <thead>
+              <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>
+                <StickyTableCell
+                  rowSpan={4}
+                  top={TOOLBAR_HEIGHT}
+                  left={0}
+                  style={{ verticalAlign: "bottom", zIndex: 3 }}
+                >
+                  <Typography component="h3" variant="body2" fontWeight="bold" mb={1} ml={2}>
+                    {t("lastPlannerView.user")}
+                  </Typography>
+                </StickyTableCell>
+                {renderYears()}
+              </FixedHeightTableRow>
+              <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderMonths()}</FixedHeightTableRow>
+              <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderWeeks()}</FixedHeightTableRow>
+              <FixedHeightTableRow style={{ height: HEADER_ROW_HEIGHT }}>{renderDays()}</FixedHeightTableRow>
+            </thead>
+            <tbody>
+              {users.map((user) =>
+                user.id ? (
+                  <UserRows
+                    key={user.id}
+                    user={user}
+                    tasksWithIntervals={tasksByAssigneeIdMap.get(user.id)?.tasks ?? []}
+                    timelineInterval={timelineInterval}
+                    editMode={editMode}
+                    dragMode={dragMode}
+                    days={days}
+                    jobPositions={jobPositions}
+                    onTaskClick={(taskId) => navigate({ to: "$taskId", params: { taskId } })}
+                    onSwitchTaskStatus={(task) =>
+                      updateTaskMutation.mutate({
+                        ...task,
+                        status: {
+                          [TaskStatus.NotStarted]: TaskStatus.InProgress,
+                          [TaskStatus.InProgress]: TaskStatus.Done,
+                          [TaskStatus.Done]: TaskStatus.NotStarted,
+                        }[task.status],
+                      })
+                    }
+                    nonWorkingDayFlags={nonWorkingDayFlags}
+                    todayIndex={todayIndex}
+                  />
+                ) : null,
+              )}
+            </tbody>
+          </table>
+        </LastPlannerTableWrapper>
+      </DndContext>
     </>
   );
 };

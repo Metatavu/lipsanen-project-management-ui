@@ -31,6 +31,7 @@ function TasksIndexRoute() {
   const lastPlannerScrollRef = useRef<HTMLDivElement | null>(null);
 
   const [editMode, setEditMode] = useState(false);
+  const [dragMode, setDragMode] = useState(false);
 
   /**
    * Main component render
@@ -63,6 +64,8 @@ function TasksIndexRoute() {
           editMode={editMode}
           setEditMode={setEditMode}
           scrollContainerRef={lastPlannerScrollRef}
+          dragMode={dragMode}
+          setDragMode={setDragMode}
         />
       </ResizablePanel>
       <Outlet />
