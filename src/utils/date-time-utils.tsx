@@ -1,4 +1,4 @@
-import finnishholidays, { type Holiday } from "finnish-holidays-js";
+import finnishHolidays, { type Holiday } from "finnish-holidays-js";
 import { DateTime, type DateTimeUnit, Interval } from "luxon";
 
 /**
@@ -91,8 +91,7 @@ const isWeekend = (date: DateTime) => {
 
 const isSameDay = (a: DateTime, b: DateTime) => a.toISODate() === b.toISODate();
 
-const isHoliday = (date: DateTime, holidays: Date[]) =>
-  holidays.some((h) => isSameDay(date, DateTime.fromJSDate(h)));
+const isHoliday = (date: DateTime, holidays: Date[]) => holidays.some((h) => isSameDay(date, DateTime.fromJSDate(h)));
 
 /**
  * Add N business days (skipping weekends + holidays).
@@ -135,11 +134,7 @@ export const subtractBusinessDays = (end: DateTime, days: number, holidays: Date
  * Inclusive business-day difference between start and end (1 = same business day).
  * Used for determining estimated duration based on start and end dates.
  */
-export const businessDaysInclusive = (
-  start: DateTime,
-  end: DateTime,
-  holidays: Date[] = [],
-): number => {
+export const businessDaysInclusive = (start: DateTime, end: DateTime, holidays: Date[] = []): number => {
   if (end < start) return 0;
 
   let current = start.startOf("day");
@@ -169,7 +164,7 @@ export const getFinnishHolidaysForRange = (start: DateTime, end: DateTime): Date
   const holidays: Date[] = [];
 
   for (let year = startDay.year; year <= endDay.year; year++) {
-    const yearHolidays: Holiday[] = finnishholidays.year(year, false);
+    const yearHolidays: Holiday[] = finnishHolidays.year(year, false);
 
     for (const h of yearHolidays) {
       const dt = DateTime.fromObject({

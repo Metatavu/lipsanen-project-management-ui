@@ -151,7 +151,7 @@
     "errorCreatingTaskComment": "Virhe luotaessa uutta kommenttia tehtävään",
     "errorUpdatingTaskComment": "Virhe päivitettäessä tehtävän kommenttia",
     "errorDeletingTaskComment": "Virhe poistettaessa tehtävän kommenttia",
-    "errorListingChangeProposalTasksPreview": "Virhe haeessa muutosehdotuksen tehtävien esikatselua",
+    "errorListingChangeProposalTasksPreview": "Virhe haettaessa muutosehdotuksen tehtävien esikatselua",
     "taskBlockedByDependenciesTitle": "Tehtävää ei voi päivittää",
     "taskDependencyFinishToStart": "Tehtävä {{source}} täytyy tehdä valmiiksi ennen kuin tehtävä {{target}} voidaan aloittaa",
     "taskDependencyStartToStart": "Tehtävä {{source}} täytyy aloittaa ennen kuin tehtävä {{target}} voidaan aloittaa",
