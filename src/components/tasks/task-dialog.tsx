@@ -71,7 +71,13 @@ import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskConnectionRelationship, type TaskConnectionTableData, type TaskFormData } from "types";
 import { getLastPartFromMimeType } from "utils";
-import { differenceInDaysInclusive, getValidDateTimeOrThrow } from "utils/date-time-utils";
+import {
+  addBusinessDays,
+  businessDaysInclusive,
+  getFinnishHolidaysForRange,
+  getValidDateTimeOrThrow,
+  subtractBusinessDays,
+} from "utils/date-time-utils";
 import { useSetError } from "utils/error-handling";
 import { v4 as uuidv4 } from "uuid";
 import CommentsSection from "./comments-section";
@@ -181,6 +187,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     if (task) {
       const startDate = getValidDateTimeOrThrow(task.startDate);
       const endDate = getValidDateTimeOrThrow(task.endDate);
+      const holidays = startDate?.isValid && endDate?.isValid ? getFinnishHolidaysForRange(startDate, endDate) : [];
+
       setTaskData({
         name: task.name,
         milestoneId: milestoneId,
@@ -191,7 +199,8 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
         positionId: task.jobPositionId,
         dependentUserId: task.dependentUserId || null,
         userRole: task.userRole,
-        estimatedDuration: startDate?.isValid && endDate?.isValid ? differenceInDaysInclusive(startDate, endDate) : 0,
+        estimatedDuration:
+          startDate?.isValid && endDate?.isValid ? businessDaysInclusive(startDate, endDate, holidays) : 0,
         estimatedReadiness: task.estimatedReadiness,
       });
     } else {
@@ -560,33 +569,95 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
     };
 
   /**
-   * Handles task creation form date change
+   * Returns Finnish holidays for the relevant year range around given dates.
    *
-   * @param field string
-   * @param value date
+   * @param start start date
+   * @param end end date
    */
-  const handleDateFormChange = (field: keyof typeof taskData) => (value: DateTime<boolean> | null) => {
-    const updatedTask = { ...taskData, [field]: value };
-    const start = (updatedTask.startDate?.startOf("day") ?? null) as DateTime<true> | null;
-    const end = (updatedTask.endDate?.startOf("day") ?? null) as DateTime<true> | null;
+  const getHolidaysForRange = (start?: DateTime<boolean> | null, end?: DateTime<boolean> | null): Date[] => {
+    if (start && end) {
+      return getFinnishHolidaysForRange(start, end);
+    }
 
-    const newEstimatedDuration = start?.isValid && end?.isValid ? differenceInDaysInclusive(start, end) : 0;
+    // If only one date is given, look one year forward/backward for holidays (could increase if necessary)
+    if (start) {
+      return getFinnishHolidaysForRange(start, start.plus({ years: 1 }));
+    }
 
-    setTaskData({
-      ...updatedTask,
-      estimatedDuration: newEstimatedDuration,
-    });
+    if (end) {
+      return getFinnishHolidaysForRange(end.minus({ years: 1 }), end);
+    }
+
+    return [];
   };
 
   /**
-   * Handles estimated duration change and updates end date accordingly
-   * Note, tasks starting and ending on same day are considered to have a duration of 1 day.
+   * Handles task creation form date change.
    *
-   * @param event ChangeEvent<HTMLInputElement>
+   * Any 2 of (start, end, estimatedDuration) define the 3rd.
+   */
+  const handleDateFormChange = (field: "startDate" | "endDate") => (value: DateTime<boolean> | null) => {
+    const normalized = value ? value.startOf("day") : null;
+
+    const updatedTask: typeof taskData = {
+      ...taskData,
+      [field]: normalized ?? undefined,
+    };
+
+    const start = updatedTask.startDate;
+    const end = updatedTask.endDate;
+    const duration = updatedTask.estimatedDuration;
+
+    const hasValidStart = !!start?.isValid;
+    const hasValidEnd = !!end?.isValid;
+    const hasDuration = !!duration;
+
+    // Both dates set = calculate duration
+    if (hasValidStart && hasValidEnd) {
+      const holidays = getHolidaysForRange(start, end);
+      const newDuration = businessDaysInclusive(start, end, holidays);
+
+      setTaskData({
+        ...updatedTask,
+        estimatedDuration: newDuration,
+      });
+      return;
+    }
+
+    // Only start date and duration = calculate end date
+    if (hasValidStart && !hasValidEnd && hasDuration) {
+      const holidays = getHolidaysForRange(start, null);
+      const newEnd = addBusinessDays(start, duration - 1, holidays);
+
+      setTaskData({
+        ...updatedTask,
+        endDate: newEnd,
+      });
+      return;
+    }
+
+    // Only end date and duration = calculate start date
+    if (hasValidEnd && !hasValidStart && hasDuration) {
+      const holidays = getHolidaysForRange(null, end);
+      const newStart = subtractBusinessDays(end, duration - 1, holidays);
+
+      setTaskData({
+        ...updatedTask,
+        startDate: newStart,
+      });
+      return;
+    }
+
+    // Only one date set and no duration, just store the date change
+    setTaskData(updatedTask);
+  };
+
+  /**
+   * Handles estimated duration change and updates start/end dates accordingly.
+   * Business days only (skipping weekends + Finnish holidays).
    */
   const handleEstimatedDurationChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-
     const parsed = parseInt(value, 10);
     if (Number.isNaN(parsed)) {
       setTaskData({ ...taskData, estimatedDuration: 0 });
@@ -595,19 +666,43 @@ const TaskDialog = ({ projectId, milestoneId: milestoneIdFromProps, open, task, 
 
     const duration = Math.max(parsed, 1);
 
-    if (taskData.startDate?.isValid) {
-      const newEndDate = taskData.startDate.plus({ days: duration - 1 });
+    const updatedTask: typeof taskData = {
+      ...taskData,
+      estimatedDuration: duration,
+    };
+
+    const start = updatedTask.startDate;
+    const end = updatedTask.endDate;
+
+    const hasValidStart = !!start?.isValid;
+    const hasValidEnd = !!end?.isValid;
+
+    // Start date and duration = calculate end date
+    if (hasValidStart) {
+      const holidays = getHolidaysForRange(start, end ?? null);
+      const newEnd = addBusinessDays(start, duration - 1, holidays);
+
       setTaskData({
-        ...taskData,
-        estimatedDuration: duration,
-        endDate: newEndDate,
+        ...updatedTask,
+        endDate: newEnd,
       });
-    } else {
-      setTaskData({
-        ...taskData,
-        estimatedDuration: duration,
-      });
+      return;
     }
+
+    // Only end date and duration = calculate start date
+    if (hasValidEnd) {
+      const holidays = getHolidaysForRange(null, end);
+      const newStart = subtractBusinessDays(end, duration - 1, holidays);
+
+      setTaskData({
+        ...updatedTask,
+        startDate: newStart,
+      });
+      return;
+    }
+
+    // No dates, just store duration
+    setTaskData(updatedTask);
   };
 
   /**

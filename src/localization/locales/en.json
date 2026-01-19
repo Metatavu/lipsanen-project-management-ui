@@ -151,7 +151,11 @@
     "errorCreatingTaskComment": "Error while creating a new task comment",
     "errorUpdatingTaskComment": "Error while updating a task comment",
     "errorDeletingTaskComment": "Error while deleting a task comment",
-    "errorListingChangeProposalTasksPreview": "Error while fetching change proposal tasks preview list"
+    "errorListingChangeProposalTasksPreview": "Error while fetching change proposal tasks preview list",
+    "taskBlockedByDependenciesTitle": "Task can’t be updated",
+    "taskDependencyFinishToStart": "Task {{source}} must be finished before task {{target}} can be started",
+    "taskDependencyStartToStart": "Task {{source}} must be started before task {{target}} can be started",
+    "taskDependencyFinishToFinish": "Task {{source}} must be finished before task {{target}} can be finished"
   },
   "userInfoDialog": {
     "title": "User information",
@@ -455,9 +459,10 @@
   "lastPlannerView": {
     "title": "Last Planner",
     "user": "User",
-    "week": "Week",
+    "week": "W",
     "markTasks": "Mark tasks",
-    "noDependentUser": "No dependent user"
+    "noDependentUser": "No dependent user",
+    "dragTasks": "Drag tasks"
   },
   "taskStatuses": {
     "NOT_STARTED": "Not started",

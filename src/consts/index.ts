@@ -75,3 +75,7 @@ export const GANTT_MEASUREMENTS = {
     );
   },
 };
+
+export const TODAY_HIGHLIGHT_COLOR = "#FFF7A3";
+
+export const NON_WORKING_DAY_COLOR = "#F3F3F3";

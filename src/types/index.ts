@@ -247,3 +247,8 @@ export type MatchingUrlWithConfirmedState =
  * File to upload type that either has no matching URL or has a matching URL with confirmed state
  */
 export type FileToUpload = { file: File } & MatchingUrlWithConfirmedState;
+
+/**
+ * Type for task updating dependency errors
+ */
+export type DependencyErrorType = "FINISH_TO_START" | "START_TO_START" | "FINISH_TO_FINISH";
