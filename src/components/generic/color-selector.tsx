@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Popover, Button } from "@mui/material";
-import { ChromePicker } from "react-color";
 import CheckIcon from "@mui/icons-material/Check";
+import { Button, Popover } from "@mui/material";
+import type React from "react";
+import { useState } from "react";
+import { ChromePicker, type ColorResult } from "react-color";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -13,7 +14,7 @@ interface Props {
   onChange: (color: string) => void;
 }
 
-const PLACEHOLDER = "Placeholder"
+const PLACEHOLDER = "Placeholder";
 
 /**
  * Color selector component
@@ -27,7 +28,7 @@ const ColorSelector = ({ color, optionalLabel, onChange }: Props) => {
 
   /**
    * Handles click event
-   * 
+   *
    * @param event event
    */
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -43,10 +44,10 @@ const ColorSelector = ({ color, optionalLabel, onChange }: Props) => {
 
   /**
    * Handles color change event
-   * 
+   *
    * @param newColor new color
    */
-  const handleChangeComplete = (newColor: any) => {
+  const handleChangeComplete = (newColor: ColorResult) => {
     setCurrentColor(newColor.hex);
     onChange(newColor.hex);
   };
@@ -58,23 +59,23 @@ const ColorSelector = ({ color, optionalLabel, onChange }: Props) => {
     const size = 30;
     const factor = 0.7;
     const tickSize = size * factor;
-    const offset = size * (1 - factor) / 2;
-    
+    const offset = (size * (1 - factor)) / 2;
+
     return (
-    <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
-      <div
-        style={{
-          backgroundColor: currentColor,
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          marginRight: "10px",
-        }}
-      />
-      <CheckIcon
-        style={{ color: "#fff", position: "absolute", width: tickSize, height: tickSize, left: offset, top: offset }}
-      />
-    </div>
+      <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
+        <div
+          style={{
+            backgroundColor: currentColor,
+            width: size,
+            height: size,
+            borderRadius: "50%",
+            marginRight: "10px",
+          }}
+        />
+        <CheckIcon
+          style={{ color: "#fff", position: "absolute", width: tickSize, height: tickSize, left: offset, top: offset }}
+        />
+      </div>
     );
   };
 
@@ -82,10 +83,14 @@ const ColorSelector = ({ color, optionalLabel, onChange }: Props) => {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         {currentColor && renderSelectedColorCircleWithTick()}
         <div style={{ width: "80px" }}>
-          {optionalLabel ? <div style={{ fontSize: 9}}>{`${optionalLabel}`}</div> : <div style={{ visibility: 'hidden' }}>{PLACEHOLDER}</div>}
+          {optionalLabel ? (
+            <div style={{ fontSize: 9 }}>{`${optionalLabel}`}</div>
+          ) : (
+            <div style={{ visibility: "hidden" }}>{PLACEHOLDER}</div>
+          )}
         </div>
         <Button variant="contained" onClick={handleClick} style={{ width: "160px", height: "40px" }}>
           {t("colorSelector.otherColor")}

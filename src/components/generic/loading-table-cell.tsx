@@ -1,4 +1,4 @@
-import { Skeleton, TableCell, TableCellProps } from "@mui/material";
+import { Skeleton, TableCell, type TableCellProps } from "@mui/material";
 
 export type LoadingTableCellProps = TableCellProps & { loading?: boolean };
 

@@ -4,7 +4,7 @@ import { useFindUserQuery } from "hooks/api-queries";
 import { useAtom, useSetAtom } from "jotai";
 import Keycloak from "keycloak-js";
 import i18n from "localization/i18n";
-import { ReactNode, useCallback, useEffect } from "react";
+import { type ReactNode, useCallback, useEffect } from "react";
 import { useSetError } from "utils/error-handling";
 
 /**
@@ -86,12 +86,12 @@ const AuthenticationProvider = ({ children }: Props) => {
     } catch (error) {
       console.error(error);
     }
-  }, [clearAuthData, updateAuthData]);
+  }, [clearAuthData, updateAuthData, setError]);
 
   /**
    * Initializes authentication when component mounts
    */
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Fixing this might cause unexpected behavior
   useEffect(() => {
     if (keycloak.authenticated === undefined) initAuth();
   }, []);

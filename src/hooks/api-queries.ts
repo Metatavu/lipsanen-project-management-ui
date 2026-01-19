@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { filesApi } from "api/files";
-import {
+import type {
   Company,
   FindAttachmentRequest,
   FindProjectMilestoneRequest,
@@ -22,7 +22,7 @@ import {
   User,
 } from "generated/client";
 import { useTranslation } from "react-i18next";
-import { WithMaxResults } from "types";
+import type { WithMaxResults } from "types";
 import { useSetError } from "utils/error-handling";
 import { useApi } from "./use-api";
 
@@ -47,7 +47,7 @@ export const useListCompaniesQuery = (params: ListCompaniesRequest = {}) => {
         const [companies, headers] = await companiesApi.listCompaniesWithHeaders(params);
         return {
           companies: companies,
-          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0", 10),
         };
       } catch (error) {
         setError(t("errorHandling.errorListingCompanies"), error instanceof Error ? error : undefined);
@@ -80,7 +80,7 @@ export const useListUsersQuery = (
         const [users, headers] = await usersApi.listUsersWithHeaders(params);
         return {
           users: users,
-          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0", 10),
         };
       } catch (error) {
         setError(t("errorHandling.errorListingUsers"), error instanceof Error ? error : undefined);
@@ -172,7 +172,7 @@ export const useListProjectsQuery = (params: ListProjectsRequest = {}) => {
 
         return {
           projects: projects,
-          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0", 10),
         };
       } catch (error) {
         setError(t("errorHandling.errorListingProjects"), error instanceof Error ? error : undefined);
@@ -518,7 +518,7 @@ export const useListJobPositionsQuery = (params: ListJobPositionsRequest = {}) =
         const [jobPositions, headers] = await jobPositionsApi.listJobPositionsWithHeaders(params);
         return {
           jobPositions: jobPositions,
-          maxResults: parseInt(headers.get("X-Total-Count") ?? "0"),
+          maxResults: parseInt(headers.get("X-Total-Count") ?? "0", 10),
         };
       } catch (error) {
         setError(t("errorHandling.errorListingJobPositions"), error instanceof Error ? error : undefined);

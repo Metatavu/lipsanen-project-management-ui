@@ -2,8 +2,8 @@ import { MenuItem, TextField } from "@mui/material";
 import { NO_SELECTION } from "consts";
 import { useListCompaniesQuery, useListJobPositionsQuery, useListProjectsQuery } from "hooks/api-queries";
 import { useTranslation } from "react-i18next";
-import { UsersSearchSchema } from "schemas/search";
-import { FormFieldChangeHandler } from "types";
+import type { UsersSearchSchema } from "schemas/search";
+import type { FormFieldChangeHandler } from "types";
 
 /**
  * Component properties

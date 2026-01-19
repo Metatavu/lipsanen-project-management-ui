@@ -1,6 +1,8 @@
-import { Slider, Box } from "@mui/material";
-import { ViewMode } from "../../../lipsanen-project-management-gantt-chart/src/types/public-types";
+import { Box, Slider } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { ViewMode } from "../../../lipsanen-project-management-gantt-chart/src/types/public-types";
+
+const sliderViewModes = [ViewMode.Month, ViewMode.Week, ViewMode.Day];
 
 /**
  * Component properties
@@ -17,18 +19,8 @@ const GanttViewModesSlider = ({ viewMode, onViewModeChange }: Props) => {
   const { t } = useTranslation();
 
   /**
-   * Marks for the slider
-   */
-  const sliderMarks = [
-    { value: 0, label: t("scheduleScreen.labelMonth") },
-    { value: 1, label: t("scheduleScreen.labelWeek") },
-    { value: 2, label: t("scheduleScreen.labelDay") },
-  ];
-
-  /**
    * View modes for the slider
    */
-  const sliderViewModes = [ViewMode.Month, ViewMode.Week, ViewMode.Day];
 
   /**
    * Handles the view mode change
@@ -36,25 +28,31 @@ const GanttViewModesSlider = ({ viewMode, onViewModeChange }: Props) => {
    * @param event event
    * @param newValue new value
    */
-  const handleViewModeChange = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === "number") {
-      onViewModeChange(sliderViewModes[newValue]);
-    }
+  const handleViewModeChange = (_event: Event, newValue: number | number[]) => {
+    if (typeof newValue === "number") onViewModeChange(sliderViewModes[newValue]);
   };
 
   /**
    * Main component render
    */
   return (
-    <Box sx={{ width: "120px", marginInline: "2rem", marginTop: "1rem" }}>
+    <Box width={160} px={2}>
       <Slider
         defaultValue={sliderViewModes.indexOf(viewMode)}
         aria-labelledby="view-mode-slider"
         valueLabelDisplay="off"
+        marks={[
+          { value: 0, label: t("scheduleScreen.labelMonth") },
+          { value: 1, label: t("scheduleScreen.labelWeek") },
+          { value: 2, label: t("scheduleScreen.labelDay") },
+        ]}
         step={1}
-        marks={sliderMarks}
         min={0}
         max={2}
+        slotProps={{
+          root: { style: { marginBottom: 16, marginTop: 8 } },
+          markLabel: { style: { fontSize: 14, top: 24 } },
+        }}
         onChange={handleViewModeChange}
       />
     </Box>

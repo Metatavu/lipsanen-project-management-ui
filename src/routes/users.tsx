@@ -1,6 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Card, Toolbar, Typography } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridPaginationModel, gridClasses } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, type GridPaginationModel, gridClasses } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import FilterDrawerButton from "components/generic/filter-drawer";
@@ -10,7 +10,7 @@ import NewUserDialog from "components/users/new-user-dialog";
 import UsersFiltersForm from "components/users/user-filters-form";
 import UserInfoDialog from "components/users/user-info-dialog";
 import { DEFAULT_USER_ICON } from "consts";
-import { DeleteUserRequest, User } from "generated/client";
+import type { DeleteUserRequest, User } from "generated/client";
 import {
   useListCompaniesQuery,
   useListJobPositionsQuery,
@@ -24,7 +24,7 @@ import { DateTime } from "luxon";
 import { useConfirmDialog } from "providers/confirm-dialog-provider";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { UsersSearchSchema, usersSearchSchema } from "schemas/search";
+import { type UsersSearchSchema, usersSearchSchema } from "schemas/search";
 import { theme } from "theme";
 import { useSetError } from "utils/error-handling";
 
@@ -166,6 +166,7 @@ function UsersIndexRoute() {
               type: "actions",
               getActions: (params) => [
                 <GridActionsCellItem
+                  key="delete"
                   label={t("generic.delete")}
                   icon={<DeleteIcon color="error" />}
                   showInMenu

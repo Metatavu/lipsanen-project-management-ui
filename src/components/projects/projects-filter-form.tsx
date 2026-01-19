@@ -2,8 +2,8 @@ import { MenuItem, TextField } from "@mui/material";
 import { NO_SELECTION } from "consts";
 import { ProjectStatus } from "generated/client";
 import { useTranslation } from "react-i18next";
-import { ProjectsSearchSchema } from "schemas/search";
-import { FormFieldChangeHandler } from "types";
+import type { ProjectsSearchSchema } from "schemas/search";
+import type { FormFieldChangeHandler } from "types";
 
 /**
  * Component properties

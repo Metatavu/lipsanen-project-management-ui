@@ -17,8 +17,8 @@ import sunSnowflakeVariant from "@iconify-icons/mdi/sun-snowflake-variant";
 import terrain from "@iconify-icons/mdi/terrain";
 import water from "@iconify-icons/mdi/water";
 import config from "app/config";
-import { DateTimeFormatOptions } from "luxon";
-import { IconOption } from "types";
+import type { DateTimeFormatOptions } from "luxon";
+import type { IconOption } from "types";
 
 export const DEFAULT_LOGO = `${config.cdnBaseUrl}/logos/Lipsanen logo.png`;
 
@@ -54,3 +54,28 @@ export const DATE_WITH_LEADING_ZEROS: DateTimeFormatOptions = {
   month: "2-digit",
   year: "numeric",
 } as const;
+
+export const GANTT_MEASUREMENTS = {
+  cardHeaderHeight: 60,
+  headerHeight: 48,
+  rowHeight: 64,
+  horizontalScrollbarHeight: 20,
+  objectiveCellWidth: 300,
+  durationCellWidth: 80,
+  startCellWidth: 125,
+  readyCellWidth: 125,
+  readinessCellWidth: 120,
+  get taskListWidth() {
+    return (
+      this.objectiveCellWidth +
+      this.durationCellWidth +
+      this.startCellWidth +
+      this.readyCellWidth +
+      this.readinessCellWidth
+    );
+  },
+};
+
+export const TODAY_HIGHLIGHT_COLOR = "#FFF7A3";
+
+export const NON_WORKING_DAY_COLOR = "#F3F3F3";

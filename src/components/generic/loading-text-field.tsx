@@ -1,4 +1,4 @@
-import { CircularProgress, TextField, TextFieldProps } from "@mui/material";
+import { CircularProgress, TextField, type TextFieldProps } from "@mui/material";
 
 export type LoadingTextFieldProps = TextFieldProps & { loading?: boolean };
 

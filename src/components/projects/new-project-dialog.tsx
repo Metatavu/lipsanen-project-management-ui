@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateProjectRequest, ProjectStatus } from "generated/client";
+import { type CreateProjectRequest, ProjectStatus } from "generated/client";
 import { useApi } from "hooks/use-api";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -77,8 +77,6 @@ const NewProjectDialog = () => {
           <DialogActions sx={{ justifyContent: "center" }}>
             <TextField
               fullWidth
-              id="project-name"
-              name="name"
               label={t("projectName")}
               placeholder={t("newProjectDialog.enterProjectName")}
               variant="outlined"

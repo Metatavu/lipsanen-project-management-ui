@@ -1,5 +1,5 @@
 import { Chip } from "@mui/material";
-import { TaskStatus } from "generated/client";
+import type { TaskStatus } from "generated/client";
 import { Translation } from "react-i18next";
 import { TaskStatusColor } from "types";
 

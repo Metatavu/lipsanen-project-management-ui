@@ -15,7 +15,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CreatableSelect from "components/generic/creatable-select";
 import GenericSelect from "components/generic/generic-select";
-import { Company, CreateCompanyRequest, CreateUserRequest, JobPosition, Project } from "generated/client";
+import type { Company, CreateCompanyRequest, CreateUserRequest, JobPosition, Project } from "generated/client";
 import {
   useListCompaniesQuery,
   useListJobPositionsQuery,

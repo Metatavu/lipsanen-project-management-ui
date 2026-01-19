@@ -1,5 +1,5 @@
-import { Icon, IconifyIcon } from "@iconify/react";
-import { ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Icon, type IconifyIcon } from "@iconify/react";
+import { ListItemIcon, ListItemText, MenuItem, Select, type SelectChangeEvent } from "@mui/material";
 import { ICON_OPTIONS } from "consts";
 import { useTranslation } from "react-i18next";
 
@@ -29,7 +29,7 @@ const IconSelector = ({ icon, onChange }: Props) => {
         if (!selected) {
           return t("iconSelector.selectIcon");
         }
-        
+
         const selectedItem = ICON_OPTIONS.find((option) => option.value === selected);
         if (!selectedItem) {
           return null;
@@ -46,7 +46,7 @@ const IconSelector = ({ icon, onChange }: Props) => {
         return (
           <div style={{ display: "flex", alignItems: "center" }}>
             <Icon icon={icon} />
-            <span style={{ marginLeft: 8 }}> { label || "" } </span>
+            <span style={{ marginLeft: 8 }}> {label || ""} </span>
           </div>
         );
       }}
@@ -60,11 +60,11 @@ const IconSelector = ({ icon, onChange }: Props) => {
           <ListItemIcon>
             <Icon icon={option.icon as IconifyIcon} />
           </ListItemIcon>
-          <ListItemText>              
-              { 
-                // biome-ignore lint: dynamic translation
-                t(`iconSelector.iconNames.${option.labelKey}` as any)
-              }
+          <ListItemText>
+            {
+              // biome-ignore lint: dynamic translation
+              t(`iconSelector.iconNames.${option.labelKey}` as any)
+            }
           </ListItemText>
         </MenuItem>
       ))}

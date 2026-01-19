@@ -3,25 +3,28 @@ import { useCallback, useEffect, useState } from "react";
 /**
  * Properties for the useResizableHeight hook
  */
-type UseResizeElementHeightWithMouseProps = {
-  containerRef?: React.RefObject<HTMLElement>;
-  initialHeight?: number;
-  handleOffset?: number;
+type UseResizableHeightProps = {
+  containerElement?: HTMLElement;
+  initialHeight: number;
+  handleOffset: number;
+  minHeight: number;
 };
 
 /**
  * Hook for resizing an element's height with the mouse
  *
  * @param props hook properties
- * @param props.containerRef reference to the container element
+ * @param props.containerElement container element
  * @param props.initialHeight initial height of the element
  * @param props.handleOffset offset from the top of the element to the center of the drag handle
+ * @param props.minHeight minimum height of the element
  */
 export const useResizableHeight = ({
-  containerRef,
-  initialHeight = 0,
-  handleOffset = 0,
-}: UseResizeElementHeightWithMouseProps | undefined = {}) => {
+  containerElement = document.body,
+  initialHeight,
+  handleOffset,
+  minHeight,
+}: UseResizableHeightProps) => {
   const [height, setHeight] = useState(initialHeight);
 
   /**
@@ -29,10 +32,9 @@ export const useResizableHeight = ({
    */
   const constrainHeight = useCallback(
     (newHeight: number) => {
-      const containerElement = containerRef?.current || document.body;
-      return Math.min(containerElement.offsetHeight, Math.max(handleOffset * 2, newHeight));
+      return Math.min(containerElement.offsetHeight, Math.max(minHeight, newHeight));
     },
-    [containerRef?.current, handleOffset],
+    [containerElement, minHeight],
   );
 
   useEffect(() => {
@@ -60,11 +62,10 @@ export const useResizableHeight = ({
    */
   const handleMouseMove = useCallback(
     (e: globalThis.MouseEvent) => {
-      const containerElement = containerRef?.current || document.body;
       const newHeight = containerElement.offsetHeight - e.clientY + containerElement.offsetTop + handleOffset;
       setHeight(constrainHeight(newHeight));
     },
-    [containerRef, handleOffset, constrainHeight],
+    [containerElement, handleOffset, constrainHeight],
   );
 
   return { height, onMouseDown };

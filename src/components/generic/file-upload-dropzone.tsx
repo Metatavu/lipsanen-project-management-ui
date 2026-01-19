@@ -1,4 +1,4 @@
-import { Chip, alpha, styled } from "@mui/material";
+import { alpha, Chip, styled } from "@mui/material";
 import { t } from "i18next";
 import { DropzoneArea } from "mui-file-dropzone";
 

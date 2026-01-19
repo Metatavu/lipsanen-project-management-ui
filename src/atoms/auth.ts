@@ -1,6 +1,6 @@
-import { User } from "generated/client";
+import type { User } from "generated/client";
 import { atom } from "jotai";
-import { KeycloakProfile, KeycloakTokenParsed } from "keycloak-js";
+import type { KeycloakProfile, KeycloakTokenParsed } from "keycloak-js";
 
 /**
  * Add custom properties to the KeycloakTokenParsed interface

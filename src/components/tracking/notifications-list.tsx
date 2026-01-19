@@ -1,17 +1,18 @@
+import { Circle, Clear } from "@mui/icons-material";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
-import { Box, Card, LinearProgress, Tooltip, Typography } from "@mui/material";
+import { Box, Breadcrumbs, Card, Divider, IconButton, LinearProgress, Stack, Tooltip, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authAtom } from "atoms/auth";
+import { RouterLink } from "components/generic/router-link";
 import {
-  ChangeProposalCreatedNotificationData,
-  ChangeProposalStatusChangedNotificationData,
-  CommentLeftNotificationData,
-  NotificationEvent,
+  type ChangeProposalCreatedNotificationData,
+  type ChangeProposalStatusChangedNotificationData,
+  type CommentLeftNotificationData,
+  type NotificationEvent,
   NotificationType,
-  Task,
-  TaskAssignedNotificationData,
-  TaskStatusChangesNotificationData,
-  UpdateNotificationEventRequest,
+  type TaskAssignedNotificationData,
+  type TaskStatusChangesNotificationData,
+  type UpdateNotificationEventRequest,
 } from "generated/client";
 import { useFindUserQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
@@ -23,10 +24,10 @@ import { useSetError } from "utils/error-handling";
  * Component props
  */
 interface Props {
-  tasks: Task[];
   notificationEvents: NotificationEvent[];
   loading: boolean;
   appbarView?: boolean;
+  projectId?: string;
 }
 /**
  * Notification data type
@@ -43,7 +44,7 @@ type NotificationDataType =
  *
  * @param props props
  */
-const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: Props) => {
+const NotificationsList = ({ projectId, notificationEvents, loading }: Props) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { NotificationEventsApi } = useApi();
@@ -208,51 +209,60 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
           marginBottom: "1rem",
           overflow: "hidden",
         }}
+        variant="outlined"
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0.5rem 0.5rem",
-            backgroundColor: "#f5f9ff",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" p={1} bgcolor="#f5f9ff">
+          <Box display="flex" alignItems="center">
             <AssignmentOutlinedIcon sx={{ marginRight: "0.5rem" }} />
-            <Typography variant="body2" fontWeight="normal">
-              {tasks.find((task) => task.id === typedNotification.taskId)?.name ?? t("trackingScreen.tasksList.task")}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {!notificationEvent.read && (
-              <Tooltip
-                title={t("trackingScreen.notificationsList.markRead")}
-                onClick={() => onNotificationEventRead(notificationEvent)}
+            <Breadcrumbs>
+              {!projectId && (
+                <RouterLink to="/projects/$projectId/tracking" params={{ projectId: typedNotification.projectId }}>
+                  <Typography variant="body2" color="textSecondary">
+                    {typedNotification.projectName}
+                  </Typography>
+                </RouterLink>
+              )}
+              <RouterLink
+                to="/projects/$projectId/schedule/$milestoneId/tasks"
+                params={{ projectId: typedNotification.projectId, milestoneId: typedNotification.milestoneId }}
               >
-                <Box
-                  sx={{
-                    width: "10px",
-                    height: "10px",
-                    borderRadius: "50%",
-                    backgroundColor: "#3f51b5",
-                    marginRight: "0.5rem",
-                  }}
-                />
+                <Typography variant="body2" color="textSecondary">
+                  {typedNotification.milestoneName}
+                </Typography>
+              </RouterLink>
+              <RouterLink
+                to="/projects/$projectId/tasks/$taskId"
+                params={{ projectId: typedNotification.projectId, taskId: typedNotification.taskId }}
+              >
+                <Typography variant="body2" color="textSecondary">
+                  {typedNotification.taskName}
+                </Typography>
+              </RouterLink>
+            </Breadcrumbs>
+          </Box>
+          <Box display="flex" alignItems="center" gap={0.25}>
+            {!notificationEvent.read && (
+              <Tooltip title={t("trackingScreen.notificationsList.markRead")}>
+                <IconButton size="small" sx={{ p: 0.75 }} onClick={() => onNotificationEventRead(notificationEvent)}>
+                  <Circle sx={{ color: "#3f51b5", width: "12px", height: "12px" }} />
+                </IconButton>
               </Tooltip>
             )}
             <Tooltip
               title={t("trackingScreen.notificationsList.delete")}
               onClick={() => notificationEvent.id && deleteNotificationEvent.mutate(notificationEvent.id)}
             >
-              <Box sx={{ cursor: "pointer" }}>
-                <Typography variant="h6">×</Typography>
-              </Box>
+              <IconButton
+                size="small"
+                onClick={() => notificationEvent.id && deleteNotificationEvent.mutate(notificationEvent.id)}
+              >
+                <Clear sx={{ width: "1rem", height: "1rem" }} />
+              </IconButton>
             </Tooltip>
           </Box>
         </Box>
-        <Box sx={{ padding: "1rem" }}>
-          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: "0.5rem" }}>
+        <Box p={2}>
+          <Typography variant="body2" color="textPrimary" mb={1}>
             {renderNotificationMessage(notificationEvent)}
           </Typography>
           <Typography variant="body2" color="textSecondary">
@@ -279,49 +289,24 @@ const NotificationsList = ({ tasks, notificationEvents, loading, appbarView }: P
    * Main component render
    */
   return (
-    <>
-      <Typography
-        component="h2"
-        variant="h6"
-        sx={{
-          padding: 0,
-          paddingBottom: appbarView ? "0.5rem" : "1rem",
-          borderBottom: "1px solid #e0e0e0",
-          position: appbarView ? "absolute" : "relative",
-          top: appbarView ? "0.5rem" : 0,
-          width: "100%",
-        }}
-      >
+    <Box p={1}>
+      <Typography component="h2" variant="h6">
         {t("trackingScreen.notificationsList.title")}
       </Typography>
-      <Box>
-        {Object.keys(groupedNotifications).map((date) => (
-          <Box key={date} sx={{ position: "relative", marginBottom: "2rem" }}>
-            {/* Vertical line */}
-            {!appbarView && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  left: "1rem",
-                  top: "2rem",
-                  height: "100%",
-                  width: "1px",
-                  backgroundColor: "black",
-                }}
-              />
-            )}
+      <Divider variant="fullWidth" sx={{ my: 1 }} />
+      {Object.keys(groupedNotifications).map((date) => (
+        <Box key={date} position="relative">
+          {/* Vertical line */}
+          <Box position="absolute" left="1rem" top="2rem" height="calc(100% - 2rem)" width="1px" bgcolor="black" />
 
-            {/* Notification group */}
-            <Box key={date} sx={{ position: "relative" }}>
-              <Typography variant="h6" sx={{ marginTop: appbarView ? "3rem" : 0, marginBottom: "1rem" }}>
-                {date}
-              </Typography>
-              {groupedNotifications[date].map(renderNotificationCard)}
-            </Box>
-          </Box>
-        ))}
-      </Box>
-    </>
+          {/* Notification group */}
+          <Stack position="relative" spacing={2}>
+            <Typography variant="h6">{date}</Typography>
+            {groupedNotifications[date].map(renderNotificationCard)}
+          </Stack>
+        </Box>
+      ))}
+    </Box>
   );
 };
 

@@ -2,15 +2,15 @@ import ConstructionIcon from "@mui/icons-material/Construction";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Card, Chip, Toolbar, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import { DataGrid, GridActionsCellItem, GridPaginationModel } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, type GridPaginationModel } from "@mui/x-data-grid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import FilterDrawerButton from "components/generic/filter-drawer";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
 import NewProjectDialog from "components/projects/new-project-dialog";
 import ProjectsFilterForm from "components/projects/projects-filter-form";
 import { DATE_WITH_LEADING_ZEROS } from "consts";
-import { DeleteProjectRequest, Project } from "generated/client";
+import type { DeleteProjectRequest, Project } from "generated/client";
 import { useListProjectsQuery } from "hooks/api-queries";
 import { useApi } from "hooks/use-api";
 import { useCachedMaxResultsFromQuery } from "hooks/use-cached-max-results";
@@ -147,6 +147,7 @@ function ProjectsIndexRoute() {
               type: "actions",
               getActions: (params) => [
                 <GridActionsCellItem
+                  key="delete"
                   label={t("generic.delete")}
                   icon={<DeleteIcon color="error" />}
                   showInMenu
