@@ -122,7 +122,9 @@ function MilestoneTasksListRoute() {
     [cardHeight],
   );
 
-  const changeProposalTasksPreviewListQuery = useListTasksQuery({ changeProposalId: selectedChangeProposalId });
+  const changeProposalTasksPreviewListQuery = useListTasksQuery(
+    selectedChangeProposalId ? { changeProposalId: selectedChangeProposalId } : {},
+  );
   const changeProposalTasksPreviewList = useMemo(
     () => changeProposalTasksPreviewListQuery.data,
     [changeProposalTasksPreviewListQuery.data],
@@ -202,7 +204,7 @@ function MilestoneTasksListRoute() {
    * @param changeProposalId change proposal id
    */
   const onChangeProposalSelect = (changeProposalId: string | undefined) => {
-    setSelectedChangeProposalId((prevId) => (prevId === changeProposalId ? "" : changeProposalId));
+    setSelectedChangeProposalId((prevId) => (prevId === changeProposalId ? undefined : changeProposalId));
   };
 
   /**
