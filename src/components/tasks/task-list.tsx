@@ -132,6 +132,29 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
             return content;
           }
 
+          if (onTaskClick && readOnly) {
+            return (
+              <Box
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTaskClick(task);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onTaskClick(task);
+                  }
+                }}
+                sx={{ color: "inherit", cursor: "pointer" }}
+              >
+                {content}
+              </Box>
+            );
+          }
+
           return (
             <RouterLink
               to="/projects/$projectId/tasks/$taskId"
@@ -173,7 +196,7 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
         renderCell: (params) => <ProgressBadge progress={params.value ?? 0} width="120px" />,
       },
     ],
-    [jobPositions, milestoneNameMap, t, user, users, projectId],
+    [jobPositions, milestoneNameMap, t, user, users, projectId, onTaskClick, readOnly],
   );
 
   if (
@@ -189,7 +212,10 @@ const TaskList = ({ user, projectId, readOnly, onTaskClick, filters }: Props) =>
   return (
     <DataGrid<Task>
       rows={tasks}
-      onRowClick={(params) => params.row && onTaskClick?.(params.row as Task)}
+      onRowClick={(params) => {
+        if (readOnly) return;
+        params.row && onTaskClick?.(params.row as Task);
+      }}
       sx={{ flex: 1, [`& .${gridClasses.row}`]: { cursor: readOnly ? "default" : "pointer" } }}
       disableColumnFilter
       disableColumnMenu
