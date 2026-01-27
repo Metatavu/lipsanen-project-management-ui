@@ -2,9 +2,11 @@ import { Box, Card, Stack, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { authAtom } from "atoms/auth";
 import { FlexColumnLayout } from "components/generic/flex-column-layout";
+import TaskDialog from "components/tasks/task-dialog";
 import TaskList from "components/tasks/task-list";
 import DelaysList from "components/tracking/delays-list";
 import NotificationsList from "components/tracking/notifications-list";
+import type { Task } from "generated/client";
 import {
   useFindProjectQuery,
   useFindUserQuery,
@@ -15,7 +17,7 @@ import {
   useListUsersQuery,
 } from "hooks/api-queries";
 import { useAtom } from "jotai";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -32,6 +34,9 @@ function TrackingIndexRoute() {
   const [auth] = useAtom(authAtom);
   const { projectId } = Route.useParams();
   const { t } = useTranslation();
+
+  const [open, setOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const findUserQuery = useFindUserQuery({ userId: auth?.token.sub });
   const user = findUserQuery.data;
@@ -53,6 +58,16 @@ function TrackingIndexRoute() {
 
   const findProjectQuery = useFindProjectQuery(projectId);
   const project = useMemo(() => findProjectQuery.data, [findProjectQuery.data]);
+
+  const onTaskSelect = (task: Task) => {
+    setSelectedTask(task);
+    setOpen(true);
+  };
+
+  const onTaskClose = () => {
+    setSelectedTask(null);
+    setOpen(false);
+  };
 
   return (
     <FlexColumnLayout>
@@ -81,7 +96,7 @@ function TrackingIndexRoute() {
               <Typography component="h2" variant="h6" mb={2}>
                 {t("trackingScreen.tasksList.title")}
               </Typography>
-              <TaskList projectId={projectId} user={user} readOnly />
+              <TaskList projectId={projectId} user={user} readOnly onTaskClick={onTaskSelect} />
             </Stack>
           </Card>
           {/* Delays Column */}
@@ -98,6 +113,13 @@ function TrackingIndexRoute() {
           </Card>
         </Box>
       </Box>
+      <TaskDialog
+        projectId={projectId}
+        open={open}
+        task={selectedTask ?? undefined}
+        onClose={onTaskClose}
+        changeProposals={changeProposals}
+      />
     </FlexColumnLayout>
   );
 }
