@@ -21,12 +21,7 @@ import {
 } from "@mui/material";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import NotificationsList from "components/tracking/notifications-list";
-import {
-  useFindUserQuery,
-  useListNotificationEventsQuery,
-  useListProjectThemesQuery,
-  useListTasksQuery,
-} from "hooks/api-queries";
+import { useFindUserQuery, useListNotificationEventsQuery, useListProjectThemesQuery } from "hooks/api-queries";
 import { useAtom } from "jotai";
 import { bindMenu, bindPopover, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useMemo } from "react";
@@ -63,8 +58,6 @@ const TopNavigation = () => {
     10_000,
   );
   const notificationEvents = useMemo(() => listNotificationEventsQuery.data ?? [], [listNotificationEventsQuery.data]);
-
-  const listTasksQuery = useListTasksQuery({});
 
   const unreadNotificationEventsCount = useMemo(
     () => (listNotificationEventsQuery.data ?? []).length,
@@ -190,7 +183,7 @@ const TopNavigation = () => {
           >
             <NotificationsList
               notificationEvents={notificationEvents}
-              loading={listTasksQuery.isLoading || listNotificationEventsQuery.isLoading}
+              loading={listNotificationEventsQuery.isLoading}
               appbarView
             />
           </Popover>
